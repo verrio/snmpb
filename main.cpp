@@ -6,13 +6,14 @@ int main( int argc, char ** argv )
 {
     QApplication a( argc, argv );
     MainW w;
-    MibModule modules;
+    MibModule modules(w.AvailableModules, w.LoadedModules, 
+		         w.AddButton, w.RemoveButton);
     
     w.show();
     a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
     
     w.PopulateTree();
-    modules.Load(&w);
+    modules.Load();
     
     return a.exec();
 }
