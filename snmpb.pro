@@ -38,5 +38,5 @@ IMAGES	= images/filenew \
 	images/snmpb.png
 TEMPLATE	=app
 CONFIG	+= qt warn_on release
-LIBS	+= -lsmi
+LIBS	+= -lsmi -L. -lsnmp++ -lcrypto
 LANGUAGE	= C++
