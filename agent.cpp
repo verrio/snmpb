@@ -481,7 +481,7 @@ void Agent::AsyncCallbackTrap(int reason, Pdu &pdu, SnmpTarget &target)
             /* Unknown OID */
             printf("Oid: %s\nValue: %s\n", 
                     vb.get_printable_oid(), vb.get_printable_value());
-        }      
+        }
     }
   
     // If its a inform, we have to reply ...

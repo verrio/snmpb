@@ -107,6 +107,16 @@ MibModule::MibModule(MibView* MT, QTextEdit *MI, QListView *AM, QListView *LM)
              this, SLOT( ShowModuleInfo() ) );
     connect( this, SIGNAL(ModuleProperties(const QString&)),
              (QObject*)ModuleInfo, SLOT(setText(const QString&)) );
+    
+    // Read configuration file for libsmi and add modules to wanted list
+    QString snmpbrc = QDir::homeDirPath() + "/.snmpbrc";
+    if(!smiReadConfig(snmpbrc, NULL))
+    {
+        for(SmiModule *mod = smiGetFirstModule(); 
+            mod; mod = smiGetNextModule(mod))
+            Wanted.append(mod->name);
+        Refresh();
+    }
 }
 
 void MibModule::ShowModuleInfo(void)
