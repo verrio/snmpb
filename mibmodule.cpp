@@ -16,7 +16,7 @@ LoadedMibModule::LoadedMibModule(SmiModule* mod)
 void LoadedMibModule::PrintProperties(QString& text)
 {
     // Create a table and add elements ...
-    text = QString("<table border=\"2\" cellpadding=\"0\" cellspacing=\"0\" align=\"left\">");  
+    text = QString("<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\" align=\"left\">");  
     
     // Add the name
     text += QString("<tr><td><b>Name:</b></td><td><font color=#009000><b>%1</b></font></td>").arg(module->name);

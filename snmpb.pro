@@ -34,7 +34,8 @@ IMAGES	= images/filenew \
 	images/notification.png \
 	images/scalar.png \
 	images/collapse.png \
-	images/expand.png
+	images/expand.png \
+	images/snmpb.png
 TEMPLATE	=app
 CONFIG	+= qt warn_on release
 LIBS	+= -lsmi

@@ -62,8 +62,6 @@ char *MibNode::GetAccess(void)
 {
     switch (Node->access)
     {
-    case SMI_ACCESS_UNKNOWN:
-        return "unknown";
     case SMI_ACCESS_NOT_ACCESSIBLE:
         return "not-accessible";
     case SMI_ACCESS_NOTIFY:
@@ -73,10 +71,14 @@ char *MibNode::GetAccess(void)
     case SMI_ACCESS_READ_WRITE:
         return "read-write";
     case SMI_ACCESS_INSTALL:
+        return "install";
     case SMI_ACCESS_INSTALL_NOTIFY:
+        return "install-notify";
     case SMI_ACCESS_REPORT_ONLY:
+        return "report-only";
+    case SMI_ACCESS_UNKNOWN:
     case SMI_ACCESS_NOT_IMPLEMENTED:
-        return "---";
+        break;
     }
 	
     return "";
@@ -86,8 +88,6 @@ char *MibNode::GetStatus(void)
 {
     switch (Node->status)
     {
-    case SMI_STATUS_UNKNOWN:
-        return "unknown";
     case SMI_STATUS_CURRENT:
         return "current";
     case SMI_STATUS_DEPRECATED:
@@ -98,6 +98,8 @@ char *MibNode::GetStatus(void)
         return "optional";
     case SMI_STATUS_OBSOLETE:
         return "<font color=red>obsolete</font>";
+    case SMI_STATUS_UNKNOWN:
+        break;
     }
 
     return "";
@@ -129,7 +131,7 @@ void MibNode::PrintProperties(QString& text)
 	   return;
        
        // Create a table and add elements ...
-       text = QString("<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" align=\"left\">");  
+       text = QString("<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\" align=\"left\">");  
        
        // Add the name
        text += QString("<tr><td><b>Name:</b></td><td><font color=#009000><b>%1</b></font></td>").arg(Node->name);
@@ -178,4 +180,50 @@ void MibNode::PrintProperties(QString& text)
             case SMI_INDEX_UNKNOWN:
                 break;
             }
+            
+       SmiModule *smiGetNodeModule(SmiNode *smiNodePtr);
+       SmiType *smiGetNodeType(SmiNode *smiNodePtr);
+       int smiGetNodeLine(SmiNode *smiNodePtr);
+       SmiElement *smiGetFirstElement(SmiNode *smiNodePtr);
+       SmiElement *smiGetNextElement(SmiElement *smiElementPtr);
+       SmiNode *smiGetElementNode(SmiElement *smiElementPtr);
+       SmiOption *smiGetFirstOption(SmiNode *smiComplianceNodePtr);
+       SmiOption *smiGetNextOption(SmiOption *smiOptionPtr);
+       SmiNode *smiGetOptionNode(SmiOption *smiOptionPtr);
+       SmiRefinement *smiGetFirstRefinement(SmiNode *smiComplianceNodePtr);
+       SmiRefinement *smiGetNextRefinement(SmiRefinement *smiRefinementPtr);
+       SmiNode *smiGetRefinementNode(SmiRefinement *smiRefinementPtr);
+       SmiType *smiGetRefinementType(SmiRefinement *smiRefinementPtr);
+       SmiType *smiGetRefinementWriteType(SmiRefinement *smiRefinementPtr);
+
+       typedef struct SmiNode {
+           SmiIdentifier       name;
+           int                 oidlen;
+           SmiSubid            *oid; 
+           SmiDecl             decl;
+           SmiAccess           access;
+           SmiStatus           status;
+           char                *format;
+           SmiValue            value;
+           char                *units;
+           char                *description;
+           char                *reference;
+           SmiIndexkind        indexkind;
+           int                 implied;
+           int                 create;
+           SmiNodekind         nodekind;
+       } SmiNode;
+
+       typedef struct SmiElement {
+           // no visible attributes
+       } SmiElement;
+
+       typedef struct SmiOption {
+           char                *description;
+       } SmiOption;
+
+       typedef struct SmiRefinement {
+           SmiAccess           access;
+           char                *description;
+       } SmiRefinement;  
 */

@@ -9,7 +9,7 @@
 
 void MainW::HorizontalSplit(bool value)
 {
-    MainSplitter->setOrientation(value==FALSE?QSplitter::Horizontal:QSplitter::Vertical);
+    QuerySplitter->setOrientation(value==FALSE?QSplitter::Horizontal:QSplitter::Vertical);
 }
 
 void MainW::TreeTabSelected( const QString &Name )

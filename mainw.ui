@@ -23,6 +23,12 @@
     <property name="caption">
         <string>SnmpB</string>
     </property>
+    <property name="icon">
+        <pixmap>snmpb.png</pixmap>
+    </property>
+    <property name="iconText">
+        <string>SnmpB - SNMP MIB Browser</string>
+    </property>
     <grid>
         <property name="name">
             <cstring>unnamed</cstring>
@@ -48,66 +54,98 @@
                     <property name="name">
                         <cstring>unnamed</cstring>
                     </property>
-                    <property name="margin">
-                        <number>0</number>
-                    </property>
-                    <property name="spacing">
-                        <number>0</number>
-                    </property>
                     <widget class="QSplitter" row="0" column="0">
                         <property name="name">
-                            <cstring>MainSplitter</cstring>
-                        </property>
-                        <property name="sizePolicy">
-                            <sizepolicy>
-                                <hsizetype>7</hsizetype>
-                                <vsizetype>7</vsizetype>
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                            </sizepolicy>
+                            <cstring>QuerySplitter</cstring>
                         </property>
                         <property name="orientation">
                             <enum>Horizontal</enum>
                         </property>
-                        <widget class="QLayoutWidget">
+                        <widget class="QSplitter">
                             <property name="name">
-                                <cstring>MIBTreeLayout</cstring>
+                                <cstring>NodeInfoSplitter</cstring>
                             </property>
-                            <vbox>
+                            <property name="orientation">
+                                <enum>Vertical</enum>
+                            </property>
+                            <widget class="QLayoutWidget">
                                 <property name="name">
-                                    <cstring>unnamed</cstring>
+                                    <cstring>MIBTreeLayout</cstring>
                                 </property>
-                                <property name="margin">
-                                    <number>0</number>
-                                </property>
-                                <property name="spacing">
-                                    <number>0</number>
-                                </property>
-                                <widget class="QLabel">
+                                <vbox>
                                     <property name="name">
-                                        <cstring>MIBTreeL</cstring>
+                                        <cstring>unnamed</cstring>
                                     </property>
-                                    <property name="text">
-                                        <string>MIB Tree</string>
+                                    <property name="margin">
+                                        <number>0</number>
                                     </property>
-                                </widget>
-                                <widget class="MibView">
+                                    <property name="spacing">
+                                        <number>0</number>
+                                    </property>
+                                    <widget class="QLabel">
+                                        <property name="name">
+                                            <cstring>MIBTreeL</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>MIB Tree</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="MibView">
+                                        <property name="name">
+                                            <cstring>MIBTree</cstring>
+                                        </property>
+                                        <property name="enabled">
+                                            <bool>true</bool>
+                                        </property>
+                                        <property name="sizePolicy">
+                                            <sizepolicy>
+                                                <hsizetype>7</hsizetype>
+                                                <vsizetype>7</vsizetype>
+                                                <horstretch>0</horstretch>
+                                                <verstretch>0</verstretch>
+                                            </sizepolicy>
+                                        </property>
+                                    </widget>
+                                </vbox>
+                            </widget>
+                            <widget class="QLayoutWidget">
+                                <property name="name">
+                                    <cstring>NodeInfoLayout</cstring>
+                                </property>
+                                <vbox>
                                     <property name="name">
-                                        <cstring>MIBTree</cstring>
+                                        <cstring>unnamed</cstring>
                                     </property>
-                                    <property name="enabled">
-                                        <bool>true</bool>
+                                    <property name="margin">
+                                        <number>0</number>
                                     </property>
-                                    <property name="sizePolicy">
-                                        <sizepolicy>
-                                            <hsizetype>2</hsizetype>
-                                            <vsizetype>2</vsizetype>
-                                            <horstretch>0</horstretch>
-                                            <verstretch>0</verstretch>
-                                        </sizepolicy>
+                                    <property name="spacing">
+                                        <number>0</number>
                                     </property>
-                                </widget>
-                            </vbox>
+                                    <widget class="QLabel">
+                                        <property name="name">
+                                            <cstring>NodeInfoL</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Node Info</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QTextEdit">
+                                        <property name="name">
+                                            <cstring>NodeInfo</cstring>
+                                        </property>
+                                        <property name="frameShape">
+                                            <enum>WinPanel</enum>
+                                        </property>
+                                        <property name="frameShadow">
+                                            <enum>Plain</enum>
+                                        </property>
+                                        <property name="autoFormatting">
+                                            <set>AutoAll</set>
+                                        </property>
+                                    </widget>
+                                </vbox>
+                            </widget>
                         </widget>
                         <widget class="QLayoutWidget">
                             <property name="name">
@@ -140,8 +178,8 @@
                                     </property>
                                     <property name="sizePolicy">
                                         <sizepolicy>
-                                            <hsizetype>7</hsizetype>
-                                            <vsizetype>7</vsizetype>
+                                            <hsizetype>2</hsizetype>
+                                            <vsizetype>2</vsizetype>
                                             <horstretch>0</horstretch>
                                             <verstretch>0</verstretch>
                                         </sizepolicy>
@@ -255,6 +293,9 @@
                                         <property name="name">
                                             <cstring>UnloadedModules</cstring>
                                         </property>
+                                        <property name="frameShape">
+                                            <enum>WinPanel</enum>
+                                        </property>
                                         <property name="frameShadow">
                                             <enum>Plain</enum>
                                         </property>
@@ -297,6 +338,9 @@
                                         </column>
                                         <property name="name">
                                             <cstring>LoadedModules</cstring>
+                                        </property>
+                                        <property name="frameShape">
+                                            <enum>WinPanel</enum>
                                         </property>
                                         <property name="frameShadow">
                                             <enum>Plain</enum>
@@ -374,6 +418,9 @@
                                     </property>
                                     <property name="readOnly">
                                         <bool>true</bool>
+                                    </property>
+                                    <property name="autoFormatting">
+                                        <set>AutoAll</set>
                                     </property>
                                 </widget>
                             </vbox>
@@ -604,16 +651,16 @@
         <slot>close()</slot>
     </connection>
     <connection>
-        <sender>MIBTree</sender>
-        <signal>NodeProperties(const QString&amp;)</signal>
-        <receiver>QueryW</receiver>
-        <slot>setText(const QString&amp;)</slot>
-    </connection>
-    <connection>
         <sender>TabW</sender>
         <signal>selected(const QString&amp;)</signal>
         <receiver>MainW</receiver>
         <slot>TreeTabSelected(const QString&amp;)</slot>
+    </connection>
+    <connection>
+        <sender>MIBTree</sender>
+        <signal>NodeProperties(const QString&amp;)</signal>
+        <receiver>NodeInfo</receiver>
+        <slot>setText(const QString&amp;)</slot>
     </connection>
 </connections>
 <includes>
