@@ -16,9 +16,9 @@ void MibView::contextMenuEvent ( QContextMenuEvent *)
     caption->setAlignment( Qt::AlignCenter );
     contextMenu->insertItem( caption );
     contextMenu->insertItem( QPixmap::fromMimeSource( "expand.png" ), 
-			     "&Expand", this, SLOT(ExpandFromNode()));
+                             "&Expand", this, SLOT(ExpandFromNode()));
     contextMenu->insertItem( QPixmap::fromMimeSource( "collapse.png" ), 
-			     "&Collapse", this, SLOT(CollapseFromNode()));
+                             "&Collapse", this, SLOT(CollapseFromNode()));
     contextMenu->exec( QCursor::pos() );
     delete contextMenu;
 }
@@ -71,7 +71,7 @@ void MibView::CollapseFromNode(void)
 
 MibView::MibView (QWidget * parent, const char * name, WFlags f) : QListView(parent, name, f)
 {
-     // Set some properties for the ListView
+    // Set some properties for the ListView
     header()->hide();
     setSorting(-1, false);
     setLineWidth( 2 );
@@ -91,11 +91,11 @@ MibView::MibView (QWidget * parent, const char * name, WFlags f) : QListView(par
     
     // Connect some signals
     connect( this, SIGNAL( expanded( QListViewItem * ) ),
-                 this, SLOT( ExpandNode( QListViewItem * ) ) );
+             this, SLOT( ExpandNode( QListViewItem * ) ) );
     connect( this, SIGNAL( collapsed( QListViewItem * ) ),
-                 this, SLOT( CollapseNode( QListViewItem * ) ) );
+             this, SLOT( CollapseNode( QListViewItem * ) ) );
     connect( this, SIGNAL( currentChanged( QListViewItem * ) ),
-                 this, SLOT( SelectedNode( QListViewItem * ) ) );
+             this, SLOT( SelectedNode( QListViewItem * ) ) );
 }
 
 void MibView::ExpandNode( QListViewItem * item)
@@ -125,10 +125,10 @@ void MibView::Load(QStrList &modules)
     SmiModule *smiModule;
     SmiModule **modv = NULL;
     int modc = 0;
-
+    
     modv = (SmiModule **)malloc(modules.count() * sizeof(SmiModule *));
     modc = 0;
-
+    
     const char * module = NULL;
     
     if ( (module = modules.first()) != 0)
@@ -139,7 +139,7 @@ void MibView::Load(QStrList &modules)
         {
             modulename = smiLoadModule(module);
             smiModule = modulename ? smiGetModule(modulename) : NULL;
-
+            
             if (smiModule)
                 modv[modc++] = smiModule;
             else
@@ -162,7 +162,7 @@ void MibView::Populate(void)
         isdirty = 0;
         // Create the root folder
         MibNode *root = new MibNode("MIB Tree", this);
-    
+        
         smiNode = smiGetNode(NULL, "iso");    
         if (smiNode)
             PopulateSubTree(smiNode, root, NULL);
@@ -173,9 +173,9 @@ int MibView::IsPartOfLoadedModules(SmiNode *smiNode)
 {
     SmiModule *smiModule;
     int i;
-
+    
     smiModule = smiGetNodeModule(smiNode);
-
+    
     for (i = 0; i < pmodc; i++) {
         if (strcmp(pmodv[i]->name, smiModule->name) == 0) {
             return 1;
@@ -199,16 +199,16 @@ int MibView::IsPartOfLoadedModules(SmiNode *smiNode)
 int MibView::PruneSubTree(SmiNode *smiNode)
 {
     SmiNode   *childNode;
-
+    
     const int confmask = (SMI_NODEKIND_GROUP | SMI_NODEKIND_COMPLIANCE);
     const int leafmask = (SMI_NODEKIND_GROUP | SMI_NODEKIND_COMPLIANCE
                           | SMI_NODEKIND_COLUMN | SMI_NODEKIND_SCALAR
                           | SMI_NODEKIND_ROW | SMI_NODEKIND_NOTIFICATION);
-
+    
     if (! smiNode) {
         return 1;
     }
-
+    
     /*
      * First, prune all nodes which the user has told us to ignore.
      * In the case of ignoreleafs, we have to special case nodes with
@@ -216,11 +216,11 @@ int MibView::PruneSubTree(SmiNode *smiNode)
      * definitions). More special case code is needed to exclude
      * module identity nodes.
      */
-
+    
     if (ignoreconformance && (smiNode->nodekind & confmask)) {
         return 1;
     }
-
+    
     if (ignoreleafs) {
         if (smiNode->nodekind & leafmask) {
             return 1;
@@ -233,26 +233,26 @@ int MibView::PruneSubTree(SmiNode *smiNode)
             }
         }
     }
-
+    
     /*
       * Next, generally do not prune nodes that belong to the set of
       * modules we are looking at.
       */
-
+    
     if (IsPartOfLoadedModules(smiNode)) {
         if (!ignoreconformance || !smiGetFirstChildNode(smiNode)) {
             return 0;
         }
     }
-
+    
     /*
      * Finally, prune all nodes where all child nodes are pruned.
      */
-
+    
     for (childNode = smiGetFirstChildNode(smiNode);
-         childNode;
-         childNode = smiGetNextChildNode(childNode)) {
-
+    childNode;
+    childNode = smiGetNextChildNode(childNode)) {
+        
         /*
          * In the case of ignoreleafs, we have to peek at the child
          * nodes. Otherwise, we would prune too much. we still want to
@@ -261,7 +261,7 @@ int MibView::PruneSubTree(SmiNode *smiNode)
          * still want in combination with ignoreleafs to see the path
          * to the pruned conformance leafs.
          */
-
+        
         if (ignoreleafs && (childNode->nodekind & leafmask)) {
             if (IsPartOfLoadedModules(childNode)) {
                 if (ignoreconformance && (childNode->nodekind & confmask)) {
@@ -270,54 +270,44 @@ int MibView::PruneSubTree(SmiNode *smiNode)
                 return 0;
             }
         }
-
+        
         if (! PruneSubTree(childNode)) {
             return 0;
         }
     }
-
+    
     return 1;
 }
 
 enum MibNode::MibType MibView::SmiKindToMibNodeType(int smikind)
 {
-    enum MibNode::MibType val;
-    
     switch(smikind)
     {
     case SMI_NODEKIND_NODE:
-	val = MibNode::MIBNODE_NODE;
-	break;
+        return (MibNode::MIBNODE_NODE);
     case SMI_NODEKIND_SCALAR:
-	val = MibNode::MIBNODE_SCALAR;
-	break;
+        return (MibNode::MIBNODE_SCALAR);
     case SMI_NODEKIND_TABLE:
-	val = MibNode::MIBNODE_TABLE;
-	break;
+        return (MibNode::MIBNODE_TABLE);
     case SMI_NODEKIND_ROW:
-	val = MibNode::MIBNODE_ROW;
-	break;
+        return (MibNode::MIBNODE_ROW);
     case SMI_NODEKIND_COLUMN:
-	val = MibNode::MIBNODE_COLUMN;
-	break;
+        return (MibNode::MIBNODE_COLUMN);
     case SMI_NODEKIND_NOTIFICATION:
-	val = MibNode::MIBNODE_NOTIFICATION;
-	break;
+        return (MibNode::MIBNODE_NOTIFICATION);
     case SMI_NODEKIND_GROUP:
-	val = MibNode::MIBNODE_GROUP;
-	break;
+        return (MibNode::MIBNODE_GROUP);
     case SMI_NODEKIND_COMPLIANCE:
-	val = MibNode::MIBNODE_COMPLIANCE;
-	break;
+        return (MibNode::MIBNODE_COMPLIANCE);
     case SMI_NODEKIND_CAPABILITIES:
-	val = MibNode::MIBNODE_CAPABILITIES;
-	break;
+        return (MibNode::MIBNODE_CAPABILITIES);
     case SMI_NODEKIND_UNKNOWN:
     case SMI_NODEKIND_ANY:
     default:
-	val = MibNode::MIBNODE_NODE; /* Huh ?*/
+        break;
     }
-    return val;
+    
+    return (MibNode::MIBNODE_NODE);
 }
 
 MibNode * MibView::PopulateSubTree (SmiNode *smiNode, MibNode *parent, MibNode *sibling)
@@ -328,14 +318,14 @@ MibNode * MibView::PopulateSubTree (SmiNode *smiNode, MibNode *parent, MibNode *
     if (smiNode)
     {
         current = new MibNode(SmiKindToMibNodeType(smiNode->nodekind), 
-			       smiNode, parent, sibling);
-	       
-       for (childNode = smiGetFirstChildNode(smiNode);
-             childNode;
-             childNode = smiGetNextChildNode(childNode))
+                              smiNode, parent, sibling);
+        
+        for (childNode = smiGetFirstChildNode(smiNode);
+        childNode;
+        childNode = smiGetNextChildNode(childNode))
         {
             if (PruneSubTree(childNode)) continue;
-	    
+            
             prev = PopulateSubTree(childNode, current, prev);
         }
     }

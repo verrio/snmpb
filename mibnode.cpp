@@ -105,6 +105,99 @@ char *MibNode::GetStatus(void)
     return "";
 }
 
+char *MibNode::GetKindName(void)
+{
+    switch(Node->nodekind)
+    {
+    case SMI_NODEKIND_NODE:
+        return "Node";
+    case SMI_NODEKIND_SCALAR:
+        return "Scalar";
+    case SMI_NODEKIND_TABLE:
+        return "Table";
+    case SMI_NODEKIND_ROW:
+        return "Row";
+    case SMI_NODEKIND_COLUMN:
+        return "Column";
+    case SMI_NODEKIND_NOTIFICATION:
+        return "Notification";
+    case SMI_NODEKIND_GROUP:
+        return "Group";
+    case SMI_NODEKIND_COMPLIANCE:
+        return "Compliance";
+    case SMI_NODEKIND_CAPABILITIES:
+        return "Capabilities";
+    case SMI_NODEKIND_UNKNOWN:
+    case SMI_NODEKIND_ANY:
+    default:
+        break;
+    }
+    
+    return "";
+}
+
+char *MibNode::GetSmiTypeName(void)
+{
+    switch(Node->decl)
+    {    
+    /* SMIv1/v2 ASN.1 statements and macros */    
+    case SMI_DECL_OBJECTTYPE:
+        return "OBJECT-TYPE";
+    case SMI_DECL_OBJECTIDENTITY:
+        return "OBJECT-IDENTITY";
+    case SMI_DECL_MODULEIDENTITY:
+        return "MODULE-IDENTITY";
+    case SMI_DECL_NOTIFICATIONTYPE:
+        return "NOTIFICATION-TYPE";
+    case SMI_DECL_TRAPTYPE:
+        return "TRAP-TYPE";
+    case SMI_DECL_OBJECTGROUP:
+        return "OBJECT-GROUP";
+    case SMI_DECL_NOTIFICATIONGROUP:
+        return "NOTIFICATION-GROUP";
+    case SMI_DECL_MODULECOMPLIANCE:
+        return "MODULE-COMPLIANCE";
+    case SMI_DECL_AGENTCAPABILITIES:
+        return "AGENT-CAPABILITIES";
+    case SMI_DECL_VALUEASSIGNMENT:
+        return "OBJECT-IDENTIFIER";
+    /* SMIng statements */
+    case SMI_DECL_MODULE:
+        return "module";
+    case SMI_DECL_NODE:
+        return "node";
+    case SMI_DECL_SCALAR:
+        return "scalar";
+    case SMI_DECL_TABLE:
+        return "table";
+    case SMI_DECL_ROW:
+        return "row";
+    case SMI_DECL_COLUMN:
+        return "column";
+    case SMI_DECL_NOTIFICATION:
+        return "notification";
+    case SMI_DECL_GROUP:
+        return "group";
+    case SMI_DECL_COMPLIANCE:
+        return "compliance";
+        
+    case SMI_DECL_IMPLICIT_TYPE:
+    case SMI_DECL_TYPEASSIGNMENT:
+    case SMI_DECL_IMPL_SEQUENCEOF:
+    case SMI_DECL_TEXTUALCONVENTION:
+    case SMI_DECL_MACRO:
+    case SMI_DECL_COMPL_GROUP:
+    case SMI_DECL_COMPL_OBJECT:
+    case SMI_DECL_EXTENSION:
+    case SMI_DECL_TYPEDEF:
+    case SMI_DECL_UNKNOWN:
+    default:
+        break;
+    }
+    
+    return "";
+}
+                                  
 char *MibNode::GetTypeName(void)
 {
     SmiType *smiType, *parentType;
@@ -137,20 +230,26 @@ void MibNode::PrintProperties(QString& text)
        text += QString("<tr><td><b>Name:</b></td><td><font color=#009000><b>%1</b></font></td>").arg(Node->name);
 	   
        // Add the full Oid
-       text += QString("<tr><td><b>Oid:</b></td><td>");
-       for (unsigned int i = 0; i < Node->oidlen; i++)
-       {
-	   text += QString("%1").arg(Node->oid[i]);
-	   if (i != (Node->oidlen-1))
-	       text += ".";
-       }
-       text += QString("</td></tr>");
+       text += QString("<tr><td><b>Oid:</b></td><td>%1</td></tr>").arg(smiRenderOID(Node->oidlen, Node->oid, SMI_RENDER_NUMERIC));
        
        // Add misc attributes
        text += QString("<tr><td><b>Type:</b></td><td>%1</td></tr>").arg(GetTypeName());
        text += QString("<tr><td><b>Status:</b></td><td>%1</td></tr>").arg(GetStatus());
        text += QString("<tr><td><b>Access:</b></td><td>%1</td></tr>").arg(GetAccess());
-	   
+       text += QString("<tr><td><b>Kind:</b></td><td>%1</td></tr>").arg(GetKindName());
+       text += QString("<tr><td><b>SMI Type:</b></td><td>%1</td></tr>").arg(GetSmiTypeName());
+       
+       // Add units (seconds, bits, ....)
+       text += QString("<tr><td><b>Units:</b></td><td>%1</td></tr>").arg(Node->units);
+       
+       // Add module
+       text += QString("<tr><td><b>Module:</b></td><td>%1</td></tr>").arg(smiGetNodeModule(Node)->name);
+
+       // Add the reference
+       text += QString("<tr><td><b>Reference:</b></td><td><font face=fixed size=-1 color=blue>");
+       text += QStyleSheet::convertFromPlainText (Node->reference);
+       text += QString("</font></td>>/tr>");
+       
        // Add the description
        text += QString("<tr><td><b>Description:</b></td><td><font face=fixed size=-1 color=blue>");
        text += QStyleSheet::convertFromPlainText (Node->description);
@@ -181,37 +280,40 @@ void MibNode::PrintProperties(QString& text)
                 break;
             }
             
-       SmiModule *smiGetNodeModule(SmiNode *smiNodePtr);
        SmiType *smiGetNodeType(SmiNode *smiNodePtr);
-       int smiGetNodeLine(SmiNode *smiNodePtr);
+       
        SmiElement *smiGetFirstElement(SmiNode *smiNodePtr);
        SmiElement *smiGetNextElement(SmiElement *smiElementPtr);
        SmiNode *smiGetElementNode(SmiElement *smiElementPtr);
+ 
        SmiOption *smiGetFirstOption(SmiNode *smiComplianceNodePtr);
        SmiOption *smiGetNextOption(SmiOption *smiOptionPtr);
        SmiNode *smiGetOptionNode(SmiOption *smiOptionPtr);
+      
        SmiRefinement *smiGetFirstRefinement(SmiNode *smiComplianceNodePtr);
        SmiRefinement *smiGetNextRefinement(SmiRefinement *smiRefinementPtr);
        SmiNode *smiGetRefinementNode(SmiRefinement *smiRefinementPtr);
        SmiType *smiGetRefinementType(SmiRefinement *smiRefinementPtr);
        SmiType *smiGetRefinementWriteType(SmiRefinement *smiRefinementPtr);
+       
+       SmiType *smiGetType(SmiModule *smiModulePtr, char *type);
+       SmiType *smiGetFirstType(SmiModule *smiModulePtr);
+       SmiType *smiGetNextType(SmiType *smiTypePtr);
+       SmiType *smiGetParentType(SmiType *smiTypePtr);
+       
+       SmiRange *smiGetFirstRange(SmiType *smiTypePtr);
+       SmiRange *smiGetNextRange(SmiRange *smiRangePtr);
+       
+       SmiNamedNumber *smiGetFirstNamedNumber(SmiType *smiTypePtr);
+       SmiNamedNumber *smiGetNextNamedNumber(SmiNamedNumber *smiNamedNumberPtr);
 
        typedef struct SmiNode {
-           SmiIdentifier       name;
-           int                 oidlen;
-           SmiSubid            *oid; 
-           SmiDecl             decl;
-           SmiAccess           access;
-           SmiStatus           status;
-           char                *format;
+           
            SmiValue            value;
-           char                *units;
-           char                *description;
-           char                *reference;
+           
            SmiIndexkind        indexkind;
            int                 implied;
            int                 create;
-           SmiNodekind         nodekind;
        } SmiNode;
 
        typedef struct SmiElement {
