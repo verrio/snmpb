@@ -37,7 +37,7 @@ protected:
     char *GetAccess(void);
     char *GetStatus(void);
     char *GetTypeName(void);
-
+    	    
 private:
     enum MibType Type;
     SmiNode *Node;

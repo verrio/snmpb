@@ -30,7 +30,9 @@ IMAGES	= images/filenew \
 	images/folder_yellow_open.png \
 	images/group.png \
 	images/notification.png \
-	images/scalar.png
+	images/scalar.png \
+	images/collapse.png \
+	images/expand.png
 TEMPLATE	=app
 CONFIG	+= qt warn_on release
 LIBS	+= -lsmi

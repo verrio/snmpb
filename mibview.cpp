@@ -3,7 +3,69 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <qpopupmenu.h>
+#include <qlabel.h>
+#include <qcursor.h>
+
 #include "mibview.h"
+
+void MibView::contextMenuEvent ( QContextMenuEvent *)
+{    
+    QPopupMenu* contextMenu = new QPopupMenu( this );
+    QLabel *caption = new QLabel( "<font color=darkblue><b>Operations</b></font>", this );
+    caption->setAlignment( Qt::AlignCenter );
+    contextMenu->insertItem( caption );
+    contextMenu->insertItem( QPixmap::fromMimeSource( "expand.png" ), "&Expand", this, SLOT(ExpandFromNode()));
+    contextMenu->insertItem( QPixmap::fromMimeSource( "collapse.png" ), "&Collapse", this, SLOT(CollapseFromNode()));
+    contextMenu->exec( QCursor::pos() );
+    delete contextMenu;
+}
+
+void MibView::ExpandFromNode(void)
+{
+    QListViewItem *start = NULL, *end = NULL;
+    
+    // Could it be null ?
+    if ((start = currentItem()) == NULL)
+        return;
+    
+    // Go back in the tree till we find a sibling to mark the end
+    // If end is NULL, we expanded from the root
+    QListViewItem *ptr = start;
+    while (ptr && !(end = ptr->nextSibling()))
+        ptr = ptr->parent();
+    
+    // Now go thru all nodes till the end marker
+    QListViewItemIterator it( start );
+    while ( it.current() && (it.current() != end)) {
+        QListViewItem *item = it.current();
+        item->setOpen(TRUE);
+        ++it;
+    }
+}
+
+void MibView::CollapseFromNode(void)
+{
+    QListViewItem *start = NULL, *end = NULL;
+    
+    // Could it be null ?
+    if ((start = currentItem()) == NULL)
+        return;
+    
+    // Go back in the tree till we find a sibling to mark the end
+    // If end is NULL, we collapsed from the root
+    QListViewItem *ptr = start;
+    while (ptr && !(end = ptr->nextSibling()))
+        ptr = ptr->parent();
+    
+    // Now go thru all nodes till the end marker
+    QListViewItemIterator it( start );
+    while ( it.current() && (it.current() != end)) {
+        QListViewItem *item = it.current();
+        item->setOpen(FALSE);
+        ++it;
+    }
+}
 
 MibView::MibView (QWidget * parent, const char * name, WFlags f) : QListView(parent, name, f)
 {
@@ -12,6 +74,7 @@ MibView::MibView (QWidget * parent, const char * name, WFlags f) : QListView(par
     setSorting(-1, false);
     setLineWidth( 2 );
     addColumn( tr( "MibName" ) );
+    setHScrollBarMode(QScrollView::AlwaysOn);
     setFrameShadow( MibView::Plain );
     setResizePolicy( QScrollView::Manual );
     setAllColumnsShowFocus( FALSE );

@@ -25,10 +25,15 @@ protected slots:
     void ExpandNode( QListViewItem * item);
     void CollapseNode( QListViewItem * item);
     void SelectedNode( QListViewItem * item);
+    void ExpandFromNode(void);
+    void CollapseFromNode(void);
     
 signals:
     void NodeProperties(const QString& text);
-	
+    
+protected:
+    void contextMenuEvent ( QContextMenuEvent *);     
+    
 private:
     MibNode *PopulateSubTree (SmiNode *smiNode, MibNode *parent, MibNode *sibling);    
     enum MibNode::MibType SmiKindToMibNodeType(int smikind);
