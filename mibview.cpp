@@ -15,8 +15,10 @@ void MibView::contextMenuEvent ( QContextMenuEvent *)
     QLabel *caption = new QLabel( "<font color=darkblue><b>Operations</b></font>", this );
     caption->setAlignment( Qt::AlignCenter );
     contextMenu->insertItem( caption );
-    contextMenu->insertItem( QPixmap::fromMimeSource( "expand.png" ), "&Expand", this, SLOT(ExpandFromNode()));
-    contextMenu->insertItem( QPixmap::fromMimeSource( "collapse.png" ), "&Collapse", this, SLOT(CollapseFromNode()));
+    contextMenu->insertItem( QPixmap::fromMimeSource( "expand.png" ), 
+			     "&Expand", this, SLOT(ExpandFromNode()));
+    contextMenu->insertItem( QPixmap::fromMimeSource( "collapse.png" ), 
+			     "&Collapse", this, SLOT(CollapseFromNode()));
     contextMenu->exec( QCursor::pos() );
     delete contextMenu;
 }
@@ -85,6 +87,7 @@ MibView::MibView (QWidget * parent, const char * name, WFlags f) : QListView(par
     pmodv = NULL;
     ignoreconformance = 0;
     ignoreleafs = 0;
+    isdirty = 0;
     
     // Connect some signals
     connect( this, SIGNAL( expanded( QListViewItem * ) ),
@@ -116,84 +119,54 @@ void MibView::SelectedNode( QListViewItem * item)
     emit NodeProperties(text);
 }
 
-void MibView::Populate(void)
-{    
+void MibView::Load(QStrList &modules)
+{
     char *modulename;
     SmiModule *smiModule;
-    int smiflags, i;
     SmiModule **modv = NULL;
     int modc = 0;
-    SmiNode *smiNode;
 
-     // Create the root folder
-    MibNode *root = new MibNode("MIB Tree", this);
-    
-    printf("SnmpB using libsmi version: " SMI_VERSION_STRING "\n");
-        
-    smiInit(NULL);
-
-    smiflags = smiGetFlags();
-    smiflags |= SMI_FLAG_ERRORS;
-    smiSetFlags(smiflags);
-
-    smiSetErrorLevel(0);
-
-    int argc = 19;
-    char argv[19][100] = {
-	"OSPF-MIB", 
-	"IF-MIB", 
-	"RFC1213-MIB", 
-	"BGP4-MIB", 
-	"SONET-MIB", 
-	"IP-MIB", 
-	"IP-FORWARD-MIB",
-	"SNMP-COMMUNITY-MIB",
-	"SNMP-FRAMEWORK-MIB",
-	"SNMP-MPD-MIB",
-	"SNMP-NOTIFICATION-MIB",
-	"SNMP-TARGET-MIB",
-	"SNMP-USER-BASED-SM-MIB",
-	"SNMPv2-CONF",
-	"SNMPv2-MIB",
-	"SNMPv2-SMI",
-	"SNMPv2-TC",
-	"SNMP-VIEW-BASED-ACM-MIB",
-	"CISCO-CCM-CAPABILITY"
-    };
-    
-    modv = (SmiModule **)malloc(argc * sizeof(SmiModule *));
+    modv = (SmiModule **)malloc(modules.count() * sizeof(SmiModule *));
     modc = 0;
 
-    for (i = 0; i < argc; i++)
-    {
-        modulename = smiLoadModule(argv[i]);
-        smiModule = modulename ? smiGetModule(modulename) : NULL;
-
-        if (smiModule)
-        {
-            if ((smiModule->conformance) && (smiModule->conformance < 3))
-            {
-                fprintf(stderr,
-                    "snmpb: module `%s' contains errors, expect flawed output\n", argv[i]);
-            }
-
-            modv[modc++] = smiModule;
-        }
-        else
-        {
-            fprintf(stderr, "snmpb: cannot locate module `%s'\n", argv[i]);
-        }
-    }
-
-    pmodc = modc;
-    pmodv = modv;
-
-    smiNode = smiGetNode(NULL, "iso");    
-    if (smiNode)
-        PopulateSubTree(smiNode, root, NULL);
+    const char * module = NULL;
     
-    if (modv)
-        free(modv);
+    if ( (module = modules.first()) != 0)
+    {
+        isdirty = 1;
+        
+        do
+        {
+            modulename = smiLoadModule(module);
+            smiModule = modulename ? smiGetModule(modulename) : NULL;
+
+            if (smiModule)
+                modv[modc++] = smiModule;
+            else
+                fprintf(stderr, "SnmpB: cannot locate module `%s'\n", module);
+        } while ( (module = modules.next()) != 0);
+    }
+    
+    pmodc = modc;
+    if (pmodv)
+        free(pmodv);
+    pmodv = modv;
+}
+
+void MibView::Populate(void)
+{    
+    SmiNode *smiNode;
+    
+    if (isdirty)
+    {
+        isdirty = 0;
+        // Create the root folder
+        MibNode *root = new MibNode("MIB Tree", this);
+    
+        smiNode = smiGetNode(NULL, "iso");    
+        if (smiNode)
+            PopulateSubTree(smiNode, root, NULL);
+    }    
 }
 
 int MibView::IsPartOfLoadedModules(SmiNode *smiNode)

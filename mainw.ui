@@ -494,16 +494,20 @@
         <receiver>QueryW</receiver>
         <slot>setText(const QString&amp;)</slot>
     </connection>
+    <connection>
+        <sender>TabW</sender>
+        <signal>selected(const QString&amp;)</signal>
+        <receiver>MainW</receiver>
+        <slot>TreeTabSelected(const QString&amp;)</slot>
+    </connection>
 </connections>
 <includes>
     <include location="local" impldecl="in implementation">mainw.ui.h</include>
 </includes>
 <slots>
     <slot>HorizontalSplit( bool value )</slot>
+    <slot>TreeTabSelected( const QString &amp; Name )</slot>
 </slots>
-<functions>
-    <function>PopulateTree( void )</function>
-</functions>
 <pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>
 <includehints>

@@ -19,6 +19,7 @@ class MibView : public QListView
     
 public:
     MibView ( QWidget * parent = 0, const char * name = 0, WFlags f = 0 );
+    void Load (QStrList &);
     void Populate (void);
 
 protected slots:
@@ -44,6 +45,7 @@ private:
     SmiModule **pmodv;
     int ignoreconformance;
     int ignoreleafs;
+    int isdirty;
 };
 
 #endif /* MIBVIEW_H */

@@ -12,7 +12,7 @@ void MainW::HorizontalSplit(bool value)
     MainSplitter->setOrientation(value==FALSE?QSplitter::Horizontal:QSplitter::Vertical);
 }
 
-void MainW::PopulateTree( void )
+void MainW::TreeTabSelected( const QString &Name )
 {
-    MIBTree->Populate();
+    if(Name == "Tree") MIBTree->Populate();
 }
