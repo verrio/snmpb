@@ -8,28 +8,10 @@
 class LoadedMibModule
 {
 public:
-    LoadedMibModule(SmiModule* mod)
-    {
-	name = mod->name;
-	module = mod;
-    }
+    LoadedMibModule(SmiModule* mod);
     
-    char* GetMibLanguage(void)
-    {
-        switch(module->language)
-        {
-        case SMI_LANGUAGE_SMIV1:
-            return "SMIv1";
-        case SMI_LANGUAGE_SMIV2:
-            return "SMIv2";
-        case SMI_LANGUAGE_SMING:
-            return "SMIng";
-        case SMI_LANGUAGE_SPPI:
-            return "SPPI";
-        default:
-            return "Unknown";
-        }
-    }
+    void PrintProperties(QString& text);   
+    char* GetMibLanguage(void);
 
     QString name;
     SmiModule *module;
@@ -53,13 +35,16 @@ class MibModule: public QObject
     Q_OBJECT
     
 public:
-    MibModule(MibView* MT, QListView *AM, QListView *LM, 
-	         QPushButton *AB, QPushButton *RB);
+    MibModule(MibView* MT, QTextEdit *MI, QListView *AM, QListView *LM);
     void Refresh(void);
 
 public slots:
     void AddModule(void);
     void RemoveModule(void);
+    void ShowModuleInfo(void);
+
+signals:
+    void ModuleProperties(const QString& text);
 
 private:
     void InitLib(void);
@@ -74,10 +59,9 @@ private:
     QStrList Wanted;
     
     MibView *MibTree;
-    QListView *AvailM;
+    QTextEdit *ModuleInfo;
+    QListView *UnloadedM;
     QListView *LoadedM;
-    QPushButton *AddB;
-    QPushButton *RemoveB;
 };
 
 #endif /* MIBMODULE_H */
