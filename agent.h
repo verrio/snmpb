@@ -13,6 +13,7 @@
 #include <qtimer.h>
 
 #include "mibview.h"
+#include "trap.h"
 #include "snmp_pp/snmp_pp.h"
 
 class Agent: public QObject
@@ -27,7 +28,7 @@ public:
           QRadioButton* v1, QRadioButton* v2, QRadioButton* v3,
           QLineEdit* RC, QLineEdit* WC, 
           QPushButton* DU, QPushButton* AU, QPushButton* SU,
-          MibView* MV, QTextEdit* Q, QListView* TL);
+          MibView* MV, QTextEdit* Q, Trap* TR);
     void AsyncCallback(int reason, Pdu &pdu, 
                        SnmpTarget &target, int iswalk);
     void AsyncCallbackTrap(int reason, Pdu &pdu, SnmpTarget &target);
@@ -69,7 +70,7 @@ private:
     QPushButton* AddUser;
     QPushButton* SaveUser;
     QTextEdit* Query;
-    QListView* TrapLog;
+    Trap* Tr;
     
     Snmp *snmp;
     v3MP *v3mp;

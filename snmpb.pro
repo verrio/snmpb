@@ -2,11 +2,13 @@ SOURCES	+= main.cpp \
 	mibnode.cpp \
 	mibview.cpp \
 	mibmodule.cpp \
-	agent.cpp
+	agent.cpp \
+	trap.cpp
 HEADERS	+= mibnode.h \
 	mibview.h \
 	mibmodule.h \
-	agent.h
+	agent.h \
+	trap.h
 unix {
   UI_DIR = .ui
   MOC_DIR = .moc
@@ -40,6 +42,8 @@ IMAGES	= images/filenew \
 	images/snmpb.png
 TEMPLATE	=app
 CONFIG	+= qt warn_on debug
+win32:DEFINES	+= -DWIN32
 INCLUDEPATH	+= ../../snmp++/include/
-LIBS	+= -lsmi -L. -lsnmp++ -lcrypto
+win32:LIBS	+= -L. C:\smi\lib\smi.lib C:\openssl\lib\vc\libeay32.lib -lsnmp++
+unix:LIBS	+= -L. -lsmi -lcrypto -lsnmp++ 
 LANGUAGE	= C++

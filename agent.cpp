@@ -7,7 +7,7 @@
 #define BULK_MAX 10
 #define ASYNC_TIMER_MSEC 5
 #define TRAP_TIMER_MSEC 100
-#define TRAP_PORT 162
+#define TRAP_PORT 8888
 
 /// C Callback functions for snmp++
 void callback_walk(int reason, Snmp *, Pdu &pdu, SnmpTarget &target, void *cd)
@@ -44,7 +44,7 @@ Agent::Agent(QComboBox* UN, QComboBox* SL, QLineEdit* CN,
              QRadioButton* v1, QRadioButton* v2, QRadioButton* v3,
              QLineEdit* RC, QLineEdit* WC, 
              QPushButton* DU, QPushButton* AU, QPushButton* SU,
-             MibView* MV, QTextEdit* Q, QListView* TL)
+             MibView* MV, QTextEdit* Q, Trap* TR)
 {
     // Save all widget pointers in this class ... (ugly, I know ...)
     UserName = UN;
@@ -68,7 +68,7 @@ Agent::Agent(QComboBox* UN, QComboBox* SL, QLineEdit* CN,
     AddUser = AU;
     SaveUser = SU;
     Query = Q;
-    TrapLog = TL;
+    Tr = TR;
     
     // Connect some signals
     connect( MV, SIGNAL( WalkFromOid(const QString&) ),
@@ -376,7 +376,7 @@ void Agent::AsyncCallbackTrap(int reason, Pdu &pdu, SnmpTarget &target)
     pdu.get_notify_timestamp(ts);
     timestamp = QString(ts.get_printable());
   
-    pdu.get_notify_id(id);  
+    pdu.get_notify_id(id);
     unsigned long* oid = &(id[0]);
     unsigned long  oidlen = id.len();
     SmiNode *node = smiGetNodeByOID(oidlen, (unsigned int *)oid);
@@ -447,10 +447,13 @@ void Agent::AsyncCallbackTrap(int reason, Pdu &pdu, SnmpTarget &target)
 //           agtaddr.latin1(), agtport.latin1());
     
     // Create the listview item
-    TrapLog->setSortColumn(-1);
-    QListViewItem *lv = new QListViewItem(TrapLog, no, date, time, timestamp, 
-                                          nottype, msgtype, version, agtaddr);
-    lv->setText(8, agtport);
+    //QListViewItem *lv = new QListViewItem(TrapLog, no, date, time, timestamp, 
+    //                                      nottype, msgtype, version, agtaddr);
+    //lv->setText(8, agtport);
+    
+    // Add the trap ...
+    Tr->Add(no, date, time, timestamp, nottype, 
+            msgtype, version, agtaddr, agtport, id);
     
     // Now, loop thru all varbinds and extract info ...
     for (int i=0; i < pdu.get_vb_count(); i++)
