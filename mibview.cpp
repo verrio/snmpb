@@ -26,6 +26,8 @@ void MibView::contextMenuEvent ( QContextMenuEvent *)
     contextMenu->insertItem("&Set...", this, SLOT(SetFromNode()));
     contextMenu->insertSeparator();
     contextMenu->insertItem("&Stop", this, SLOT(StopFromNode()));
+    contextMenu->insertSeparator();
+    contextMenu->insertItem("&Table View", this, SLOT(TableViewFromNode()));
     
     contextMenu->exec( QCursor::pos() );
     delete contextMenu;
@@ -134,6 +136,17 @@ void MibView::StopFromNode(void)
         return;
     
     emit StopFromOid(((MibNode*)start)->GetOid());
+}
+
+void MibView::TableViewFromNode(void)
+{
+    QListViewItem *start = NULL;
+    
+    // Could it be null ?
+    if ((start = currentItem()) == NULL)
+        return;
+    
+    emit TableViewFromOid(((MibNode*)start)->GetOid());
 }
 
 MibView::MibView (QWidget * parent, const char * name, WFlags f) : QListView(parent, name, f)

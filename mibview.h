@@ -33,6 +33,7 @@ protected slots:
     void GetNextFromNode(void);
     void SetFromNode(void);
     void StopFromNode(void);
+    void TableViewFromNode(void);
     
 signals:
     void NodeProperties(const QString& text);
@@ -41,6 +42,7 @@ signals:
     void GetNextFromOid(const QString& oid);
     void SetFromOid(const QString& oid);
     void StopFromOid(const QString& oid);
+    void TableViewFromOid(const QString& oid);
     
 protected:
     void contextMenuEvent ( QContextMenuEvent *);     

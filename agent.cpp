@@ -69,6 +69,8 @@ Agent::Agent(QComboBox* UN, QComboBox* SL, QLineEdit* CN,
              this, SLOT( SetFrom(const QString&) ) );
     connect( MV, SIGNAL( StopFromOid(const QString&) ),
              this, SLOT( StopFrom(const QString&) ) );
+    connect( MV, SIGNAL( TableViewFromOid(const QString&) ),
+             this, SLOT( TableViewFrom(const QString&) ) );
     
     int status;
     
@@ -242,7 +244,9 @@ char *Agent::GetPrintableValue(SmiNode *node, Vb *vb)
     SmiValue myvalue;
     SmiType *type = smiGetNodeType(node);
             
-    if (type && (type->name == NULL)) 
+    if (type && (type->name == NULL) && 
+        (myvalue.basetype != SMI_BASETYPE_ENUM) && 
+        (myvalue.basetype != SMI_BASETYPE_BITS))
         type = smiGetParentType(type);
             
     if (type)
@@ -267,7 +271,7 @@ char *Agent::GetPrintableValue(SmiNode *node, Vb *vb)
             return smiRenderValue(&myvalue, type, SMI_RENDER_ALL);
         case SMI_BASETYPE_ENUM:
             vb->get_value(myvalue.value.integer32);
-            return smiRenderValue(&myvalue, smiGetNodeType(node), SMI_RENDER_ALL);
+            return smiRenderValue(&myvalue, type, SMI_RENDER_ALL);
         case SMI_BASETYPE_OBJECTIDENTIFIER:
         {
             Oid val;
@@ -277,6 +281,7 @@ char *Agent::GetPrintableValue(SmiNode *node, Vb *vb)
             return smiRenderValue(&myvalue, type, SMI_RENDER_NAME);
         }
         case SMI_BASETYPE_OCTETSTRING:
+        case SMI_BASETYPE_BITS: /* Always OCTETS case in the switch below */
         {
             switch(vb->get_syntax())
             {
@@ -297,12 +302,11 @@ char *Agent::GetPrintableValue(SmiNode *node, Vb *vb)
             }
         }
         
-        /* TODO */    
+        /* TODO */
         case SMI_BASETYPE_UNSIGNED64:
             // myvalue.value.unsigned64
         case SMI_BASETYPE_INTEGER64:
             // myvalue.value.integer64
-        case SMI_BASETYPE_BITS:
         default:
             break;
         }
@@ -412,7 +416,7 @@ void Agent::AsyncCallback(int reason, Snmp * /*snmp*/, Pdu &pdu,
         }
         else
             goto end;
-            
+        
         // TextEdit append is too slow ... :-( 
         // Buffer each 10 objects before displaying.
         if (!(objects%10))
@@ -448,12 +452,11 @@ void Agent::AsyncCallback(int reason, Snmp * /*snmp*/, Pdu &pdu,
         }
     }
     
-end:    
+end:
     msg += "-----SNMP query finished-----<br>";
     msg += "<font color=#009000>Total # of Requests = ";    
     msg += QString("%1<br>Total # of Objects = %2</font>")
                     .arg(requests).arg(objects);
-
 cleanup:
     Query->append(msg);
     timer.stop();
@@ -554,4 +557,101 @@ void Agent::SetFrom(const QString& oid)
 void Agent::StopFrom(const QString& oid)
 {
     printf("Stop %s!\n", oid.latin1());
+}
+
+/* TODO: make it async */
+void Agent::TableViewFrom(const QString& oid)
+{
+    // Initialize agent & pdu objects
+    SnmpTarget *target;
+    Pdu *pdu;
+    Vb tvb;
+    Oid toid;
+    int rows = 0;
+    
+    if (Setup(oid, &target, &pdu) < 0)
+        return;
+     
+    Query->append("Collecting table objects, please wait ...<br>");
+    
+    /* Set the parent oid & parent node */
+    Oid poid(oid.latin1());
+    SmiNode *pnode = smiGetNodeByOID(poid.len(), (SmiSubid*)&(poid[0]));
+    
+    /* Make sure the parent is a row entry ... */
+    if (pnode->nodekind != SMI_NODEKIND_ROW)
+    {
+        delete target;
+        delete pdu;
+        Query->append("<font color=red>Abort, not a row entry</font>");
+        return;
+    }
+    
+    /* Build the table header */
+    msg += QString("<table border=\"1\"><tr bgcolor=yellow><td>Instance</td>");
+    for (SmiNode *node = smiGetFirstChildNode(pnode); node != NULL;
+         node = smiGetNextChildNode(node))
+    {
+        msg += QString("<td>%1</td>").arg(node->name);
+    }    
+    msg += QString("</tr>");
+    
+    /* Get next on the parent to get the first entry ... */
+    tvb.set_oid(poid);
+    pdu->set_vblist(&tvb, 1);
+    
+    // Now do a sync get_next
+    while (snmp->get_next(*pdu, *target) == SNMP_CLASS_SUCCESS)
+    {
+        pdu->get_vb(tvb, 0);
+        toid = tvb.get_oid();
+        
+        /* Make sure we dont get out of table scope ... */
+        if (toid.nCompare(poid.len(), poid))
+            break;
+        
+        /* Get & print the instance part */
+        char *b = (char*)poid.get_printable();
+        char *f = (char*)tvb.get_printable_oid();                    
+        while ((*b++ == *f++) && (*b != '\0') && (*f != '\0'));
+        /* f is now the remaining part */
+        f += 3; /* .<col>. */
+        msg += QString("<tr><td bgcolor=pink>%1</td>").arg(f);
+    
+        /* Loop thru all colums of that instance and build the row */
+        for (SmiNode *node = smiGetFirstChildNode(pnode); node != NULL;
+             node = smiGetNextChildNode(node))
+        {
+            Vb svb;
+            toid.set_data((unsigned long *)node->oid, node->oidlen);
+            toid += f;
+            svb.set_oid(toid);    
+            pdu->set_vblist(&svb, 1);
+            
+            // Now do an sync get
+            if (snmp->get(*pdu, *target) == SNMP_CLASS_SUCCESS)
+            {
+                pdu->get_vb(svb, 0);
+                msg += QString("<td>%1</td>").arg(GetPrintableValue(node, &svb));
+            }
+            else
+            {
+                msg += QString("<td>not available</td>");
+            }
+        }
+    
+        msg += QString("</tr>");
+        rows++;
+    
+        // Next get_next ...
+        pdu->set_vblist(&tvb, 1);   
+    }
+    
+    msg += QString("</table>");
+    msg += "-----SNMP query finished-----<br>";
+    msg += QString("<font color=#009000>Total # of rows = %1<br>").arg(rows);
+    Query->append(msg);
+    
+    delete target;
+    delete pdu;
 }

@@ -41,6 +41,7 @@ public slots:
     void GetNextFrom(const QString& oid);
     void SetFrom(const QString& oid);
     void StopFrom(const QString& oid);
+    void TableViewFrom(const QString& oid);
 
 protected slots:
     void TimerExpired(void);    
