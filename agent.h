@@ -27,9 +27,10 @@ public:
           QRadioButton* v1, QRadioButton* v2, QRadioButton* v3,
           QLineEdit* RC, QLineEdit* WC, 
           QPushButton* DU, QPushButton* AU, QPushButton* SU,
-          MibView* MV, QTextEdit* Q);
-    void AsyncCallback(int reason, Snmp *snmp, Pdu &pdu, 
+          MibView* MV, QTextEdit* Q, QListView* TL);
+    void AsyncCallback(int reason, Pdu &pdu, 
                        SnmpTarget &target, int iswalk);
+    void AsyncCallbackTrap(int reason, Pdu &pdu, SnmpTarget &target);
     
 protected:
     int Setup(const QString& oid, SnmpTarget **t, Pdu **p);
@@ -68,6 +69,7 @@ private:
     QPushButton* AddUser;
     QPushButton* SaveUser;
     QTextEdit* Query;
+    QListView* TrapLog;
     
     Snmp *snmp;
     v3MP *v3mp;

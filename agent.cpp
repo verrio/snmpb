@@ -6,23 +6,34 @@
 
 #define BULK_MAX 10
 #define ASYNC_TIMER_MSEC 5
+#define TRAP_TIMER_MSEC 100
+#define TRAP_PORT 162
 
 /// C Callback functions for snmp++
-void callback_walk(int reason, Snmp *snmp, Pdu &pdu, SnmpTarget &target, void *cd)
+void callback_walk(int reason, Snmp *, Pdu &pdu, SnmpTarget &target, void *cd)
 {
   if (cd)
   {
     // just call the real callback member function...
-    ((Agent*)cd)->AsyncCallback(reason, snmp, pdu, target, 1);
+    ((Agent*)cd)->AsyncCallback(reason, pdu, target, 1);
   }
 }
 
-void callback(int reason, Snmp *snmp, Pdu &pdu, SnmpTarget &target, void *cd)
+void callback_trap(int reason, Snmp *, Pdu &pdu, SnmpTarget &target, void *cd)
 {
   if (cd)
   {
     // just call the real callback member function...
-    ((Agent*)cd)->AsyncCallback(reason, snmp, pdu, target, 0);
+    ((Agent*)cd)->AsyncCallbackTrap(reason, pdu, target);
+  }
+}
+
+void callback(int reason, Snmp *, Pdu &pdu, SnmpTarget &target, void *cd)
+{
+  if (cd)
+  {
+    // just call the real callback member function...
+    ((Agent*)cd)->AsyncCallback(reason, pdu, target, 0);
   }
 }
 
@@ -33,7 +44,7 @@ Agent::Agent(QComboBox* UN, QComboBox* SL, QLineEdit* CN,
              QRadioButton* v1, QRadioButton* v2, QRadioButton* v3,
              QLineEdit* RC, QLineEdit* WC, 
              QPushButton* DU, QPushButton* AU, QPushButton* SU,
-             MibView* MV, QTextEdit* Q)
+             MibView* MV, QTextEdit* Q, QListView* TL)
 {
     // Save all widget pointers in this class ... (ugly, I know ...)
     UserName = UN;
@@ -57,7 +68,8 @@ Agent::Agent(QComboBox* UN, QComboBox* SL, QLineEdit* CN,
     AddUser = AU;
     SaveUser = SU;
     Query = Q;
-       
+    TrapLog = TL;
+    
     // Connect some signals
     connect( MV, SIGNAL( WalkFromOid(const QString&) ),
              this, SLOT( WalkFrom(const QString&) ) );
@@ -137,6 +149,25 @@ Agent::Agent(QComboBox* UN, QComboBox* SL, QLineEdit* CN,
         QMessageBox::warning ( NULL, "SnmpB", err, 
                                QMessageBox::Ok, QMessageBox::NoButton);
     }
+    
+    // Bind on the SNMP trap port
+    CNotifyEventQueue::set_listen_port(TRAP_PORT);
+
+    OidCollection oidc;
+    TargetCollection targetc;
+
+    status = snmp->notify_register(oidc, targetc, callback_trap, this);
+    if (status != SNMP_CLASS_SUCCESS)
+    {
+        QString err = QString("Could not bind on trap port %1:\n%2\n")
+                      .arg(TRAP_PORT).arg(Snmp::error_msg(status));
+        QMessageBox::warning ( NULL, "SnmpB", err,
+                               QMessageBox::Ok, QMessageBox::NoButton);
+        return;
+    }
+
+    // Start the timer
+    timer.start(TRAP_TIMER_MSEC);
 }
 
 int Agent::Setup(const QString& oid, SnmpTarget **t, Pdu **p)
@@ -245,8 +276,8 @@ char *Agent::GetPrintableValue(SmiNode *node, Vb *vb)
     SmiType *type = smiGetNodeType(node);
             
     if (type && (type->name == NULL) && 
-        (myvalue.basetype != SMI_BASETYPE_ENUM) && 
-        (myvalue.basetype != SMI_BASETYPE_BITS))
+        (type->basetype != SMI_BASETYPE_ENUM) && 
+        (type->basetype != SMI_BASETYPE_BITS))
         type = smiGetParentType(type);
             
     if (type)
@@ -316,8 +347,156 @@ char *Agent::GetPrintableValue(SmiNode *node, Vb *vb)
     return (char*)vb->get_printable_value();
 }
 
-void Agent::AsyncCallback(int reason, Snmp * /*snmp*/, Pdu &pdu,
-                                SnmpTarget &target, int iswalk)
+void Agent::AsyncCallbackTrap(int reason, Pdu &pdu, SnmpTarget &target)
+{
+    static unsigned long nbr = 1;
+    Vb vb;
+    GenAddress addr;
+    TimeTicks ts;
+    Oid id;
+    int status = 0;
+                
+    // Bad message type or if there's an error in the pdu, bail out ...
+    if ((reason != SNMP_CLASS_NOTIFICATION) || pdu.get_error_status())
+        return;
+    
+    // Create string objects and collect info below
+    QString no, date, time, timestamp, nottype, 
+            msgtype, version, agtaddr, agtport;
+    
+    target.get_address(addr);
+    IpAddress agent(addr);
+    UdpAddress agentUDP(addr);
+    
+    no = QString("%1").arg(nbr);
+    date = QString(QDate::currentDate().toString(Qt::ISODate));
+    time = QString(QTime::currentTime().toString(Qt::ISODate));  
+    pdu.get_notify_timestamp(ts);
+    timestamp = QString(ts.get_printable());
+  
+    pdu.get_notify_id(id);  
+    unsigned long* oid = &(id[0]);
+    unsigned long  oidlen = id.len();
+    SmiNode *node = smiGetNodeByOID(oidlen, (unsigned int *)oid);
+    if (node)
+    {
+        char *b = smiRenderOID(node->oidlen, node->oid, 
+                               SMI_RENDER_NUMERIC);
+        char *f = (char*)id.get_printable();
+        while ((*b++ == *f++) && (*b != '\0') && (*f != '\0'));
+        /* f is now the remaining part */
+      
+        // Print the OID part
+        nottype = QString(node->name);
+        if (*f != '\0') nottype += QString(f);
+    }
+    else
+        nottype = QString(id.get_printable());
+      
+    switch(pdu.get_type())
+    {
+    case sNMP_PDU_V1TRAP:
+        msgtype = QString("Trap(v1)");
+        break;
+    case sNMP_PDU_TRAP:
+        msgtype = QString("Trap(v2)");
+        break;
+    case sNMP_PDU_INFORM:
+        msgtype = QString("Inform");
+        break;
+    case sNMP_PDU_REPORT:
+        msgtype = QString("Report");
+        break;
+    default:
+        msgtype = QString("Unknown");
+        break;
+    }
+  
+    switch(target.get_version())
+    {
+    case version1:
+        version = QString("SNMPv1");
+        break;
+    case version2c:
+        version = QString("SNMPv2c");
+        break;
+    case version3:
+        version = QString("SNMPv3");
+        break;
+    default:
+        version = QString("Unknown");
+        break;
+    }
+  
+    char *name = agent.friendly_name(status);
+    char *add = (char*)agent.get_printable();
+  
+    if (strlen(name))
+        agtaddr = QString("%1/%2").arg(name).arg(add);
+    else
+        agtaddr = QString(add);
+    
+    agtport = QString("%1").arg(agentUDP.get_port());
+
+//    printf("1: %s\n2: %s\n3: %s\n4: %s\n5: %s\n6: %s\n7: %s\n8: %s\n9: %s\n", 
+//           no.latin1(), date.latin1(), time.latin1(), 
+//           timestamp.latin1(), nottype.latin1(), 
+//           msgtype.latin1(), version.latin1(), 
+//           agtaddr.latin1(), agtport.latin1());
+    
+    // Create the listview item
+    TrapLog->setSortColumn(-1);
+    QListViewItem *lv = new QListViewItem(TrapLog, no, date, time, timestamp, 
+                                          nottype, msgtype, version, agtaddr);
+    lv->setText(8, agtport);
+    
+    // Now, loop thru all varbinds and extract info ...
+    for (int i=0; i < pdu.get_vb_count(); i++)
+    {
+        pdu.get_vb(vb, i);
+    
+        vb.get_oid(id);
+        oid = &(id[0]);
+        oidlen = id.len();
+            
+        node = smiGetNodeByOID(oidlen, (unsigned int *)oid);
+        if (node)
+        {
+            char *b = smiRenderOID(node->oidlen, node->oid, 
+                                   SMI_RENDER_NUMERIC);
+            char *f = (char*)vb.get_printable_oid();
+            while ((*b++ == *f++) && (*b != '\0') && (*f != '\0'));
+            /* f is now the remaining part */
+                    
+            // Print the OID part
+            printf("Oid: %s", node->name);                    
+            if (*f != '\0') printf("%s", f);
+            printf("\n");
+                    
+            // Print the value part
+            printf("Value: %s\n", GetPrintableValue(node, &vb));
+        }
+        else
+        {
+            /* Unknown OID */
+            printf("Oid: %s\nValue: %s\n", 
+                    vb.get_printable_oid(), vb.get_printable_value());
+        }      
+    }
+  
+    // If its a inform, we have to reply ...
+    if (pdu.get_type() == sNMP_PDU_INFORM)
+    {
+        vb.set_value("OK, message received.");
+        pdu.set_vb(vb, 0);
+        snmp->response(pdu, target);
+    }
+  
+    nbr++;
+}
+
+void Agent::AsyncCallback(int reason, Pdu &pdu,
+                          SnmpTarget &target, int iswalk)
 {
     int pdu_error;
     int status;
@@ -388,11 +567,9 @@ void Agent::AsyncCallback(int reason, Snmp * /*snmp*/, Pdu &pdu,
                 SmiNode *node = smiGetNodeByOID(oidlen, (unsigned int *)oid);
                 if (node)
                 {
-                    char *base_oid = smiRenderOID(node->oidlen, node->oid, 
-                                                  SMI_RENDER_NUMERIC);
-                    char *full_oid = (char*)vb.get_printable_oid();
-                    char *b = base_oid;
-                    char *f = full_oid;                    
+                    char *b = smiRenderOID(node->oidlen, node->oid, 
+                                           SMI_RENDER_NUMERIC);
+                    char *f = (char*)vb.get_printable_oid();
                     while ((*b++ == *f++) && (*b != '\0') && (*f != '\0'));
                     /* f is now the remaining part */
                     
@@ -459,7 +636,8 @@ end:
                     .arg(requests).arg(objects);
 cleanup:
     Query->append(msg);
-    timer.stop();
+    // Dont stop the timer, but put it back to the lower-rate trap timer value
+    timer.start(TRAP_TIMER_MSEC);
 }
 
 void Agent::WalkFrom(const QString& oid)
@@ -600,24 +778,33 @@ void Agent::TableViewFrom(const QString& oid)
     tvb.set_oid(poid);
     pdu->set_vblist(&tvb, 1);
     
+    Oid roid(poid);
+    int first = 1;
+    
     // Now do a sync get_next
     while (snmp->get_next(*pdu, *target) == SNMP_CLASS_SUCCESS)
     {
         pdu->get_vb(tvb, 0);
         toid = tvb.get_oid();
         
+        if (first) /* Get the column id we'll iterate on */
+        {
+            first = 0; /* reset the flag */
+            roid += toid[poid.len()];
+        }
+        
         /* Make sure we dont get out of table scope ... */
-        if (toid.nCompare(poid.len(), poid))
+        if (toid.nCompare(roid.len(), roid))
             break;
         
         /* Get & print the instance part */
-        char *b = (char*)poid.get_printable();
-        char *f = (char*)tvb.get_printable_oid();                    
+        char *b = (char*)roid.get_printable();
+        char *f = (char*)tvb.get_printable_oid();
         while ((*b++ == *f++) && (*b != '\0') && (*f != '\0'));
         /* f is now the remaining part */
-        f += 3; /* .<col>. */
-        msg += QString("<tr><td bgcolor=pink>%1</td>").arg(f);
-    
+        f++; /* skip . */
+        if (*f != '\0') msg += QString("<tr><td bgcolor=pink>%1</td>").arg(f);
+        
         /* Loop thru all colums of that instance and build the row */
         for (SmiNode *node = smiGetFirstChildNode(pnode); node != NULL;
              node = smiGetNextChildNode(node))
@@ -639,10 +826,10 @@ void Agent::TableViewFrom(const QString& oid)
                 msg += QString("<td>not available</td>");
             }
         }
-    
+        
         msg += QString("</tr>");
         rows++;
-    
+        
         // Next get_next ...
         pdu->set_vblist(&tvb, 1);   
     }
