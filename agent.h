@@ -33,9 +33,10 @@ public:
                        SnmpTarget &target, int iswalk);
     void AsyncCallbackTrap(int reason, Pdu &pdu, SnmpTarget &target);
     
+    static char *GetPrintableValue(SmiNode *node, Vb *vb);
+    
 protected:
     int Setup(const QString& oid, SnmpTarget **t, Pdu **p);
-    char *GetPrintableValue(SmiNode *node, Vb *vb);
             
 public slots:
     void WalkFrom(const QString& oid);

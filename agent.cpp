@@ -364,17 +364,20 @@ void Agent::AsyncCallbackTrap(int reason, Pdu &pdu, SnmpTarget &target)
     
     // Create string objects and collect info below
     QString no, date, time, timestamp, nottype, 
-            msgtype, version, agtaddr, agtport;
+            msgtype, version, agtaddr, agtport, 
+            community, seclevel, ctxname, ctxid, msgid;
     
     target.get_address(addr);
     IpAddress agent(addr);
     UdpAddress agentUDP(addr);
     
-    no = QString("%1").arg(nbr);
-    date = QString(QDate::currentDate().toString(Qt::ISODate));
-    time = QString(QTime::currentTime().toString(Qt::ISODate));  
+    char buf[10];
+    sprintf(buf, "%.4u", nbr);
+    no = QString("%1").arg(buf);
+    date = QDate::currentDate().toString(Qt::ISODate);
+    time = QTime::currentTime().toString(Qt::ISODate);  
     pdu.get_notify_timestamp(ts);
-    timestamp = QString(ts.get_printable());
+    timestamp = ts.get_printable();
   
     pdu.get_notify_id(id);
     unsigned long* oid = &(id[0]);
@@ -389,44 +392,44 @@ void Agent::AsyncCallbackTrap(int reason, Pdu &pdu, SnmpTarget &target)
         /* f is now the remaining part */
       
         // Print the OID part
-        nottype = QString(node->name);
+        nottype = node->name;
         if (*f != '\0') nottype += QString(f);
     }
     else
-        nottype = QString(id.get_printable());
+        nottype = id.get_printable();
       
     switch(pdu.get_type())
     {
     case sNMP_PDU_V1TRAP:
-        msgtype = QString("Trap(v1)");
+        msgtype = "Trap(v1)";
         break;
     case sNMP_PDU_TRAP:
-        msgtype = QString("Trap(v2)");
+        msgtype = "Trap(v2)";
         break;
     case sNMP_PDU_INFORM:
-        msgtype = QString("Inform");
+        msgtype = "Inform";
         break;
     case sNMP_PDU_REPORT:
-        msgtype = QString("Report");
+        msgtype = "Report";
         break;
     default:
-        msgtype = QString("Unknown");
+        msgtype = "Unknown";
         break;
     }
   
     switch(target.get_version())
     {
     case version1:
-        version = QString("SNMPv1");
+        version = "SNMPv1";
         break;
     case version2c:
-        version = QString("SNMPv2c");
+        version = "SNMPv2c";
         break;
     case version3:
-        version = QString("SNMPv3");
+        version = "SNMPv3";
         break;
     default:
-        version = QString("Unknown");
+        version = "Unknown";
         break;
     }
   
@@ -436,57 +439,45 @@ void Agent::AsyncCallbackTrap(int reason, Pdu &pdu, SnmpTarget &target)
     if (strlen(name))
         agtaddr = QString("%1/%2").arg(name).arg(add);
     else
-        agtaddr = QString(add);
+        agtaddr = add;
     
     agtport = QString("%1").arg(agentUDP.get_port());
-
-//    printf("1: %s\n2: %s\n3: %s\n4: %s\n5: %s\n6: %s\n7: %s\n8: %s\n9: %s\n", 
-//           no.latin1(), date.latin1(), time.latin1(), 
-//           timestamp.latin1(), nottype.latin1(), 
-//           msgtype.latin1(), version.latin1(), 
-//           agtaddr.latin1(), agtport.latin1());
-    
-    // Create the listview item
-    //QListViewItem *lv = new QListViewItem(TrapLog, no, date, time, timestamp, 
-    //                                      nottype, msgtype, version, agtaddr);
-    //lv->setText(8, agtport);
-    
+            
+    if (target.get_type() == SnmpTarget::type_ctarget)
+    {
+        community = ((CTarget*)&target)->get_readcommunity();
+    }
+    else
+    {
+        ctxname = pdu.get_context_name().get_printable();
+        ctxid = pdu.get_context_engine_id().get_printable();
+        msgid = pdu.get_message_id();
+        switch(pdu.get_security_level())
+        {
+            case SNMP_SECURITY_LEVEL_NOAUTH_NOPRIV:
+                seclevel = "NoAuthNoPriv";
+            break;
+            case SNMP_SECURITY_LEVEL_AUTH_NOPRIV:
+                seclevel = "AuthNoPriv";
+            break;
+            case SNMP_SECURITY_LEVEL_AUTH_PRIV:
+                seclevel = "AuthPriv";
+            break;
+            default:
+                seclevel = "Unknown";
+        }
+    }
+        
     // Add the trap ...
-    Tr->Add(no, date, time, timestamp, nottype, 
-            msgtype, version, agtaddr, agtport, id);
+    TrapItem *ti = Tr->Add(id, no, date, time, timestamp, nottype, 
+                           msgtype, version, agtaddr, agtport,
+                           community, seclevel, ctxname, ctxid, msgid);
     
     // Now, loop thru all varbinds and extract info ...
     for (int i=0; i < pdu.get_vb_count(); i++)
     {
         pdu.get_vb(vb, i);
-    
-        vb.get_oid(id);
-        oid = &(id[0]);
-        oidlen = id.len();
-            
-        node = smiGetNodeByOID(oidlen, (unsigned int *)oid);
-        if (node)
-        {
-            char *b = smiRenderOID(node->oidlen, node->oid, 
-                                   SMI_RENDER_NUMERIC);
-            char *f = (char*)vb.get_printable_oid();
-            while ((*b++ == *f++) && (*b != '\0') && (*f != '\0'));
-            /* f is now the remaining part */
-                    
-            // Print the OID part
-            printf("Oid: %s", node->name);                    
-            if (*f != '\0') printf("%s", f);
-            printf("\n");
-                    
-            // Print the value part
-            printf("Value: %s\n", GetPrintableValue(node, &vb));
-        }
-        else
-        {
-            /* Unknown OID */
-            printf("Oid: %s\nValue: %s\n", 
-                    vb.get_printable_oid(), vb.get_printable_value());
-        }
+        ti->AddVarBind(vb);
     }
   
     // If its a inform, we have to reply ...

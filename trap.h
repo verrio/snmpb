@@ -9,17 +9,35 @@
 class TrapItem : public QListViewItem
 {
 public:
-    TrapItem(Oid &id, QListView* parent, 
-             QString no, QString date = QString::null,
-             QString time = QString::null, QString timestamp = QString::null,
-             QString nottype = QString::null, QString msgtype = QString::null,
-             QString version = QString::null, QString agtaddr = QString::null);
+    TrapItem(Oid &id, QListView* parent, QString no, QString date,
+             QString time, QString timestamp,
+             QString nottype, QString msgtype, QString version, 
+             QString agtaddr, QString agtport,
+             QString community, QString seclevel,
+             QString ctxname, QString ctxid, QString msgid);
 
-    void PrintProperties(QString& text);  
-    void PrintContent(QListView* TrapContent);  
+    void PrintProperties(QString& text);
+    void PrintContent(QListView* TrapContent);
+    void AddVarBind(Vb& vb);
     
 private:
     Oid oid;
+    QString _no;
+    QString _date;
+    QString _time;
+    QString _timestamp;
+    QString _nottype;
+    QString _msgtype;
+    QString _version;
+    QString _agtaddr;
+    QString _agtport;
+    QString _community;
+    QString _seclevel;
+    QString _ctxname;
+    QString _ctxid;
+    QString _msgid;
+
+    QPtrList<Vb> content;
 };
 
 class Trap: public QObject
@@ -28,9 +46,12 @@ class Trap: public QObject
     
 public:
     Trap(QListView* TL, QListView* TC, QTextEdit* TI);
-    void Add(QString &no, QString &date, QString &time, QString &timestamp, 
-             QString &nottype, QString &msgtype, QString &version, 
-             QString &agtaddr, QString &agtport, Oid &id);
+    TrapItem* Add(Oid &id, QString &no, QString &date, 
+                  QString &time, QString &timestamp, 
+                  QString &nottype, QString &msgtype, QString &version, 
+                  QString &agtaddr, QString &agtport,
+                  QString &community, QString &seclevel,
+                  QString &ctxname, QString &ctxid, QString &msgid);
     
 protected slots:
     void SelectedTrap( QListViewItem * item);
