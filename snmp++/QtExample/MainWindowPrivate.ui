@@ -1,0 +1,548 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>MainWindowPrivate</class>
+<widget class="QMainWindow">
+    <property name="name">
+        <cstring>MainWindowPrivate</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>619</width>
+            <height>580</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Simple SNMP++ example with Qt</string>
+    </property>
+    <property name="iconText">
+        <string>snmp++ example</string>
+    </property>
+    <grid>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <widget class="QLabel" row="0" column="0">
+            <property name="name">
+                <cstring>text_label_obj_id</cstring>
+            </property>
+            <property name="text">
+                <string>Object-ID</string>
+            </property>
+        </widget>
+        <widget class="QLabel" row="1" column="0">
+            <property name="name">
+                <cstring>text_label_value</cstring>
+            </property>
+            <property name="text">
+                <string>Value</string>
+            </property>
+        </widget>
+        <widget class="QLineEdit" row="0" column="1" rowspan="1" colspan="2">
+            <property name="name">
+                <cstring>line_edit_obj_id</cstring>
+            </property>
+            <property name="text">
+                <string>1.3.6.1.2.1.1.1.0</string>
+            </property>
+        </widget>
+        <widget class="QLabel" row="2" column="0">
+            <property name="name">
+                <cstring>text_label_target</cstring>
+            </property>
+            <property name="text">
+                <string>Target</string>
+            </property>
+        </widget>
+        <widget class="QLineEdit" row="1" column="1" rowspan="1" colspan="2">
+            <property name="name">
+                <cstring>line_edit_value</cstring>
+            </property>
+        </widget>
+        <widget class="QLineEdit" row="2" column="1" rowspan="1" colspan="2">
+            <property name="name">
+                <cstring>line_edit_target</cstring>
+            </property>
+            <property name="text">
+                <string>localhost/4700</string>
+            </property>
+        </widget>
+        <widget class="QButtonGroup" row="3" column="0" rowspan="1" colspan="3">
+            <property name="name">
+                <cstring>button_group_version</cstring>
+            </property>
+            <property name="title">
+                <string>SNMP Version</string>
+            </property>
+            <property name="toolTip" stdset="0">
+                <string>Select the SNMP version to use</string>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QRadioButton" row="0" column="0">
+                    <property name="name">
+                        <cstring>radio_button_v1</cstring>
+                    </property>
+                    <property name="text">
+                        <string>SNMPv1</string>
+                    </property>
+                    <property name="checked">
+                        <bool>true</bool>
+                    </property>
+                    <property name="buttonGroupId">
+                        <number>1</number>
+                    </property>
+                </widget>
+                <widget class="QRadioButton" row="0" column="1">
+                    <property name="name">
+                        <cstring>radio_button_v2</cstring>
+                    </property>
+                    <property name="text">
+                        <string>SNMPv2c</string>
+                    </property>
+                    <property name="buttonGroupId">
+                        <number>2</number>
+                    </property>
+                </widget>
+                <widget class="QRadioButton" row="0" column="2">
+                    <property name="name">
+                        <cstring>radio_button_v3</cstring>
+                    </property>
+                    <property name="text">
+                        <string>SNMPv3</string>
+                    </property>
+                    <property name="buttonGroupId">
+                        <number>3</number>
+                    </property>
+                </widget>
+            </grid>
+        </widget>
+        <widget class="QGroupBox" row="4" column="0" rowspan="1" colspan="2">
+            <property name="name">
+                <cstring>group_box_v1</cstring>
+            </property>
+            <property name="title">
+                <string>SNMPv1 / v2c options</string>
+            </property>
+            <property name="toolTip" stdset="0">
+                <string>Here options specific to SNMPv1/v2c can be entered</string>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLineEdit" row="0" column="1">
+                    <property name="name">
+                        <cstring>line_edit_community</cstring>
+                    </property>
+                    <property name="text">
+                        <string>public</string>
+                    </property>
+                    <property name="alignment">
+                        <set>AlignRight</set>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="0" column="0">
+                    <property name="name">
+                        <cstring>text_label_community</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Community</string>
+                    </property>
+                </widget>
+            </grid>
+        </widget>
+        <widget class="QGroupBox" row="4" column="2" rowspan="2" colspan="1">
+            <property name="name">
+                <cstring>group_box_v3</cstring>
+            </property>
+            <property name="enabled">
+                <bool>false</bool>
+            </property>
+            <property name="title">
+                <string>SNMPv3 options</string>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QComboBox" row="0" column="1">
+                    <property name="name">
+                        <cstring>combo_box_sec_name</cstring>
+                    </property>
+                </widget>
+                <widget class="QComboBox" row="1" column="1">
+                    <item>
+                        <property name="text">
+                            <string>noAuthNoPriv</string>
+                        </property>
+                    </item>
+                    <item>
+                        <property name="text">
+                            <string>authNoPriv</string>
+                        </property>
+                    </item>
+                    <item>
+                        <property name="text">
+                            <string>authPriv</string>
+                        </property>
+                    </item>
+                    <property name="name">
+                        <cstring>combo_box_sec_level</cstring>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="1" column="0">
+                    <property name="name">
+                        <cstring>text_label_sec_level</cstring>
+                    </property>
+                    <property name="text">
+                        <string>SecurityLevel</string>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="2" column="0">
+                    <property name="name">
+                        <cstring>text_label_context_name</cstring>
+                    </property>
+                    <property name="text">
+                        <string>ConextName</string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Can be left empty</string>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="3" column="0">
+                    <property name="name">
+                        <cstring>text_label_context_engine_id</cstring>
+                    </property>
+                    <property name="text">
+                        <string>ContextEngineId</string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Can be left empty</string>
+                    </property>
+                </widget>
+                <widget class="QLineEdit" row="2" column="1">
+                    <property name="name">
+                        <cstring>line_edit_context_name</cstring>
+                    </property>
+                    <property name="alignment">
+                        <set>AlignRight</set>
+                    </property>
+                </widget>
+                <widget class="QLineEdit" row="3" column="1">
+                    <property name="name">
+                        <cstring>line_edit_context_engine_id</cstring>
+                    </property>
+                    <property name="alignment">
+                        <set>AlignRight</set>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="0" column="0">
+                    <property name="name">
+                        <cstring>text_label_sec_name</cstring>
+                    </property>
+                    <property name="text">
+                        <string>SecurityName</string>
+                    </property>
+                </widget>
+            </grid>
+        </widget>
+        <widget class="QLayoutWidget" row="8" column="0" rowspan="1" colspan="3">
+            <property name="name">
+                <cstring>layout_buttons</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>push_button_broadcast</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Broadcast</string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Send a discovery broadcast to the target address</string>
+                    </property>
+                </widget>
+                <spacer>
+                    <property name="name">
+                        <cstring>spacer_buttons</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>290</width>
+                            <height>31</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>push_button_get_next</cstring>
+                    </property>
+                    <property name="text">
+                        <string>GetNext</string>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+        <widget class="QTextEdit" row="7" column="0" rowspan="1" colspan="3">
+            <property name="name">
+                <cstring>text_edit_output</cstring>
+            </property>
+        </widget>
+        <widget class="QGroupBox" row="5" column="0" rowspan="1" colspan="2">
+            <property name="name">
+                <cstring>group_box_gen_opts</cstring>
+            </property>
+            <property name="title">
+                <string>General Options</string>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLabel" row="1" column="0">
+                    <property name="name">
+                        <cstring>text_label_timeout</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Timeout (sec)</string>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="0" column="0">
+                    <property name="name">
+                        <cstring>text_label_retries</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Retries</string>
+                    </property>
+                </widget>
+                <widget class="QSpinBox" row="0" column="1">
+                    <property name="name">
+                        <cstring>spin_box_retries</cstring>
+                    </property>
+                    <property name="maxValue">
+                        <number>10</number>
+                    </property>
+                    <property name="value">
+                        <number>1</number>
+                    </property>
+                </widget>
+                <widget class="QSpinBox" row="1" column="1">
+                    <property name="name">
+                        <cstring>spin_box_timeout</cstring>
+                    </property>
+                    <property name="maxValue">
+                        <number>20</number>
+                    </property>
+                    <property name="minValue">
+                        <number>0</number>
+                    </property>
+                    <property name="value">
+                        <number>3</number>
+                    </property>
+                </widget>
+            </grid>
+        </widget>
+        <widget class="QGroupBox" row="6" column="0" rowspan="1" colspan="3">
+            <property name="name">
+                <cstring>groupBox4</cstring>
+            </property>
+            <property name="minimumSize">
+                <size>
+                    <width>79</width>
+                    <height>0</height>
+                </size>
+            </property>
+            <property name="title">
+                <string>Traps</string>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QPushButton" row="0" column="3">
+                    <property name="name">
+                        <cstring>push_button_traps</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Start receiving Traps</string>
+                    </property>
+                    <property name="accel">
+                        <string>Alt+A</string>
+                    </property>
+                    <property name="toggleButton">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+                <spacer row="0" column="2">
+                    <property name="name">
+                        <cstring>spacer2</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>151</width>
+                            <height>21</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QLineEdit" row="0" column="1">
+                    <property name="name">
+                        <cstring>line_edit_trap_port</cstring>
+                    </property>
+                    <property name="text">
+                        <string>162</string>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="0" column="0">
+                    <property name="name">
+                        <cstring>textLabel1</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>79</width>
+                            <height>0</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>Port</string>
+                    </property>
+                </widget>
+            </grid>
+        </widget>
+    </grid>
+</widget>
+<menubar>
+    <property name="name">
+        <cstring>menubar</cstring>
+    </property>
+    <item text="&amp;File" name="fileMenu">
+        <separator/>
+        <separator/>
+        <action name="fileExitAction"/>
+    </item>
+    <item text="Edit" name="PopupMenu">
+        <action name="edit_properties_action"/>
+    </item>
+    <item text="&amp;Help" name="helpMenu">
+        <separator/>
+        <action name="helpAboutAction"/>
+    </item>
+</menubar>
+<toolbars>
+</toolbars>
+<actions>
+    <action>
+        <property name="name">
+            <cstring>fileExitAction</cstring>
+        </property>
+        <property name="text">
+            <string>Exit</string>
+        </property>
+        <property name="menuText">
+            <string>E&amp;xit</string>
+        </property>
+        <property name="accel">
+            <string></string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>helpAboutAction</cstring>
+        </property>
+        <property name="text">
+            <string>About</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;About</string>
+        </property>
+        <property name="accel">
+            <string></string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>edit_properties_action</cstring>
+        </property>
+        <property name="text">
+            <string>Properties</string>
+        </property>
+        <property name="menuText">
+            <string>Properties</string>
+        </property>
+    </action>
+</actions>
+<connections>
+    <connection>
+        <sender>fileExitAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindowPrivate</receiver>
+        <slot>fileExit()</slot>
+    </connection>
+    <connection>
+        <sender>helpAboutAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindowPrivate</receiver>
+        <slot>helpAbout()</slot>
+    </connection>
+    <connection>
+        <sender>push_button_get_next</sender>
+        <signal>clicked()</signal>
+        <receiver>MainWindowPrivate</receiver>
+        <slot>push_button_get_next_clicked()</slot>
+    </connection>
+    <connection>
+        <sender>edit_properties_action</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindowPrivate</receiver>
+        <slot>edit_properties_action_activated()</slot>
+    </connection>
+    <connection>
+        <sender>button_group_version</sender>
+        <signal>clicked(int)</signal>
+        <receiver>MainWindowPrivate</receiver>
+        <slot>button_group_version_clicked(int)</slot>
+    </connection>
+    <connection>
+        <sender>push_button_broadcast</sender>
+        <signal>clicked()</signal>
+        <receiver>MainWindowPrivate</receiver>
+        <slot>push_button_broadcast_clicked()</slot>
+    </connection>
+    <connection>
+        <sender>push_button_traps</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>MainWindowPrivate</receiver>
+        <slot>push_button_traps_toggled(bool)</slot>
+    </connection>
+</connections>
+<includes>
+    <include location="local" impldecl="in implementation">MainWindowPrivate.ui.h</include>
+</includes>
+<slots>
+    <slot>fileExit()</slot>
+    <slot>helpAbout()</slot>
+    <slot>push_button_get_next_clicked()</slot>
+    <slot>edit_properties_action_activated()</slot>
+    <slot>button_group_version_clicked( int version )</slot>
+    <slot>push_button_broadcast_clicked()</slot>
+    <slot>push_button_traps_toggled(bool)</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

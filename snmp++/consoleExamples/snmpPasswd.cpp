@@ -1,0 +1,407 @@
+/*_############################################################################
+  _## 
+  _##  snmpPasswd.cpp  
+  _##
+  _##  SNMP++v3.2.14
+  _##  -----------------------------------------------
+  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##
+  _##  This software is based on SNMP++2.6 from Hewlett Packard:
+  _##  
+  _##    Copyright (c) 1996
+  _##    Hewlett-Packard Company
+  _##  
+  _##  ATTENTION: USE OF THIS SOFTWARE IS SUBJECT TO THE FOLLOWING TERMS.
+  _##  Permission to use, copy, modify, distribute and/or sell this software 
+  _##  and/or its documentation is hereby granted without fee. User agrees 
+  _##  to display the above copyright notice and this license notice in all 
+  _##  copies of the software and any documentation of the software. User 
+  _##  agrees to assume all liability for the use of the software; 
+  _##  Hewlett-Packard and Jochen Katz make no representations about the 
+  _##  suitability of this software for any purpose. It is provided 
+  _##  "AS-IS" without warranty of any kind, either express or implied. User 
+  _##  hereby grants a royalty-free license to any and all derivatives based
+  _##  upon this software code base. 
+  _##  
+  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  
+  _##########################################################################*/
+
+char snmppasswd_cpp_version[]="@(#) SNMP++ $Id$";
+
+#include "snmp_pp/snmp_pp.h"
+#include <stdlib.h>
+#include <stdio.h>
+
+#ifdef SNMP_PP_NAMESPACE
+using namespace Snmp_pp;
+#endif
+
+#if (__GNUC__ > 2)
+#include <iostream>
+using std::cerr;
+using std::cout;
+using std::endl;
+using std::flush;
+#else
+#include <iostream.h>
+#endif
+
+#ifdef _SNMPv3
+USM *usm;
+
+void KeyChange(Snmp* snmp, Pdu& myPdu, 
+	       const OctetStr& user, const OctetStr& newpass, 
+	       SnmpTarget& target, int type)
+{
+  struct UsmKeyUpdate *uku = NULL;
+  int stat;
+  int status;
+
+  uku = usm->key_update_prepare(user, target, newpass,
+				myPdu, type, stat);
+  if (uku == NULL)
+    cout << "Key update preparation failed *************" << endl
+         << "with " << snmp->error_msg(stat) << endl <<endl;
+
+  if (( status = snmp->set( myPdu,target)) == SNMP_CLASS_SUCCESS) {
+    Vb vb3;
+    Oid oid3;
+    myPdu.get_vb( vb3,0);
+    vb3.get_oid(oid3);
+    Vb vb4;
+    Oid oid4;
+    myPdu.get_vb( vb4,1);
+    vb4.get_oid(oid4);
+    if (myPdu.get_type() == REPORT_MSG) {
+      cout << "Received a reportPDU! with Oid " 
+           << oid3.get_printable() << endl
+           << snmp->error_msg(oid3) << endl;
+      usm->key_update_abort(uku);
+    } 
+    else {
+      cout << flush << endl
+           << "Oid = " << vb3.get_printable_oid() << endl
+           << "Value = " << vb3.get_printable_value() << endl;
+      cout << flush << endl 
+           << "Oid = " << vb4.get_printable_oid() << endl
+           << "Value = " << vb4.get_printable_value() << endl;
+      int resul = usm->key_update_commit(uku, USM_PasswordAllKeyUpdate);
+      cout << endl  << "result of local key update: " 
+           << resul << endl;
+
+    }
+  }
+  else {
+    cout << "SNMP++ KeyChange Error, " << snmp->error_msg( status)
+	 << " (" << status <<")"<< endl;
+    usm->key_update_abort(uku);
+  }
+  
+  cout << "******************************** END" 
+       << endl << endl << flush;
+}
+
+int main( int argc, char **argv)
+{
+   //---------[ check the arg count ]----------------------------------------
+   if ( argc < 4) {
+	  cout << "Usage:\n";
+	  cout << "snmpPasswd IpAddress | DNSName user newpassword [options]\n";
+	  cout << "Oid: sysDescr object is default\n";
+	  cout << "options: -v1 , use SNMPV1, default\n";
+	  cout << "         -v2 , use SNMPV2\n";
+          cout << "         -v3 , use SNMPV3\n";
+	  cout << "         -pPort , remote port to use\n";
+	  cout << "         -CCommunity_name, specify community default is 'public' \n";
+	  cout << "         -rN , retries default is N = 1 retry\n";
+	  cout << "         -tN , timeout in hundredths of seconds; default is N = 100\n";
+          cout << "         -snSecurityName, " << endl;
+          cout << "         -slN , securityLevel to use, default N = 3 = authPriv" << endl;
+          cout << "         -smN , securityModel to use, only default N = 3 = USM possible\n";
+          cout << "         -cnContextName, default """"" << endl;
+          cout << "         -ceContextEngineID, default """"" << endl;
+          cout << "         -md5 , use MD5 authentication protocol\n";
+          cout << "         -sha , use SHA authentication protocol\n";
+          cout << "         -des , use DES privacy protocol\n";
+          cout << "         -idea, use IDEA privacy protocol\n";
+          cout << "         -aes128, use AES128 privacy protocol\n";
+          cout << "         -aes192, use AES192 privacy protocol\n";
+          cout << "         -aes256, use AES256 privacy protocol\n";
+          cout << "         -uaAuthPassword\n";
+          cout << "         -upPrivPassword\n";
+	  cout << "         -eEngineID\n";
+	  return 1;
+   }
+
+   Snmp::socket_startup();  // Initialize socket subsystem
+
+   //---------[ make a GenAddress and Oid object to retrieve ]---------------
+   UdpAddress address( argv[1]);      // make a SNMP++ Generic address
+   if ( !address.valid()) {           // check validity of address
+	  cout << "Invalid Address or DNS Name, " << argv[1] << "\n";
+	  return 1;
+   }
+
+   OctetStr newUser, newPassword;
+   if (((strstr( argv[2],"-")==0) && (strstr( argv[3],"-")==0))) {
+	newUser = argv[2];
+	newPassword = argv[3];
+   }
+   else
+   {
+     cout << "wrong parameters..." << endl;
+     return 1;
+   }
+
+   //---------[ determine options to use ]-----------------------------------
+   snmp_version version=version1;                  // default is v1
+   int retries=1;                                  // default retries is 1
+   int timeout=100;                                // default is 1 second
+   u_short port=161;                               // default snmp port is 161
+   OctetStr community("public");                   // community name
+
+   OctetStr privPassword("");
+   OctetStr authPassword("");
+   OctetStr securityName("");
+   int securityModel = SecurityModel_USM;
+   int securityLevel = SecurityLevel_authPriv;
+   OctetStr contextName("");
+   OctetStr contextEngineID("");
+   long authProtocol = SNMPv3_usmNoAuthProtocol;
+   long privProtocol = SNMPv3_usmNoPrivProtocol;
+   OctetStr engineID;
+   v3MP *v3_MP;
+
+   char *ptr;
+
+   for(int x=1;x<argc;x++) {                           // parse for version
+     if ( strstr( argv[x],"-v2")!= 0) {
+       version = version2c;
+       continue;
+     }
+     if ( strstr( argv[x],"-r")!= 0) {                 // parse for retries
+       ptr = argv[x]; ptr++; ptr++;
+       retries = atoi(ptr);
+       if (( retries<0)|| (retries>5)) retries=1; 
+       continue;
+     }
+     if ( strstr( argv[x], "-t")!=0) {                 // parse for timeout
+       ptr = argv[x]; ptr++; ptr++;
+       timeout = atoi( ptr);
+       if (( timeout < 100)||( timeout>500)) timeout=100;
+       continue;
+     }
+     if ( strstr( argv[x],"-C")!=0) {
+       ptr = argv[x]; ptr++; ptr++;
+       community = ptr;
+       continue;
+     }
+     if ( strstr( argv[x],"-p")!=0) {
+       ptr = argv[x]; ptr++; ptr++;
+       sscanf(ptr, "%hu", &port);
+       continue;
+     }
+     if ( strstr( argv[x],"-v3")!= 0) {
+       version = version3;
+       continue;
+     }
+     if ( strstr( argv[x],"-idea") != 0) {
+       ptr = argv[x]; ptr++; ptr++;
+       privProtocol = SNMPv3_usmIDEAPrivProtocol;
+       continue;
+     }
+     if ( strstr( argv[x],"-aes128") != 0) {
+       ptr = argv[x]; ptr++; ptr++;
+       privProtocol = SNMPv3_usmAES128PrivProtocol;
+       continue;
+     }
+     if ( strstr( argv[x],"-aes192") != 0) {
+       ptr = argv[x]; ptr++; ptr++;
+       privProtocol = SNMPv3_usmAES192PrivProtocol;
+       continue;
+     }
+     if ( strstr( argv[x],"-aes256") != 0) {
+       ptr = argv[x]; ptr++; ptr++;
+       privProtocol = SNMPv3_usmAES256PrivProtocol;
+       continue;
+     }
+     if ( strstr( argv[x],"-sha") != 0) {
+       ptr = argv[x]; ptr++; ptr++;
+       authProtocol = SNMPv3_usmHMACSHAAuthProtocol;
+       continue;
+     }
+     if ( strstr( argv[x],"-des") != 0) {
+       ptr = argv[x]; ptr++; ptr++;
+       privProtocol = SNMPv3_usmDESPrivProtocol;
+       continue;
+     }
+     if ( strstr( argv[x],"-md5") != 0) {
+       ptr = argv[x]; ptr++; ptr++;
+       authProtocol = SNMPv3_usmHMACMD5AuthProtocol;
+       continue;
+     }
+     if ( strstr( argv[x],"-sn")!=0) {
+       ptr = argv[x]; ptr+=3;
+       securityName = ptr;
+       continue;
+      }
+     if ( strstr( argv[x], "-sl")!=0) {
+       ptr = argv[x]; ptr+=3;
+       securityLevel = atoi( ptr);
+       if (( securityLevel < SecurityLevel_noAuthNoPriv) ||
+           ( securityLevel > SecurityLevel_authPriv))
+         securityLevel = SecurityLevel_authPriv;
+       continue;
+     }
+     if ( strstr( argv[x], "-sm")!=0) {
+       ptr = argv[x]; ptr+=3;
+       securityModel = atoi( ptr);
+       if (( securityModel < SecurityModel_v1) ||
+           ( securityModel > SecurityModel_USM))
+         securityModel = SecurityModel_USM;
+       continue;
+     }
+     if ( strstr( argv[x],"-cn")!=0) {
+       ptr = argv[x]; ptr+=3;
+       contextName = ptr;
+       continue;
+     }
+     if ( strstr( argv[x],"-ce")!=0) {
+       ptr = argv[x]; ptr+=3;
+       contextEngineID = ptr;
+       continue;
+     }
+     if ( strstr( argv[x],"-ua")!=0) {
+       ptr = argv[x]; ptr+=3;
+       authPassword = ptr;
+       continue;
+     }
+     if ( strstr( argv[x],"-up")!=0) {
+       ptr = argv[x]; ptr+=3;
+       privPassword = ptr;
+       continue;
+     }
+     if ( strstr( argv[x],"-e")!=0) {
+       ptr = argv[x]; ptr+=2;
+       engineID = ptr;
+       engineID = OctetStr::from_hex_string(engineID);
+       continue;
+     }
+   }
+
+   //----------[ create a SNMP++ session ]-----------------------------------
+   int status;
+   // bind to any port and use IPv6 if needed
+   Snmp snmp(status, 0, (address.get_ip_version() == Address::version_ipv6));
+
+   if ( status != SNMP_CLASS_SUCCESS) {
+      cout << "SNMP++ Session Create Fail, " << snmp.error_msg(status) << "\n";
+      return 1;
+   }
+
+   //---------[ init SnmpV3 ]--------------------------------------------
+   if (version == version3) {
+     OctetStr engineId = "snmpPasswd";
+     char *filename = "snmpv3_boot_counter";
+     unsigned int snmpEngineBoots = 0;
+     int status;
+
+     status = getBootCounter(filename, engineId, snmpEngineBoots);
+     if ((status != SNMPv3_OK) && (status < SNMPv3_FILEOPEN_ERROR))
+     {
+       cout << "Error loading snmpEngineBoots counter: " << status << endl;
+       return 1;
+     }
+     snmpEngineBoots++;
+     status = saveBootCounter(filename, engineId, snmpEngineBoots);
+     if (status != SNMPv3_OK)
+     {
+       cout << "Error saving snmpEngineBoots counter: " << status << endl;
+       return 1;
+     }
+
+     int construct_status;
+     v3_MP = new v3MP(engineId, snmpEngineBoots, construct_status);
+
+     usm = v3_MP->get_usm();
+     usm->add_usm_user(securityName,
+		       authProtocol, privProtocol,
+		       authPassword, privPassword);
+   }
+   else
+   {
+     // MUST create a dummy v3MP object if _SNMPv3 is enabled!
+     int construct_status;
+     v3_MP = new v3MP("dummy", 0, construct_status);
+   }
+
+   //--------[ build up SNMP++ object needed ]-------------------------------
+   Pdu pdu;                               // construct a Pdu object
+   Vb vb;                                 // construct a Vb object
+   vb.set_oid(Oid("1.3.6.1.2.1.1.1.0"));  // set the Oid portion of the Vb
+   pdu += vb;                             // add the vb to the Pdu
+
+   address.set_port(port);
+   CTarget ctarget( address);             // make a target using the address
+   UTarget utarget( address);
+
+   if (version == version3) {
+     utarget.set_version( version);          // set the SNMP version SNMPV1 or V2 or V3
+     utarget.set_retry( retries);            // set the number of auto retries
+     utarget.set_timeout( timeout);          // set timeout
+     utarget.set_security_model( securityModel);
+     utarget.set_security_name( securityName);
+     pdu.set_security_level( securityLevel);
+     pdu.set_context_name (contextName);
+     pdu.set_context_engine_id(contextEngineID);
+   }
+   else {
+     ctarget.set_version( version);         // set the SNMP version SNMPV1 or V2
+     ctarget.set_retry( retries);           // set the number of auto retries
+     ctarget.set_timeout( timeout);         // set timeout
+     ctarget.set_readcommunity( community); // set the read community name
+   }
+
+   //-------[ issue the request, blocked mode ]-----------------------------
+   cout << "SNMP++ Get to " << argv[1] << " SNMPV" 
+
+        << ((version==version3) ? (version) : (version+1)) 
+        << " Retries=" << retries
+        << " Timeout=" << timeout <<"ms"; 
+   if (version == version3)
+     cout << endl
+          << "securityName= " << securityName.get_printable()
+          << ", securityLevel= " << securityLevel
+          << ", securityModel= " << securityModel << endl
+          << "contextName= " << contextName.get_printable()
+          << ", contextEngineID= " << contextEngineID.get_printable()
+          << endl;
+   else
+     cout << " Community=" << community.get_printable() << endl << flush;
+
+   SnmpTarget *target;
+   if (version == version3)
+     target = &utarget;
+   else
+     target = &ctarget;
+   Pdu pduKeyChange;
+   if (version == version3) {
+     pduKeyChange.set_security_level( securityLevel);
+     pduKeyChange.set_context_name (contextName);
+     pduKeyChange.set_context_engine_id(contextEngineID);
+   }
+   
+   snmp.get( pdu, *target);
+
+   KeyChange(&snmp, pduKeyChange, newUser, newPassword, *target, AUTHKEY);
+
+   Snmp::socket_cleanup();  // Shut down socket subsystem
+} 
+#else
+#include <stdio.h>
+int main()
+{
+  printf("This example needs _SNMPv3 defined.\n");
+}
+#endif

@@ -1,0 +1,364 @@
+<!DOCTYPE UI><UI version="3.2" stdsetdef="1">
+<class>Properties</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>Properties</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>583</width>
+            <height>441</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Properties</string>
+    </property>
+    <property name="sizeGripEnabled">
+        <bool>true</bool>
+    </property>
+    <grid>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <property name="margin">
+            <number>11</number>
+        </property>
+        <property name="spacing">
+            <number>6</number>
+        </property>
+        <widget class="QTabWidget" row="0" column="0">
+            <property name="name">
+                <cstring>tabWidget</cstring>
+            </property>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>Widget8</cstring>
+                </property>
+                <attribute name="title">
+                    <string>USM</string>
+                </attribute>
+                <grid>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <widget class="QPushButton" row="5" column="4">
+                        <property name="name">
+                            <cstring>push_button_reset</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Reset</string>
+                        </property>
+                        <property name="toolTip" stdset="0">
+                            <string>Reset the values to the old values</string>
+                        </property>
+                    </widget>
+                    <widget class="QPushButton" row="5" column="5">
+                        <property name="name">
+                            <cstring>push_button_apply</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Apply</string>
+                        </property>
+                        <property name="toolTip" stdset="0">
+                            <string>Changes are only stored if this button is clicked</string>
+                        </property>
+                    </widget>
+                    <widget class="QLabel" row="1" column="0">
+                        <property name="name">
+                            <cstring>text_label_auth_prot</cstring>
+                        </property>
+                        <property name="text">
+                            <string>AuthProtocol</string>
+                        </property>
+                        <property name="alignment">
+                            <set>AlignVCenter|AlignRight</set>
+                        </property>
+                    </widget>
+                    <widget class="QLabel" row="2" column="0">
+                        <property name="name">
+                            <cstring>text_label_auth_pass</cstring>
+                        </property>
+                        <property name="text">
+                            <string>AuthPassword</string>
+                        </property>
+                        <property name="alignment">
+                            <set>AlignVCenter|AlignRight</set>
+                        </property>
+                    </widget>
+                    <widget class="QLabel" row="4" column="0">
+                        <property name="name">
+                            <cstring>text_label_priv_pass</cstring>
+                        </property>
+                        <property name="text">
+                            <string>PrivPassword</string>
+                        </property>
+                        <property name="alignment">
+                            <set>AlignVCenter|AlignRight</set>
+                        </property>
+                    </widget>
+                    <widget class="QLabel" row="3" column="0">
+                        <property name="name">
+                            <cstring>textlabel_priv_prot</cstring>
+                        </property>
+                        <property name="text">
+                            <string>PrivProtocol</string>
+                        </property>
+                        <property name="alignment">
+                            <set>AlignVCenter|AlignRight</set>
+                        </property>
+                    </widget>
+                    <widget class="QLabel" row="0" column="0">
+                        <property name="name">
+                            <cstring>text_label_sec_name</cstring>
+                        </property>
+                        <property name="text">
+                            <string>SecurityName</string>
+                        </property>
+                        <property name="alignment">
+                            <set>AlignVCenter|AlignRight</set>
+                        </property>
+                    </widget>
+                    <widget class="QComboBox" row="0" column="1" rowspan="1" colspan="5">
+                        <property name="name">
+                            <cstring>combo_box_sec_name</cstring>
+                        </property>
+                        <property name="duplicatesEnabled">
+                            <bool>false</bool>
+                        </property>
+                    </widget>
+                    <widget class="QComboBox" row="1" column="1" rowspan="1" colspan="5">
+                        <item>
+                            <property name="text">
+                                <string>None</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>HMAC-MD5</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>HMAC-SHA</string>
+                            </property>
+                        </item>
+                        <property name="name">
+                            <cstring>combo_box_auth_prot</cstring>
+                        </property>
+                    </widget>
+                    <widget class="QLineEdit" row="2" column="1" rowspan="1" colspan="5">
+                        <property name="name">
+                            <cstring>line_edit_auth_pass</cstring>
+                        </property>
+                    </widget>
+                    <widget class="QComboBox" row="3" column="1" rowspan="1" colspan="5">
+                        <item>
+                            <property name="text">
+                                <string>None</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>DES</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>IDEA</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>AES128</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>AES196</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>AES256</string>
+                            </property>
+                        </item>
+                        <property name="name">
+                            <cstring>combo_box_priv_prot</cstring>
+                        </property>
+                    </widget>
+                    <widget class="QLineEdit" row="4" column="1" rowspan="1" colspan="5">
+                        <property name="name">
+                            <cstring>line_edit_priv_pass</cstring>
+                        </property>
+                    </widget>
+                    <widget class="QPushButton" row="5" column="0" rowspan="1" colspan="2">
+                        <property name="name">
+                            <cstring>push_button_add_user</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Add new user</string>
+                        </property>
+                    </widget>
+                    <widget class="QPushButton" row="5" column="2">
+                        <property name="name">
+                            <cstring>push_button_del_user</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Delete User</string>
+                        </property>
+                        <property name="toolTip" stdset="0">
+                            <string>Delete the selected user</string>
+                        </property>
+                    </widget>
+                    <spacer row="5" column="3">
+                        <property name="name">
+                            <cstring>spacer2</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Horizontal</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>110</width>
+                                <height>21</height>
+                            </size>
+                        </property>
+                    </spacer>
+                </grid>
+            </widget>
+        </widget>
+        <widget class="QLayoutWidget" row="1" column="0">
+            <property name="name">
+                <cstring>Layout1</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <property name="margin">
+                    <number>0</number>
+                </property>
+                <property name="spacing">
+                    <number>6</number>
+                </property>
+                <spacer>
+                    <property name="name">
+                        <cstring>Horizontal Spacing2</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>20</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>button_close</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Close</string>
+                    </property>
+                    <property name="accel">
+                        <string></string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>true</bool>
+                    </property>
+                    <property name="default">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+    </grid>
+</widget>
+<connections>
+    <connection>
+        <sender>button_close</sender>
+        <signal>clicked()</signal>
+        <receiver>Properties</receiver>
+        <slot>accept()</slot>
+    </connection>
+    <connection>
+        <sender>combo_box_sec_name</sender>
+        <signal>activated(const QString&amp;)</signal>
+        <receiver>Properties</receiver>
+        <slot>combo_box_sec_name_activated(const QString&amp;)</slot>
+    </connection>
+    <connection>
+        <sender>push_button_reset</sender>
+        <signal>clicked()</signal>
+        <receiver>Properties</receiver>
+        <slot>push_button_reset_clicked()</slot>
+    </connection>
+    <connection>
+        <sender>push_button_apply</sender>
+        <signal>clicked()</signal>
+        <receiver>Properties</receiver>
+        <slot>push_button_apply_clicked()</slot>
+    </connection>
+    <connection>
+        <sender>combo_box_auth_prot</sender>
+        <signal>activated(int)</signal>
+        <receiver>Properties</receiver>
+        <slot>combo_box_auth_prot_activated(int)</slot>
+    </connection>
+    <connection>
+        <sender>combo_box_priv_prot</sender>
+        <signal>activated(int)</signal>
+        <receiver>Properties</receiver>
+        <slot>combo_box_priv_prot_activated(int)</slot>
+    </connection>
+    <connection>
+        <sender>push_button_add_user</sender>
+        <signal>clicked()</signal>
+        <receiver>Properties</receiver>
+        <slot>push_button_add_user_clicked()</slot>
+    </connection>
+    <connection>
+        <sender>push_button_del_user</sender>
+        <signal>clicked()</signal>
+        <receiver>Properties</receiver>
+        <slot>push_button_del_user_clicked()</slot>
+    </connection>
+</connections>
+<includes>
+    <include location="local" impldecl="in declaration">snmp_pp/snmp_pp.h</include>
+    <include location="local" impldecl="in implementation">Properties.ui.h</include>
+</includes>
+<forwards>
+    <forward>#ifdef SNMP_PP_NAMESPACE</forward>
+    <forward>using namespace Snmp_pp</forward>
+    <forward>#endif</forward>
+</forwards>
+<variables>
+    <variable access="private">Snmp *snmp;</variable>
+    <variable>v3MP *v3mp;</variable>
+    <variable>USM *usm;</variable>
+</variables>
+<slots>
+    <slot>combo_box_sec_name_activated( const QString &amp; sec_name )</slot>
+    <slot>push_button_reset_clicked()</slot>
+    <slot>push_button_apply_clicked()</slot>
+    <slot>combo_box_auth_prot_activated( int auth_prot )</slot>
+    <slot>combo_box_priv_prot_activated( int priv_prot )</slot>
+    <slot>push_button_add_user_clicked()</slot>
+    <slot>push_button_del_user_clicked()</slot>
+</slots>
+<functions>
+    <function specifier="non virtual">set_snmp( Snmp * s )</function>
+</functions>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

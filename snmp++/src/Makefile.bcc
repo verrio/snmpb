@@ -1,0 +1,124 @@
+  ############################################################################
+  ## 
+  ##  Makefile.bcc  
+  ##
+  ##  SNMP++v3.2.14
+  ##  -----------------------------------------------
+  ##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  ##
+  ##  This software is based on SNMP++2.6 from Hewlett Packard:
+  ##  
+  ##    Copyright (c) 1996
+  ##    Hewlett-Packard Company
+  ##  
+  ##  ATTENTION: USE OF THIS SOFTWARE IS SUBJECT TO THE FOLLOWING TERMS.
+  ##  Permission to use, copy, modify, distribute andor sell this software 
+  ##  andor its documentation is hereby granted without fee. User agrees 
+  ##  to display the above copyright notice and this license notice in all 
+  ##  copies of the software and any documentation of the software. User 
+  ##  agrees to assume all liability for the use of the software; 
+  ##  Hewlett-Packard and Jochen Katz make no representations about the 
+  ##  suitability of this software for any purpose. It is provided 
+  ##  "AS-IS" without warranty of any kind, either express or implied. User 
+  ##  hereby grants a royalty-free license to any and all derivatives based
+  ##  upon this software code base. 
+  ##  
+  ##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  ##  
+  ##########################################################################*
+
+CXX      = bcc32
+CXXFLAGS = -P -tWM -DWIN32=1 -DSNMP_PP_NATIVE_EXPORTS=1
+
+LIBDESDIR	= ..\..\libdes
+LIBDES		= $(LIBDESDIR)\libdes.lib
+
+INCLUDES = -I..\include -I.\ -I$(LIBDESDIR)
+
+#
+#  Header Files
+#
+USERHEADERS = ..\include\address.h ..\include\counter.h ..\include\ctr64.h \
+	..\include\gauge.h ..\include\octet.h ..\include\oid.h \
+	..\include\pdu.h ..\include\smi.h ..\include\target.h \
+	..\include\timetick.h ..\include\vb.h ..\include\snmp_pp.h \
+	..\include\integer.h ..\include\smival.h ..\include\snmperrs.h \
+	..\include\collect.h ..\include\oid_def.h ..\include\asn1.h \
+	..\include\snmpmsg.h ..\include\v3.h ..\include\sha.h \
+        ..\include\usm_v3.h ..\include\mp_v3.h ..\include\idea.h \
+	..\include\config_snmp_pp.h ..\include\auth_priv.h  \
+	..\include\reentrant.h
+
+UXHEADERS = ..\include\msgqueue.h ..\include\userdefined.h \
+	..\include\usertimeout.h ..\include\eventlist.h \
+	..\include\msec.h ..\include\notifyqueue.h
+
+
+HEADERS = $(USERHEADERS) $(UXHEADERS) 
+
+#
+#  Object Files produced
+#
+OBJS =	address.obj counter.obj ctr64.obj gauge.obj integer.obj octet.obj \
+	oid.obj pdu.obj target.obj timetick.obj vb.obj asn1.obj snmpmsg.obj \
+	uxsnmp.obj eventlist.obj msgqueue.obj userdefined.obj usertimeout.obj \
+	msec.obj notifyqueue.obj sha.obj v3.obj usm_v3.obj mp_v3.obj idea.obj \
+	auth_priv.obj reentrant.obj md5c.obj
+
+P1OBJ = test_app.obj
+
+#
+#  Libraries:  dependencies and produced
+#
+LIBDIR = ..\lib
+SNMP_PP_LIB = snmp_pp.lib
+SNMP_PP_DLL = snmp_pp.dll
+
+#
+#  Here for a quick sanity check upon completing a build...
+#
+PROG1 = test_app.exe
+
+.SUFFIXES: .cpp .C
+
+.cpp.obj:
+    $(CXX) $(CXXFLAGS) $(INCLUDES) -c {$? }
+
+#
+#  Build rules
+#
+all: $(SNMP_PP_LIB) $(SNMP_PP_DLL) $(PROG1)
+
+$(PROG1): $(SNMP_PP_LIB) $(P1OBJ)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(P1OBJ) $(LIBDIR)\$(SNMP_PP_LIB) \
+	$(LIBDES) -e$(PROG1)
+
+$(SNMP_PP_LIB): $(OBJS)
+	-@if not exist $(LIBDIR) mkdir $(LIBDIR)
+	tlib $(LIBDIR)\$(SNMP_PP_LIB) /a $(OBJS)
+
+
+lib:		$(SNMP_PP_LIB)
+
+$(SNMP_PP_DLL): $(OBJS)
+	-@if not exist $(LIBDIR) mkdir $(LIBDIR)
+	bcc32 -tWD -e$(LIBDIR)\$(SNMP_PP_DLL) $(OBJS) $(LIBDES) $(W32LIBS)
+
+dll: $(SNMP_PP_DLL)
+
+clean:
+   @echo Cleaning up...
+   -@if exist *.obj del *.obj                       >nul
+   -@if exist *.lib del *.lib                       >nul
+   -@if exist $(LIBDIR)\*.lib del $(LIBDIR)\*.lib   >nul
+   -@if exist $(LIBDIR)\*.dll del $(LIBDIR)\*.dll   >nul
+   -@if exist $(LIBDIR)\*.tds del $(LIBDIR)\*.tds   >nul
+   -@if exist *.exe del *.exe                       >nul
+
+
+#
+#  Dependency rules
+#
+$(P1OBJ): $(HEADERS)
+
+$(OBJS): $(HEADERS)

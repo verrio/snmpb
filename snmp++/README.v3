@@ -1,0 +1,35 @@
+
+README.v3 (SNMP++ V3.2)
+=======================
+
+SNMP++v3.x (and AGENT++v3.5.x) can be used at least on the
+follwing platforms:
+
+Linux, FreeBSD, HPUX 11(aCC), Solaris 2.6 or higher,
+Windows NT/2000, and CygWin.
+
+Edit the file include/snmp_pp/config_snmp_pp.h before compiling
+the library. All options are explained in this file.
+
+In order to use SNMPv3 you need at least one of the following
+crypto libraries:
+- libdes: This is the default library, so no configuration
+  changes for snmp++ are needed. In this case the MD5 and SHA1
+  algorithms that are included in snmp++ are used. AES encryption
+  is not available.
+- OpenSSL: The define _USE_OPENSSL must be enabled in
+  config_snmp_pp.h. SHA1, MD5, DES and AES will be used from
+  OpenSSL.
+- libtomcrypt: The define _USE_LIBTOMCRYPT must be enabled in
+  config_snmp_pp.h. SHA1, MD5, DES and AES will be used from
+  libtomcrypt.
+
+IDEA is protected by International copyright law and in 
+addition has been patented in several countries. The 
+non-commercial use of the IDEA algorithm is free. However, 
+whenever you or your company sells any products including 
+the IDEA algorithm it needs a license granted by MediaCrypt
+for many European countries, the U.S. and Japan.
+
+Please visit the following site for more information:
+http://www.mediacrypt.com/engl/Content/patent_info.htm

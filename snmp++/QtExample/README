@@ -1,0 +1,11 @@
+This simple example uses Trolltechs Qt 3.
+
+It is tested under Linux, FreeBSD and Windows 2000. Patches or fixes for other
+systems are welcome.
+
+The default is to use libtomcrypt. If you want to use it with libdes,
+you have to edit QtExample.pro.
+
+To compile: qmake && make 
+For Windows an VC DSP-file is created through qmake.
+
