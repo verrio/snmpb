@@ -428,6 +428,591 @@
                     </widget>
                 </grid>
             </widget>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>TabPage</cstring>
+                </property>
+                <attribute name="title">
+                    <string>Agent</string>
+                </attribute>
+                <grid>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <widget class="QLayoutWidget" row="1" column="1">
+                        <property name="name">
+                            <cstring>AgentLayout</cstring>
+                        </property>
+                        <grid>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QGroupBox" row="1" column="1" rowspan="3" colspan="1">
+                                <property name="name">
+                                    <cstring>V3Options</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="title">
+                                    <string>SNMPv3 options</string>
+                                </property>
+                                <grid>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QComboBox" row="0" column="1">
+                                        <property name="name">
+                                            <cstring>UserName</cstring>
+                                        </property>
+                                    </widget>
+                                    <widget class="QComboBox" row="1" column="1">
+                                        <item>
+                                            <property name="text">
+                                                <string>noAuthNoPriv</string>
+                                            </property>
+                                        </item>
+                                        <item>
+                                            <property name="text">
+                                                <string>authNoPriv</string>
+                                            </property>
+                                        </item>
+                                        <item>
+                                            <property name="text">
+                                                <string>authPriv</string>
+                                            </property>
+                                        </item>
+                                        <property name="name">
+                                            <cstring>SecLevel</cstring>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLabel" row="1" column="0">
+                                        <property name="name">
+                                            <cstring>SecLevelL</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>SecurityLevel</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLabel" row="2" column="0">
+                                        <property name="name">
+                                            <cstring>ContextNameL</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>ContextName</string>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Can be left empty</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLabel" row="3" column="0">
+                                        <property name="name">
+                                            <cstring>EngineIDL</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>ContextEngineId</string>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Can be left empty</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLineEdit" row="2" column="1">
+                                        <property name="name">
+                                            <cstring>ContextName</cstring>
+                                        </property>
+                                        <property name="alignment">
+                                            <set>AlignAuto</set>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLineEdit" row="3" column="1">
+                                        <property name="name">
+                                            <cstring>EngineID</cstring>
+                                        </property>
+                                        <property name="alignment">
+                                            <set>AlignAuto</set>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLabel" row="0" column="0">
+                                        <property name="name">
+                                            <cstring>UserNameL</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>User Name</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLabel" row="4" column="0">
+                                        <property name="name">
+                                            <cstring>AuthProtocolL</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>AuthProtocol</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLabel" row="5" column="0">
+                                        <property name="name">
+                                            <cstring>AuthPassL</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>AuthPassword</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLabel" row="7" column="0">
+                                        <property name="name">
+                                            <cstring>PrivPassL</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>PrivPassword</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLabel" row="6" column="0">
+                                        <property name="name">
+                                            <cstring>PrivProtocolL</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>PrivProtocol</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QComboBox" row="4" column="1">
+                                        <item>
+                                            <property name="text">
+                                                <string>None</string>
+                                            </property>
+                                        </item>
+                                        <item>
+                                            <property name="text">
+                                                <string>HMAC-MD5</string>
+                                            </property>
+                                        </item>
+                                        <item>
+                                            <property name="text">
+                                                <string>HMAC-SHA</string>
+                                            </property>
+                                        </item>
+                                        <property name="name">
+                                            <cstring>AuthProtocol</cstring>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLineEdit" row="5" column="1" rowspan="1" colspan="2">
+                                        <property name="name">
+                                            <cstring>AuthPass</cstring>
+                                        </property>
+                                        <property name="echoMode">
+                                            <enum>Password</enum>
+                                        </property>
+                                    </widget>
+                                    <widget class="QComboBox" row="6" column="1">
+                                        <item>
+                                            <property name="text">
+                                                <string>None</string>
+                                            </property>
+                                        </item>
+                                        <item>
+                                            <property name="text">
+                                                <string>DES</string>
+                                            </property>
+                                        </item>
+                                        <item>
+                                            <property name="text">
+                                                <string>IDEA</string>
+                                            </property>
+                                        </item>
+                                        <item>
+                                            <property name="text">
+                                                <string>AES128</string>
+                                            </property>
+                                        </item>
+                                        <item>
+                                            <property name="text">
+                                                <string>AES196</string>
+                                            </property>
+                                        </item>
+                                        <item>
+                                            <property name="text">
+                                                <string>AES256</string>
+                                            </property>
+                                        </item>
+                                        <property name="name">
+                                            <cstring>PrivProtocol</cstring>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLineEdit" row="7" column="1" rowspan="1" colspan="2">
+                                        <property name="name">
+                                            <cstring>PrivPass</cstring>
+                                        </property>
+                                        <property name="echoMode">
+                                            <enum>Password</enum>
+                                        </property>
+                                    </widget>
+                                    <widget class="QPushButton" row="8" column="2">
+                                        <property name="name">
+                                            <cstring>DeleteUser</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Delete User</string>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Delete the selected user</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QPushButton" row="8" column="0">
+                                        <property name="name">
+                                            <cstring>AddUser</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Add new user</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QPushButton" row="8" column="1">
+                                        <property name="name">
+                                            <cstring>SaveUser</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Save user settings</string>
+                                        </property>
+                                    </widget>
+                                </grid>
+                            </widget>
+                            <widget class="QButtonGroup" row="0" column="0" rowspan="1" colspan="2">
+                                <property name="name">
+                                    <cstring>TargetAgent</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>5</hsizetype>
+                                        <vsizetype>5</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="title">
+                                    <string>Target SNMP Agent</string>
+                                </property>
+                                <hbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QLabel">
+                                        <property name="name">
+                                            <cstring>AddressL</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Address/Name</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QComboBox">
+                                        <item>
+                                            <property name="text">
+                                                <string>localhost</string>
+                                            </property>
+                                        </item>
+                                        <property name="name">
+                                            <cstring>Address</cstring>
+                                        </property>
+                                        <property name="sizePolicy">
+                                            <sizepolicy>
+                                                <hsizetype>7</hsizetype>
+                                                <vsizetype>0</vsizetype>
+                                                <horstretch>0</horstretch>
+                                                <verstretch>0</verstretch>
+                                            </sizepolicy>
+                                        </property>
+                                        <property name="maximumSize">
+                                            <size>
+                                                <width>32767</width>
+                                                <height>32767</height>
+                                            </size>
+                                        </property>
+                                        <property name="editable">
+                                            <bool>true</bool>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLabel">
+                                        <property name="name">
+                                            <cstring>PortL</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Port</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QComboBox">
+                                        <item>
+                                            <property name="text">
+                                                <string>161</string>
+                                            </property>
+                                        </item>
+                                        <property name="name">
+                                            <cstring>Port</cstring>
+                                        </property>
+                                        <property name="sizePolicy">
+                                            <sizepolicy>
+                                                <hsizetype>1</hsizetype>
+                                                <vsizetype>0</vsizetype>
+                                                <horstretch>0</horstretch>
+                                                <verstretch>254</verstretch>
+                                            </sizepolicy>
+                                        </property>
+                                        <property name="maximumSize">
+                                            <size>
+                                                <width>32767</width>
+                                                <height>32767</height>
+                                            </size>
+                                        </property>
+                                        <property name="editable">
+                                            <bool>true</bool>
+                                        </property>
+                                        <property name="currentItem">
+                                            <number>0</number>
+                                        </property>
+                                        <property name="duplicatesEnabled">
+                                            <bool>false</bool>
+                                        </property>
+                                    </widget>
+                                </hbox>
+                            </widget>
+                            <widget class="QGroupBox" row="3" column="0">
+                                <property name="name">
+                                    <cstring>GeneralOptions</cstring>
+                                </property>
+                                <property name="title">
+                                    <string>General Options</string>
+                                </property>
+                                <grid>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QLabel" row="1" column="0">
+                                        <property name="name">
+                                            <cstring>TimeoutL</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Timeout (sec)</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLabel" row="0" column="0">
+                                        <property name="name">
+                                            <cstring>RetriesL</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Retries</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QSpinBox" row="0" column="1">
+                                        <property name="name">
+                                            <cstring>Retries</cstring>
+                                        </property>
+                                        <property name="maxValue">
+                                            <number>10</number>
+                                        </property>
+                                        <property name="value">
+                                            <number>1</number>
+                                        </property>
+                                    </widget>
+                                    <widget class="QSpinBox" row="1" column="1">
+                                        <property name="name">
+                                            <cstring>Timeout</cstring>
+                                        </property>
+                                        <property name="maxValue">
+                                            <number>20</number>
+                                        </property>
+                                        <property name="minValue">
+                                            <number>0</number>
+                                        </property>
+                                        <property name="value">
+                                            <number>3</number>
+                                        </property>
+                                    </widget>
+                                </grid>
+                            </widget>
+                            <widget class="QButtonGroup" row="1" column="0">
+                                <property name="name">
+                                    <cstring>Version</cstring>
+                                </property>
+                                <property name="title">
+                                    <string>SNMP Version</string>
+                                </property>
+                                <property name="alignment">
+                                    <set>AlignAuto</set>
+                                </property>
+                                <property name="flat">
+                                    <bool>false</bool>
+                                </property>
+                                <property name="checkable">
+                                    <bool>false</bool>
+                                </property>
+                                <property name="checked">
+                                    <bool>false</bool>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Select the SNMP version to use</string>
+                                </property>
+                                <vbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QRadioButton">
+                                        <property name="name">
+                                            <cstring>V1</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>SNMPv1</string>
+                                        </property>
+                                        <property name="checked">
+                                            <bool>true</bool>
+                                        </property>
+                                        <property name="buttonGroupId">
+                                            <number>1</number>
+                                        </property>
+                                    </widget>
+                                    <widget class="QRadioButton">
+                                        <property name="name">
+                                            <cstring>V2</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>SNMPv2c</string>
+                                        </property>
+                                        <property name="buttonGroupId">
+                                            <number>2</number>
+                                        </property>
+                                    </widget>
+                                    <widget class="QRadioButton">
+                                        <property name="name">
+                                            <cstring>V3</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>SNMPv3</string>
+                                        </property>
+                                        <property name="buttonGroupId">
+                                            <number>3</number>
+                                        </property>
+                                    </widget>
+                                </vbox>
+                            </widget>
+                            <widget class="QGroupBox" row="2" column="0">
+                                <property name="name">
+                                    <cstring>V1V2cOptions</cstring>
+                                </property>
+                                <property name="title">
+                                    <string>SNMPv1 / v2c options</string>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Here options specific to SNMPv1/v2c can be entered</string>
+                                </property>
+                                <grid>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QLineEdit" row="0" column="1">
+                                        <property name="name">
+                                            <cstring>ReadComm</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>public</string>
+                                        </property>
+                                        <property name="alignment">
+                                            <set>AlignAuto</set>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLabel" row="0" column="0">
+                                        <property name="name">
+                                            <cstring>ReadCommL</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Read community</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLineEdit" row="1" column="1">
+                                        <property name="name">
+                                            <cstring>WriteComm</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>private</string>
+                                        </property>
+                                        <property name="alignment">
+                                            <set>AlignAuto</set>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLabel" row="1" column="0">
+                                        <property name="name">
+                                            <cstring>WriteCommL</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Write community</string>
+                                        </property>
+                                    </widget>
+                                </grid>
+                            </widget>
+                        </grid>
+                    </widget>
+                    <spacer row="0" column="1">
+                        <property name="name">
+                            <cstring>SpacerUp</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>80</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <spacer row="2" column="1">
+                        <property name="name">
+                            <cstring>SpacerDown</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>80</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <spacer row="1" column="0">
+                        <property name="name">
+                            <cstring>SpacerLeft</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Horizontal</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>100</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <spacer row="1" column="2">
+                        <property name="name">
+                            <cstring>SpacerRight</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Horizontal</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>80</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                </grid>
+            </widget>
         </widget>
     </grid>
 </widget>
