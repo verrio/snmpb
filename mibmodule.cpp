@@ -144,16 +144,21 @@ void MibModule::ShowModuleInfo(void)
 void MibModule::RebuildTotalList(void)
 {
     char    *dir, *smipath, *str;
+#ifdef WIN32
+    char    sep[2] = {';', 0};
+#else
     char    sep[2] = {':', 0};
-    
+#endif
+ 
     smipath = strdup(smiGetPath());
-    
+   
     Total.clear();
     
     for (dir = strtok(smipath, sep); dir; dir = strtok(NULL, sep)) {
         QDir d(dir, QString::null, QDir::Unsorted, 
                QDir::Files | QDir::Readable | QDir::NoSymLinks);
         const QFileInfoList *list = d.entryInfoList();
+        if (!list) continue;
         QFileInfoListIterator it( *list );
         QFileInfo *fi;
         

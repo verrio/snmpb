@@ -85,8 +85,10 @@ Agent::Agent(QComboBox* UN, QComboBox* SL, QLineEdit* CN,
              this, SLOT( TableViewFrom(const QString&) ) );
     
     int status;
-    
+   
+#if 0 
     debug_set_logfile("snmpb.log"); // Write debug info to a file
+#endif
     
     Snmp::socket_startup();  // Initialize socket subsystem
     
@@ -501,7 +503,8 @@ void Agent::AsyncCallback(int reason, Pdu &pdu,
     int pdu_error;
     int status;
     Vb vb;   // empty Vb
-        
+    int z = 0;
+ 
     switch(reason)
     {
     case SNMP_CLASS_NOTIFICATION:
@@ -543,7 +546,7 @@ void Agent::AsyncCallback(int reason, Pdu &pdu,
 
     requests++;
         
-    for ( int z=0; z < pdu.get_vb_count(); z++)
+    for ( z=0; z < pdu.get_vb_count(); z++)
     {
         pdu.get_vb( vb, z );
             
