@@ -28,9 +28,11 @@ protected slots:
     void SelectedNode( QListViewItem * item);
     void ExpandFromNode(void);
     void CollapseFromNode(void);
+    void WalkFromNode(void);
     
 signals:
     void NodeProperties(const QString& text);
+    void WalkFromOid(const QString& oid);
     
 protected:
     void contextMenuEvent ( QContextMenuEvent *);     

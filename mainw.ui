@@ -171,7 +171,7 @@
                                 </widget>
                                 <widget class="QTextEdit">
                                     <property name="name">
-                                        <cstring>QueryW</cstring>
+                                        <cstring>Query</cstring>
                                     </property>
                                     <property name="enabled">
                                         <bool>true</bool>
@@ -204,6 +204,9 @@
                                     </property>
                                     <property name="text">
                                         <string>Welcome to SnmpB !</string>
+                                    </property>
+                                    <property name="wordWrap">
+                                        <enum>NoWrap</enum>
                                     </property>
                                     <property name="overwriteMode">
                                         <bool>false</bool>
@@ -1059,6 +1062,7 @@
         </sizepolicy>
         <pixmap>image0</pixmap>
         <signal>NodeProperties(const QString&amp; text)</signal>
+        <signal>WalkFromOid(const QString&amp; oid)</signal>
         <slot access="public" specifier="">slot()</slot>
         <slot access="public" specifier="">ExpandNode(MibNode* node)</slot>
     </customwidget>

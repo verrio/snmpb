@@ -19,6 +19,9 @@ void MibView::contextMenuEvent ( QContextMenuEvent *)
                              "&Expand", this, SLOT(ExpandFromNode()));
     contextMenu->insertItem( QPixmap::fromMimeSource( "collapse.png" ), 
                              "&Collapse", this, SLOT(CollapseFromNode()));
+    contextMenu->insertSeparator();
+    contextMenu->insertItem("&Walk", this, SLOT(WalkFromNode()));
+    
     contextMenu->exec( QCursor::pos() );
     delete contextMenu;
 }
@@ -67,6 +70,17 @@ void MibView::CollapseFromNode(void)
         item->setOpen(FALSE);
         ++it;
     }
+}
+
+void MibView::WalkFromNode(void)
+{
+    QListViewItem *start = NULL;
+    
+    // Could it be null ?
+    if ((start = currentItem()) == NULL)
+        return;
+    
+    emit WalkFromOid(((MibNode*)start)->GetOid());
 }
 
 MibView::MibView (QWidget * parent, const char * name, WFlags f) : QListView(parent, name, f)

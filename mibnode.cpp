@@ -218,6 +218,14 @@ char *MibNode::GetTypeName(void)
 
     return (smiType->name);
 }
+
+char *MibNode::GetOid(void)
+{
+    // If the Node is NULL, this is the MIBTree node, return the iso OID ...
+    return (Node?smiRenderOID(Node->oidlen, Node->oid, 
+                             SMI_RENDER_NUMERIC):(char*)"1");
+}
+
 void MibNode::PrintProperties(QString& text)
 {
        if (!Node)

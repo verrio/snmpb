@@ -1,10 +1,12 @@
 SOURCES	+= main.cpp \
 	mibnode.cpp \
 	mibview.cpp \
-	mibmodule.cpp
+	mibmodule.cpp \
+	agent.cpp
 HEADERS	+= mibnode.h \
 	mibview.h \
-	mibmodule.h
+	mibmodule.h \
+	agent.h
 unix {
   UI_DIR = .ui
   MOC_DIR = .moc
@@ -38,5 +40,6 @@ IMAGES	= images/filenew \
 	images/snmpb.png
 TEMPLATE	=app
 CONFIG	+= qt warn_on release
+INCLUDEPATH	+= ../../snmp++/include/
 LIBS	+= -lsmi -L. -lsnmp++ -lcrypto
 LANGUAGE	= C++

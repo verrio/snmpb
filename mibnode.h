@@ -32,6 +32,7 @@ public:
 
     void SetPixmap(bool isOpened);
     void PrintProperties(QString& text);
+    char *GetOid();
     
 protected:
     char *GetAccess(void);
