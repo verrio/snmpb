@@ -129,7 +129,7 @@ void MibView::Populate(void)
     MibNode *root = new MibNode("MIB Tree", this);
     
     printf("SnmpB using libsmi version: " SMI_VERSION_STRING "\n");
-    
+        
     smiInit(NULL);
 
     smiflags = smiGetFlags();

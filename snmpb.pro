@@ -1,8 +1,10 @@
 SOURCES	+= main.cpp \
 	mibnode.cpp \
-	mibview.cpp
+	mibview.cpp \
+	mibmodule.cpp
 HEADERS	+= mibnode.h \
-	mibview.h
+	mibview.h \
+	mibmodule.h
 unix {
   UI_DIR = .ui
   MOC_DIR = .moc

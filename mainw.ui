@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>781</width>
-            <height>772</height>
+            <width>694</width>
+            <height>727</height>
         </rect>
     </property>
     <property name="sizePolicy">
@@ -180,6 +180,91 @@
                 <attribute name="title">
                     <string>Modules</string>
                 </attribute>
+                <grid>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <widget class="QLayoutWidget" row="1" column="1">
+                        <property name="name">
+                            <cstring>ButtonLayout</cstring>
+                        </property>
+                        <vbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <property name="margin">
+                                <number>0</number>
+                            </property>
+                            <property name="spacing">
+                                <number>0</number>
+                            </property>
+                            <widget class="QPushButton">
+                                <property name="name">
+                                    <cstring>AddButton</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Add -&gt;</string>
+                                </property>
+                            </widget>
+                            <widget class="QPushButton">
+                                <property name="name">
+                                    <cstring>RemoveButton</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>&lt;- Remove</string>
+                                </property>
+                            </widget>
+                        </vbox>
+                    </widget>
+                    <widget class="QLabel" row="0" column="0">
+                        <property name="name">
+                            <cstring>AvailableLabel</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Available MIB modules</string>
+                        </property>
+                    </widget>
+                    <widget class="QLabel" row="0" column="2">
+                        <property name="name">
+                            <cstring>LoadedLabel</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Loaded MIB modules</string>
+                        </property>
+                    </widget>
+                    <widget class="QListView" row="1" column="2">
+                        <column>
+                            <property name="text">
+                                <string>Module</string>
+                            </property>
+                            <property name="clickable">
+                                <bool>true</bool>
+                            </property>
+                            <property name="resizable">
+                                <bool>true</bool>
+                            </property>
+                        </column>
+                        <property name="name">
+                            <cstring>LoadedModules</cstring>
+                        </property>
+                    </widget>
+                    <widget class="QListView" row="1" column="0">
+                        <column>
+                            <property name="text">
+                                <string>Module</string>
+                            </property>
+                            <property name="clickable">
+                                <bool>true</bool>
+                            </property>
+                            <property name="resizable">
+                                <bool>true</bool>
+                            </property>
+                        </column>
+                        <property name="name">
+                            <cstring>AvailableModules</cstring>
+                        </property>
+                    </widget>
+                </grid>
             </widget>
         </widget>
     </grid>
