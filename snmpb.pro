@@ -39,7 +39,7 @@ IMAGES	= images/filenew \
 	images/expand.png \
 	images/snmpb.png
 TEMPLATE	=app
-CONFIG	+= qt warn_on release
+CONFIG	+= qt warn_on debug
 INCLUDEPATH	+= ../../snmp++/include/
 LIBS	+= -lsmi -L. -lsnmp++ -lcrypto
 LANGUAGE	= C++

@@ -29,10 +29,18 @@ protected slots:
     void ExpandFromNode(void);
     void CollapseFromNode(void);
     void WalkFromNode(void);
+    void GetFromNode(void);
+    void GetNextFromNode(void);
+    void SetFromNode(void);
+    void StopFromNode(void);
     
 signals:
     void NodeProperties(const QString& text);
     void WalkFromOid(const QString& oid);
+    void GetFromOid(const QString& oid);
+    void GetNextFromOid(const QString& oid);
+    void SetFromOid(const QString& oid);
+    void StopFromOid(const QString& oid);
     
 protected:
     void contextMenuEvent ( QContextMenuEvent *);     

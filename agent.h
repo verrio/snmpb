@@ -10,6 +10,7 @@
 #include <qbuttongroup.h>
 #include <qspinbox.h>
 #include <qradiobutton.h>
+#include <qtimer.h>
 
 #include "mibview.h"
 #include "snmp_pp/snmp_pp.h"
@@ -20,16 +21,27 @@ class Agent: public QObject
     
 public:
     Agent(QComboBox* UN, QComboBox* SL, QLineEdit* CN,
-             QLineEdit* EID, QComboBox* AProt, QLineEdit* APass,
-             QComboBox* PProt, QLineEdit* PPass, QComboBox* A,
-             QComboBox* P, QSpinBox* R, QSpinBox* T,
-             QRadioButton* v1, QRadioButton* v2, QRadioButton* v3,
-             QLineEdit* RC, QLineEdit* WC, 
-             QPushButton* DU, QPushButton* AU, QPushButton* SU,
-             MibView* MV, QTextEdit* Q);
+          QLineEdit* EID, QComboBox* AProt, QLineEdit* APass,
+          QComboBox* PProt, QLineEdit* PPass, QComboBox* A,
+          QComboBox* P, QSpinBox* R, QSpinBox* T,
+          QRadioButton* v1, QRadioButton* v2, QRadioButton* v3,
+          QLineEdit* RC, QLineEdit* WC, 
+          QPushButton* DU, QPushButton* AU, QPushButton* SU,
+          MibView* MV, QTextEdit* Q);
+    void AsyncCallback(int reason, Snmp *snmp, Pdu &pdu, SnmpTarget &target);
+    
+protected:
+    int Setup(const QString& oid, SnmpTarget **t, Pdu **p);
     
 public slots:
     void WalkFrom(const QString& oid);
+    void GetFrom(const QString& oid);
+    void GetNextFrom(const QString& oid);
+    void SetFrom(const QString& oid);
+    void StopFrom(const QString& oid);
+
+protected slots:
+    void TimerExpired(void);    
     
 private:
     QComboBox* UserName;
@@ -56,6 +68,13 @@ private:
     
     Snmp *snmp;
     v3MP *v3mp;
+    QTimer timer;
+    
+    int requests;
+    int objects;
+    QString msg;
+    Oid theoid;
+
 };
 
 #endif /* AGENT_H */

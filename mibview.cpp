@@ -21,6 +21,11 @@ void MibView::contextMenuEvent ( QContextMenuEvent *)
                              "&Collapse", this, SLOT(CollapseFromNode()));
     contextMenu->insertSeparator();
     contextMenu->insertItem("&Walk", this, SLOT(WalkFromNode()));
+    contextMenu->insertItem("&Get", this, SLOT(GetFromNode()));
+    contextMenu->insertItem("&Get Next", this, SLOT(GetNextFromNode()));
+    contextMenu->insertItem("&Set...", this, SLOT(SetFromNode()));
+    contextMenu->insertSeparator();
+    contextMenu->insertItem("&Stop", this, SLOT(StopFromNode()));
     
     contextMenu->exec( QCursor::pos() );
     delete contextMenu;
@@ -81,6 +86,50 @@ void MibView::WalkFromNode(void)
         return;
     
     emit WalkFromOid(((MibNode*)start)->GetOid());
+}
+
+void MibView::GetFromNode(void)
+{
+    QListViewItem *start = NULL;
+    
+    // Could it be null ?
+    if ((start = currentItem()) == NULL)
+        return;
+    
+    emit GetFromOid(((MibNode*)start)->GetOid());
+}
+
+void MibView::GetNextFromNode(void)
+{
+    QListViewItem *start = NULL;
+    
+    // Could it be null ?
+    if ((start = currentItem()) == NULL)
+        return;
+    
+    emit GetNextFromOid(((MibNode*)start)->GetOid());
+}
+
+void MibView::SetFromNode(void)
+{
+    QListViewItem *start = NULL;
+    
+    // Could it be null ?
+    if ((start = currentItem()) == NULL)
+        return;
+    
+    emit SetFromOid(((MibNode*)start)->GetOid());
+}
+
+void MibView::StopFromNode(void)
+{
+    QListViewItem *start = NULL;
+    
+    // Could it be null ?
+    if ((start = currentItem()) == NULL)
+        return;
+    
+    emit StopFromOid(((MibNode*)start)->GetOid());
 }
 
 MibView::MibView (QWidget * parent, const char * name, WFlags f) : QListView(parent, name, f)

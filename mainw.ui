@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>800</width>
-            <height>600</height>
+            <height>602</height>
         </rect>
     </property>
     <property name="sizePolicy">
@@ -186,8 +186,7 @@
                                     </property>
                                     <property name="font">
                                         <font>
-                                            <family>Times [Adobe]</family>
-                                            <pointsize>11</pointsize>
+                                            <family>Fixed [Misc]</family>
                                         </font>
                                     </property>
                                     <property name="frameShape">
@@ -202,17 +201,30 @@
                                     <property name="hScrollBarMode">
                                         <enum>AlwaysOn</enum>
                                     </property>
+                                    <property name="textFormat">
+                                        <enum>RichText</enum>
+                                    </property>
                                     <property name="text">
-                                        <string>Welcome to SnmpB !</string>
+                                        <string>Welcome to SnmpB !
+</string>
                                     </property>
                                     <property name="wordWrap">
                                         <enum>NoWrap</enum>
+                                    </property>
+                                    <property name="undoDepth">
+                                        <number>0</number>
                                     </property>
                                     <property name="overwriteMode">
                                         <bool>false</bool>
                                     </property>
                                     <property name="readOnly">
                                         <bool>true</bool>
+                                    </property>
+                                    <property name="undoRedoEnabled">
+                                        <bool>false</bool>
+                                    </property>
+                                    <property name="autoFormatting">
+                                        <set>AutoNone</set>
                                     </property>
                                 </widget>
                             </vbox>
@@ -540,7 +552,7 @@
                                             <cstring>UserNameL</cstring>
                                         </property>
                                         <property name="text">
-                                            <string>User Name</string>
+                                            <string>UserName</string>
                                         </property>
                                     </widget>
                                     <widget class="QLabel" row="4" column="0">
