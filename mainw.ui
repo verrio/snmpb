@@ -1,0 +1,395 @@
+<!DOCTYPE UI><UI version="3.2" stdsetdef="1">
+<class>MainW</class>
+<widget class="QMainWindow">
+    <property name="name">
+        <cstring>MainW</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>749</width>
+            <height>760</height>
+        </rect>
+    </property>
+    <property name="sizePolicy">
+        <sizepolicy>
+            <hsizetype>5</hsizetype>
+            <vsizetype>5</vsizetype>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+        </sizepolicy>
+    </property>
+    <property name="caption">
+        <string>SnmpB</string>
+    </property>
+    <grid>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <widget class="QSplitter" row="0" column="0">
+            <property name="name">
+                <cstring>MainSplitter</cstring>
+            </property>
+            <property name="sizePolicy">
+                <sizepolicy>
+                    <hsizetype>7</hsizetype>
+                    <vsizetype>7</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                </sizepolicy>
+            </property>
+            <property name="orientation">
+                <enum>Horizontal</enum>
+            </property>
+            <widget class="QLayoutWidget">
+                <property name="name">
+                    <cstring>MIBTreeLayout</cstring>
+                </property>
+                <vbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <property name="margin">
+                        <number>0</number>
+                    </property>
+                    <property name="spacing">
+                        <number>0</number>
+                    </property>
+                    <widget class="QLabel">
+                        <property name="name">
+                            <cstring>MIBTreeL</cstring>
+                        </property>
+                        <property name="text">
+                            <string>MIB Tree</string>
+                        </property>
+                    </widget>
+                    <widget class="MibView">
+                        <property name="name">
+                            <cstring>MIBTree</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>true</bool>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>2</hsizetype>
+                                <vsizetype>2</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                            </sizepolicy>
+                        </property>
+                    </widget>
+                </vbox>
+            </widget>
+            <widget class="QLayoutWidget">
+                <property name="name">
+                    <cstring>QueryLayout</cstring>
+                </property>
+                <vbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <property name="margin">
+                        <number>0</number>
+                    </property>
+                    <property name="spacing">
+                        <number>0</number>
+                    </property>
+                    <widget class="QLabel">
+                        <property name="name">
+                            <cstring>QueryL</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Query Results</string>
+                        </property>
+                    </widget>
+                    <widget class="QTextEdit">
+                        <property name="name">
+                            <cstring>QueryW</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>true</bool>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>7</hsizetype>
+                                <vsizetype>7</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                            </sizepolicy>
+                        </property>
+                        <property name="font">
+                            <font>
+                                <family>Times [Adobe]</family>
+                                <pointsize>11</pointsize>
+                            </font>
+                        </property>
+                        <property name="frameShape">
+                            <enum>WinPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                            <enum>Plain</enum>
+                        </property>
+                        <property name="vScrollBarMode">
+                            <enum>AlwaysOn</enum>
+                        </property>
+                        <property name="hScrollBarMode">
+                            <enum>AlwaysOn</enum>
+                        </property>
+                        <property name="text">
+                            <string>Welcome to SnmpB !</string>
+                        </property>
+                        <property name="overwriteMode">
+                            <bool>false</bool>
+                        </property>
+                        <property name="readOnly">
+                            <bool>true</bool>
+                        </property>
+                    </widget>
+                </vbox>
+            </widget>
+        </widget>
+    </grid>
+</widget>
+<menubar>
+    <property name="name">
+        <cstring>MenuBar</cstring>
+    </property>
+    <item text="&amp;File" name="fileMenu">
+        <action name="fileNewAction"/>
+        <action name="fileOpenAction"/>
+        <action name="fileSaveAction"/>
+        <action name="fileSaveAsAction"/>
+        <separator/>
+        <action name="filePrintAction"/>
+        <separator/>
+        <action name="fileExitAction"/>
+    </item>
+    <item text="&amp;Options" name="PopupMenuEditor">
+        <action name="optionsHorizontal_splitAction"/>
+    </item>
+    <item text="&amp;Help" name="helpMenu">
+        <action name="helpContentsAction"/>
+        <action name="helpIndexAction"/>
+        <separator/>
+        <action name="helpAboutAction"/>
+    </item>
+</menubar>
+<toolbars>
+</toolbars>
+<customwidgets>
+    <customwidget>
+        <class>MibView</class>
+        <header location="global">mibview.h</header>
+        <sizehint>
+            <width>-1</width>
+            <height>-1</height>
+        </sizehint>
+        <container>0</container>
+        <sizepolicy>
+            <hordata>5</hordata>
+            <verdata>5</verdata>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+        </sizepolicy>
+        <pixmap>image0</pixmap>
+        <signal>NodeProperties(const QString&amp; text)</signal>
+        <slot access="public" specifier="">slot()</slot>
+        <slot access="public" specifier="">ExpandNode(MibNode* node)</slot>
+    </customwidget>
+</customwidgets>
+<actions>
+    <action>
+        <property name="name">
+            <cstring>fileNewAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>filenew</iconset>
+        </property>
+        <property name="text">
+            <string>New</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;New</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+N</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileOpenAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>fileopen</iconset>
+        </property>
+        <property name="text">
+            <string>Open</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Open...</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+O</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileSaveAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>filesave</iconset>
+        </property>
+        <property name="text">
+            <string>Save</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Save</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+S</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileSaveAsAction</cstring>
+        </property>
+        <property name="text">
+            <string>Save As</string>
+        </property>
+        <property name="menuText">
+            <string>Save &amp;As...</string>
+        </property>
+        <property name="accel">
+            <string></string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>filePrintAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>print</iconset>
+        </property>
+        <property name="text">
+            <string>Print</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Print...</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+P</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileExitAction</cstring>
+        </property>
+        <property name="text">
+            <string>Exit</string>
+        </property>
+        <property name="menuText">
+            <string>E&amp;xit</string>
+        </property>
+        <property name="accel">
+            <string></string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>helpContentsAction</cstring>
+        </property>
+        <property name="text">
+            <string>Contents</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Contents...</string>
+        </property>
+        <property name="accel">
+            <string></string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>helpIndexAction</cstring>
+        </property>
+        <property name="text">
+            <string>Index</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Index...</string>
+        </property>
+        <property name="accel">
+            <string></string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>helpAboutAction</cstring>
+        </property>
+        <property name="text">
+            <string>About</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;About</string>
+        </property>
+        <property name="accel">
+            <string></string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>optionsHorizontal_splitAction</cstring>
+        </property>
+        <property name="toggleAction">
+            <bool>true</bool>
+        </property>
+        <property name="text">
+            <string>&amp;Horizontal split</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+H</string>
+        </property>
+    </action>
+</actions>
+<images>
+    <image name="image0">
+        <data format="XPM.GZ" length="4469">789c9597496fe4ca0dc7eff3298ce16d10f0492595a4429083f76dec717b1bdb410ea4966eafeda5edb127c8774f89a484893dc07b71f9d0bfe6bf4aace252ea3fbe2c9d1dec2d7df9e3d3d3821697f5523da3c7a52fcdf3ededdb3ffff58f7f7ffaecdc52ff9fa64beef3df3e7d4658aa97f6e777ad00fd0afc0b4c16bf5a5e2340227fc2c7c2ae1f3dc3d5c8b9308f5c08d3c895cc772393f0d1c8b5f0c9c84dcfb4229c0fcf231e59d7ff39b2cca755e35cfda1e791c50e9723cbfa38132efa21fa7de12ab2ae77274cf11bf53f136e922e95f380e59ed3240ef5efd6d8a599d82b61d70fb17f17ce526febcf47167f6022ecd3c2f4cbc695f1b971f4a0677e102ed260e7ff32b0eaa130aed51f54ae0686204c71e8fe4f8d6bdbdf85709d36664765e7d44e3723ab7f67c2adf3ba3e753d476361f3bf093b57a65efc3935ae94614bb8728dcddf51ce12b3cbf93a729ddab951ced2a414be1f59e37528cc596af30f8c33e375e13a73a9e4237c15eea25df33337ce53590f247e599a0565f4c69406e11fc2659e26ca53e1aa1fb21f32ee544f7b23ebf3377a8ee959ebfa24f99abbbc553d483ee63eb2e6736ddca59acfb25e5efb60f5540a779ed54edb3dfbc407e35d63b3c391716d2cf3251d25de2cf1f4ce779a7f80ca4562f52ae7e7b3224da57ff0d4d8ea99db91c50e6e60970a3f19673a1f25ff7c3ee82911f645a6ccf381351f59ead91745aefed19ab157ff41fa992f0b6ff523e7eb435129633ab09dafe49fa722d87ad3819de43b4bfff35c90d5cb6c60b5c38931a7ba3fe91fbe1eec7c2ddc14568fb461dcd8fe6e07b6f5f391552ffdc5b7e3f38e8d59cf8f1e8c877e7133b0fa831acfae1fa2d77877713dadefc6b8553d4bfe1569995afd4f8cad1f80f4db222f33f5875e8c73a7fd66d7b8b07c97fa2f7cb4ebfdb2616cf1c27563d3939c675194b183c8fc6be3cc497f41a9cfa22c2d3eb410a6b25046c9bfa2e987cc07e1b66cec79939165bf24fdb22caacaced71b07b34bff2ccbaa74da1fb68d2bdd2fd523abfdcdd8e6e3e6c8da0fd78cc9d697fc8ad307bbc4a3a47e084b3fad7ab99eafd8ab106adb4fa24c89f65f5c1e59fd91fba4aa69383fb94fab26b2fab76a9c6b3ec1e3c0aa27d57794657ade609c67eabfc4272451aff59418174efd5f310ee6dfc1c87a3f4abc424ad6af70cb98cc9fb5812d3e721ec15130ff2e8cd949ff641e599f2ff109593f84255f434e3ed3fa537b41d65f61aacc89c693247ea1e4c4ee8b1de3d4fa7b3ab2da778dedbe611ad8fc91fe19aa414f07c6ceb13c5feeb71038b7fb6bc5d8db7d2ffd3f10a7d64f5b63ebaf24f91b78f01fe6c643bd3a636fe72ffd38d491d5bf6d63ab473c372ead9ee5fe0b4d7cbefa7f64ecedfe5a351eeefb7de3607c36b2f67fe5962bcd7f783026cbf76e64d54b7d858e935ce33f330e7a7e941993c693e5fea224aeaffd64614c9aaf188cd9e229f94729e7ea0fdd1b079d4fc7c656bf5819b3f553391fcab8b17ad81c59ef4fe9ef14cbd7faa5f46ba23ab77c93fb8b9a9a2ddfe5fd86dabab6fea0fa8edb42f359ee0f4eb82be4fd10a57f737ca15326392f764d6ef99d0e6cfd43ea97e3eb48a9fe1f1a7baff5f86c5c184b3cd90f7a9c1b7b7bbef4332ee3eb8dc6e3d1b830fb9371697c3fb2ee6f615c19cbfdcd15d724e78fba5e35da1f8c83324b7fe2a6692d7e72bf701b59ce6bb2e807c29f8fc962d02321638d0db6bf191d4e71a633541f3f315ee2155ee30ddee21dcef11e1ff0119fe258e033bee00f7cfd1f7d1dd56ff81397710557710dd7710337710bb7710777f12beebdd337b81fd5dff00027788847781cc7099ee2773cc3f338ebe29dbe8d9e24519da28bea0c73f458c44f0e4bac30007ed0dfe20a001030d4d0400b1d4c6106977005d770f39bf5ef70156ea3f50ee6700f0ff0084fb080e7b8c20bfc80d70ffa39bcc14f588e6bafc02aacc17a546ec0266cc535b661e783fe1e76a3e52becc13e7c8383a89ee0261cc251fcf6184e3ee81fe1148fe13b9cc1b9accd700109a4e0a23e83fc83fe013c9e40117759467505019890625d12534dcd477fa8a50e8f684a33baa42bbaa61b3ca65bbaa339ddd3c37b3d3dd2132da2fe995ee807bdd21bfda4655aa1555aa375daf8cdfa9bb445db31ae8e766897bed21eed47f52a7da3039abcd37774883b7444c77442a771af5771ef57f43dae7d46e77441c93bfd145fe20fc2f8238ae23d48f1e5892a0a8c1c37cdcc35bfdfef2c66ec1eb7dcf194677cc9577ccd377c4b1b7cc773bee7f7fb057cfd9301eff47f698cf5f87feaff72bdffe7ef9ffe0bcd14d398</data>
+    </image>
+</images>
+<connections>
+    <connection>
+        <sender>optionsHorizontal_splitAction</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>MainW</receiver>
+        <slot>HorizontalSplit(bool)</slot>
+    </connection>
+    <connection>
+        <sender>fileExitAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainW</receiver>
+        <slot>close()</slot>
+    </connection>
+    <connection>
+        <sender>MIBTree</sender>
+        <signal>NodeProperties(const QString&amp;)</signal>
+        <receiver>QueryW</receiver>
+        <slot>setText(const QString&amp;)</slot>
+    </connection>
+</connections>
+<includes>
+    <include location="local" impldecl="in implementation">mainw.ui.h</include>
+</includes>
+<slots>
+    <slot>HorizontalSplit( bool value )</slot>
+</slots>
+<functions>
+    <function>PopulateTree( void )</function>
+</functions>
+<pixmapinproject/>
+<layoutdefaults spacing="6" margin="11"/>
+<includehints>
+    <includehint>mibview.h</includehint>
+</includehints>
+</UI>
