@@ -28,11 +28,13 @@ public:
           QLineEdit* RC, QLineEdit* WC, 
           QPushButton* DU, QPushButton* AU, QPushButton* SU,
           MibView* MV, QTextEdit* Q);
-    void AsyncCallback(int reason, Snmp *snmp, Pdu &pdu, SnmpTarget &target);
+    void AsyncCallback(int reason, Snmp *snmp, Pdu &pdu, 
+                       SnmpTarget &target, int iswalk);
     
 protected:
     int Setup(const QString& oid, SnmpTarget **t, Pdu **p);
-    
+    char *GetPrintableValue(SmiNode *node, Vb *vb);
+            
 public slots:
     void WalkFrom(const QString& oid);
     void GetFrom(const QString& oid);

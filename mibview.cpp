@@ -96,7 +96,9 @@ void MibView::GetFromNode(void)
     if ((start = currentItem()) == NULL)
         return;
     
-    emit GetFromOid(((MibNode*)start)->GetOid());
+    QString oid(((MibNode*)start)->GetOid());
+    oid += ".0";
+    emit GetFromOid(oid);
 }
 
 void MibView::GetNextFromNode(void)
@@ -107,7 +109,9 @@ void MibView::GetNextFromNode(void)
     if ((start = currentItem()) == NULL)
         return;
     
-    emit GetNextFromOid(((MibNode*)start)->GetOid());
+    QString oid(((MibNode*)start)->GetOid());
+    oid += ".0";
+    emit GetNextFromOid(oid);
 }
 
 void MibView::SetFromNode(void)

@@ -7,13 +7,22 @@
 #define BULK_MAX 10
 #define ASYNC_TIMER_MSEC 5
 
-/// C Callback function for snmp++
+/// C Callback functions for snmp++
+void callback_walk(int reason, Snmp *snmp, Pdu &pdu, SnmpTarget &target, void *cd)
+{
+  if (cd)
+  {
+    // just call the real callback member function...
+    ((Agent*)cd)->AsyncCallback(reason, snmp, pdu, target, 1);
+  }
+}
+
 void callback(int reason, Snmp *snmp, Pdu &pdu, SnmpTarget &target, void *cd)
 {
   if (cd)
   {
     // just call the real callback member function...
-    ((Agent*)cd)->AsyncCallback(reason, snmp, pdu, target);
+    ((Agent*)cd)->AsyncCallback(reason, snmp, pdu, target, 0);
   }
 }
 
@@ -220,35 +229,6 @@ int Agent::Setup(const QString& oid, SnmpTarget **t, Pdu **p)
     return 0;
 }
 
-void Agent::WalkFrom(const QString& oid)
-{
-    int status;
-    
-    // Initialize agent & pdu objects
-    SnmpTarget *target;
-    Pdu *pdu;
-    if (Setup(oid, &target, &pdu) < 0)
-        return;
-    
-    // Now do an async get_bulk
-    status = snmp->get_bulk(*pdu, *target, 0, BULK_MAX, callback, this);
-
-    // Could we send it?
-    if (status == SNMP_CLASS_SUCCESS)
-    {
-        timer.start(ASYNC_TIMER_MSEC);
-    }
-    else
-    {
-        msg = QString("<font color=red>Could not send GETBULK request: %1<font>")
-                       .arg(Snmp::error_msg(status));
-        Query->append(msg);
-    }
-    
-    delete target;
-    delete pdu;
-}
-
 void Agent::TimerExpired(void)
 {
   // When using async requests or if we are waiting for traps or
@@ -257,8 +237,83 @@ void Agent::TimerExpired(void)
   snmp->eventListHolder->SNMPProcessPendingEvents();
 }
 
+char *Agent::GetPrintableValue(SmiNode *node, Vb *vb)
+{  
+    SmiValue myvalue;
+    SmiType *type = smiGetNodeType(node);
+            
+    if (type && (type->name == NULL)) 
+        type = smiGetParentType(type);
+            
+    if (type)
+    {                
+        //printf("        Type: %s\n", smiRenderType(type, SMI_RENDER_ALL));
+        
+        myvalue.basetype = type->basetype;
+        myvalue.len = 0;
+        switch (myvalue.basetype)
+        {
+        case SMI_BASETYPE_UNKNOWN:
+            break;
+        case SMI_BASETYPE_UNSIGNED32:
+            vb->get_value(myvalue.value.unsigned32);
+            if (vb->get_syntax() == sNMP_SYNTAX_TIMETICKS)
+                return (char*)vb->get_printable_value();
+            else
+                return smiRenderValue(&myvalue, type, SMI_RENDER_ALL);
+            break;
+        case SMI_BASETYPE_INTEGER32:
+            vb->get_value(myvalue.value.integer32);
+            return smiRenderValue(&myvalue, type, SMI_RENDER_ALL);
+        case SMI_BASETYPE_ENUM:
+            vb->get_value(myvalue.value.integer32);
+            return smiRenderValue(&myvalue, smiGetNodeType(node), SMI_RENDER_ALL);
+        case SMI_BASETYPE_OBJECTIDENTIFIER:
+        {
+            Oid val;
+            vb->get_value(val);
+            myvalue.value.oid = (SmiSubid*)&(val[0]);
+            myvalue.len = val.len();
+            return smiRenderValue(&myvalue, type, SMI_RENDER_NAME);
+        }
+        case SMI_BASETYPE_OCTETSTRING:
+        {
+            switch(vb->get_syntax())
+            {
+            case sNMP_SYNTAX_OCTETS:
+            {
+                static unsigned char buf[5000];
+                unsigned long len;
+                vb->get_value(buf, len, 5000);
+                myvalue.len = len;
+                myvalue.value.ptr = buf;
+                return smiRenderValue(&myvalue, type, SMI_RENDER_ALL);
+            }
+            case sNMP_SYNTAX_OPAQUE:
+            case sNMP_SYNTAX_IPADDR:
+                return (char*)vb->get_printable_value();
+            default:
+                break;
+            }
+        }
+        
+        /* TODO */    
+        case SMI_BASETYPE_UNSIGNED64:
+            // myvalue.value.unsigned64
+        case SMI_BASETYPE_INTEGER64:
+            // myvalue.value.integer64
+        case SMI_BASETYPE_BITS:
+        default:
+            break;
+        }
+    }
+    
+    // Last resort ...
+    return (char*)vb->get_printable_value();
+}
+
 void Agent::AsyncCallback(int reason, Snmp * /*snmp*/, Pdu &pdu,
-                                SnmpTarget &target)
+                                SnmpTarget &target, int iswalk)
 {
     int pdu_error;
     int status;
@@ -320,7 +375,7 @@ void Agent::AsyncCallback(int reason, Snmp * /*snmp*/, Pdu &pdu,
             unsigned long  oidlen = tmp.len();
                 
             // Stop there if we're out of scope
-            if (tmp.nCompare(theoid.len(), theoid))
+            if (iswalk && tmp.nCompare(theoid.len(), theoid))
             {
                 goto end;
             }
@@ -329,18 +384,21 @@ void Agent::AsyncCallback(int reason, Snmp * /*snmp*/, Pdu &pdu,
                 SmiNode *node = smiGetNodeByOID(oidlen, (unsigned int *)oid);
                 if (node)
                 {
-                    char* base_oid = smiRenderOID(node->oidlen, node->oid, 
+                    char *base_oid = smiRenderOID(node->oidlen, node->oid, 
                                                   SMI_RENDER_NUMERIC);
-                    char* full_oid = (char*)vb.get_printable_oid();
+                    char *full_oid = (char*)vb.get_printable_oid();
                     char *b = base_oid;
                     char *f = full_oid;                    
                     while ((*b++ == *f++) && (*b != '\0') && (*f != '\0'));
                     /* f is now the remaining part */
-                        
+                    
+                    // Print the OID part
                     msg += QString("%1: %2").arg(objects).arg(node->name);
                     if (*f != '\0') msg += QString("%1").arg(f);
+                    
+                    // Print the value part
                     msg += QString("    <font color=blue>%1</font>")
-                                   .arg(vb.get_printable_value());   
+                                   .arg(GetPrintableValue(node, &vb));
                 }
                 else
                 {
@@ -366,27 +424,30 @@ void Agent::AsyncCallback(int reason, Snmp * /*snmp*/, Pdu &pdu,
             msg += "<br>";
     } // for  
 
-    // Issue next get_bulk ...
-        
-    // last vb becomes seed of next request
-    pdu.set_vblist(&vb, 1);
+    // Walk request, reissue a get_bulk ...
+    if (iswalk)
+    {
+        // Issue next get_bulk ...
+        // last vb becomes seed of next request
+        pdu.set_vblist(&vb, 1);
  
-    // Now do an async get_bulk
-    status = snmp->get_bulk(pdu, target, 0, BULK_MAX, callback, this);
+        // Now do an async get_bulk
+        status = snmp->get_bulk(pdu, target, 0, BULK_MAX, callback_walk, this);
 
-    // Could we send it?
-    if (status == SNMP_CLASS_SUCCESS)
-    {
-        timer.start(ASYNC_TIMER_MSEC);
-        return;
+        // Could we send it?
+        if (status == SNMP_CLASS_SUCCESS)
+        {
+            timer.start(ASYNC_TIMER_MSEC);
+            return;
+        }
+        else
+        {
+            msg = QString("<font color=red>Could not send GETBULK request: %1<font>")
+                           .arg(Snmp::error_msg(status));
+            goto cleanup;
+        }
     }
-    else
-    {
-        msg = QString("<font color=red>Could not send GETBULK request: %1<font>")
-                       .arg(Snmp::error_msg(status));
-        goto cleanup;
-    }
-
+    
 end:    
     msg += "-----SNMP query finished-----<br>";
     msg += "<font color=#009000>Total # of Requests = ";    
@@ -398,7 +459,7 @@ cleanup:
     timer.stop();
 }
 
-void Agent::GetFrom(const QString& oid)
+void Agent::WalkFrom(const QString& oid)
 {
     int status;
     
@@ -408,14 +469,42 @@ void Agent::GetFrom(const QString& oid)
     if (Setup(oid, &target, &pdu) < 0)
         return;
     
-    // Now do a sync get
-    status = snmp->get(*pdu, *target);
+    // Now do an async get_bulk
+    status = snmp->get_bulk(*pdu, *target, 0, BULK_MAX, callback_walk, this);
 
     // Could we send it?
     if (status == SNMP_CLASS_SUCCESS)
     {
-        // TODO
-        printf("Get completed!\n");
+        timer.start(ASYNC_TIMER_MSEC);
+    }
+    else
+    {
+        msg = QString("<font color=red>Could not send GETBULK request: %1<font>")
+                       .arg(Snmp::error_msg(status));
+        Query->append(msg);
+    }
+    
+    delete target;
+    delete pdu;
+}
+
+void Agent::GetFrom(const QString& oid)
+{
+    int status;
+    
+    // Initialize agent & pdu objects
+    SnmpTarget *target;
+    Pdu *pdu;    
+    if (Setup(oid, &target, &pdu) < 0)
+        return;
+    
+    // Now do an async get
+    status = snmp->get(*pdu, *target, callback, this);
+
+    // Could we send it?
+    if (status == SNMP_CLASS_SUCCESS)
+    {
+        timer.start(ASYNC_TIMER_MSEC);
     }
     else
     {
@@ -430,15 +519,39 @@ void Agent::GetFrom(const QString& oid)
 
 void Agent::GetNextFrom(const QString& oid)
 {
-    printf("GetNext!\n");
+    int status;
+    
+    // Initialize agent & pdu objects
+    SnmpTarget *target;
+    Pdu *pdu;    
+    if (Setup(oid, &target, &pdu) < 0)
+        return;
+    
+    // Now do an async get_next
+    status = snmp->get_next(*pdu, *target, callback, this);
+
+    // Could we send it?
+    if (status == SNMP_CLASS_SUCCESS)
+    {
+        timer.start(ASYNC_TIMER_MSEC);
+    }
+    else
+    {
+        msg = QString("<font color=red>Could not send GETNEXT request: %1<font>")
+                       .arg(Snmp::error_msg(status));
+        Query->append(msg);
+    }
+    
+    delete target;
+    delete pdu;
 }
 
 void Agent::SetFrom(const QString& oid)
 {
-    printf("Set!\n");
+    printf("Set %s!\n", oid.latin1());
 }
 
 void Agent::StopFrom(const QString& oid)
 {
-    printf("Stop!\n");
+    printf("Stop %s!\n", oid.latin1());
 }
