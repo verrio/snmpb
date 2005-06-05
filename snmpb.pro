@@ -1,5 +1,4 @@
-SOURCES	+= \
-	snmp++/src/address.cpp \
+SOURCES	+= snmp++/src/address.cpp \
 	snmp++/src/asn1.cpp \
 	snmp++/src/auth_priv.cpp \
 	snmp++/src/counter.cpp \
@@ -74,7 +73,7 @@ TEMPLATE	=app
 CONFIG	+= qt warn_on debug
 win32:DEFINES	+= WIN32
 INCLUDEPATH	+= snmp++/include/
-win32:INCLUDEPATH += C:\smi\include C:\openssl\include
+win32:INCLUDEPATH	+= C:\smi\include C:\openssl\include
 win32:LIBS	+= -L. C:\smi\lib\smi.lib C:\openssl\lib\vc\libeay32.lib
-unix:LIBS	+= -L. -lsmi -lcrypto
+unix:LIBS	+= -L. -lsmi -lcrypto -lqwt
 LANGUAGE	= C++
