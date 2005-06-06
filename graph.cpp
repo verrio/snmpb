@@ -4,6 +4,7 @@
 #include <qpainter.h>
 #include <qstyle.h>
 #include <qcolor.h>
+#include <qnamespace.h>
 #include "graph.h"
 
 class ColorListBoxItem : public QListBoxItem
@@ -25,6 +26,44 @@ private:
     QColor color;
 };
 
+class PenWidthListBoxItem : public QListBoxItem
+{
+public:
+    PenWidthListBoxItem(uint w)
+        : QListBoxItem()
+    {
+        thewidth = w;
+        setCustomHighlighting( TRUE );
+    }
+
+protected:
+    virtual void paint( QPainter * );
+    virtual int width( const QListBox* ) const { return 65; }
+    virtual int height( const QListBox* ) const { return 18; }
+    
+private:
+    uint thewidth;
+};
+
+class PenStyleListBoxItem : public QListBoxItem
+{
+public:
+    PenStyleListBoxItem(enum Qt::PenStyle s)
+        : QListBoxItem()
+    {
+        style = s;
+        setCustomHighlighting( TRUE );
+    }
+
+protected:
+    virtual void paint( QPainter * );
+    virtual int width( const QListBox* ) const { return 65; }
+    virtual int height( const QListBox* ) const { return 18; }
+    
+private:
+    enum Qt::PenStyle style;
+};
+
 void ColorListBoxItem::paint( QPainter *painter )
 {
     // evil trick: find out whether we are painted onto our listbox
@@ -34,6 +73,38 @@ void ColorListBoxItem::paint( QPainter *painter )
     if ( in_list_box && isSelected() )
         painter->eraseRect( r );
     painter->fillRect( 3, 3, width(listBox())-6, height(listBox())-6, color);
+    if ( in_list_box && isCurrent() )
+        listBox()->style().drawPrimitive( QStyle::PE_FocusRect, painter, r, 
+                                          listBox()->colorGroup() );
+}
+
+void PenWidthListBoxItem::paint( QPainter *painter )
+{
+    // evil trick: find out whether we are painted onto our listbox
+    bool in_list_box = listBox() && listBox()->viewport() == painter->device();
+    
+    QRect r ( 0, 0, width( listBox() ), height( listBox() ) );
+    if ( in_list_box && isSelected() )
+        painter->eraseRect( r );
+    QPen pen( Qt::black, thewidth);
+    painter->setPen(pen);
+    painter->drawLine ( 0, height(listBox())/2, width(listBox()), height(listBox())/2);    
+    if ( in_list_box && isCurrent() )
+        listBox()->style().drawPrimitive( QStyle::PE_FocusRect, painter, r, 
+                                          listBox()->colorGroup() );
+}
+
+void PenStyleListBoxItem::paint( QPainter *painter )
+{
+    // evil trick: find out whether we are painted onto our listbox
+    bool in_list_box = listBox() && listBox()->viewport() == painter->device();
+    
+    QRect r ( 0, 0, width( listBox() ), height( listBox() ) );
+    if ( in_list_box && isSelected() )
+        painter->eraseRect( r );
+    QPen pen( Qt::black, 2, style);
+    painter->setPen(pen);
+    painter->drawLine ( 0, height(listBox())/2, width(listBox()), height(listBox())/2);    
     if ( in_list_box && isCurrent() )
         listBox()->style().drawPrimitive( QStyle::PE_FocusRect, painter, r, 
                                           listBox()->colorGroup() );
@@ -94,6 +165,20 @@ Graph::Graph(QTabWidget* GT, QPushButton* GC, QPushButton* GD,
     PlotColor->listBox()->insertItem( new ColorListBoxItem(Qt::darkCyan) );
     PlotColor->listBox()->insertItem( new ColorListBoxItem(Qt::darkMagenta) );
     PlotColor->listBox()->insertItem( new ColorListBoxItem(Qt::darkYellow) );
+    
+    // Fill the pen width combobox ...
+    PlotWidth->listBox()->insertItem( new PenWidthListBoxItem(1) );
+    PlotWidth->listBox()->insertItem( new PenWidthListBoxItem(2) );
+    PlotWidth->listBox()->insertItem( new PenWidthListBoxItem(3) );
+    PlotWidth->listBox()->insertItem( new PenWidthListBoxItem(4) );
+    PlotWidth->listBox()->insertItem( new PenWidthListBoxItem(5) );
+    
+    // Fill the pen shape combobox ...
+    PlotShape->listBox()->insertItem( new PenStyleListBoxItem(Qt::SolidLine) );
+    PlotShape->listBox()->insertItem( new PenStyleListBoxItem(Qt::DashLine) );
+    PlotShape->listBox()->insertItem( new PenStyleListBoxItem(Qt::DotLine) );
+    PlotShape->listBox()->insertItem( new PenStyleListBoxItem(Qt::DashDotLine) );
+    PlotShape->listBox()->insertItem( new PenStyleListBoxItem(Qt::DashDotDotLine) );
 }
 
 void Graph::CreateGraph(void)
