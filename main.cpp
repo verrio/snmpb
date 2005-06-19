@@ -24,7 +24,9 @@ int main( int argc, char ** argv )
     Graph graph(w.GraphTab, w.GraphCreate, w.GraphDelete,
                 w.GraphName, w.PlotObject, w.PlotAdd, w.PlotDelete,
                 w.PlotIndex, w.PlotColor, w.PlotShape, w.PlotWidth);
-            
+ 
+    CurrentAgent = &agent;
+    
     w.show();
     a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
     

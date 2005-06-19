@@ -35,6 +35,9 @@ public:
     
     static char *GetPrintableValue(SmiNode *node, Vb *vb);
     
+    // Used by graph update timer
+    unsigned long GetSyncValue(const QString& oid);
+    
 protected:
     int Setup(const QString& oid, SnmpTarget **t, Pdu **p);
             
@@ -83,5 +86,8 @@ private:
     Oid theoid;
 
 };
+
+/* Global pointer to the agent object */
+extern Agent* CurrentAgent;
 
 #endif /* AGENT_H */

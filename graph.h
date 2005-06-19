@@ -7,14 +7,33 @@
 #include <qtabwidget.h>
 #include <qwt_plot.h>
 
-class GraphItem
+#define NUM_PLOT_PER_GRAPH 10
+#define PLOT_HISTORY 30
+
+class GraphItem: public QwtPlot
 {
 public:
     GraphItem(QString name, QTabWidget* tab);
     ~GraphItem();
-    QString PlotName;
-    QwtPlot *PlotObj;
+    
+    void AddCurve(QString name, QPen& pen);
+    void RemoveCurve(QString name);
+    
+protected:
+    void timerEvent(QTimerEvent *);
+    
+private:
     QTabWidget* Tab;
+    
+    int dataCount;
+    double timeData[PLOT_HISTORY];
+
+    struct
+    {
+        long key;
+        QString name;
+        double data[PLOT_HISTORY];
+    } curves[NUM_PLOT_PER_GRAPH];
 };
 
 class GraphItemList: public QPtrList<GraphItem>
@@ -25,8 +44,8 @@ public:
 protected:
     int compareItems ( QPtrCollection::Item item1, QPtrCollection::Item item2 )
     {
-	    return (strcmp(((GraphItem*)item1)->PlotName.latin1(),
-		        ((GraphItem*)item2)->PlotName.latin1()));
+	    return (strcmp(((GraphItem*)item1)->title().latin1(),
+		        ((GraphItem*)item2)->title().latin1()));
     }
 };
 

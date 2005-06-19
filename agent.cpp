@@ -9,6 +9,8 @@
 #define TRAP_TIMER_MSEC 100
 #define TRAP_PORT 8888
 
+Agent* CurrentAgent = NULL;
+
 /// C Callback functions for snmp++
 void callback_walk(int reason, Snmp *, Pdu &pdu, SnmpTarget &target, void *cd)
 {
@@ -251,15 +253,6 @@ int Agent::Setup(const QString& oid, SnmpTarget **t, Pdu **p)
     
     *t = target;
     *p = pdu;
-    
-    // Clear the Query window ...
-    Query->clear();
-    Query->append("-----SNMP query started-----");
-    
-    // Clear some global vars
-    requests = 0;
-    objects  = 0;
-    msg = "";
     
     return 0;
 }
@@ -647,6 +640,15 @@ void Agent::WalkFrom(const QString& oid)
     if (Setup(oid, &target, &pdu) < 0)
         return;
     
+    // Clear the Query window ...
+    Query->clear();
+    Query->append("-----SNMP query started-----");
+    
+    // Clear some global vars
+    requests = 0;
+    objects  = 0;
+    msg = "";
+    
     // Now do an async get_bulk
     status = snmp->get_bulk(*pdu, *target, 0, BULK_MAX, callback_walk, this);
 
@@ -672,10 +674,19 @@ void Agent::GetFrom(const QString& oid)
     
     // Initialize agent & pdu objects
     SnmpTarget *target;
-    Pdu *pdu;    
+    Pdu *pdu;
     if (Setup(oid, &target, &pdu) < 0)
         return;
     
+    // Clear the Query window ...
+    Query->clear();
+    Query->append("-----SNMP query started-----");
+    
+    // Clear some global vars
+    requests = 0;
+    objects  = 0;
+    msg = "";
+
     // Now do an async get
     status = snmp->get(*pdu, *target, callback, this);
 
@@ -704,6 +715,15 @@ void Agent::GetNextFrom(const QString& oid)
     Pdu *pdu;    
     if (Setup(oid, &target, &pdu) < 0)
         return;
+        
+    // Clear the Query window ...
+    Query->clear();
+    Query->append("-----SNMP query started-----");
+    
+    // Clear some global vars
+    requests = 0;
+    objects  = 0;
+    msg = "";
     
     // Now do an async get_next
     status = snmp->get_next(*pdu, *target, callback, this);
@@ -746,7 +766,16 @@ void Agent::TableViewFrom(const QString& oid)
     
     if (Setup(oid, &target, &pdu) < 0)
         return;
-     
+    
+    // Clear the Query window ...
+    Query->clear();
+    Query->append("-----SNMP query started-----");
+    
+    // Clear some global vars
+    requests = 0;
+    objects  = 0;
+    msg = "";
+
     Query->append("Collecting table objects, please wait ...<br>");
     
     /* Set the parent oid & parent node */
@@ -839,3 +868,40 @@ void Agent::TableViewFrom(const QString& oid)
     delete target;
     delete pdu;
 }
+
+unsigned long Agent::GetSyncValue(const QString& oid)
+{
+    // Initialize agent & pdu objects
+    SnmpTarget *target;
+    Pdu *pdu;
+    Vb vb;
+    if (Setup(oid, &target, &pdu) < 0)
+        return 0;
+        
+    // Now do a sync get
+    if (snmp->get(*pdu, *target) == SNMP_CLASS_SUCCESS)
+    {
+        pdu->get_vb(vb, 0);
+        
+        unsigned long _uint32 = 0;
+        long _int32 = 0;
+        
+        switch(vb.get_syntax())
+        {
+        case sNMP_SYNTAX_INT32:
+            vb.get_value(_int32);
+            return _int32;
+        case sNMP_SYNTAX_CNTR32:
+        case sNMP_SYNTAX_GAUGE32: /* also sNMP_SYNTAX_UINT32*/
+        case sNMP_SYNTAX_TIMETICKS:
+            vb.get_value(_uint32);
+            return _uint32;
+        /* TODO: case sNMP_SYNTAX_CNTR64: */
+        default:
+            break;
+        }
+    }
+    
+    return 0;
+}
+

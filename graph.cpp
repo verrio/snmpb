@@ -6,6 +6,7 @@
 #include <qcolor.h>
 #include <qnamespace.h>
 #include "graph.h"
+#include "agent.h"
 
 class ColorListBoxItem : public QListBoxItem
 {
@@ -110,18 +111,94 @@ void PenStyleListBoxItem::paint( QPainter *painter )
                                           listBox()->colorGroup() );
 }
 
-GraphItem::GraphItem(QString name, QTabWidget* tab)
+GraphItem::GraphItem(QString name, QTabWidget* tab):QwtPlot(name)
 {
-    PlotName = name;
     Tab = tab;
-    PlotObj = new QwtPlot(PlotName);
-    Tab->addTab(PlotObj, PlotName);
+    Tab->addTab(this, name);
+    dataCount = 0;
+    
+    for ( int i = 0; i < PLOT_HISTORY; i++ )
+        timeData[i] = i;
+
+    memset(&curves[0], 0, sizeof(curves));
 }
 
 GraphItem::~GraphItem()
 {
-    Tab->removePage(PlotObj);
-    delete PlotObj;
+    Tab->removePage(this);
+}
+
+void GraphItem::AddCurve(QString name, QPen& pen)
+{
+    int i = 0;
+    
+    for (i=0; i<NUM_PLOT_PER_GRAPH; i++)
+    {
+        if (curves[i].key && (curves[i].key == name))
+            return;
+        else if (curves[i].key == 0)
+            break;
+    }
+    
+    if (i >= NUM_PLOT_PER_GRAPH)
+        return;
+    
+    curves[i].key = insertCurve(name);
+    curves[i].name = name;
+    setCurvePen(curves[i].key, pen);
+    
+    startTimer(1000); // 1 second
+    replot();
+}
+
+void GraphItem::RemoveCurve(QString name)
+{
+    for (int i=0; i<NUM_PLOT_PER_GRAPH; i++)
+    {
+        if (curves[i].key && (curves[i].key == name))
+        {
+            curves[i].key = 0;
+            return;
+        }
+        else if (curves[i].key == 0)
+            return;
+    }
+}
+
+void GraphItem::timerEvent(QTimerEvent *)
+{
+    if ( dataCount < PLOT_HISTORY )
+    {
+        dataCount++;
+    }
+    else
+    {
+        /* Time shift of 1 sec */
+        for ( int j = 0; j < PLOT_HISTORY; j++ )
+            timeData[j]++;
+        
+        for ( int i = 0; i < PLOT_HISTORY - 1; i++ )
+        {
+            for ( int c = 0; c < 1; c++ )
+            {
+                curves[c].data[i] = curves[c].data[i+1];
+            }
+        }    
+    }
+    
+    /* Set the data */
+    curves[0].data[dataCount-1] = CurrentAgent->GetSyncValue(curves[0].name);
+    
+    setAxisScale(QwtPlot::xBottom,
+        timeData[PLOT_HISTORY - 1], timeData[0]);
+
+    for ( int c = 0; c < 1/* TODO */; c++ )
+    {
+        setCurveRawData(curves[c].key,
+            timeData, curves[c].data, dataCount);
+    }
+
+    replot();
 }
 
 Graph::Graph(QTabWidget* GT, QPushButton* GC, QPushButton* GD,
@@ -188,7 +265,7 @@ void Graph::CreateGraph(void)
         QPtrListIterator<GraphItem> it( Items );
         GraphItem *GI;
         while ( (GI = it.current()) != 0 ) {
-            if (GI->PlotName == GraphName->currentText())
+            if (GI->title() == GraphName->currentText())
             {
                 QString err = QString("Graph \"%1\" already exist !")
                       .arg(GraphName->currentText());
@@ -211,7 +288,7 @@ void Graph::DeleteGraph(void)
         QPtrListIterator<GraphItem> it( Items );
         GraphItem *GI;
         while ( (GI = it.current()) != 0 ) {
-            if (GI->PlotName == GraphName->currentText())
+            if (GI->title() == GraphName->currentText())
             {
                 Items.remove(GI);
             }
@@ -224,7 +301,56 @@ void Graph::CreatePlot(void)
 {
     if (!PlotObject->currentText().isEmpty())
     {
+        QPen p;
+     
+        switch (PlotColor->currentItem())
+        {
+        case 0: p.setColor(Qt::black); break;
+        case 1: p.setColor(Qt::white); break;
+        case 2: p.setColor(Qt::darkGray); break;
+        case 3: p.setColor(Qt::gray); break;
+        case 4: p.setColor(Qt::lightGray); break;
+        case 5: p.setColor(Qt::red); break;
+        case 6: p.setColor(Qt::green); break;
+        case 7: p.setColor(Qt::blue); break;
+        case 8: p.setColor(Qt::cyan); break;
+        case 9: p.setColor(Qt::magenta); break;            
+        case 10: p.setColor(Qt::yellow); break;
+        case 11: p.setColor(Qt::darkRed); break;
+        case 12: p.setColor(Qt::darkGreen); break;
+        case 13: p.setColor(Qt::darkBlue); break;
+        case 14: p.setColor(Qt::darkCyan); break;
+        case 15: p.setColor(Qt::darkMagenta); break;
+        case 16: p.setColor(Qt::darkYellow); break;
+        default: break;
+        }
+        
+        p.setWidth(PlotWidth->currentItem()+1);
+        
+        switch (PlotShape->currentItem())
+        {
+        case 0: p.setStyle(Qt::SolidLine); break;
+        case 1: p.setStyle(Qt::DashLine); break;
+        case 2: p.setStyle(Qt::DotLine); break;
+        case 3: p.setStyle(Qt::DashDotLine); break;
+        case 4: p.setStyle(Qt::DashDotDotLine); break;
+        default: break;
+        }
+        
         printf("Creating plot %s\n", PlotObject->currentText().latin1());
+        
+        if (!GraphName->currentText().isEmpty())
+        {
+            QPtrListIterator<GraphItem> it( Items );
+            GraphItem *GI;
+            while ( (GI = it.current()) != 0 ) {
+                if (GI->title() == GraphName->currentText())
+                    break;
+                ++it;
+            }
+        
+            GI->AddCurve(PlotObject->currentText(), p);
+        }
     }
 }
 
@@ -233,5 +359,18 @@ void Graph::DeletePlot(void)
     if (!PlotObject->currentText().isEmpty())
     {
         printf("Deleting plot %s\n", PlotObject->currentText().latin1());
+        
+        if (!GraphName->currentText().isEmpty())
+        {
+            QPtrListIterator<GraphItem> it( Items );
+            GraphItem *GI;
+            while ( (GI = it.current()) != 0 ) {
+                if (GI->title() == GraphName->currentText())
+                    break;
+                ++it;
+            }
+        
+            GI->RemoveCurve(PlotObject->currentText());
+        }
     }
 }
