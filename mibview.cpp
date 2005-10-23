@@ -233,7 +233,7 @@ void MibView::Load(QStrList &modules)
 }
 
 void MibView::Populate(void)
-{    
+{
     SmiNode *smiNode;
     
     if (isdirty)
@@ -242,10 +242,10 @@ void MibView::Populate(void)
         // Create the root folder
         MibNode *root = new MibNode("MIB Tree", this);
         
-        smiNode = smiGetNode(NULL, "iso");    
+        smiNode = smiGetNode(NULL, "iso");
         if (smiNode)
             PopulateSubTree(smiNode, root, NULL);
-    }    
+    }
 }
 
 int MibView::IsPartOfLoadedModules(SmiNode *smiNode)

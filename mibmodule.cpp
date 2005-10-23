@@ -125,7 +125,7 @@ void MibModule::ShowModuleInfo(void)
     
     if ((item = LoadedM->selectedItem()) != 0)
     {	
-        QString text;    
+        QString text;
         LoadedMibModule *lmodule = Loaded.first();
         
         if ( lmodule != NULL) {

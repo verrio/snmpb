@@ -30,7 +30,5 @@ int main( int argc, char ** argv )
     w.show();
     a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
     
-    modules.Refresh();
-    
     return a.exec();
 }
