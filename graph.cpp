@@ -116,11 +116,17 @@ GraphItem::GraphItem(QString name, QTabWidget* tab):QwtPlot(name)
     Tab = tab;
     Tab->addTab(this, name);
     dataCount = 0;
+    timerID = 0;
     
     for ( int i = 0; i < PLOT_HISTORY; i++ )
         timeData[i] = i;
 
-    memset(&curves[0], 0, sizeof(curves));
+    // Zero all curve structures
+    for( int j = 0; j < NUM_PLOT_PER_GRAPH; j++)
+    {
+        curves[j].key = 0;
+        memset(curves[j].data, 0, sizeof(double)*PLOT_HISTORY);
+    }
 }
 
 GraphItem::~GraphItem()
@@ -134,7 +140,7 @@ void GraphItem::AddCurve(QString name, QPen& pen)
     
     for (i=0; i<NUM_PLOT_PER_GRAPH; i++)
     {
-        if (curves[i].key && (curves[i].key == name))
+        if (curves[i].key && (curves[i].name == name))
             return;
         else if (curves[i].key == 0)
             break;
@@ -147,15 +153,24 @@ void GraphItem::AddCurve(QString name, QPen& pen)
     curves[i].name = name;
     setCurvePen(curves[i].key, pen);
     
-    startTimer(1000); // 1 second
+    if (!timerID)
+        timerID = startTimer(1000); // 1 second
+    
     replot();
 }
 
 void GraphItem::RemoveCurve(QString name)
 {
+    /* No other curve left, kill the timer first ... */
+    if (timerID && ((/*TODO*/1-1) == 0))
+    {
+        killTimer(timerID);
+        timerID = 0;
+    }
+    
     for (int i=0; i<NUM_PLOT_PER_GRAPH; i++)
     {
-        if (curves[i].key && (curves[i].key == name))
+        if (curves[i].key && (curves[i].name == name))
         {
             curves[i].key = 0;
             return;
@@ -290,7 +305,9 @@ void Graph::DeleteGraph(void)
         while ( (GI = it.current()) != 0 ) {
             if (GI->title() == GraphName->currentText())
             {
+                // setAutoDelete is turned ON, the object will be freed ...
                 Items.remove(GI);
+                return;
             }
             ++it;
         }

@@ -27,7 +27,8 @@ private:
     
     int dataCount;
     double timeData[PLOT_HISTORY];
-
+    int timerID;
+    
     struct
     {
         long key;
