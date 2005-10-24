@@ -6,6 +6,7 @@
 #include <qcombobox.h>
 #include <qtabwidget.h>
 #include <qwt_plot.h>
+#include "mibview.h"
 
 #define NUM_PLOT_PER_GRAPH 10
 #define PLOT_HISTORY 30
@@ -58,7 +59,7 @@ public:
     Graph(QTabWidget* GT, QPushButton* GC, QPushButton* GD, 
           QComboBox* GN, QComboBox* PO, QPushButton* PA, 
           QPushButton* PD, QComboBox* PI, QComboBox* PC, 
-          QComboBox* PS, QComboBox* PW);
+          QComboBox* PS, QComboBox* PW, MibView* PM);
     
 public slots:
     void CreateGraph(void);
@@ -78,6 +79,7 @@ private:
     QComboBox* PlotColor;
     QComboBox* PlotShape;
     QComboBox* PlotWidth;
+    MibView* PlotMIBTree;
     
     GraphItemList Items;
 };

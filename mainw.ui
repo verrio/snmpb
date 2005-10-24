@@ -1324,6 +1324,40 @@
                                 <property name="name">
                                     <cstring>unnamed</cstring>
                                 </property>
+                                <spacer row="1" column="0">
+                                    <property name="name">
+                                        <cstring>SpacerLeftSettings</cstring>
+                                    </property>
+                                    <property name="orientation">
+                                        <enum>Horizontal</enum>
+                                    </property>
+                                    <property name="sizeType">
+                                        <enum>Fixed</enum>
+                                    </property>
+                                    <property name="sizeHint">
+                                        <size>
+                                            <width>60</width>
+                                            <height>20</height>
+                                        </size>
+                                    </property>
+                                </spacer>
+                                <spacer row="1" column="2">
+                                    <property name="name">
+                                        <cstring>SpacerRightSettings</cstring>
+                                    </property>
+                                    <property name="orientation">
+                                        <enum>Horizontal</enum>
+                                    </property>
+                                    <property name="sizeType">
+                                        <enum>Fixed</enum>
+                                    </property>
+                                    <property name="sizeHint">
+                                        <size>
+                                            <width>60</width>
+                                            <height>20</height>
+                                        </size>
+                                    </property>
+                                </spacer>
                                 <spacer row="0" column="1">
                                     <property name="name">
                                         <cstring>SpacerUpSettings</cstring>
@@ -1332,7 +1366,7 @@
                                         <enum>Vertical</enum>
                                     </property>
                                     <property name="sizeType">
-                                        <enum>Expanding</enum>
+                                        <enum>Fixed</enum>
                                     </property>
                                     <property name="sizeHint">
                                         <size>
@@ -1349,7 +1383,7 @@
                                         <enum>Vertical</enum>
                                     </property>
                                     <property name="sizeType">
-                                        <enum>Expanding</enum>
+                                        <enum>Minimum</enum>
                                     </property>
                                     <property name="sizeHint">
                                         <size>
@@ -1358,43 +1392,17 @@
                                         </size>
                                     </property>
                                 </spacer>
-                                <spacer row="1" column="2">
-                                    <property name="name">
-                                        <cstring>SpacerRightSettings</cstring>
-                                    </property>
-                                    <property name="orientation">
-                                        <enum>Horizontal</enum>
-                                    </property>
-                                    <property name="sizeType">
-                                        <enum>Expanding</enum>
-                                    </property>
-                                    <property name="sizeHint">
-                                        <size>
-                                            <width>100</width>
-                                            <height>20</height>
-                                        </size>
-                                    </property>
-                                </spacer>
-                                <spacer row="1" column="0">
-                                    <property name="name">
-                                        <cstring>SpacerLeftSettings</cstring>
-                                    </property>
-                                    <property name="orientation">
-                                        <enum>Horizontal</enum>
-                                    </property>
-                                    <property name="sizeType">
-                                        <enum>Expanding</enum>
-                                    </property>
-                                    <property name="sizeHint">
-                                        <size>
-                                            <width>90</width>
-                                            <height>20</height>
-                                        </size>
-                                    </property>
-                                </spacer>
                                 <widget class="QLayoutWidget" row="1" column="1">
                                     <property name="name">
                                         <cstring>SettingsLayout</cstring>
+                                    </property>
+                                    <property name="sizePolicy">
+                                        <sizepolicy>
+                                            <hsizetype>7</hsizetype>
+                                            <vsizetype>7</vsizetype>
+                                            <horstretch>0</horstretch>
+                                            <verstretch>0</verstretch>
+                                        </sizepolicy>
                                     </property>
                                     <vbox>
                                         <property name="name">
@@ -1461,23 +1469,6 @@
                                                 </widget>
                                             </grid>
                                         </widget>
-                                        <spacer>
-                                            <property name="name">
-                                                <cstring>SpacerMiddleSettings</cstring>
-                                            </property>
-                                            <property name="orientation">
-                                                <enum>Vertical</enum>
-                                            </property>
-                                            <property name="sizeType">
-                                                <enum>Expanding</enum>
-                                            </property>
-                                            <property name="sizeHint">
-                                                <size>
-                                                    <width>20</width>
-                                                    <height>16</height>
-                                                </size>
-                                            </property>
-                                        </spacer>
                                         <widget class="QButtonGroup">
                                             <property name="name">
                                                 <cstring>Plot</cstring>
@@ -1489,138 +1480,165 @@
                                                 <property name="name">
                                                     <cstring>unnamed</cstring>
                                                 </property>
-                                                <widget class="QLayoutWidget" row="0" column="0">
+                                                <widget class="QLayoutWidget" row="0" column="0" rowspan="1" colspan="2">
                                                     <property name="name">
                                                         <cstring>PlotLayout</cstring>
+                                                    </property>
+                                                    <hbox>
+                                                        <property name="name">
+                                                            <cstring>unnamed</cstring>
+                                                        </property>
+                                                        <widget class="QLabel">
+                                                            <property name="name">
+                                                                <cstring>PlotObjectL</cstring>
+                                                            </property>
+                                                            <property name="text">
+                                                                <string>Object</string>
+                                                            </property>
+                                                        </widget>
+                                                        <widget class="QComboBox">
+                                                            <property name="name">
+                                                                <cstring>PlotObject</cstring>
+                                                            </property>
+                                                            <property name="sizePolicy">
+                                                                <sizepolicy>
+                                                                    <hsizetype>7</hsizetype>
+                                                                    <vsizetype>0</vsizetype>
+                                                                    <horstretch>0</horstretch>
+                                                                    <verstretch>0</verstretch>
+                                                                </sizepolicy>
+                                                            </property>
+                                                            <property name="editable">
+                                                                <bool>true</bool>
+                                                            </property>
+                                                        </widget>
+                                                        <widget class="QLabel">
+                                                            <property name="name">
+                                                                <cstring>PlotIndexL</cstring>
+                                                            </property>
+                                                            <property name="text">
+                                                                <string>Index</string>
+                                                            </property>
+                                                        </widget>
+                                                        <widget class="QComboBox">
+                                                            <property name="name">
+                                                                <cstring>PlotIndex</cstring>
+                                                            </property>
+                                                            <property name="editable">
+                                                                <bool>true</bool>
+                                                            </property>
+                                                        </widget>
+                                                    </hbox>
+                                                </widget>
+                                                <widget class="MibView" row="1" column="0" rowspan="3" colspan="1">
+                                                    <property name="name">
+                                                        <cstring>PlotMIBTree</cstring>
+                                                    </property>
+                                                    <property name="sizePolicy">
+                                                        <sizepolicy>
+                                                            <hsizetype>7</hsizetype>
+                                                            <vsizetype>7</vsizetype>
+                                                            <horstretch>0</horstretch>
+                                                            <verstretch>0</verstretch>
+                                                        </sizepolicy>
+                                                    </property>
+                                                </widget>
+                                                <spacer row="3" column="1">
+                                                    <property name="name">
+                                                        <cstring>SpacerDownPlot</cstring>
+                                                    </property>
+                                                    <property name="orientation">
+                                                        <enum>Vertical</enum>
+                                                    </property>
+                                                    <property name="sizeType">
+                                                        <enum>Expanding</enum>
+                                                    </property>
+                                                    <property name="sizeHint">
+                                                        <size>
+                                                            <width>20</width>
+                                                            <height>40</height>
+                                                        </size>
+                                                    </property>
+                                                </spacer>
+                                                <spacer row="1" column="1">
+                                                    <property name="name">
+                                                        <cstring>SpacerUpPlot</cstring>
+                                                    </property>
+                                                    <property name="orientation">
+                                                        <enum>Vertical</enum>
+                                                    </property>
+                                                    <property name="sizeType">
+                                                        <enum>Expanding</enum>
+                                                    </property>
+                                                    <property name="sizeHint">
+                                                        <size>
+                                                            <width>20</width>
+                                                            <height>40</height>
+                                                        </size>
+                                                    </property>
+                                                </spacer>
+                                                <widget class="QLayoutWidget" row="2" column="1">
+                                                    <property name="name">
+                                                        <cstring>PlotPropertiesLayout</cstring>
                                                     </property>
                                                     <grid>
                                                         <property name="name">
                                                             <cstring>unnamed</cstring>
                                                         </property>
-                                                        <widget class="QLayoutWidget" row="0" column="0" rowspan="1" colspan="2">
+                                                        <widget class="QComboBox" row="1" column="1">
                                                             <property name="name">
-                                                                <cstring>PlotObjectLayout</cstring>
+                                                                <cstring>PlotShape</cstring>
                                                             </property>
-                                                            <hbox>
-                                                                <property name="name">
-                                                                    <cstring>unnamed</cstring>
-                                                                </property>
-                                                                <widget class="QLabel">
-                                                                    <property name="name">
-                                                                        <cstring>PlotObjectL</cstring>
-                                                                    </property>
-                                                                    <property name="text">
-                                                                        <string>Object</string>
-                                                                    </property>
-                                                                </widget>
-                                                                <widget class="QComboBox">
-                                                                    <property name="name">
-                                                                        <cstring>PlotObject</cstring>
-                                                                    </property>
-                                                                    <property name="sizePolicy">
-                                                                        <sizepolicy>
-                                                                            <hsizetype>7</hsizetype>
-                                                                            <vsizetype>0</vsizetype>
-                                                                            <horstretch>0</horstretch>
-                                                                            <verstretch>0</verstretch>
-                                                                        </sizepolicy>
-                                                                    </property>
-                                                                    <property name="editable">
-                                                                        <bool>true</bool>
-                                                                    </property>
-                                                                </widget>
-                                                            </hbox>
                                                         </widget>
-                                                        <widget class="QLayoutWidget" row="1" column="1">
+                                                        <widget class="QLabel" row="2" column="0">
                                                             <property name="name">
-                                                                <cstring>PlotButtonsLayout</cstring>
+                                                                <cstring>PlotWidthL</cstring>
                                                             </property>
-                                                            <vbox>
-                                                                <property name="name">
-                                                                    <cstring>unnamed</cstring>
-                                                                </property>
-                                                                <widget class="QPushButton">
-                                                                    <property name="name">
-                                                                        <cstring>PlotAdd</cstring>
-                                                                    </property>
-                                                                    <property name="text">
-                                                                        <string>Add plot</string>
-                                                                    </property>
-                                                                </widget>
-                                                                <widget class="QPushButton">
-                                                                    <property name="name">
-                                                                        <cstring>PlotDelete</cstring>
-                                                                    </property>
-                                                                    <property name="text">
-                                                                        <string>Remove plot</string>
-                                                                    </property>
-                                                                </widget>
-                                                            </vbox>
+                                                            <property name="text">
+                                                                <string>Width</string>
+                                                            </property>
                                                         </widget>
-                                                        <widget class="QLayoutWidget" row="1" column="0">
+                                                        <widget class="QComboBox" row="2" column="1">
                                                             <property name="name">
-                                                                <cstring>PlotAttributesLayout</cstring>
+                                                                <cstring>PlotWidth</cstring>
                                                             </property>
-                                                            <grid>
-                                                                <property name="name">
-                                                                    <cstring>unnamed</cstring>
-                                                                </property>
-                                                                <widget class="QLabel" row="1" column="0">
-                                                                    <property name="name">
-                                                                        <cstring>PlotColorL</cstring>
-                                                                    </property>
-                                                                    <property name="text">
-                                                                        <string>Color</string>
-                                                                    </property>
-                                                                </widget>
-                                                                <widget class="QLabel" row="0" column="0">
-                                                                    <property name="name">
-                                                                        <cstring>PlotIndexL</cstring>
-                                                                    </property>
-                                                                    <property name="text">
-                                                                        <string>Index</string>
-                                                                    </property>
-                                                                </widget>
-                                                                <widget class="QComboBox" row="0" column="1">
-                                                                    <property name="name">
-                                                                        <cstring>PlotIndex</cstring>
-                                                                    </property>
-                                                                    <property name="editable">
-                                                                        <bool>true</bool>
-                                                                    </property>
-                                                                </widget>
-                                                                <widget class="QComboBox" row="3" column="1">
-                                                                    <property name="name">
-                                                                        <cstring>PlotWidth</cstring>
-                                                                    </property>
-                                                                </widget>
-                                                                <widget class="QComboBox" row="2" column="1">
-                                                                    <property name="name">
-                                                                        <cstring>PlotShape</cstring>
-                                                                    </property>
-                                                                </widget>
-                                                                <widget class="QLabel" row="2" column="0">
-                                                                    <property name="name">
-                                                                        <cstring>PlotShapeL</cstring>
-                                                                    </property>
-                                                                    <property name="text">
-                                                                        <string>Shape</string>
-                                                                    </property>
-                                                                </widget>
-                                                                <widget class="QLabel" row="3" column="0">
-                                                                    <property name="name">
-                                                                        <cstring>PlotWidthL</cstring>
-                                                                    </property>
-                                                                    <property name="text">
-                                                                        <string>Width</string>
-                                                                    </property>
-                                                                </widget>
-                                                                <widget class="QComboBox" row="1" column="1">
-                                                                    <property name="name">
-                                                                        <cstring>PlotColor</cstring>
-                                                                    </property>
-                                                                </widget>
-                                                            </grid>
+                                                        </widget>
+                                                        <widget class="QLabel" row="1" column="0">
+                                                            <property name="name">
+                                                                <cstring>PlotShapeL</cstring>
+                                                            </property>
+                                                            <property name="text">
+                                                                <string>Shape</string>
+                                                            </property>
+                                                        </widget>
+                                                        <widget class="QLabel" row="0" column="0">
+                                                            <property name="name">
+                                                                <cstring>PlotColorL</cstring>
+                                                            </property>
+                                                            <property name="text">
+                                                                <string>Color</string>
+                                                            </property>
+                                                        </widget>
+                                                        <widget class="QPushButton" row="3" column="0" rowspan="1" colspan="2">
+                                                            <property name="name">
+                                                                <cstring>PlotAdd</cstring>
+                                                            </property>
+                                                            <property name="text">
+                                                                <string>Add plot</string>
+                                                            </property>
+                                                        </widget>
+                                                        <widget class="QPushButton" row="4" column="0" rowspan="1" colspan="2">
+                                                            <property name="name">
+                                                                <cstring>PlotDelete</cstring>
+                                                            </property>
+                                                            <property name="text">
+                                                                <string>Remove plot</string>
+                                                            </property>
+                                                        </widget>
+                                                        <widget class="QComboBox" row="0" column="1">
+                                                            <property name="name">
+                                                                <cstring>PlotColor</cstring>
+                                                            </property>
                                                         </widget>
                                                     </grid>
                                                 </widget>

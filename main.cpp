@@ -23,7 +23,8 @@ int main( int argc, char ** argv )
                 w.MIBTree, w.Query, &trap);
     Graph graph(w.GraphTab, w.GraphCreate, w.GraphDelete,
                 w.GraphName, w.PlotObject, w.PlotAdd, w.PlotDelete,
-                w.PlotIndex, w.PlotColor, w.PlotShape, w.PlotWidth);
+                w.PlotIndex, w.PlotColor, w.PlotShape, w.PlotWidth, 
+                w.PlotMIBTree);
  
     CurrentAgent = &agent;
     

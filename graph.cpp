@@ -219,7 +219,7 @@ void GraphItem::timerEvent(QTimerEvent *)
 Graph::Graph(QTabWidget* GT, QPushButton* GC, QPushButton* GD,
              QComboBox* GN, QComboBox* PO, QPushButton* PA,
              QPushButton* PD, QComboBox* PI, QComboBox* PC,
-             QComboBox* PS, QComboBox* PW)
+             QComboBox* PS, QComboBox* PW, MibView* PM)
 {
     GraphTab = GT;
     GraphCreate = GC;
@@ -232,6 +232,7 @@ Graph::Graph(QTabWidget* GT, QPushButton* GC, QPushButton* GD,
     PlotColor = PC;
     PlotShape = PS;
     PlotWidth = PW;
+    PlotMIBTree = PM;
     
     // Connect some signals
     connect( GC, SIGNAL( clicked() ), this, SLOT( CreateGraph() ));
