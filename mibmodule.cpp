@@ -84,9 +84,8 @@ char* LoadedMibModule::GetMibLanguage(void)
     }
 }
 
-MibModule::MibModule(MibView* MT, QTextEdit *MI, QListView *AM, QListView *LM)
+MibModule::MibModule(QTextEdit *MI, QListView *AM, QListView *LM)
 {
-    MibTree = MT;
     ModuleInfo = MI;
     UnloadedM = AM;
     LoadedM = LM;
@@ -269,10 +268,9 @@ void MibModule::RemoveModule(void)
 
 void MibModule::Refresh(void)
 {
-    MibTree->clear();
     smiExit();
     InitLib();
-    MibTree->Load(Wanted);
+    MibLoader.Load(Wanted);
     RebuildLoadedList();
     RebuildUnloadedList();
 }

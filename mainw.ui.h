@@ -7,6 +7,8 @@
 ** place of a destructor.
 *****************************************************************************/
 
+#include "mibview.h"
+
 void MainW::HorizontalSplit(bool value)
 {
     QuerySplitter->setOrientation(value==FALSE?QSplitter::Horizontal:QSplitter::Vertical);
@@ -15,4 +17,5 @@ void MainW::HorizontalSplit(bool value)
 void MainW::TreeTabSelected( const QString &Name )
 {
     if(Name == "Tree") MIBTree->Populate();
+    if(Name == "Graphs") PlotMIBTree->Populate();
 }

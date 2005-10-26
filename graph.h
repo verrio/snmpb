@@ -59,13 +59,14 @@ public:
     Graph(QTabWidget* GT, QPushButton* GC, QPushButton* GD, 
           QComboBox* GN, QComboBox* PO, QPushButton* PA, 
           QPushButton* PD, QComboBox* PI, QComboBox* PC, 
-          QComboBox* PS, QComboBox* PW, MibView* PM);
+          QComboBox* PS, QComboBox* PW, BasicMibView* PM);
     
 public slots:
     void CreateGraph(void);
     void DeleteGraph(void);
     void CreatePlot(void);
     void DeletePlot(void);
+    void SetObjectString(const QString& oid);
     
 private:
     QTabWidget* GraphTab;
@@ -79,7 +80,7 @@ private:
     QComboBox* PlotColor;
     QComboBox* PlotShape;
     QComboBox* PlotWidth;
-    MibView* PlotMIBTree;
+    BasicMibView* PlotMIBTree;
     
     GraphItemList Items;
 };

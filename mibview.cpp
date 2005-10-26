@@ -8,31 +8,60 @@
 
 #include "mibview.h"
 
-void MibView::contextMenuEvent ( QContextMenuEvent *)
-{    
-    QPopupMenu* contextMenu = new QPopupMenu( this );
-    QLabel *caption = new QLabel( "<font color=darkblue><b>Operations</b></font>", this );
-    caption->setAlignment( Qt::AlignCenter );
-    contextMenu->insertItem( caption );
-    contextMenu->insertItem( QPixmap::fromMimeSource( "expand.png" ), 
-                             "&Expand", this, SLOT(ExpandFromNode()));
-    contextMenu->insertItem( QPixmap::fromMimeSource( "collapse.png" ), 
-                             "&Collapse", this, SLOT(CollapseFromNode()));
-    contextMenu->insertSeparator();
-    contextMenu->insertItem("&Walk", this, SLOT(WalkFromNode()));
-    contextMenu->insertItem("&Get", this, SLOT(GetFromNode()));
-    contextMenu->insertItem("&Get Next", this, SLOT(GetNextFromNode()));
-    contextMenu->insertItem("&Set...", this, SLOT(SetFromNode()));
-    contextMenu->insertSeparator();
-    contextMenu->insertItem("&Stop", this, SLOT(StopFromNode()));
-    contextMenu->insertSeparator();
-    contextMenu->insertItem("&Table View", this, SLOT(TableViewFromNode()));
+MibViewLoader MibLoader;
+
+//
+// BasicMibView class
+//
+//
+
+BasicMibView::BasicMibView (QWidget * parent, const char * name, WFlags f) : QListView(parent, name, f)
+{
+    // Set some properties for the ListView
+    header()->hide();
+    setSorting(-1, false);
+    setLineWidth( 2 );
+    addColumn( tr( "MibName" ) );
+    setHScrollBarMode(QScrollView::AlwaysOn);
+    setFrameShadow( MibView::Plain );
+    setResizePolicy( QScrollView::Manual );
+    setAllColumnsShowFocus( FALSE );
+    setShowSortIndicator( FALSE );
+    setRootIsDecorated( TRUE );
     
-    contextMenu->exec( QCursor::pos() );
-    delete contextMenu;
+    MibLoader.RegisterView(this);
+    
+    // Connect some signals
+    connect( this, SIGNAL( expanded( QListViewItem * ) ),
+             this, SLOT( ExpandNode( QListViewItem * ) ) );
+    connect( this, SIGNAL( collapsed( QListViewItem * ) ),
+             this, SLOT( CollapseNode( QListViewItem * ) ) );
+    connect( this, SIGNAL( currentChanged( QListViewItem * ) ),
+             this, SLOT( SelectedNode( QListViewItem * ) ) );
 }
 
-void MibView::ExpandFromNode(void)
+void BasicMibView::SetDirty(void)
+{
+    isdirty = 1;
+}
+
+void BasicMibView::Populate(void)
+{
+    SmiNode *smiNode;
+    
+    if (isdirty)
+    {
+        isdirty = 0;
+        // Create the root folder
+        MibNode *root = new MibNode("MIB Tree", this);
+        
+        smiNode = smiGetNode(NULL, "iso");
+        if (smiNode)
+            MibLoader.PopulateSubTree(smiNode, root, NULL);
+    }
+}
+
+void BasicMibView::ExpandFromNode(void)
 {
     QListViewItem *start = NULL, *end = NULL;
     
@@ -55,7 +84,7 @@ void MibView::ExpandFromNode(void)
     }
 }
 
-void MibView::CollapseFromNode(void)
+void BasicMibView::CollapseFromNode(void)
 {
     QListViewItem *start = NULL, *end = NULL;
     
@@ -76,6 +105,53 @@ void MibView::CollapseFromNode(void)
         item->setOpen(FALSE);
         ++it;
     }
+}
+
+void BasicMibView::ExpandNode( QListViewItem * item)
+{
+    MibNode *node = (MibNode*)item;
+    node->SetPixmap(TRUE);
+}
+
+void BasicMibView::CollapseNode( QListViewItem * item)
+{
+    MibNode *node = (MibNode*)item;
+    node->SetPixmap(FALSE);
+}
+
+void BasicMibView::SelectedNode( QListViewItem * item)
+{
+    MibNode *node = (MibNode*)item;
+    
+    // Could it be null ?
+    if (node == NULL)
+        return;
+    
+    emit SelectedOid(node->GetOid());
+}
+
+void BasicMibView::contextMenuEvent ( QContextMenuEvent *)
+{    
+    QPopupMenu* contextMenu = new QPopupMenu( this );
+    QLabel *caption = new QLabel( "<font color=darkblue><b>Operations</b></font>", this );
+    caption->setAlignment( Qt::AlignCenter );
+    contextMenu->insertItem( caption );
+    contextMenu->insertItem( QPixmap::fromMimeSource( "expand.png" ), 
+                             "&Expand", this, SLOT(ExpandFromNode()));
+    contextMenu->insertItem( QPixmap::fromMimeSource( "collapse.png" ), 
+                             "&Collapse", this, SLOT(CollapseFromNode()));
+    
+    contextMenu->exec( QCursor::pos() );
+    delete contextMenu;
+}
+
+//
+// MibView class
+//
+//
+
+MibView::MibView (QWidget * parent, const char * name, WFlags f) : BasicMibView(parent, name, f)
+{
 }
 
 void MibView::WalkFromNode(void)
@@ -148,47 +224,6 @@ void MibView::TableViewFromNode(void)
     emit TableViewFromOid(((MibNode*)start)->GetOid());
 }
 
-MibView::MibView (QWidget * parent, const char * name, WFlags f) : QListView(parent, name, f)
-{
-    // Set some properties for the ListView
-    header()->hide();
-    setSorting(-1, false);
-    setLineWidth( 2 );
-    addColumn( tr( "MibName" ) );
-    setHScrollBarMode(QScrollView::AlwaysOn);
-    setFrameShadow( MibView::Plain );
-    setResizePolicy( QScrollView::Manual );
-    setAllColumnsShowFocus( FALSE );
-    setShowSortIndicator( FALSE );
-    setRootIsDecorated( TRUE );
-    
-    pmodc = 0;
-    pmodv = NULL;
-    ignoreconformance = 0;
-    ignoreleafs = 0;
-    isdirty = 0;
-    
-    // Connect some signals
-    connect( this, SIGNAL( expanded( QListViewItem * ) ),
-             this, SLOT( ExpandNode( QListViewItem * ) ) );
-    connect( this, SIGNAL( collapsed( QListViewItem * ) ),
-             this, SLOT( CollapseNode( QListViewItem * ) ) );
-    connect( this, SIGNAL( currentChanged( QListViewItem * ) ),
-             this, SLOT( SelectedNode( QListViewItem * ) ) );
-}
-
-void MibView::ExpandNode( QListViewItem * item)
-{
-    MibNode *node = (MibNode*)item;
-    node->SetPixmap(TRUE);
-}
-
-void MibView::CollapseNode( QListViewItem * item)
-{
-    MibNode *node = (MibNode*)item;
-    node->SetPixmap(FALSE);
-}
-
 void MibView::SelectedNode( QListViewItem * item)
 {
     MibNode *node = (MibNode*)item;
@@ -198,7 +233,44 @@ void MibView::SelectedNode( QListViewItem * item)
     emit NodeProperties(text);
 }
 
-void MibView::Load(QStrList &modules)
+void MibView::contextMenuEvent ( QContextMenuEvent *)
+{    
+    QPopupMenu* contextMenu = new QPopupMenu( this );
+    QLabel *caption = new QLabel( "<font color=darkblue><b>Operations</b></font>", this );
+    caption->setAlignment( Qt::AlignCenter );
+    contextMenu->insertItem( caption );
+    contextMenu->insertItem( QPixmap::fromMimeSource( "expand.png" ), 
+                             "&Expand", this, SLOT(ExpandFromNode()));
+    contextMenu->insertItem( QPixmap::fromMimeSource( "collapse.png" ), 
+                             "&Collapse", this, SLOT(CollapseFromNode()));
+    contextMenu->insertSeparator();
+    contextMenu->insertItem("&Walk", this, SLOT(WalkFromNode()));
+    contextMenu->insertItem("&Get", this, SLOT(GetFromNode()));
+    contextMenu->insertItem("&Get Next", this, SLOT(GetNextFromNode()));
+    contextMenu->insertItem("&Set...", this, SLOT(SetFromNode()));
+    contextMenu->insertSeparator();
+    contextMenu->insertItem("&Stop", this, SLOT(StopFromNode()));
+    contextMenu->insertSeparator();
+    contextMenu->insertItem("&Table View", this, SLOT(TableViewFromNode()));
+    
+    contextMenu->exec( QCursor::pos() );
+    delete contextMenu;
+}
+
+//
+// MibViewLoader class
+//
+//
+
+MibViewLoader::MibViewLoader ()
+{    
+    pmodc = 0;
+    pmodv = NULL;
+    ignoreconformance = 0;
+    ignoreleafs = 0;
+}
+
+void MibViewLoader::Load(QStrList &modules)
 {
     char *modulename;
     SmiModule *smiModule;
@@ -212,7 +284,14 @@ void MibView::Load(QStrList &modules)
     
     if ( (module = modules.first()) != 0)
     {
-        isdirty = 1;
+        BasicMibView *mv;
+        QPtrListIterator<BasicMibView> it( views );
+        while ( (mv = it.current()) != 0 )
+        {
+            mv->SetDirty();
+            mv->clear();
+            ++it;
+        }
         
         do
         {
@@ -232,23 +311,12 @@ void MibView::Load(QStrList &modules)
     pmodv = modv;
 }
 
-void MibView::Populate(void)
+void MibViewLoader::RegisterView(BasicMibView* view)
 {
-    SmiNode *smiNode;
-    
-    if (isdirty)
-    {
-        isdirty = 0;
-        // Create the root folder
-        MibNode *root = new MibNode("MIB Tree", this);
-        
-        smiNode = smiGetNode(NULL, "iso");
-        if (smiNode)
-            PopulateSubTree(smiNode, root, NULL);
-    }
+    views.append(view);
 }
 
-int MibView::IsPartOfLoadedModules(SmiNode *smiNode)
+int MibViewLoader::IsPartOfLoadedModules(SmiNode *smiNode)
 {
     SmiModule *smiModule;
     int i;
@@ -275,7 +343,7 @@ int MibView::IsPartOfLoadedModules(SmiNode *smiNode)
  * --tree-no-conformance so the code below is still broken.)
  */
 
-int MibView::PruneSubTree(SmiNode *smiNode)
+int MibViewLoader::PruneSubTree(SmiNode *smiNode)
 {
     SmiNode   *childNode;
     
@@ -358,7 +426,7 @@ int MibView::PruneSubTree(SmiNode *smiNode)
     return 1;
 }
 
-enum MibNode::MibType MibView::SmiKindToMibNodeType(int smikind)
+enum MibNode::MibType MibViewLoader::SmiKindToMibNodeType(int smikind)
 {
     switch(smikind)
     {
@@ -389,7 +457,7 @@ enum MibNode::MibType MibView::SmiKindToMibNodeType(int smikind)
     return (MibNode::MIBNODE_NODE);
 }
 
-MibNode * MibView::PopulateSubTree (SmiNode *smiNode, MibNode *parent, MibNode *sibling)
+MibNode * MibViewLoader::PopulateSubTree (SmiNode *smiNode, MibNode *parent, MibNode *sibling)
 {
     SmiNode     *childNode;
     MibNode *current = NULL, *prev = NULL;

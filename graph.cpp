@@ -219,7 +219,7 @@ void GraphItem::timerEvent(QTimerEvent *)
 Graph::Graph(QTabWidget* GT, QPushButton* GC, QPushButton* GD,
              QComboBox* GN, QComboBox* PO, QPushButton* PA,
              QPushButton* PD, QComboBox* PI, QComboBox* PC,
-             QComboBox* PS, QComboBox* PW, MibView* PM)
+             QComboBox* PS, QComboBox* PW, BasicMibView* PM)
 {
     GraphTab = GT;
     GraphCreate = GC;
@@ -239,6 +239,8 @@ Graph::Graph(QTabWidget* GT, QPushButton* GC, QPushButton* GD,
     connect( GD, SIGNAL( clicked() ), this, SLOT( DeleteGraph() ));
     connect( PA, SIGNAL( clicked() ), this, SLOT( CreatePlot() ));
     connect( PD, SIGNAL( clicked() ), this, SLOT( DeletePlot() ));    
+    connect( PM, SIGNAL( SelectedOid(const QString&) ), 
+             this, SLOT( SetObjectString(const QString&) ));    
     
     // Fill the color combobox ...
     PlotColor->listBox()->insertItem( new ColorListBoxItem(Qt::black) );
@@ -391,4 +393,9 @@ void Graph::DeletePlot(void)
             GI->RemoveCurve(PlotObject->currentText());
         }
     }
+}
+
+void Graph::SetObjectString(const QString& oid)
+{
+    PlotObject->setCurrentText(oid);
 }

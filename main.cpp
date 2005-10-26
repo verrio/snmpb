@@ -10,7 +10,7 @@ int main( int argc, char ** argv )
     QApplication a( argc, argv );
     MainW w;
     
-    MibModule modules(w.MIBTree, w.ModuleInfo,
+    MibModule modules(w.ModuleInfo,
                       w.UnloadedModules, w.LoadedModules);
     Trap trap (w.TrapLog, w.TrapContent, w.TrapInfo);
     Agent agent(w.UserName, w.SecLevel, w.ContextName,

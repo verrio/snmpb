@@ -13,21 +13,41 @@
 #include "mibnode.h"
 #include "smi.h"
 
-class MibView : public QListView
+class BasicMibView : public QListView
 {
     Q_OBJECT
     
 public:
-    MibView ( QWidget * parent = 0, const char * name = 0, WFlags f = 0 );
-    void Load (QStrList &);
+    BasicMibView ( QWidget * parent = 0, const char * name = 0, WFlags f = 0 );
     void Populate (void);
-
+    void SetDirty(void);
+    
 protected slots:
     void ExpandNode( QListViewItem * item);
     void CollapseNode( QListViewItem * item);
-    void SelectedNode( QListViewItem * item);
     void ExpandFromNode(void);
     void CollapseFromNode(void);
+    virtual void SelectedNode( QListViewItem * item);
+
+signals:
+    void SelectedOid(const QString& oid);
+    
+protected:
+    virtual void contextMenuEvent ( QContextMenuEvent *);
+    
+private:
+    int isdirty;
+};
+
+class MibView : public BasicMibView
+{    
+    Q_OBJECT
+    
+public:
+    MibView ( QWidget * parent = 0, const char * name = 0, WFlags f = 0 );
+    
+protected slots:
+    void SelectedNode( QListViewItem * item);
     void WalkFromNode(void);
     void GetFromNode(void);
     void GetNextFromNode(void);
@@ -45,10 +65,18 @@ signals:
     void TableViewFromOid(const QString& oid);
     
 protected:
-    void contextMenuEvent ( QContextMenuEvent *);     
+    void contextMenuEvent ( QContextMenuEvent *);
+};
+
+class MibViewLoader
+{
+public:
+    MibViewLoader();
+    void Load (QStrList &);
+    MibNode *PopulateSubTree (SmiNode *smiNode, MibNode *parent, MibNode *sibling);    
+    void RegisterView(BasicMibView* view);
     
 private:
-    MibNode *PopulateSubTree (SmiNode *smiNode, MibNode *parent, MibNode *sibling);    
     enum MibNode::MibType SmiKindToMibNodeType(int smikind);
     int PruneSubTree(SmiNode *smiNode);
     int IsPartOfLoadedModules(SmiNode *smiNode);
@@ -57,7 +85,10 @@ private:
     SmiModule **pmodv;
     int ignoreconformance;
     int ignoreleafs;
-    int isdirty;
+    
+    QPtrList<BasicMibView> views;
 };
+
+extern MibViewLoader MibLoader;
 
 #endif /* MIBVIEW_H */

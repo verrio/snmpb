@@ -1530,7 +1530,7 @@
                                                         </widget>
                                                     </hbox>
                                                 </widget>
-                                                <widget class="MibView" row="1" column="0" rowspan="3" colspan="1">
+                                                <widget class="BasicMibView" row="1" column="0" rowspan="3" colspan="1">
                                                     <property name="name">
                                                         <cstring>PlotMIBTree</cstring>
                                                     </property>
