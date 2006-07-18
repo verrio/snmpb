@@ -81,7 +81,7 @@
 // If you do not use SNMP++ for commercial purposes or if you
 // have licensed IDEA (read README.v3) you may define the following
 // to enable IDEA support.
-// #define _USE_IDEA
+#define _USE_IDEA
 
 // define _NO_THREADS here or in the Makefile if you do not want thread support
 // (default is to include thread support)
