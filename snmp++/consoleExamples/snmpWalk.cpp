@@ -2,9 +2,9 @@
   _## 
   _##  snmpWalk.cpp  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 /*
@@ -51,6 +51,10 @@ char snmpwalk_cpp_version[]="@(#) SNMP++ $Id$";
 #include <stdlib.h>
 #include <stdio.h>
 
+#ifdef WIN32
+#define strcasecmp stricmp
+#endif
+
 #ifdef SNMP_PP_NAMESPACE
 using namespace Snmp_pp;
 #endif
@@ -67,7 +71,7 @@ using std::flush;
 
 #define BULK_MAX 10
 
-int main( int argc, char **argv)
+int main(int argc, char **argv)
 {
   int requests = 0;        // keep track of # of requests
   int objects  = 0;
@@ -77,12 +81,9 @@ int main( int argc, char **argv)
 	  cout << "Usage:\n";
 	  cout << "snmpWalk IpAddress | DNSName [StartOid] [options]\n";
 	  cout << "StartOid: sysDescr object is default\n";
-	  cout << "options: -v1 , use SNMPV1, default\n";
-	  cout << "         -v2 , use SNMPV2\n";
-#ifdef _SNMPv3
-          cout << "         -v3 , use SNMPV3\n";
-#endif
-	  cout << "         -pPort , remote port to use\n";
+	  cout << "options: -vN , use SNMP version 1, 2 or 3, default is 1\n";
+	  cout << "         -PPort , remote port to use\n";
+	  cout << "         -S , only walk within subtree\n";
 	  cout << "         -CCommunity_name, specify community default is 'public' \n";
 	  cout << "         -rN , retries default is N = 1 retry\n";
 	  cout << "         -tN , timeout in hundredths of seconds; default is N = 100\n";
@@ -90,15 +91,10 @@ int main( int argc, char **argv)
           cout << "         -snSecurityName, " << endl;
           cout << "         -slN , securityLevel to use, default N = 3 = authPriv" << endl;
           cout << "         -smN , securityModel to use, only default N = 3 = USM possible\n";
-          cout << "         -cnContextName, default """"" << endl;
-          cout << "         -ceContextEngineID, default """"" << endl;
-          cout << "         -md5 , use MD5 authentication protocol\n";
-          cout << "         -sha , use SHA authentication protocol\n";
-          cout << "         -des , use DES privacy protocol\n";
-          cout << "         -idea, use IDEA privacy protocol\n";
-          cout << "         -aes128, use AES128 privacy protocol\n";
-          cout << "         -aes192, use AES192 privacy protocol\n";
-          cout << "         -aes256, use AES256 privacy protocol\n";
+          cout << "         -cnContextName, default empty string" << endl;
+          cout << "         -ceContextEngineID, as hex e.g. 800007E580, default empty string" << endl;
+          cout << "         -authPROT, use authentication protocol NONE, SHA or MD5\n";
+          cout << "         -privPROT, use privacy protocol NONE, DES, 3DESEDE, IDEA, AES128, AES192 or AES256\n";
           cout << "         -uaAuthPassword\n";
           cout << "         -upPrivPassword\n";
 #endif
@@ -130,6 +126,7 @@ int main( int argc, char **argv)
    int timeout=100;                                // default is 1 second
    u_short port=161;                               // default snmp port is 161
    OctetStr community("public");                   // community name
+   bool subtree = false;
 
 #ifdef _SNMPv3
    OctetStr privPassword("");
@@ -168,9 +165,13 @@ int main( int argc, char **argv)
        community = ptr;
        continue;
      }
-     if ( strstr( argv[x],"-p")!=0) {
+     if ( strstr( argv[x],"-P")!=0) {
        ptr = argv[x]; ptr++; ptr++;
        sscanf(ptr, "%hu", &port);
+       continue;
+     }
+     if ( strstr( argv[x],"-S") != 0) {
+       subtree = true;
        continue;
      }
 
@@ -179,39 +180,33 @@ int main( int argc, char **argv)
        version = version3;
        continue;
      }
-     if ( strstr( argv[x],"-idea") != 0) {
-       ptr = argv[x]; ptr++; ptr++;
-       privProtocol = SNMPv3_usmIDEAPrivProtocol;
+     if ( strstr( argv[x],"-auth") != 0) {
+       ptr = argv[x]; ptr+=5;
+       if (strcasecmp(ptr, "SHA") == 0)
+	   authProtocol = SNMP_AUTHPROTOCOL_HMACSHA;
+       else if (strcasecmp(ptr, "MD5") == 0)
+	   authProtocol = SNMP_AUTHPROTOCOL_HMACMD5;
+       else
+	   authProtocol = SNMP_AUTHPROTOCOL_NONE;
        continue;
      }
-     if ( strstr( argv[x],"-aes128") != 0) {
-       ptr = argv[x]; ptr++; ptr++;
-       privProtocol = SNMPv3_usmAES128PrivProtocol;
-       continue;
-     }
-     if ( strstr( argv[x],"-aes192") != 0) {
-       ptr = argv[x]; ptr++; ptr++;
-       privProtocol = SNMPv3_usmAES192PrivProtocol;
-       continue;
-     }
-     if ( strstr( argv[x],"-aes256") != 0) {
-       ptr = argv[x]; ptr++; ptr++;
-       privProtocol = SNMPv3_usmAES256PrivProtocol;
-       continue;
-     }
-     if ( strstr( argv[x],"-sha") != 0) {
-       ptr = argv[x]; ptr++; ptr++;
-       authProtocol = SNMPv3_usmHMACSHAAuthProtocol;
-       continue;
-     }
-     if ( strstr( argv[x],"-des") != 0) {
-       ptr = argv[x]; ptr++; ptr++;
-       privProtocol = SNMPv3_usmDESPrivProtocol;
-       continue;
-     }
-     if ( strstr( argv[x],"-md5") != 0) {
-       ptr = argv[x]; ptr++; ptr++;
-       authProtocol = SNMPv3_usmHMACMD5AuthProtocol;
+     if ( strstr( argv[x],"-priv") != 0) {
+       ptr = argv[x]; ptr+=5;
+       if (strcasecmp(ptr, "DES") == 0)
+	   privProtocol = SNMP_PRIVPROTOCOL_DES;
+       else if (strcasecmp(ptr, "3DESEDE") == 0)
+	   privProtocol = SNMP_PRIVPROTOCOL_3DESEDE;
+       else if (strcasecmp(ptr, "IDEA") == 0)
+	   privProtocol = SNMP_PRIVPROTOCOL_IDEA;
+       else if (strcasecmp(ptr, "AES128") == 0)
+	   privProtocol = SNMP_PRIVPROTOCOL_AES128;
+       else if (strcasecmp(ptr, "AES192") == 0)
+	   privProtocol = SNMP_PRIVPROTOCOL_AES192;
+       else if (strcasecmp(ptr, "AES256") == 0)
+	   privProtocol = SNMP_PRIVPROTOCOL_AES256;
+       else
+	   privProtocol = SNMP_PRIVPROTOCOL_NONE;
+       printf("\n\nPrivProt : %ld\n", privProtocol);
        continue;
      }
      if ( strstr( argv[x],"-sn")!=0) {
@@ -242,7 +237,7 @@ int main( int argc, char **argv)
      }
      if ( strstr( argv[x],"-ce")!=0) {
        ptr = argv[x]; ptr+=3;
-       contextEngineID = ptr;
+       contextEngineID = OctetStr::from_hex_string(ptr);
        continue;
      }
      if ( strstr( argv[x],"-ua")!=0) {
@@ -256,7 +251,7 @@ int main( int argc, char **argv)
        continue;
      }
 #endif
-  }
+   }
 
    //----------[ create a SNMP++ session ]-----------------------------------
    int status;
@@ -345,7 +340,7 @@ int main( int argc, char **argv)
         << (version+1)
 #endif
         << " Retries=" << retries
-        << " Timeout=" << timeout <<"ms";
+        << " Timeout=" << timeout * 10 <<"ms";
 #ifdef _SNMPv3
    if (version == version3)
      cout << endl
@@ -383,6 +378,15 @@ int main( int argc, char **argv)
 	       return -5;
 	     }
 #endif
+	     Oid tmp;
+	     vb.get_oid(tmp);
+	     if (subtree && (oid.nCompare(oid.len(), tmp) != 0))
+	     {
+		 cout << "End of SUBTREE Reached\n";
+		 cout << "Total # of Requests = " << requests << "\n";
+		 cout << "Total # of Objects  = " << objects  << "\n";
+		 return -4;
+	     }
 		 objects++;
 		 // look for var bind exception, applies to v2 only   
 		 if ( vb.get_syntax() != sNMP_SYNTAX_ENDOFMIBVIEW) {

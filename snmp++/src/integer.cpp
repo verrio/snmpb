@@ -2,9 +2,9 @@
   _## 
   _##  integer.cpp  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -71,8 +71,7 @@ namespace Snmp_pp {
 #endif
 
 // constructor no value
-SnmpUInt32::SnmpUInt32()
-  : valid_flag(true)
+SnmpUInt32::SnmpUInt32() : valid_flag(true), m_changed(true)
 {
   smival.value.uNumber = 0;
   smival.syntax = sNMP_SYNTAX_UINT32;
@@ -80,15 +79,14 @@ SnmpUInt32::SnmpUInt32()
 
 // constructor with value
 SnmpUInt32::SnmpUInt32 (const unsigned long i)
-  : valid_flag(true)
+  : valid_flag(true), m_changed(true)
 {
   smival.value.uNumber = i;
   smival.syntax = sNMP_SYNTAX_UINT32;
 }
 
 // copy constructor
-SnmpUInt32::SnmpUInt32(const SnmpUInt32 &c)
-  : valid_flag(true)
+SnmpUInt32::SnmpUInt32(const SnmpUInt32 &c) : valid_flag(true), m_changed(true)
 {
   smival.value.uNumber=c.smival.value.uNumber;
   smival.syntax = sNMP_SYNTAX_UINT32;
@@ -99,6 +97,7 @@ SnmpUInt32& SnmpUInt32::operator=(const unsigned long i)
 {
   smival.value.uNumber = i;
   valid_flag = true;
+  m_changed = true;
   return *this;
 }
 
@@ -123,6 +122,7 @@ SnmpSyntax& SnmpUInt32::operator=(const SnmpSyntax &in_val)
 	  break;
     }
   }
+  m_changed = true;
   return *this;
 }
 
@@ -133,15 +133,21 @@ SnmpUInt32& SnmpUInt32::operator=(const SnmpUInt32 &uli)
 
   smival.value.uNumber = uli.smival.value.uNumber;
   valid_flag = uli.valid_flag;
+  m_changed = true;
   return *this;
 }
 
 // ASCII format return
 const char *SnmpUInt32::get_printable() const
 {
-  char *buf = PP_CONST_CAST(char*, output_buffer);
-  sprintf(buf, "%lu", smival.value.uNumber);
-  return buf;
+  if (m_changed == false) return output_buffer;
+
+  SnmpUInt32 *nc_this = PP_CONST_CAST(SnmpUInt32*, this);
+  sprintf(nc_this->output_buffer, "%lu", smival.value.uNumber);
+
+  nc_this->m_changed = false;
+
+  return output_buffer;
 }
 
 // Return the space needed for serialization
@@ -163,21 +169,21 @@ int SnmpUInt32::get_asn1_length() const
 //====================================================================
 
 // constructor no value
-SnmpInt32::SnmpInt32() : valid_flag(true)
+SnmpInt32::SnmpInt32() : valid_flag(true), m_changed(true)
 {
   smival.value.sNumber = 0;
   smival.syntax = sNMP_SYNTAX_INT32;
 }
 
 // constructor with value
-SnmpInt32::SnmpInt32(const long i) : valid_flag(true)
+SnmpInt32::SnmpInt32(const long i) : valid_flag(true), m_changed(true)
 {
   smival.value.sNumber = i;
   smival.syntax = sNMP_SYNTAX_INT32;
 }
 
 // constructor with value
-SnmpInt32::SnmpInt32(const SnmpInt32 &c) : valid_flag(true)
+SnmpInt32::SnmpInt32(const SnmpInt32 &c) : valid_flag(true), m_changed(true)
 {
   smival.value.sNumber = c.smival.value.sNumber;
   smival.syntax = sNMP_SYNTAX_INT32;
@@ -188,6 +194,7 @@ SnmpInt32& SnmpInt32::operator=(const long i)
 {
   smival.value.sNumber = (unsigned long) i;
   valid_flag = true;
+  m_changed = true;
   return *this;
 }
 
@@ -198,6 +205,7 @@ SnmpInt32& SnmpInt32::operator=(const SnmpInt32 &uli)
 
   smival.value.sNumber = uli.smival.value.sNumber;
   valid_flag = uli.valid_flag;
+  m_changed = true;
   return *this;
 }
 
@@ -222,15 +230,21 @@ SnmpSyntax& SnmpInt32::operator=(const SnmpSyntax &in_val)
 	  break;
     }
   }
+  m_changed = true;
   return *this;
 }
 
 // ASCII format return
 const char *SnmpInt32::get_printable() const
 {
-  char *buf = PP_CONST_CAST(char*, output_buffer);
-  sprintf(buf, "%ld", (long)smival.value.sNumber);
-  return buf;
+  if (m_changed == false) return output_buffer;
+
+  SnmpInt32 *nc_this = PP_CONST_CAST(SnmpInt32*, this);
+  sprintf(nc_this->output_buffer, "%ld", (long)smival.value.sNumber);
+
+  nc_this->m_changed = false;
+
+  return output_buffer;
 }
 
 // Return the space needed for serialization

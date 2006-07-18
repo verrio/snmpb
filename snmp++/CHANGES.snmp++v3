@@ -1,7 +1,143 @@
+
+Changes snmp++v3.2.21
+=====================
+
+- Added: New overloeaded Oid::set_data() that takes a char array instead
+  of ulong array.
+- Fixed: The dotted oid string parser no longer accepts strings like
+  "1.3.6.$public", "1.3.6$public$" or "1.3.6.$public$1".
+- Fixed: Removed a lot of compiler warnings on Windows x64 (with help of
+  Sanjay Bhatia). Introduced new type for sockets (SnmpSocket), and
+  removed SNMPHANDLE type.
+- Changed: Removed global mutex for v3MP and USM.
+- Fixed: sockets were not closed if bind failed. (found from John McCaskey)
+- Fixed: Engine id discovery did not work when sending SNMPv3 request
+  to IPv4 Address over IPv6 socket.
+- Fixed: For async SNMPv3 requests that resulted always in a unknown
+  engine id or not in time report from the agent the Snmp class continued
+  to resend a request to the agent.
+- Fixed: USM was not thread safe (found from John McCaskey):
+  Changing users from two different threads or changing users
+  while messages of these users are processed could cause
+  segmentation faults. The following functions of USM now behave
+  different than before or require calls to new functions:
+  all three get_user() functions, peek_first_user(), peek_next_user(),
+  peek_first_luser(), peek_next_luser(), get_user_count().
+  If you use any of these functions, read the new documentation in
+  usm_v3.h and change your code (like it was done for the QtExample).
+- Changed: The functions to set/get the trap listen port of
+  CNotifyEventQueue ar no longer static. Use the new functions
+  Snmp::notify_set/get_listen_port() instead.
+- Removed: Old X11 code, user defined events and timeouts.
+- Improved: Counter64 now uses 64 bit integer for math
+  operations, instead of long double. 
+- Fixed: Zero length UDP packets will no longer trigger
+  a transport-level-failed callback.
+
+Changes snmp++v3.2.20a
+======================
+
+- Improved: Detect too large received messages.
+- Improved: Removed hard coded limit for max number of Vbs
+  (PDU_MAX_VBS) in a Pdu object.
+- Fixed: Bug in SNMPv3 encryption code which will lead to a
+  crash after a random number of encryptions (Stuart Marks).
+
+- Improved: Compilation of address.cpp for Solaris.
+
+Changes snmp++v3.2.19
+=====================
+
+- Fixed: Requests with nonzero but wrong security engine id
+  now result in a unknown engine id report.
+- Added: New functions USM::add_usm_user() and
+  new functions to remove engine ids and hosts from
+  the v3MP and USM tables.
+- Changed: command line arguments of consoleExamples.
+
+Changes snmp++v3.2.18
+=====================
+
+- Added: Privacy protocol 3DES. The Auth/Priv interface was
+  modifed. (based on patch from Pierre Pacchioni)
+- Fixed: Possible memory leak in mp_v3.cpp v3MP::snmp_parse(..).
+- Fixed: Uninitialized variable in asn1.cpp asn_parse_length(..).
+- Fixed: Uninitialized variables in snmpmsg.cpp 
+  SnmpMessage::unload when v3MP::I->snmp_parse() fails.
+  (Reported by Rob Crawford)
+- Changed: ID of privacy protocol AES128 now is 4
+  as required by the RFC.
+- Fixed: Vb::get_value(ptr, len, maxlen) may write
+  maxlen+1 bytes into ptr buffer (Daniel Suman).
+  This function now is  Vb::get_value(ptr, len, maxlen,
+  add_null_byte) where the default for add_null_byte
+  is false.
+- Improved: Workaround for Cisco SNMP agents that set
+  request ids to 0x7fffffff in report messages.
+- Fixed: Make auth_priv.h/cpp compile if both OpenSSL and
+  LibTomCrypt are defined.
+- Added: Basic support for VxWorks with PPC603 (Thanks to
+  Lee Noll).
+
+Changes snmp++v3.2.17
+=====================
+
+- Changed: Updated auth_priv.cpp for LibTomCrypt 1.02
+- Changed: Moved logging classes from agent++ into
+  snmp++. (Fedja Jeleskovic)
+  Function debug_set_logfile() has been removed, use
+  DefaultLog::init(new AgentLogImpl("filename")) and
+  DefaultLog::log()->set_filter() instead.
+  All logging within snmp++ will be moved to the LOG_XXX
+  macros and the debugprintf() function will be removed.
+- Changed: Renamed "#ifdef alpha" to "#ifdef __osf__". When
+  compiling for DigitalUnix/Tru64 make sure, that __osf__
+  is defined.
+
+Changes snmp++v3.2.16
+=====================
+
+- Improved: notify_register() now returns correct error codes.
+- Added: Snmp::start_poll_thread() that starts a new thread
+  that polls for async responses and informs/traps. The thread
+  will be stopped automatically in the destructor. It also can
+  be stopped using Snmp::stop_poll_thread(). (Fedja Jeleskovic)
+- Added: New transport layer error code
+  SNMP_CLASS_TL_ACCESS_DENIED for (errno == EACCES)
+- Improved: new define SNMP_PP_MUTABLE that can be
+  defined to mutable for compilers that support
+  mutable member variables.
+- Changed: renamed OctetStr::set_hex_np_char() to
+  set_np_char()
+- Improved: get_printable() will return the same buffer
+  for each call if the object wasn't changed.
+- Added: Pdu::get_max_vbs() to get the value of
+  PDU_MAX_VBS at runtime.
+- Fixed: Bug in snmperrs.h (Jason Olenhouse)
+
+Changes snmp++v3.2.15
+=====================
+
+- Fixed: Bug in asn1.cpp for systems where
+  sizeof(long) != sizeof(*long) (Hu Shu)
+- Fixed: timeout calculation in
+  EventListHolder::SNMPProcessEvents() (Xu Manjiang)
+- Fixed: OctetStr::clear() now sets the length to
+  zero (Mr. AWD)
+
+- Fixed: Set sin_len of struct sockaddr_in before calling
+  bind(). Define CYGPKG_NET_OPENBSD_STACK to enable it.
+  (Harald Kuethe)
+- Changed: Pdu class checks Vb validity after all
+  assignments. It is no longer possible to add
+  a Vb that is not valid.
+  Some set/get member functions now return bool
+  instead of void.
+
 Changes snmp++v3.2.14
 =====================
 
-- Improved: Retrun value of Pdu functions 
+- Improved: Return value of Pdu functions 
   get/set_notify_id and get/set_notify_enterprise. 
   (Marek Malowidzki)
 - Fixed: Check return value of new in

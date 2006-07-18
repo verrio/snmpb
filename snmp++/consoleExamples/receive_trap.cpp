@@ -2,9 +2,9 @@
   _## 
   _##  receive_trap.cpp  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 
@@ -101,7 +101,7 @@ int main(int argc, char **argv)
   //----------[ create a SNMP++ session ]-----------------------------------
   int status; 
   Snmp::socket_startup();  // Initialize socket subsystem
-  Snmp snmp( status, 0);                // check construction status
+  Snmp snmp(status);                // check construction status
   if ( status != SNMP_CLASS_SUCCESS)
   {
     cout << "SNMP++ Session Create Fail, " << snmp.error_msg(status) << "\n";
@@ -181,8 +181,9 @@ int main(int argc, char **argv)
 #endif
    OidCollection oidc;
    TargetCollection targetc;
+
    cout << "Trying to register for traps on port " << trap_port << "." << endl;
-   CNotifyEventQueue::set_listen_port(trap_port);
+   snmp.notify_set_listen_port(trap_port);
    status = snmp.notify_register(oidc, targetc, callback, NULL);
    if (status != SNMP_CLASS_SUCCESS)
    {
@@ -193,8 +194,13 @@ int main(int argc, char **argv)
    else
      cout << "Waiting for traps/informs..." << endl;
 
-   while (1)
-     snmp.eventListHolder->SNMPProcessEvents();
+
+  snmp.start_poll_thread(1000);
+
+  cout << "press return to stop\n";
+  getc(stdin);
+
+  snmp.stop_poll_thread();
 
   Snmp::socket_cleanup();  // Shut down socket subsystem
 }

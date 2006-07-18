@@ -2,9 +2,9 @@
   _## 
   _##  gauge.h  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -131,7 +131,8 @@ class DLLOPT Gauge32: public SnmpUInt32
    * Assign a Gauge32 to a Gauge32.
    */
   Gauge32& operator=(const Gauge32 &uli)
-    { smival.value.uNumber = uli.smival.value.uNumber; return *this;};
+    { smival.value.uNumber = uli.smival.value.uNumber;
+      m_changed = true;  return *this;};
 
   /**
    * Assign a unsigned long to a Gauge32.
@@ -139,7 +140,7 @@ class DLLOPT Gauge32: public SnmpUInt32
    * @param ul - New value
    */
   Gauge32& operator=(const unsigned long ul)
-    { smival.value.uNumber = ul; return *this; };
+    { smival.value.uNumber = ul; m_changed = true; return *this; };
 
   // otherwise, behave like an unsigned int
   /**

@@ -2,9 +2,9 @@
   _## 
   _##  reentrant.cpp  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 char reentrant_cpp_version[]="#(@) SNMP++ $Id$";
@@ -39,6 +39,8 @@ SnmpSynchronized::SnmpSynchronized()
 #ifdef _THREADS
 #ifdef WIN32
 	InitializeCriticalSection(&_mutex);
+#elif defined (CPU) && CPU == PPC603
+	_mutex = semMCreate(SEM_Q_PRIORITY | SEM_DELETE_SAFE | SEM_INVERSION_SAFE );
 #else
 	pthread_mutex_init(&_mutex, 0);
 #endif
@@ -50,6 +52,11 @@ SnmpSynchronized::~SnmpSynchronized()
 #ifdef _THREADS
 #ifdef WIN32
 	DeleteCriticalSection(&_mutex);
+#elif defined (CPU) && CPU == PPC603
+	semTake(_mutex, WAIT_FOREVER);
+	semDelete(_mutex);
+#else
+	pthread_mutex_destroy(&_mutex);
 #endif
 #endif
 }
@@ -59,6 +66,8 @@ void SnmpSynchronized::lock()
 #ifdef _THREADS
 #ifdef WIN32
 	EnterCriticalSection(&_mutex);
+#elif defined (CPU) && CPU == PPC603
+    semTake(_mutex, WAIT_FOREVER);
 #else
 	pthread_mutex_lock(&_mutex);
 #endif
@@ -70,6 +79,8 @@ void SnmpSynchronized::unlock()
 #ifdef _THREADS
 #ifdef WIN32
 	LeaveCriticalSection(&_mutex);
+#elif defined (CPU) && CPU == PPC603
+    semGive(_mutex);
 #else
 	pthread_mutex_unlock(&_mutex);
 #endif

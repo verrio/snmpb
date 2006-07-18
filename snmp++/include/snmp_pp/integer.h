@@ -2,9 +2,9 @@
   _## 
   _##  integer.h  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -72,7 +72,6 @@
 namespace Snmp_pp {
 #endif
 
-
 #define INTOUTBUF 15  // largest ASCII formatted integer
 
 //------------[ Integer Classes ]------------------------------------------
@@ -106,7 +105,7 @@ class DLLOPT SnmpUInt32 : public SnmpSyntax
    *
    * @param c - initial value
    */
-  SnmpUInt32( const SnmpUInt32 &c);
+  SnmpUInt32(const SnmpUInt32 &c);
 
   /**
    * Destructor (ensure that SnmpSyntax::~SnmpSyntax() is overridden).
@@ -176,11 +175,13 @@ class DLLOPT SnmpUInt32 : public SnmpSyntax
   /**
    * Reset the object.
    */
-  void clear() { smival.value.uNumber = 0; valid_flag = true; };
+  void clear()
+    { smival.value.uNumber = 0; valid_flag = true; m_changed = true; };
 
  protected:
   bool valid_flag;
-  /*mutable*/ char output_buffer[INTOUTBUF];
+  SNMP_PP_MUTABLE char output_buffer[INTOUTBUF];
+  SNMP_PP_MUTABLE bool m_changed;
 };
 
 
@@ -260,7 +261,7 @@ class DLLOPT SnmpInt32 : public SnmpSyntax
    *
    * @return Pointer to a newly created copy of the object.
    */
-  SnmpSyntax *clone() const { return ( SnmpSyntax *)new SnmpInt32(*this); };
+  SnmpSyntax *clone() const { return (SnmpSyntax *)new SnmpInt32(*this); };
 
   /**
    * Return validity of the object.
@@ -277,11 +278,13 @@ class DLLOPT SnmpInt32 : public SnmpSyntax
   /**
    * Reset the object.
    */
-  void clear() { smival.value.sNumber = 0; valid_flag = true; };
+  void clear()
+    { smival.value.sNumber = 0; valid_flag = true; m_changed = true; };
 
  protected:
   bool valid_flag;
-  /*mutable*/ char output_buffer[INTOUTBUF];
+  SNMP_PP_MUTABLE char output_buffer[INTOUTBUF];
+  SNMP_PP_MUTABLE bool m_changed;
 };
 
 #ifdef SNMP_PP_NAMESPACE

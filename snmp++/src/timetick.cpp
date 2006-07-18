@@ -2,9 +2,9 @@
   _## 
   _##  timetick.cpp  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -72,7 +72,7 @@ namespace Snmp_pp {
 #endif
 
 // Copy constructor
-TimeTicks::TimeTicks( const TimeTicks &t)
+TimeTicks::TimeTicks(const TimeTicks &t)
 {
   smival.value.uNumber = t.smival.value.uNumber;
   smival.syntax = sNMP_SYNTAX_TIMETICKS;
@@ -99,15 +99,18 @@ SnmpSyntax& TimeTicks::operator=(const SnmpSyntax &in_val)
 	  break;
     }
   }
+  m_changed = true;
   return *this;
 }
 
 // ASCII format return
 const char *TimeTicks::get_printable() const
 {
+  if (m_changed == false) return output_buffer;
+
   unsigned long hseconds, seconds, minutes, hours, days;
   unsigned long tt = smival.value.uNumber;
-  char *buf = PP_CONST_CAST(char*, output_buffer);
+  TimeTicks *nc_this = PP_CONST_CAST(TimeTicks*, this);
 
   days = tt / 8640000;
   tt %= 8640000;
@@ -124,15 +127,17 @@ const char *TimeTicks::get_printable() const
   hseconds = tt;
 
   if (days == 0)
-    sprintf(buf, "%lu:%02lu:%02lu.%02lu", hours, minutes, seconds, hseconds);
+    sprintf(nc_this->output_buffer, "%lu:%02lu:%02lu.%02lu",
+            hours, minutes, seconds, hseconds);
   else if (days == 1)
-    sprintf(buf, "1 day %lu:%02lu:%02lu.%02lu",
+    sprintf(nc_this->output_buffer, "1 day %lu:%02lu:%02lu.%02lu",
 	    hours, minutes, seconds, hseconds);
   else
-    sprintf(buf, "%lu days, %lu:%02lu:%02lu.%02lu",
+    sprintf(nc_this->output_buffer, "%lu days, %lu:%02lu:%02lu.%02lu",
 	    days, hours, minutes, seconds, hseconds);
 
-  return buf;
+  nc_this->m_changed = false;
+  return output_buffer;
 }
 
 #ifdef SNMP_PP_NAMESPACE

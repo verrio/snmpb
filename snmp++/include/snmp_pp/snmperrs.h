@@ -2,9 +2,9 @@
   _## 
   _##  snmperrs.h  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -135,9 +135,10 @@ namespace Snmp_pp {
 #define SNMP_CLASS_TL_UNSUPPORTED    -20 //!< transport unsupported
 #define SNMP_CLASS_TL_IN_USE         -21 //!< transport in use
 #define SNMP_CLASS_TL_FAILED         -22 //!< transport operation failed
+#define SNMP_CLASS_TL_ACCESS_DENIED  -23 //!< transport missing rights
 
 // extras
-#define SNMP_CLASS_SHUTDOWN          -23 //!< used for back door shutdown
+#define SNMP_CLASS_SHUTDOWN          -24 //!< used for back door shutdown
 
 // ASN.1 parse errors
 #define SNMP_CLASS_BADVERSION        -50 //!< unsupported version
@@ -219,7 +220,7 @@ static const char * pv3Errs[] = {
   "SNMPv3: USM: Unknown EngineID",            // 1410
   "SNMPv3: USM: Message not in TimeWindow",   // 1411
   "SNMPv3: USM: Unsupported AuthProtocol",    // 1412
-  "SNMPv3: USM: Unsupported PrivProtocol"     // 1413
+  "SNMPv3: USM: Unsupported PrivProtocol",    // 1413
   "SNMPv3: USM: Address error",               // 1414
   "SNMPv3: USM: Could not create file",       // 1415
   "SNMPv3: USM: Could not open file",         // 1416
@@ -267,7 +268,8 @@ static const char * nErrs[] =
   "SNMP++: Transport is not supported",  // 20 SNMP_CLASS_TL_UNSUPPORTED
   "SNMP++: Transport is in use",         // 21 SNMP_CLASS_TL_IN_USE
   "SNMP++: Transport operation failed",  // 22 SNMP_CLASS_TL_FAILED
-  "SNMP++: Blocked Mode Shutdown",       // 23 SNMP_CLASS_SHUTDOWN
+  "SNMP++: Transport access denied",     // 23 SNMP_CLASS_TL_ACCESS_DENIED
+  "SNMP++: Blocked Mode Shutdown",       // 24 SNMP_CLASS_SHUTDOWN
 
   "Unknown error code",  // unknown error code
 };

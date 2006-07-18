@@ -8,6 +8,7 @@ SOURCES	+= snmp++/src/address.cpp \
 	snmp++/src/gauge.cpp \
 	snmp++/src/idea.cpp \
 	snmp++/src/integer.cpp \
+	snmp++/src/log.cpp \
 	snmp++/src/md5c.cpp \
 	snmp++/src/mp_v3.cpp \
 	snmp++/src/msec.cpp \
@@ -21,8 +22,6 @@ SOURCES	+= snmp++/src/address.cpp \
 	snmp++/src/snmpmsg.cpp \
 	snmp++/src/target.cpp \
 	snmp++/src/timetick.cpp \
-	snmp++/src/userdefined.cpp \
-	snmp++/src/usertimeout.cpp \
 	snmp++/src/usm_v3.cpp \
 	snmp++/src/uxsnmp.cpp \
 	snmp++/src/v3.cpp \

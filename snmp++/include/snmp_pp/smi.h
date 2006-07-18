@@ -2,9 +2,9 @@
   _## 
   _##  smi.h  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -47,19 +47,9 @@
 
   SMI DEFINITIONS
 
-  AUTHOR:
-  Peter E Mellquist
+  AUTHOR:           Peter E Mellquist
 
-  LANGUAGE:
-  ANSI C++
-
-  OPERATING SYSTEMS:
-  MS-Windows Win32
-  BSD UNIX
-
-  DESCRIPTION:
-  Address class definition. Encapsulates various network
-  addresses into easy to use, safe and portable classes.
+  LANGUAGE:         ANSI C++
 
 =====================================================================*/
 // $Id$
@@ -81,24 +71,6 @@ namespace Snmp_pp {
 #define STRCPY strcpy
 #define MEMCMP memcmp
 #define XPORT
-
-// HANDLE needs to be defined for each type of platform
-// for win32 - HANDLE is a HWND
-// for unix  - HANDLE is an unsigned long
-// unix and win32 ( Windu compile , unix takes presedence )
-#ifdef  WIN32
-#ifndef SNMPHANDLE
-#define SNMPHANDLE HWND
-#endif
-#endif
-
-
-#ifdef __unix
-#ifndef SNMPHANDLE
-#define SNMPHANDLE unsigned long
-#define DLLOPT
-#endif
-#endif
 
 #ifndef TRUE
 #define TRUE 1

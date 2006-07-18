@@ -2,9 +2,9 @@
   _## 
   _##  v3.cpp  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 
@@ -39,6 +39,7 @@ char v3_cpp_version[]="#(@) SNMP++ $Id$";
 #endif
 #endif
 
+#include "snmp_pp/log.h"
 #include "snmp_pp/v3.h"
 #include "snmp_pp/octet.h"
 
@@ -51,11 +52,6 @@ namespace Snmp_pp {
 const char *logfilename = NULL;
 int debug_level = 19;
 
-void debug_set_logfile(const char *filename)
-{
-  logfilename = filename;
-}
-
 // Set the amount of log messages you want to get.
 void debug_set_level(const int db_level)
 {
@@ -67,56 +63,81 @@ void debug_set_level(const int db_level)
 void debughexcprintf(int db_level, const char *comment,
                      const unsigned char *data, const unsigned int len)
 {
-  if (db_level > debug_level)
-    return;
+    if (db_level > debug_level) return;
 
-  FILE    *logfile = NULL;
+    char *buf = new char[MAX_LOG_SIZE];
 
-  if (logfilename)
-  {
-    logfile = fopen(logfilename, "a");
-  }
-  if (logfile == NULL)
-    logfile = stdout;
+    if (NULL == buf) return;	// not good!
 
-  if (comment)
-    fprintf(logfile, "%s (length %i): \n", comment, len);
+    if (comment && (strlen(comment) < MAX_LOG_SIZE - 25))
+    {
+	sprintf(buf, "%s (length %i): \n", comment, len);
+	LOG_BEGIN(DEBUG_LOG | 3);
+	LOG(buf);
+	LOG_END;
+    }
 
-  for (unsigned int i=0; i<len; i++) {
-    fprintf(logfile, "%02X ", data[i]);
-    if ((i+1)%4==0) fprintf(logfile, " ");
-    if ((i+1)%16==0) fprintf(logfile, "\n");
-  }
-  fprintf(logfile, "\n");
+    char *tmp = new char[4];
 
-  if (logfile != stdout)
-    fclose(logfile);
+    if (NULL == tmp) { delete [] buf ; return; }
+
+    buf[0] = '\0';
+    for (unsigned int i=0; i<len; i++)
+    {
+	sprintf(tmp, "%02X ", data[i]);
+	strcat(buf, tmp);
+
+	if ((i+1)%4==0)
+	{
+	    sprintf(tmp, " ");
+	    strcat(buf, tmp);
+	}
+
+	if ((i+1)%16==0)
+	{
+	    LOG_BEGIN(DEBUG_LOG | 3);
+	    LOG(buf);
+	    LOG_END;
+
+	    // reset the buf
+	    buf[0] = '\0';
+	}
+    }
+
+    // and cleanup...
+    delete [] tmp;
+    delete [] buf;
 }
 
 void debugprintf(int db_level, const char *format, ...)
 {
-  if (db_level > debug_level)
-    return;
+    if (db_level > debug_level) return;
 
-  va_list  args;
-  FILE    *logfile = NULL;
+    va_list  args;
 
-  if (logfilename)
-  {
-    logfile = fopen(logfilename, "a");
-  }
-  if (logfile == NULL)
-    logfile = stdout;
+    va_start(args, format);
 
-  va_start(args, format);
+/////////////////////////////////////////////////////////////////
+//	NOTE: This would be the best way to go (by using _vscprintf), 
+//	but it is part of the VC7.0, and it can't be used in VC6.0
+/////////////////////////////////////////////////////////////////
+	// _vscprintf doesn't count terminating '\0' so we add one more
+//	int len = _vscprintf( format, args ) + 1;
 
-  vfprintf(logfile, format, args);
-  fprintf(logfile, "\n");
+    char *buf = new char[MAX_LOG_SIZE];
 
-  va_end(args);
+    if (NULL == buf) return; // not good!
 
-  if (logfile != stdout)
-    fclose(logfile);
+    vsprintf(buf, format, args);
+
+    va_end(args);
+
+    LOG_BEGIN(DEBUG_LOG | 1);
+    LOG(buf);
+    LOG_END;
+
+    // and cleanup...
+    delete [] buf;
 }
 
 #else
@@ -175,7 +196,11 @@ void decodeString(const unsigned char* in, const int in_length, char* out)
 
   if ((in_length % 2) || (in_length < 0))
   {
-    debugprintf(0, "Illegal length: %i", in_length);
+    LOG_BEGIN(WARNING_LOG | 3);
+    LOG("decodeString: Illegal input length (len)");
+    LOG(in_length);
+    LOG_END;
+
     *out = 0;
     return;
   }
@@ -200,53 +225,81 @@ int getBootCounter(const char *fileName,
 
   boot = 0;
   file = fopen(fileName, "r");
-  if (file)
+
+  if (!file)
   {
-    if (len > MAXLENGTH_ENGINEID)
-    {
-      debugprintf(2, "getBootCounter: engineId too long (len): (%i)", len);
-      return SNMPv3_TOO_LONG_ERROR;
-    }
-    encodeString(engineId.data(), len, encoded);
-    encoded[2*len]=' ';
-    encoded[2*len + 1] = 0;
+    LOG_BEGIN(ERROR_LOG | 1);
+    LOG("getBootCounter: Could not open (file)");
+    LOG(fileName);
+    LOG_END;
 
-    while (fgets(line, MAX_LINE_LEN, file))
-    {
-      line[MAX_LINE_LEN - 1] = 0;
-      /* ignore comments */
-      if (line[0]=='#')
-        continue;
-
-      if (!strncmp(encoded, line, len*2 + 1))
-      {
-        /* line starts with engineId */
-        char* ptr = line;
-        /* skip until first space */
-        while (*ptr != 0 && *ptr != ' ')
-          ptr++;
-
-        if (*ptr == 0)
-        {
-          fclose(file);
-          debugprintf(1,"getBootCounter: Wrong line in file (file) (line):"
-                      "(%s) (%s)", fileName, line);
-          return SNMPv3_FILE_ERROR;
-        }
-        boot = atoi(ptr);
-        fclose(file);
-        debugprintf(5,"getBootCounter: found (bootCounter): (%i)", boot);
-        return SNMPv3_OK;
-      }
-    }
-    fclose(file);
-    debugprintf(5,"getBootCounter: found no entry for engineId (%s)",
-                OctetStr(engineId).get_printable());
-    return SNMPv3_NO_ENTRY_ERROR;
+    return SNMPv3_FILEOPEN_ERROR;
   }
 
-  debugprintf(1,"getBootCounter: Could not open (file): (%s)", fileName);
-  return SNMPv3_FILEOPEN_ERROR;
+  if (len > MAXLENGTH_ENGINEID)
+  {
+    LOG_BEGIN(ERROR_LOG | 3);
+    LOG("getBootCounter: engine id too long, ignoring last bytes (len) (max)");
+    LOG(len);
+    LOG(MAXLENGTH_ENGINEID);
+    LOG_END;
+
+    len = MAXLENGTH_ENGINEID;
+  }
+
+  encodeString(engineId.data(), len, encoded);
+  encoded[2*len]=' ';
+  encoded[2*len + 1] = 0;
+
+  while (fgets(line, MAX_LINE_LEN, file))
+  {
+    line[MAX_LINE_LEN - 1] = 0;
+    /* ignore comments */
+    if (line[0]=='#')
+      continue;
+
+    if (!strncmp(encoded, line, len*2 + 1))
+    {
+      /* line starts with engineId */
+      char* ptr = line;
+      /* skip until first space */
+      while (*ptr != 0 && *ptr != ' ')
+        ptr++;
+
+      if (*ptr == 0)
+      {
+        fclose(file);
+
+        LOG_BEGIN(ERROR_LOG | 3);
+        LOG("getBootCounter: Illegal line: (file) (line)");
+        LOG(fileName);
+        LOG(line);
+        LOG_END;
+
+        return SNMPv3_FILE_ERROR;
+      }
+      boot = atoi(ptr);
+      fclose(file);
+
+      LOG_BEGIN(DEBUG_LOG | 3);
+      LOG("getBootCounter: found entry (file) (engine id) (boot counter)");
+      LOG(fileName);
+      LOG(engineId.get_printable());
+      LOG(boot);
+      LOG_END;
+
+      return SNMPv3_OK;
+    }
+  }
+  fclose(file);
+
+  LOG_BEGIN(WARNING_LOG | 3);
+  LOG("getBootCounter: No entry found (file) (engine id)");
+  LOG(fileName);
+  LOG(engineId.get_printable());
+  LOG_END;
+
+  return SNMPv3_NO_ENTRY_ERROR;
 }
 
 // Store the bootCounter of the given engineID in the given file.
@@ -262,20 +315,36 @@ int saveBootCounter(const char *fileName,
 
   tmpFileName[0] = 0;
   sprintf(tmpFileName, "%s.tmp",fileName);
-  if (len > MAXLENGTH_ENGINEID) {
-    debugprintf(1,"EngineID too long, ignoring last bytes.");
+  if (len > MAXLENGTH_ENGINEID)
+  {
+    LOG_BEGIN(ERROR_LOG | 3);
+    LOG("saveBootCounter: engine id too long, ignoring last bytes (len) (max)");
+    LOG(len);
+    LOG(MAXLENGTH_ENGINEID);
+    LOG_END;
+
     len = MAXLENGTH_ENGINEID;
   }
-  file_in  = fopen(fileName, "r");
+
+  file_in = fopen(fileName, "r");
   if (!file_in)
   {
-    file_in  = fopen(fileName, "w");
+    file_in = fopen(fileName, "w");
     if (!file_in)
     {
-      debugprintf(2,"saveBootCounter: could not create file (%s)",fileName);
+      LOG_BEGIN(ERROR_LOG | 3);
+      LOG("saveBootCounter: could not create new file (file)");
+      LOG(fileName);
+      LOG_END;
+
       return SNMPv3_FILECREATE_ERROR;
     }
-    debugprintf(5,"saveBootCounter: created new file (%s)",fileName);
+
+    LOG_BEGIN(INFO_LOG | 3);
+    LOG("saveBootCounter: created new file (file)");
+    LOG(fileName);
+    LOG_END;
+
     fputs("# \n",file_in);
     fputs("# This file was created by an SNMP++v3 application,\n", file_in);
     fputs("# it is used to store the snmpEngineBoots counters.\n", file_in);
@@ -303,8 +372,12 @@ int saveBootCounter(const char *fileName,
       {
         if (found)
         {
-          debugprintf(2,"saveBootCounter: found engineId more than one time,"
-                      " deleting this line (%s).", line);
+          LOG_BEGIN(WARNING_LOG | 3);
+          LOG("saveBootCounter: Removing doubled entry (file) (line)");
+          LOG(fileName);
+          LOG(line);
+          LOG_END;
+
           continue;
         }
         sprintf(line,"%s%i\n", encoded, boot);
@@ -326,15 +399,31 @@ int saveBootCounter(const char *fileName,
 #endif
     if (rename(tmpFileName, fileName))
     {
-      debugprintf(2,"saveBootCounter: could not rename tmpfile (%s)"
-                  " to file (%s)", tmpFileName, fileName);
+      LOG_BEGIN(ERROR_LOG | 1);
+      LOG("saveBootCounter: Failed to rename temporary file (tmp file) (file)");
+      LOG(tmpFileName);
+      LOG(fileName);
+      LOG_END;
+
       return SNMPv3_FILERENAME_ERROR;
     }
-    debugprintf(5,"saveBootCounter: saved snmpEngineBoots counter");
+
+    LOG_BEGIN(INFO_LOG | 5);
+    LOG("saveBootCounter: Saved counter (file) (engine id) (boot)");
+    LOG(fileName);
+    LOG(engineId.get_printable());
+    LOG(boot);
+    LOG_END;
+
     return SNMPv3_OK;
   }
-  debugprintf(2,"saveBootCounter: could not open tmpfile (%s)"
-              " or file (%s)", tmpFileName, fileName);
+
+  LOG_BEGIN(ERROR_LOG | 1);
+  LOG("saveBootCounter: Failed to open both files (file) (tmp file)");
+  LOG(fileName);
+  LOG(tmpFileName);
+  LOG_END;
+
   return SNMPv3_FILEOPEN_ERROR;
 }
 

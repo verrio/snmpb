@@ -2,9 +2,9 @@
   _## 
   _##  snmpDiscover.cpp  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 
@@ -47,18 +47,14 @@ using std::flush;
 #include <iostream.h>
 #endif
 
-int main( int argc, char **argv)
+int main(int argc, char **argv)
 {
    //---------[ check the arg count ]----------------------------------------
    if ( argc < 2) {
 	  cout << "Usage:\n";
 	  cout << argv[0] << " BroadcastIpAddress [options]\n";
-	  cout << "options: -v1 , use SNMPV1, default\n";
-	  cout << "         -v2 , use SNMPV2\n";
-#ifdef _SNMPv3
-          cout << "         -v3 , use SNMPV3\n";
-#endif
-	  cout << "         -pPort , remote port to use\n";
+	  cout << "options: -vN , use SNMP version 1, 2 or 3, default is 1\n";
+	  cout << "         -PPort , remote port to use\n";
 	  cout << "         -CCommunity_name, specify community default is 'public' \n";
 	  cout << "         -rN , retries default is N = 1 retry\n";
 	  cout << "         -tN , timeout in hundredths of seconds; default is N = 100\n";
@@ -110,7 +106,7 @@ int main( int argc, char **argv)
        community = ptr;
        continue;
      }
-     if ( strstr( argv[x],"-p")!=0) {
+     if ( strstr( argv[x],"-P")!=0) {
        ptr = argv[x]; ptr++; ptr++;
        sscanf(ptr, "%hu", &port);
        continue;
@@ -152,7 +148,7 @@ int main( int argc, char **argv)
         << (version+1)
 #endif
         << " Retries=" << retries
-        << " Timeout=" << timeout <<"ms";
+        << " Timeout=" << timeout * 10 <<"ms";
 #ifdef _SNMPv3
    if (version == version3)
      cout << endl;

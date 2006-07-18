@@ -2,9 +2,9 @@
   _## 
   _##  pdu.cpp  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -43,20 +43,11 @@
   derivatives based upon this software code base.
 
 
-
   P D U . C P P
 
   PDU CLASS IMPLEMENTATION
 
-  DESIGN + AUTHOR:
-  Peter E Mellquist
-
-  LANGUAGE:
-  ANSI C++
-
-  OPERATING SYSTEMS:
-  MS-Windows Win32
-  BSD UNIX
+  DESIGN + AUTHOR:  Peter E Mellquist
 
   DESCRIPTION:
   Pdu class implementation. Encapsulation of an SMI Protocol
@@ -74,10 +65,13 @@ char pdu_cpp_version[]="@(#) SNMP++ $Id$";
 namespace Snmp_pp {
 #endif
 
+#define PDU_INITIAL_SIZE 25
+
 //=====================[ constructor no args ]=========================
 Pdu::Pdu()
-  : vb_count(0), error_status(0), error_index(0), validity(true),
-    request_id(0), pdu_type(0), notify_timestamp(0), v1_trap_address_set(false)
+  : vbs(0), vbs_size(0), vb_count(0), error_status(0), error_index(0),
+    validity(true), request_id(0), pdu_type(0), notify_timestamp(0),
+    v1_trap_address_set(false)
 #ifdef _SNMPv3
     , security_level(SNMP_SECURITY_LEVEL_NOAUTH_NOPRIV),
     message_id(0), maxsize_scopedpdu(0)
@@ -87,38 +81,66 @@ Pdu::Pdu()
 
 //=====================[ constructor with vbs and count ]==============
 Pdu::Pdu(Vb* pvbs, const int pvb_count)
-  : vb_count(0), error_status(0), error_index(0), validity(true),
-    request_id(0), pdu_type(0), notify_timestamp(0), v1_trap_address_set(false)
+  : vbs(0), vbs_size(0), vb_count(0), error_status(0), error_index(0),
+    validity(true), request_id(0), pdu_type(0), notify_timestamp(0),
+    v1_trap_address_set(false)
 #ifdef _SNMPv3
     , security_level(SNMP_SECURITY_LEVEL_NOAUTH_NOPRIV),
     message_id(0), maxsize_scopedpdu(0)
 #endif
 {
-   if (pvb_count == 0) return;    // zero is ok
+  if (pvb_count == 0) return;    // zero is ok
 
-   // check for over then max
-   if (pvb_count > PDU_MAX_VBS) { validity = false;  return; }
+  vbs = new Vb*[pvb_count];
+  if (vbs)
+    vbs_size = pvb_count;
+  else
+  {
+    vbs_size = 0;
+    validity = false;
+    return;
+  }
 
-   // loop through and assign internal vbs
-   for (int z = 0; z < pvb_count; ++z)
-   {
-     vbs[z] = new Vb(pvbs[z]);
-     if (vbs[z] == 0)     // check for new fail
-     {
-       for (int y = 0; y < z; ++y) delete vbs[y]; // free vbs
-       validity = false;
-       return;
-     }
-   }
+  // loop through and assign internal vbs
+  for (int z = 0; z < pvb_count; ++z)
+  {
+    if (pvbs[z].valid())
+      vbs[z] = new Vb(pvbs[z]);
+    else
+      vbs[z] = 0;
 
-   vb_count = pvb_count;   // assign the vb count
+    if ((vbs[z]) && !vbs[z]->valid())
+    {
+      delete vbs[z];
+      vbs[z] = 0;
+    }
+
+    if (vbs[z] == 0)     // check for new fail
+    {
+      for (int y = 0; y < z; ++y) delete vbs[y]; // free vbs
+      validity = false;
+      return;
+    }
+  }
+
+  vb_count = pvb_count;   // assign the vb count
 }
 
 //=====================[ destructor ]====================================
 Pdu::~Pdu()
 {
   for (int z = 0; z < vb_count; ++z)
+  {
     delete vbs[z];
+    vbs[z] = 0;
+  }
+
+  if (vbs)
+  {
+    delete [] vbs;
+    vbs = 0;
+    vbs_size = 0;
+  }
 }
 
 //=====================[ assignment to another Pdu object overloaded ]===
@@ -152,19 +174,39 @@ Pdu& Pdu::operator=(const Pdu &pdu)
   validity = true;
 
   // free up old vbs
-  for (int z = 0; z < vb_count; ++z)
-    delete vbs[z];
+  for (int z = 0; z < vb_count; ++z)  delete vbs[z];
   vb_count = 0;
 
   // check for zero case
   if (pdu.vb_count == 0) return *this;
 
+  // allocate array
+  if (vbs_size < pdu.vb_count)
+  {
+    delete [] vbs;
+    vbs = new Vb*[pdu.vb_count];
+    if (vbs)
+      vbs_size = pdu.vb_count;
+    else
+    {
+      vbs_size = 0;
+      validity = false;
+      return *this;
+    }
+  }
+
   // loop through and fill em up
   for (int y = 0; y < pdu.vb_count; ++y)
   {
     vbs[y] = new Vb(*(pdu.vbs[y]));
-    // new failure
-    if (vbs[y] == 0)
+
+    if ((vbs[y]) && !vbs[y]->valid())
+    {
+      delete vbs[y];
+      vbs[y] = 0;
+    }
+
+    if (!vbs[y])
     {
       for (int x = 0; x < y; ++x) delete vbs[x]; // free vbs
       validity = false;
@@ -176,34 +218,50 @@ Pdu& Pdu::operator=(const Pdu &pdu)
   return *this;
 }
 
-// append operator, appends a string
+// append operator, appends a variable binding
 Pdu& Pdu::operator+=(const Vb &vb)
 {
-  if (vb_count + 1> PDU_MAX_VBS)  // do we have room?
-    return *this;
+  if (!vb.valid())                return *this; // dont add invalid Vbs
+
+  if (vb_count + 1 > vbs_size)
+  {
+    if (!extend_vbs()) return *this;
+  }
 
   vbs[vb_count] = new Vb(vb);  // add the new one
 
   if (vbs[vb_count])   // up the vb count on success
   {
-    ++vb_count;
-    validity = true;   // set up validity
+    if (vbs[vb_count]->valid())
+    {
+      ++vb_count;
+      validity = true;   // set up validity
+    }
+    else
+    {
+      delete vbs[vb_count];
+      vbs[vb_count] = 0;
+    }
   }
 
   return *this;        // return self reference
 }
 
 //=====================[ extract Vbs from Pdu ]==========================
-int Pdu::get_vblist(Vb* pvbs, const int pvb_count)
+int Pdu::get_vblist(Vb* pvbs, const int pvb_count) const
 {
   if ((!pvbs) || (pvb_count < 0) || (pvb_count > vb_count))
-    return FALSE;
+    return false;
 
   // loop through all vbs and assign to params
   for (int z = 0; z < pvb_count; ++z)
+  {
     pvbs[z] = *vbs[z];
+    if (!pvbs[z].valid())
+      return false;
+  }
 
-  return TRUE;
+  return true;
 }
 
 //=====================[ deposit Vbs ]===================================
@@ -211,8 +269,8 @@ int Pdu::set_vblist(Vb* pvbs, const int pvb_count)
 {
   // if invalid then don't destroy
   if (((!pvbs) && (pvb_count > 0)) ||
-      (pvb_count < 0) || (pvb_count > PDU_MAX_VBS))
-    return FALSE;
+      (pvb_count < 0))
+    return false;
 
   // free up current vbs
   for (int z = 0; z < vb_count; ++z)  delete vbs[z];
@@ -225,19 +283,45 @@ int Pdu::set_vblist(Vb* pvbs, const int pvb_count)
     error_status = 0;
     error_index = 0;
     request_id = 0;
-    return FALSE;
+    return false;
+  }
+
+  // allocate array
+  if (vbs_size < pvb_count)
+  {
+    delete [] vbs;
+    vbs = new Vb*[pvb_count];
+    if (vbs)
+      vbs_size = pvb_count;
+    else
+    {
+      vbs_size = 0;
+      validity = false;
+      return false;
+    }
   }
 
   // loop through all vbs and reassign them
   for (int y = 0; y < pvb_count; ++y)
   {
-    vbs[y] = new Vb(pvbs[y]);
-    // check for new fail
-    if (vbs[y] == 0)
+    if (pvbs[y].valid())
+    {
+      vbs[y] = new Vb(pvbs[y]);
+      if ((vbs[y]) && !vbs[y]->valid())
+      {
+	delete vbs[y];
+	vbs[y] = 0;
+      }
+    }
+    else
+      vbs[y] = 0;
+
+    // check for errors
+    if (!vbs[y])
     {
       for (int x = 0; x < y; ++x) delete vbs[x]; // free vbs
       validity = false;
-      return FALSE;
+      return false;
     }
   }
 
@@ -249,7 +333,7 @@ int Pdu::set_vblist(Vb* pvbs, const int pvb_count)
   error_index = 0;
   validity = true;
 
-  return TRUE;
+  return true;
 }
 
 //===================[ get a particular vb ]=============================
@@ -257,37 +341,49 @@ int Pdu::set_vblist(Vb* pvbs, const int pvb_count)
 // index is zero based
 int Pdu::get_vb(Vb &vb, const int index) const
 {
-   if (index < 0)            return FALSE; // can't have an index less than 0
-   if (index > vb_count - 1) return FALSE; // can't ask for something not there
+   if (index < 0)         return false; // can't have an index less than 0
+   if (index >= vb_count) return false; // can't ask for something not there
 
    vb = *vbs[index];   // asssign it
 
-   return TRUE;
+   return vb.valid();
 }
 
 //===================[ set a particular vb ]=============================
 int Pdu::set_vb(Vb &vb, const int index)
 {
-  if (index < 0)            return FALSE; // can't have an index less than 0
-  if (index > vb_count - 1) return FALSE; // can't ask for something not there
+  if (index < 0)         return false; // can't have an index less than 0
+  if (index >= vb_count) return false; // can't ask for something not there
+  if (!vb.valid())       return false; // don't set invalid vbs
 
   Vb *victim = vbs[index]; // save in case new fails
-  vbs[index] = new Vb (vb);
+  vbs[index] = new Vb(vb);
   if (vbs[index])
-    delete victim;
+  {
+    if (vbs[index]->valid())
+    {
+      delete victim;
+    }
+    else
+    {
+      delete vbs[index];
+      vbs[index] = victim;
+      return false;
+    }
+  }
   else
   {
     vbs[index] = victim;
-    return FALSE;
+    return false;
   }
-  return TRUE;
+  return true;
 }
 
 // trim off the last vb
 int Pdu::trim(const int count)
 {
   // verify that count is legal
-  if ((count < 0) || (count > vb_count)) return FALSE;
+  if ((count < 0) || (count > vb_count)) return false;
 
   int lp = count;
 
@@ -296,29 +392,28 @@ int Pdu::trim(const int count)
     if (vb_count > 0)
     {
       delete vbs[vb_count-1];
+      vbs[vb_count-1] = 0;
       vb_count--;
     }
     lp--;
   }
-  return TRUE;
+  return true;
 }
 
 // delete a Vb anywhere within the Pdu
 int Pdu::delete_vb(const int p)
 {
   // position has to be in range
-  if ((p<0) || (p > vb_count - 1)) return FALSE;
+  if ((p<0) || (p > vb_count - 1)) return false;
 
-  // safe to remove it
-  delete vbs[ p];
+  delete vbs[p];   // safe to remove it
 
   for (int z = p; z < vb_count - 1; ++z)
-  {
     vbs[z] = vbs[z+1];
-  }
+
   vb_count--;
 
-  return TRUE;
+  return true;
 }
 
 
@@ -326,20 +421,17 @@ int Pdu::delete_vb(const int p)
 int Pdu::get_v1_trap_address(GenAddress &address) const
 {
   if (v1_trap_address_set == false)
-    return FALSE;
+    return false;
 
   address = v1_trap_address;
-  return TRUE;
+  return true;
 }
 
 // Set the SNMPv1 trap address
 int Pdu::set_v1_trap_address(const Address &address)
 {
   v1_trap_address = address;
-  if (v1_trap_address.valid())
-    v1_trap_address_set = true;
-  else
-    v1_trap_address_set = false;
+  v1_trap_address_set = (v1_trap_address.valid() == true);
 
   return v1_trap_address_set;
 }
@@ -350,21 +442,14 @@ int Pdu::get_asn1_length() const
 
   // length for all vbs
   for (int i = 0; i < vb_count; ++i)
-  {
     length += vbs[i]->get_asn1_length();
-  }
 
   // header for vbs
-  if (length < 0x80)
-    length += 2;
-  else if (length <= 0xFF)
-    length += 3;
-  else if (length <= 0xFFFF)
-    length += 4;
-  else if (length <= 0xFFFFFF)
-    length += 5;
-  else
-    length += 6;
+  if      (length < 0x80)      length += 2;
+  else if (length <= 0xFF)     length += 3;
+  else if (length <= 0xFFFF)   length += 4;
+  else if (length <= 0xFFFFFF) length += 5;
+  else                         length += 6;
 
   // req id, error status, error index
   SnmpInt32 i32(request_id ? request_id : PDU_MAX_RID);
@@ -375,16 +460,11 @@ int Pdu::get_asn1_length() const
   length += i32.get_asn1_length();
     
   // header for data_pdu
-  if (length < 0x80)
-    length += 2;
-  else if (length <= 0xFF)
-    length += 3;
-  else if (length <= 0xFFFF)
-    length += 4;
-  else if (length <= 0xFFFFFF)
-    length += 5;
-  else
-    length += 6;
+  if      (length < 0x80)      length += 2;
+  else if (length <= 0xFF)     length += 3;
+  else if (length <= 0xFFFF)   length += 4;
+  else if (length <= 0xFFFFFF) length += 5;
+  else                         length += 6;
 
 #ifdef _SNMPv3
   // now the scopedpdu part sequence (4), context engine, id context name
@@ -404,6 +484,36 @@ int Pdu::get_asn1_length() const
   return length;
 }
 
+// extend the vbs array
+bool Pdu::extend_vbs()
+{
+  if (vbs_size == 0)
+  {
+    vbs = new Vb*[PDU_INITIAL_SIZE];
+    if (vbs)
+    {
+      vbs_size = PDU_INITIAL_SIZE;
+      return true;
+    }
+    else
+       return false;
+  }
+
+  Vb **tmp = vbs;
+  vbs = new Vb*[vbs_size * 2];
+  if (!vbs)
+  {
+    vbs = tmp;
+    return false;
+  }
+
+  for (int y = 0; y < vb_count; ++y)
+    vbs[y] = tmp[y];
+  vbs_size *= 2;
+  delete [] tmp;
+  return true;
+}
+
 // Clear all members of the object
 void Pdu::clear()
 {
@@ -417,8 +527,7 @@ void Pdu::clear()
   v1_trap_address_set = false;
   validity            = true;
 
-  for (int z = 0; z < vb_count; ++z)
-    delete vbs[z];
+  for (int z = 0; z < vb_count; ++z)  delete vbs[z];
   vb_count = 0;
 
 #ifdef _SNMPv3
@@ -451,7 +560,9 @@ bool Pdu::match_type(const int request, const int response)
 	  (response == sNMP_PDU_INFORM) ||
 	  (response == sNMP_PDU_V1TRAP) ||
 	  (response == sNMP_PDU_TRAP))
-      debugprintf(0, "Unknown response pdu type (%d).", response);
+      {
+	debugprintf(0, "Unknown response pdu type (%d).", response);
+      }
       return false;
     }
     case sNMP_PDU_REPORT:
@@ -468,19 +579,6 @@ bool Pdu::match_type(const int request, const int response)
     }
   }
 }
-
-
-// DEPRECATED FUNCTIONS
-void set_error_status( Pdu *pdu, const int status)
-{ if (pdu) pdu->set_error_status(status); }
-void set_error_index( Pdu *pdu, const int index)
-{ if (pdu) pdu->set_error_index(index); }
-void clear_error_status( Pdu *pdu)
-{ if (pdu) pdu->clear_error_status(); }
-void clear_error_index( Pdu *pdu)
-{ if (pdu) pdu->clear_error_index(); }
-void set_request_id( Pdu *pdu, const unsigned long rid)
-{ if (pdu) pdu->set_request_id(rid); }
 
 #ifdef SNMP_PP_NAMESPACE
 }; // end of namespace Snmp_pp

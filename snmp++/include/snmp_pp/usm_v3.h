@@ -2,9 +2,9 @@
   _## 
   _##  usm_v3.h  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 // $Id$
@@ -37,6 +37,7 @@
 
 #include "snmp_pp/smi.h"
 #include "snmp_pp/octet.h"
+#include "snmp_pp/address.h"
 
 #ifdef SNMP_PP_NAMESPACE
 namespace Snmp_pp {
@@ -88,10 +89,12 @@ namespace Snmp_pp {
 //@{
 #define SNMP_PRIVPROTOCOL_NONE     1 ///< None
 #define SNMP_PRIVPROTOCOL_DES      2 ///< DES
+#define SNMP_PRIVPROTOCOL_AES128   4 ///< AES128 (RFC 3826)
+
 #define SNMP_PRIVPROTOCOL_IDEA     9 ///< IDEA (non standard)
-#define SNMP_PRIVPROTOCOL_AES128  19 ///< AES128 (draft standard)
-#define SNMP_PRIVPROTOCOL_AES192  20 ///< AES192 (draft standard)
-#define SNMP_PRIVPROTOCOL_AES256  21 ///< AES256 (draft standard)
+#define SNMP_PRIVPROTOCOL_AES192  20 ///< AES192 (non standard)
+#define SNMP_PRIVPROTOCOL_AES256  21 ///< AES256 (non standard)
+#define SNMP_PRIVPROTOCOL_3DESEDE  3 ///< 3DES (expired draft standard)
 //@}
 
 /** @name USM-ErrorCodes
@@ -150,9 +153,10 @@ namespace Snmp_pp {
 #define oidUsmNoPrivProtocol               "1.3.6.1.6.3.10.1.2.1"
 #define oidUsmDESPrivProtocol              "1.3.6.1.6.3.10.1.2.2"
 #define oidUsmIDEAPrivProtocol             "1.3.6.1.6.3.10.1.2.9"
-#define oidUsmAES128PrivProtocol           "1.3.6.1.6.3.10.1.2.19"
+#define oidUsmAES128PrivProtocol           "1.3.6.1.6.3.10.1.2.4"
 #define oidUsmAES192PrivProtocol           "1.3.6.1.6.3.10.1.2.20"
 #define oidUsmAES256PrivProtocol           "1.3.6.1.6.3.10.1.2.21"
+#define oidUsm3DESEDEPrivProtocol          "1.3.6.1.6.3.10.1.2.3"
 
 
 #define USM_KeyUpdate            1
@@ -216,6 +220,15 @@ class v3MP;
  *
  * To add or delete users, the methods add_usm_user() and delete_usm_user()
  * should be used.
+ *
+ * USM distinguishes between userName and securityName. The following is
+ * from section 2.1 of RFC3414:
+ *
+ * "userName: A string representing the name of the user.
+ *
+ *  securityName: A human-readable string representing the user in a format
+ *  that is Security Model independent. There is a one-to-one relationship *
+ *  between userName and securityName."
  */
 class DLLOPT USM
 {
@@ -313,6 +326,54 @@ public:
 		   const OctetStr& auth_password,
 		   const OctetStr& priv_password);
 
+
+  /**
+   * Add or replace a localized user in the USM table.
+   *
+   * This function uses build_localized_keys() to generate localized
+   * keys for the given passwords. Then it calls add_localized_user()
+   * to add/replace the localized entry for the user.
+   *
+   * The passwords are not stored, so no additonal engine id discovery
+   * is possible.
+   *
+   * @param user_name         - The name of the user (in the USM)
+   * @param security_name     - The securityName of the user, this name
+   *                                is the same for all securityModels
+   * @param auth_protocol     - Possible values are:
+   *                                SNMP_AUTHPROTOCOL_NONE,
+   *                                SNMP_AUTHPROTOCOL_HMACMD5,
+   *                                SNMP_AUTHPROTOCOL_HMACSHA,...
+   * @param priv_protocol     - Possible values are:
+   *                                SNMP_PRIVPROTOCOL_NONE,
+   *                                SNMP_PRIVPROTOCOL_DES,
+   *                                SNMP_PRIVPROTOCOL_IDEA,...
+   * @param  auth_password - Secret password for authentication
+   * @param  priv_password - Secret password for privacy
+   * @param engine_id         - The engineID, the key was localized with
+   *
+   * @return - SNMPv3_USM_OK
+   *           SNMP_v3_USM_ERROR (not initialized, no memory)
+   */
+  int add_usm_user(const OctetStr& user_name,
+		   const OctetStr& security_name,
+		   const long int  auth_protocol,
+		   const long int  priv_protocol,
+		   const OctetStr& auth_password,
+		   const OctetStr& priv_password,
+		   const OctetStr& engine_id);
+
+  int add_usm_user(const OctetStr& security_name,
+		   const long int  auth_protocol,
+		   const long int  priv_protocol,
+		   const OctetStr& auth_password,
+		   const OctetStr& priv_password,
+		   const OctetStr& engine_id)
+    { return add_usm_user(security_name, security_name, auth_protocol,
+			  priv_protocol, auth_password, priv_password,
+			  engine_id); };
+
+
   /**
    * Delete all occurences of the user with the given security name
    * from the USM.
@@ -375,16 +436,17 @@ public:
    * @param auth_protocol     - Possible values are:
    *                                SNMP_AUTHPROTOCOL_NONE,
    *                                SNMP_AUTHPROTOCOL_HMACMD5,
-   *                                SNMP_AUTHPROTOCOL_HMACSHA
+   *                                SNMP_AUTHPROTOCOL_HMACSHA,...
    * @param auth_key          - The key used for authentications
    * @param priv_protocol     - Possible values are:
    *                                SNMP_PRIVPROTOCOL_NONE,
    *                                SNMP_PRIVPROTOCOL_DES,
-   *                                SNMP_PRIVPROTOCOL_IDEA
+   *                                SNMP_PRIVPROTOCOL_IDEA,...
    * @param priv_key          - The key used for privacy
    *
    * @return - SNMPv3_USM_OK
-   *           SNMP_v3_USM_ERROR (not initialized, no memory) */
+   *           SNMP_v3_USM_ERROR (not initialized, no memory)
+   */
   int add_localized_user(const OctetStr &engine_id,
 			 const OctetStr &user_name,
 			 const OctetStr &security_name,
@@ -392,6 +454,36 @@ public:
 			 const OctetStr &auth_key,
 			 const long priv_protocol,
 			 const OctetStr &priv_key);
+
+  /**
+   * Generate localized keys for the given params.
+   *
+   * The buffers for the keys should be of size SNMPv3_USM_MAX_KEY_LEN.
+   *
+   * @param engine_id - 
+   * @param auth_prot -
+   * @param priv_prot -
+   * @param auth_password     -
+   * @param auth_password_len -
+   * @param priv_password     -
+   * @param priv_password_len -
+   * @param auth_key     - allocated space for the authentication key
+   * @param auth_key_len - IN: length of the buffer, OUT: key length
+   * @param priv_key     - allocated space for the privacy key
+   * @param priv_key_len - IN: length of the buffer, OUT: key length
+   * @return SNMPv3_USM_OK, or USM error codes
+   */
+  int build_localized_keys(const OctetStr      &engine_id,
+			   const int            auth_prot,
+			   const int            priv_prot,
+			   const unsigned char *auth_password,
+			   const unsigned int   auth_password_len,
+			   const unsigned char *priv_password,
+			   const unsigned int   priv_password_len,
+			   unsigned char *auth_key,
+			   unsigned int  *auth_key_len,
+			   unsigned char *priv_key,
+			   unsigned int  *priv_key_len);
 
   /**
    * Delete all localized entries of this user from the usmUserTable.
@@ -411,12 +503,22 @@ public:
    * @param engine_id - The engineID
    * @param user_name - The userName that should be deleted
    *
-   * @return - SNMPv3_USM_ERROR (not initialkized),
+   * @return - SNMPv3_USM_ERROR (not initialized),
    *           SNMPv3_USM_OK (user deleted or not in table)
    */
   int delete_localized_user(const OctetStr& engine_id,
 			    const OctetStr& user_name);
 
+
+  /**
+   * Delete this engine id form all USM tables (users and engine time).
+   *
+   * @param engine_id - the engine id
+   *
+   * @return - SNMPv3_USM_ERROR (not initialized),
+   *           SNMPv3_USM_OK (user deleted or not in table)
+   */
+  int remove_engine_id(const OctetStr &engine_id);
 
   /**
    * Replace a localized key of the user and engineID in the
@@ -447,7 +549,7 @@ public:
    * localized entry is generated, added to the usmUserTable and
    * returned to the caller.
    *
-   * The caller has to do a delete on the returned struct.
+   * The caller has to call free_user() with the returned struct.
    *
    * @param engine_id         -
    * @param security_name     -
@@ -458,6 +560,10 @@ public:
   struct UsmUser *get_user(const OctetStr &engine_id,
 			   const OctetStr &security_name);
 
+  /**
+   * Free the structure returned from get_user(OctetStr,OctetStr).
+   */
+  void free_user(struct UsmUser *&user);
 
   /**
    * Get the security name from a user name.
@@ -645,27 +751,61 @@ public:
   void inc_stats_decryption_errors();
   //@}
 
+  /**
+   * Lock the UsmUserNameTable for access through peek_first_user()
+   * and peek_next_user().
+   */
+  void lock_user_name_table();
 
   /**
    * Get a const pointer to the first entry of the UsmUserNameTable.
+   *
+   * @note Use lock_user_name_table() and unlock_user_name_table()
+   *       for thread safety.
    */
   const UsmUserNameTableEntry *peek_first_user();
 
   /**
    * Get a const pointer to the next entry of the UsmUserNameTable.
+   *
+   * @note Use lock_user_name_table() and unlock_user_name_table()
+   *       for thread safety.
    */
   const UsmUserNameTableEntry *peek_next_user(const UsmUserNameTableEntry *e);
 
+  /**
+   * Unlock the UsmUserNameTable after access through peek_first_user()
+   * and peek_next_user().
+   */
+  void unlock_user_name_table();
+
+  /**
+   * Lock the UsmUserTable for access through peek_first_luser()
+   * and peek_next_luser().
+   */
+  void lock_user_table();
 
   /**
    * Get a const pointer to the first entry of the UsmUserTable.
+   *
+   * @note Use lock_user_table() and unlock_user_table()
+   *       for thread safety.
    */
   const UsmUserTableEntry *peek_first_luser();
 
   /**
    * Get a const pointer to the next entry of the UsmUserTable.
+   *
+   * @note Use lock_user_table() and unlock_user_table()
+   *       for thread safety.
    */
   const UsmUserTableEntry *peek_next_luser(const UsmUserTableEntry *e);
+
+  /**
+   * Unlock the UsmUserTable after access through peek_first_luser()
+   * and peek_next_luser().
+   */
+  void unlock_user_table();
 
   /**
    * for v3MP:
@@ -682,35 +822,40 @@ public:
    *
    * Get the user at the specified position of the usmUserTable.
    *
-   * The caller is responsible to delete the entries usmUserEngineID,
-   * usmUserNamem, usmUserSecurityName of the returned struct and the
-   * struct.
+   * The returned pointer must NOT be deleted!
+   *
+   * @note lock_user_table() and unlock_user_table() must be used
+   *       for thread synchronization.
    *
    * @param number - get the entry at position number (1...)
    *
    * @return - a pointer to the structure or NULL if number is out
    *           of range
    */
-  struct UsmUserTableEntry *get_user(int number);
+  const struct UsmUserTableEntry *get_user(int number);
 
   /**
-   * Protected (for agent++):
-   *
    * Get the properties of the specified user.
    *
-   * The caller is responsible to delete the returned struct.
+   * The returned pointer must NOT be deleted!
+   *
+   * @note lock_user_table() and unlock_user_table() must be used
+   *       for thread synchronization.
    *
    * @param security_name - The security name of the user
    *
    * @return - a pointer to the structure or NULL if number is out
    *           of range
    */
-  struct UsmUserNameTableEntry *get_user(const OctetStr &security_name);
+  const struct UsmUserNameTableEntry *get_user(const OctetStr &security_name);
 
   /**
    * Protected (for agent++):
    *
    * Get the number of elements in the usmUserTable
+   *
+   * @note lock_user_table() and unlock_user_table() must be used
+   *       for thread synchronization.
    *
    * @return - number of elements
    */
@@ -796,6 +941,7 @@ public:
    * @param maxSizeResponseScopedPDU - OUT: maximum size for a scopedPDU in a
    *                                        response message
    * @param securityStateReference - OUT: the securityStateReference
+   * @param fromAddress            - IN: Address of the sender
    *
    * @return - SNMPv3_USM_OK on success. See snmperrs.h for the error codes
    *           of the USM.
@@ -815,9 +961,10 @@ public:
            unsigned char *scopedPDU,          // message (plaintext) payload
            int *scopedPDULength,
            long *maxSizeResponseScopedPDU,// maximum size of the Response PDU
-           struct SecurityStateReference *securityStateReference
-                                              // reference to security state
-           );                                 // information, needed for response
+           struct SecurityStateReference *securityStateReference,
+                                            // reference to security state
+                                            // information, needed for response
+           const UdpAddress &fromAddress);  // Address of the sender
 
 private:
 

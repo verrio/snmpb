@@ -2,9 +2,9 @@
   _## 
   _##  msec.h  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 /*
@@ -56,6 +56,8 @@
 // CK Ng    added #ifdef WIN32
 #ifdef WIN32
 #include <winsock.h>
+#elif defined (CPU) && CPU == PPC603
+#include <sys/times.h>
 #else
 #include <sys/time.h>
 #include <sys/param.h>
@@ -64,6 +66,7 @@
 #include <time.h>
 
 #include "snmp_pp/smi.h"
+#include "snmp_pp/reentrant.h"
 
 #ifdef SNMP_PP_NAMESPACE
 namespace Snmp_pp {
@@ -89,7 +92,7 @@ class DLLOPT msec
    *
    * @param in_msec - Time for this object
    */
-  msec(const msec &in_msec) : m_time(in_msec.m_time) {};
+  msec(const msec &in_msec) : m_time(in_msec.m_time), m_changed(true) {};
 
   /**
    * Constructor using seconds and milli sconds.
@@ -97,7 +100,7 @@ class DLLOPT msec
    * @param sec    - Seconds
    * @param milsec - Milli seconds
    */
-  msec(const int sec, const int milsec)
+  msec(const int sec, const int milsec) : m_changed(true)
     { m_time.tv_sec  = sec; m_time.tv_usec = milsec; };
 
   DLLOPT friend int operator==(const msec &t1, const msec &t2);
@@ -113,7 +116,8 @@ class DLLOPT msec
   msec &operator-=(const timeval &t1);
   msec &operator+=(const long millisec);
   msec &operator+=(const timeval &t1);
-  msec &operator=(const msec &t)    { m_time = t.m_time; return *this; };
+  msec &operator=(const msec &t)
+    { m_time = t.m_time; m_changed = true; return *this; };
   msec &operator=(const timeval &t1);
 
   /**
@@ -132,7 +136,8 @@ class DLLOPT msec
   /**
    * Set the object out into the future as far as possible.
    */
-  void SetInfinite()  { m_time.tv_sec = (time_t) -1; m_time.tv_usec = 0; };
+  void SetInfinite()
+    { m_time.tv_sec = (time_t) -1; m_time.tv_usec = 0; m_changed = true; };
 
   /**
    * Check if the time is infinite.
@@ -168,7 +173,14 @@ class DLLOPT msec
 
 private:
   timeval m_time;
-  /*mutable*/ char m_output_buffer[MSECOUTBUF];
+  SNMP_PP_MUTABLE char m_output_buffer[MSECOUTBUF];
+  SNMP_PP_MUTABLE bool m_changed;
+
+#if !defined HAVE_LOCALTIME_R && !defined HAVE_REENTRANT_LOCALTIME
+#ifdef _THREADS
+  static SnmpSynchronized m_localtime_mutex;
+#endif
+#endif
 };
 
 #ifdef SNMP_PP_NAMESPACE

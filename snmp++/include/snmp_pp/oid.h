@@ -2,9 +2,9 @@
   _## 
   _##  oid.h  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -47,15 +47,9 @@
 
   OID CLASS DEFINITION
 
-  DESIGN + AUTHOR:
-  Peter E Mellquist
+  DESIGN + AUTHOR:   Peter E Mellquist
 
-  LANGUAGE:
-  ANSI C++
-
-  OPERATING SYSTEMS:
-  MS-Windows Win32
-  BSD UNIX
+  LANGUAGE:          ANSI C++
 
   DESCRIPTION:
   This class is fully contained and does not rely on or any other
@@ -92,6 +86,12 @@ namespace Snmp_pp {
  * will be familiar and easy to use. The Oid class is designed to be
  * efficient and fast. The Oid class allows definition and
  * manipulation of object identifiers. 
+ *
+ * @note Oid holds two internal buffers for get_printable() functions.
+ *       The buffer returned by get_printable() is valid until the
+ *       Oid object is modified. The functions get_printable(len) and
+ *       get_printable(start, len) share the same buffer which is
+ *       freed and newly allocated for each call.
  */
 class DLLOPT Oid : public SnmpSyntax
 {
@@ -103,18 +103,29 @@ class DLLOPT Oid : public SnmpSyntax
   Oid();
 
   /**
-   * Construct an Oid from a dotted string.
+   * Construct an Oid from a string.
    *
-   * @param dotted_oid_string - for example "1.3.1.6.1.10"
+   * Depending on the second param, the oid_string can either be
+   * - a dotted oid string (like "1.3.6.1.6"). An arbitrary part
+   *   of the oid can be given as a string value enclosed in
+   *   '$' characters. For example the oid string
+   *   "1.3.6.1.6.1.12.1.3.$public0$" will result to the oid
+   *   1.3.6.1.6.1.12.1.3.112.117.98.108.105.99.95.48
+   * - a normal string (like "public"). The Oid will have the
+   *   ASCII values of the string characters. So "public" will
+   *   result to the oid 112.117.98.108.105.99
+   * 
+   * @param oid_string - for example "1.3.1.6.1.10"
+   * @param is_dotted_oid_string - Select format within oid_string
    */
-  Oid(const char *dotted_oid_string);
+  Oid(const char *oid_string, const bool is_dotted_oid_string = true);
 
   /**
    * Constructor using another oid object (copy constructor).
    *
    * @param oid - Source Oid
    */
-  Oid (const Oid &oid);
+  Oid(const Oid &oid);
 
   /**
    * Constructor from array.
@@ -123,6 +134,18 @@ class DLLOPT Oid : public SnmpSyntax
    * @param oid_len - length of array
    */
   Oid(const unsigned long *raw_oid, int oid_len);
+
+#if 0 // can be done through Oid o; o.set_data("public", 6); 
+  /**
+   * Constructor from standard C string array.
+   *
+   * @note This constructor does not take a dotted oid string as argument.
+   *
+   * @param str     - Array of new values (a string)
+   * @param str_len - Length of the array raw_oid
+   */
+  Oid(const char *str, const unsigned int str_len);
+#endif
 
   /**
    * Destructor.
@@ -161,7 +184,8 @@ class DLLOPT Oid : public SnmpSyntax
   /**
    * Overloaded not equal operator.
    */
-  DLLOPT friend int operator!=(const Oid &lhs, const Oid &rhs);
+  DLLOPT friend int operator!=(const Oid &lhs, const Oid &rhs)
+      { return (!(lhs == rhs)); };  // just invert ==
 
   /**
    * Overloaded less than < operator.
@@ -171,17 +195,20 @@ class DLLOPT Oid : public SnmpSyntax
   /**
    * Overloaded less than <= operator.
    */
-  DLLOPT friend int operator<=(const Oid &lhs, const Oid &rhs);
+  DLLOPT friend int operator<=(const Oid &lhs, const Oid &rhs)
+      { return ((lhs < rhs) || (lhs == rhs)); };
 
   /**
    * Overloaded greater than > operator.
    */
-  DLLOPT friend int operator>(const Oid &lhs, const Oid &rhs);
+  DLLOPT friend int operator>(const Oid &lhs, const Oid &rhs)
+      { return (!(lhs <= rhs)); };  // just invert existing <=
 
   /**
    * Overloaded greater than >= operator.
    */
-  DLLOPT friend int operator>=(const Oid &lhs, const Oid &rhs);
+  DLLOPT friend int operator>=(const Oid &lhs, const Oid &rhs)
+      { return (!(lhs < rhs)); };  // just invert existing <
 
   /**
    * Overloaded equal operator operator.
@@ -242,27 +269,27 @@ class DLLOPT Oid : public SnmpSyntax
 
   /**
    * Allows element access as an array.
-   * This method behaves like real array: if your position
+   * This method behaves like real array: if your index
    * is out of bounds, you're lost!
    *
-   * @param position - valid position -- 0 to (len() - 1)
+   * @param index - valid index -- 0 to (len() - 1)
    *
-   * @return Value on the given position
+   * @return Value on the given index
    */
-  unsigned long &operator[](int position)
-    { return smival.value.oid.ptr[position]; };
+  unsigned long &operator[](const unsigned int index)
+    { m_changed = true; return smival.value.oid.ptr[index]; };
 
   /**
    * Allows element access as an array for const objects.
-   * This method behaves like real array: if your position
+   * This method behaves like real array: if your index
    * is out of bounds, you're lost!
    *
-   * @param position - valid position -- 0 to (len() - 1)
+   * @param index - valid index -- 0 to (len() - 1)
    *
    * @return Value on the given position
    */
-  unsigned long operator[](int position) const
-    { return smival.value.oid.ptr[position]; };
+  unsigned long operator[](const unsigned int index) const
+    { return (index >= len()) ? 0 : smival.value.oid.ptr[index]; };
 
   /**
    * Get the WinSnmp oid part.
@@ -281,6 +308,13 @@ class DLLOPT Oid : public SnmpSyntax
    */
   void set_data(const unsigned long *raw_oid, const unsigned int oid_len);
 
+  /**
+   * Set the data from raw form.
+   *
+   * @param str     - Array of new values (a string)
+   * @param str_len - Length of the array raw_oid
+   */
+  void set_data(const char *str, const unsigned int str_len);
 
   /**
    * Get the length of the oid.
@@ -305,16 +339,6 @@ class DLLOPT Oid : public SnmpSyntax
   int nCompare(const unsigned long n, const Oid &o) const;
 
   /**
-   * Compare two Oids from the right in direction right-to left.
-   *
-   * @param n - Subvalues to compare
-   * @param o - The Oid to compare with
-   *
-   * @return 0 if equal / -1 if less / 1 if greater
-   */
-  int RnCompare(const unsigned long n, const Oid &o) const;
-
-  /**
    * Return validity of the object.
    */
   bool valid() const { return (smival.value.oid.ptr ? true : false); };
@@ -325,7 +349,7 @@ class DLLOPT Oid : public SnmpSyntax
    * @return Dotted oid string (for example "1.3.6.1.6.0")
    */
   const char *get_printable() const
-    { return get_printable(1, smival.value.oid.len); };
+    { return get_printable(1, smival.value.oid.len, (char*&)iv_str); };
 
   /**
    * Get a printable ASCII string of the right part of the value.
@@ -335,7 +359,24 @@ class DLLOPT Oid : public SnmpSyntax
    * @return Dotted oid string (for example "6.0")
    */
   const char *get_printable(const unsigned long n) const
-    { return get_printable(smival.value.oid.len - n + 1, n); };
+    { return get_printable(smival.value.oid.len - n + 1, n, (char*&)iv_part_str); };
+
+  /**
+   * Get a printable ASCII string of a part of the value.
+   *
+   * @param start - First position to print, starting with 1 (not zero!)
+   * @param n - positions to print.
+   * @param buffer - pointer to the returned buffer
+   *
+   * @note If buffer is not NULL, this function calls "delete [] buffer",
+   *       a new buffer is allocated using "new" and the caller has
+   *       to delete it.
+   *
+   * @return Dotted oid string (for example "3.6.1.6")
+   */
+  const char *get_printable(const unsigned long start,
+			    const unsigned long n,
+			    char *&buffer) const;
 
   /**
    * Get a printable ASCII string of a part of the value.
@@ -346,7 +387,8 @@ class DLLOPT Oid : public SnmpSyntax
    * @return Dotted oid string (for example "3.6.1.6")
    */
   const char *get_printable(const unsigned long start,
-			    const unsigned long n) const;
+			    const unsigned long n) const
+    { return get_printable(start, n, (char*&)iv_part_str); };
 
   /**
    * Clone this object.
@@ -372,7 +414,7 @@ class DLLOPT Oid : public SnmpSyntax
    * @param string - input string
    * @param dstOid - destination oid
    */
-  virtual int StrToOid(const char *string, SmiLPOID dstOid);
+  virtual int StrToOid(const char *string, SmiLPOID dstOid) const;
 
   /**
    * Clone an smi oid.
@@ -380,7 +422,7 @@ class DLLOPT Oid : public SnmpSyntax
    * @param srcOid - source oid
    * @param dstOid - destination oid
    */
-  virtual int OidCopy(SmiLPOID srcOid, SmiLPOID dstOid);
+  virtual int OidCopy(SmiLPOID srcOid, SmiLPOID dstOid) const;
 
   /**
    * Convert an smi oid to its string representation.
@@ -400,7 +442,9 @@ class DLLOPT Oid : public SnmpSyntax
 
   //----[ instance variables ]
 
-  /*mutable*/ char *iv_str;             // used for returning oid string
+  SNMP_PP_MUTABLE char *iv_str;      // used for returning complete oid string
+  SNMP_PP_MUTABLE char *iv_part_str; // used for returning part oid string
+  SNMP_PP_MUTABLE bool m_changed;
 };
 
 //-----------[ End Oid Class ]-------------------------------------
@@ -417,13 +461,7 @@ inline void Oid::delete_oid_ptr()
     smival.value.oid.ptr = 0;
   }
   smival.value.oid.len = 0;
-};
-
-//==============[ operator>=(Oid &x,Oid &y) ]=============================
-// greater than >= overloaded
-inline int operator>=(const Oid &x, const Oid &y)
-{
-  return (!(x<y));   // just invert existing <
+  m_changed = true;
 }
 
 #ifdef SNMP_PP_NAMESPACE

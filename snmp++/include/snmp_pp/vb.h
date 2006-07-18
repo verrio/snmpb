@@ -2,9 +2,9 @@
   _## 
   _##  vb.h  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -54,16 +54,11 @@
   objects and thus requires the Oid class. The Vb class may be used
   stand alone and does not require use of any other snmp library.
 
-
   DESIGN + AUTHOR:
   Peter E. Mellquist
 
   LANGAUGE:
   ANSI C++
-
-  OPERATING SYSTEM:
-  MS-Windows Win32
-  BSD UNIX
 
 =====================================================================*/
 // $Id$
@@ -268,7 +263,7 @@ class DLLOPT Vb
    *
    * @note The caller must provide a target string big enough to
    *       handle the vb string. No length checks are done within
-   *       this method.
+   *       this method. The returned string will be null terminated.
    *
    * @param ptr - Pointer to already allocated space to hold the vb
    *              value. The first char will be set to zero on failure.
@@ -284,20 +279,22 @@ class DLLOPT Vb
    * This method will only return success if the value of the vb is SMI OCTET.
    *
    * @note If the target space is not big enough to hold the complete
-   *       string only maxlen bytes are copied. In any case the returned
-   *       string is NOT null terminated.
+   *       string only part of the string is copied.
    *
    * @param ptr    - Pointer to already allocated space to hold the vb
    *                 value. The first char will be set to zero on failure.
    * @param len    - Returned length of the string. Will be set to 0
    *                 on failure.
    * @param maxlen - Maximum length of the space that ptr points to.
+   * @param add_null_byte - Add a null byte at end of output string.
+   *
    *
    * @return SNMP_CLASS_SUCCESS on success, else SNMP_CLASS_INVALID.
    */
   int get_value(unsigned char *ptr,
 		unsigned long &len,
-		const unsigned long maxlen) const;
+		const unsigned long maxlen,
+		const bool add_null_byte = false) const;
 
   /**
    * Get the value.
@@ -314,6 +311,18 @@ class DLLOPT Vb
    * @return SNMP_CLASS_SUCCESS on success, else SNMP_CLASS_INVALID.
    */
   int get_value(char *ptr) const;
+
+  /**
+   * Clone the value portion of the variable binding.
+   *
+   * The returned pointer must be deleted by the caller.
+   *
+   * @return
+   *    a pointer to a clone of the value of the receiver.
+   */
+  SnmpSyntax* clone_value() const
+      { return ((iv_vb_value) ? iv_vb_value->clone() : 0); };
+
 
   //-----[ misc]--------------------------------------------------------
 
@@ -343,8 +352,10 @@ class DLLOPT Vb
   void set_exception_status(const SmiUINT32 status)
     { exception_status = status; };
 
-  //! deprecated! Use Vb::set_exception_status()
-  DLLOPT friend void set_exception_status(Vb *vb, const SmiUINT32 status);
+  /**
+   * Get the exception status.
+   */
+  SmiUINT32 get_exception_status() const { return exception_status; };
 
   /**
    * Return a formatted version of the value.

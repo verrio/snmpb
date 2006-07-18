@@ -2,9 +2,9 @@
   ## 
   ##  common.mk  
   ##
-  ##  SNMP++v3.2.14
+  ##  SNMP++v3.2.21
   ##  -----------------------------------------------
-  ##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  ##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   ##
   ##  This software is based on SNMP++2.6 from Hewlett Packard:
   ##  
@@ -23,7 +23,7 @@
   ##  hereby grants a royalty-free license to any and all derivatives based
   ##  upon this software code base. 
   ##  
-  ##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  ##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   ##  
   ##########################################################################*
 
@@ -33,7 +33,7 @@ LIBTOMCRYPTDIR	= ../../crypt
 
 PP_INC		= ../include
 
-CINCDIRS	= -I$(PP_INC) -I./ -I$(LIBDESDIR) -I$(LIBTOMCRYPTDIR)
+CINCDIRS	= -I$(PP_INC) -I./ -I$(LIBDESDIR) -I$(LIBTOMCRYPTDIR)/src/headers
 
 # snmp++ lib headers
 HEADERS		= $(wildcard $(PP_INC)/snmp_pp/*.h)
@@ -77,23 +77,20 @@ INSTINCPATH	= $(INSTPREFIX)/include
 %x11.o: %.cpp
 	$(CC) -DSNMPX11 -I/usr/include/X11R5 $(CFLAGS) -c $< -o $@
 
-%.o:	%.C
-	$(CC) $(CFLAGS) -o $@ -c $<
-
 %_sh.o:	%.cpp
-	$(CC) $(SHARED) $(CFLAGS) -o $@ -c $<
-
-%_sh.o:	%.C
 	$(CC) $(SHARED) $(CFLAGS) -o $@ -c $<
 
 #
 #  Build rules
 #
-all:  $(LIBSNMPPLUS) $(LIBSNMPPLUS_SHARED) # $(LIBSNMPX11)
+all: $(LIBPATH) $(LIBSNMPPLUS) $(LIBSNMPPLUS_SHARED) # $(LIBSNMPX11)
 
-lib: $(LIBSNMPPLUS)
+lib: $(LIBPATH) $(LIBSNMPPLUS)
 
-shlib: $(LIBSNMPPLUS_SHARED)
+shlib: $(LIBPATH) $(LIBSNMPPLUS_SHARED)
+
+$(LIBPATH):
+	mkdir $(LIBPATH)
 
 $(LIBSNMPPLUS): $(OBJS)
 	ar -rv $(LIBSNMPPLUS) $(OBJS)	

@@ -2,9 +2,9 @@
   _## 
   _##  Properties.ui.h  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 /****************************************************************************
@@ -43,8 +43,9 @@ void Properties::combo_box_sec_name_activated(const QString &sec_name)
   OctetStr sname(sec_name);
 
   // Get the properties of the user with the given sec_name from USM
-  // Do not forget the delete at the end!
-  struct UsmUserNameTableEntry *user = usm->get_user(sname);
+  // dont forget to lock/unlock the user table
+  usm->lock_user_table();
+  const struct UsmUserNameTableEntry *user = usm->get_user(sname);
 
   if (!user)
   {
@@ -52,6 +53,9 @@ void Properties::combo_box_sec_name_activated(const QString &sec_name)
     line_edit_priv_pass->setEnabled(false);
     combo_box_auth_prot->setEnabled(false);
     combo_box_priv_prot->setEnabled(false);
+
+    usm->unlock_user_table();
+
     return;
   }
   line_edit_auth_pass->setText(QString::fromLatin1(
@@ -103,8 +107,8 @@ void Properties::combo_box_sec_name_activated(const QString &sec_name)
     combo_box_priv_prot->setEnabled(false);
   }
 
-  // Must do this!
-  delete user;
+  // unlock user table!
+  usm->unlock_user_table();
 }
 
 void Properties::set_snmp( Snmp *s )
@@ -118,6 +122,8 @@ void Properties::set_snmp( Snmp *s )
   combo_box_sec_name->clear();
 
   // get all security names
+  usm->lock_user_name_table(); // lock table for peek_XXX()
+
   const struct UsmUserNameTableEntry *user = usm->peek_first_user();
   QStringList names;
   QString initial("initial");
@@ -131,6 +137,8 @@ void Properties::set_snmp( Snmp *s )
     
     user = usm->peek_next_user(user);
   }
+  usm->unlock_user_name_table(); // unlock table
+
   combo_box_sec_name->insertStringList(names);
   if (combo_box_sec_name->count())
   {

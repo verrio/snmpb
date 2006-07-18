@@ -2,9 +2,9 @@
   _## 
   _##  counter.h  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -91,7 +91,7 @@ class DLLOPT Counter32: public SnmpUInt32
    *
    * @param i - unsigned 32 bit value
    */
-  Counter32( const unsigned long i) : SnmpUInt32(i)
+  Counter32(const unsigned long i) : SnmpUInt32(i)
     { smival.syntax = sNMP_SYNTAX_CNTR32; };
 
   /**
@@ -99,7 +99,7 @@ class DLLOPT Counter32: public SnmpUInt32
    *
    * @param c - Object to copy from
    */
-  Counter32( const Counter32 &c);
+  Counter32(const Counter32 &c);
 
   /**
    * Return the syntax.
@@ -127,7 +127,8 @@ class DLLOPT Counter32: public SnmpUInt32
    * @return self reference
    */
   Counter32& operator=(const Counter32 &uli)
-    { smival.value.uNumber = uli.smival.value.uNumber; return *this;};
+    { smival.value.uNumber = uli.smival.value.uNumber;
+      m_changed = true; return *this;};
 
   /**
    * Overloaded assignment for unsigned longs.
@@ -135,15 +136,15 @@ class DLLOPT Counter32: public SnmpUInt32
    * @param i - new value
    * @return self reference
    */
-  Counter32& operator=( const unsigned long i)
-    { smival.value.uNumber = i; return *this;};
+  Counter32& operator=(const unsigned long i)
+    { smival.value.uNumber = i; m_changed = true; return *this;};
 
   /**
    * Casting to unsigned long.
    *
    * @return Current value as an unsigned long
    */
-  operator unsigned long() { return this->smival.value.uNumber; };
+  operator unsigned long() { return smival.value.uNumber; };
 };
 
 #ifdef SNMP_PP_NAMESPACE

@@ -2,9 +2,9 @@
   _## 
   _##  address.cpp  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -47,18 +47,11 @@
 
   ADDRESS CLASS IMPLEMENTATION
 
-  DESIGN + AUTHOR:
-  Peter E. Mellquist
+  DESIGN + AUTHOR:  Peter E. Mellquist
 
-  DESCRIPTION:
-  Implementation file for Address classes.
+  DESCRIPTION:      Implementation file for Address classes.
 
-  LANGUAGE:
-  ANSI C++
-
-  OPERATING SYSTEM(S):
-  MS-Windows Win32
-  BSD UNIX
+  LANGUAGE:         ANSI C++
 
 =====================================================================*/
 char address_cpp_version[]="@(#) SNMP++ $Id$";
@@ -89,6 +82,12 @@ namespace Snmp_pp {
 #define ADDRESS_TRACE2
 #endif
 
+#if !defined HAVE_GETHOSTBYNAME_R || !defined HAVE_GETHOSTBYADDR_R || !defined HAVE_REENTRANT_GETHOSTBYNAME || !defined HAVE_REENTRANT_GETHOSTBYADDR
+#ifdef _THREADS
+SnmpSynchronized Address::syscall_mutex;
+#endif
+#endif
+
 //=================================================================
 //======== Abstract Address Class Implementation ==================
 //=================================================================
@@ -98,7 +97,7 @@ Address::Address()
 {
   ADDRESS_TRACE;
 
-  memset(address_buffer, 0, sizeof(unsigned char)*BUFSIZE);
+  memset(address_buffer, 0, sizeof(unsigned char)*ADDRBUF);
 }
 
 //------------[ Address::trim_white_space( char * ptr) ]------------
@@ -118,7 +117,7 @@ void Address::clear()
 {
   addr_changed = true;
   valid_flag = false;
-  memset(address_buffer, 0, sizeof(unsigned char)*BUFSIZE);
+  memset(address_buffer, 0, sizeof(unsigned char)*ADDRBUF);
 }
 
 //-----------------------------------------------------------------------
@@ -496,7 +495,7 @@ int IpAddress::parse_coloned_ipstring(const char *inaddr)
 {
   ADDRESS_TRACE;
 
-  unsigned char tmp_address_buffer[BUFSIZE];
+  unsigned char tmp_address_buffer[ADDRBUF];
   char temp[60];  // temp buffer for destruction
 
   // check len, an ipv6 can never be bigger than 39
@@ -673,8 +672,8 @@ int IpAddress::parse_coloned_ipstring(const char *inaddr)
 
   if (second_used)
   {
-    int len_first  = end_first_part - (char*)tmp_address_buffer;
-    int len_second = out_ptr - second;
+    int len_first  = SAFE_INT_CAST(end_first_part - (char*)tmp_address_buffer);
+    int len_second = SAFE_INT_CAST(out_ptr - second);
 
     int i=0;
     for (i=0; i<IP6LEN-(len_first + len_second); i++)
@@ -693,7 +692,7 @@ int IpAddress::parse_coloned_ipstring(const char *inaddr)
   ip_version = version_ipv6;
   smival.value.string.len = IP6LEN;
 
-  memcpy(address_buffer, tmp_address_buffer, BUFSIZE);
+  memcpy(address_buffer, tmp_address_buffer, ADDRBUF);
 
   return TRUE;
 }
@@ -705,12 +704,17 @@ bool IpAddress::parse_address(const char *inaddr)
 {
   ADDRESS_TRACE;
 
+#if !defined HAVE_GETHOSTBYNAME_R && !defined HAVE_REENTRANT_GETHOSTBYNAME
+#ifdef _THREADS
+  SnmpSynchronize s(syscall_mutex);
+#endif
+#endif
+
   addr_changed = true;
 
   // parse the input char array fill up internal buffer with four ip
   // bytes set and return validity flag
 
-  hostent *lookupResult = 0;
   char ds[48];
 
   // intialize the friendly_name member variable
@@ -730,20 +734,47 @@ bool IpAddress::parse_address(const char *inaddr)
   }
   else // not a dotted string, try to resolve it via DNS
   {
+#if defined (CPU) && CPU == PPC603
+  int lookupResult = hostGetByName(inaddr);
+
+  if (lookupResult == ERROR)
+  {
+      iv_friendly_name_status = lookupResult;
+      return FALSE;
+  }
+	// now lets check out the dotted string
+  strcpy(ds,inet_ntoa(lookupResult));
+
+  if (!parse_dotted_ipstring(ds))
+     return FALSE;
+
+	// save the friendly name
+  strcpy(iv_friendly_name, inaddr);
+
+  return TRUE;
+
+#else
+  hostent *lookupResult = 0;
+
 #ifdef HAVE_GETHOSTBYNAME_R
     char buf[2048]; // TODO: Too big buffer?
     int herrno = 0;
     hostent lookup_buf;
-#ifdef __sun
+#if defined(__sun) || defined (__QNX_NEUTRINO)
     lookupResult = gethostbyname_r(inaddr, &lookup_buf, buf, 2048, &herrno);
-#else
+#else    
     gethostbyname_r(inaddr, &lookup_buf, buf, 2048, &lookupResult, &herrno);
 #endif
 #ifdef SNMP_PP_IPv6
     if (!lookupResult)
     {
+#ifdef __sun
+      lookupResult = gethostbyname_r(inaddr, AF_INET6, &lookup_buf, buf, 2048,
+                                     &lookupResult, &herrno);
+#else        
       gethostbyname2_r(inaddr, AF_INET6, &lookup_buf, buf, 2048,
                         &lookupResult, &herrno);
+#endif
     }
 #endif // SNMP_PP_IPv6
 #else // not HAVE_GETHOSTBYNAME_R
@@ -809,6 +840,7 @@ bool IpAddress::parse_address(const char *inaddr)
 #endif
       return FALSE;
     }
+#endif //PPC603
   }  // end else not a dotted string
   return TRUE;
 }
@@ -819,7 +851,18 @@ int IpAddress::addr_to_friendly()
 {
   ADDRESS_TRACE;
 
+#if !defined HAVE_GETHOSTBYADDR_R && !defined HAVE_REENTRANT_GETHOSTBYADDR
+#ifdef _THREADS
+  SnmpSynchronize s(syscall_mutex);
+#endif
+#endif
+
+#if defined (CPU) && CPU == PPC603
+  int lookupResult;
+	char hName[MAXHOSTNAMELEN+1];
+#else
   hostent *lookupResult;
+#endif
   char    ds[48];
 
   // can't look up an invalid address
@@ -828,7 +871,7 @@ int IpAddress::addr_to_friendly()
   // lets try and get the friendly name from the DNS
   strcpy(ds, this->IpAddress::get_printable());
 
-#ifdef HAVE_GETHOSTBYADDR_R
+#if !(defined (CPU) && CPU == PPC603) && defined HAVE_GETHOSTBYADDR_R
   int herrno = 0;
   hostent lookup;
   char buf[2048]; // TODO: Buf size too big?
@@ -849,8 +892,10 @@ int IpAddress::addr_to_friendly()
       return -1; // bad address
 #endif
 
-#ifdef HAVE_GETHOSTBYADDR_R
-#ifdef __sun
+#if defined (CPU) && CPU == PPC603
+	lookupResult = hostGetByAddr(ipAddr.s_addr, hName);
+#elif defined HAVE_GETHOSTBYADDR_R
+#if defined(__sun) || defined(__QNX_NEUTRINO)
     lookupResult = gethostbyaddr_r((char *) &ipAddr, sizeof(in_addr),
                                    AF_INET, &lookup, buf, 2048, &herrno);
 #else
@@ -870,8 +915,10 @@ int IpAddress::addr_to_friendly()
     if (inet_pton(AF_INET6, (char*)ds, &ipAddr) <= 0)
       return -1; // bad address
 
-#ifdef HAVE_GETHOSTBYADDR_R
-#ifdef __sun
+#if defined (CPU) && CPU == PPC603
+	lookupResult = hostGetByAddr(ipAddr.s_addr, hName);
+#elif defined HAVE_GETHOSTBYADDR_R
+#if defined(__sun) || defined(__QNX_NEUTRINO)
     lookupResult = gethostbyaddr_r((char *) &ipAddr, sizeof(in_addr),
                                    AF_INET6, &lookup, buf, 2048, &herrno);
 #else
@@ -887,6 +934,21 @@ int IpAddress::addr_to_friendly()
 #endif // SNMP_PP_IPv6
   }
   // if we found the name, then update the iv friendly name
+#if defined (CPU) && CPU == PPC603
+  if (lookupResult != ERROR)
+  {
+    strncpy(iv_friendly_name, hName, MAX_FRIENDLY_NAME);
+    return 0;
+  }
+  else
+  {
+    iv_friendly_name_status = lookupResult;
+	return lookupResult;
+  }
+
+  return -1; //should not get here
+
+#else
   if (lookupResult)
   {
     strcpy(iv_friendly_name, lookupResult->h_name);
@@ -894,13 +956,14 @@ int IpAddress::addr_to_friendly()
   }
   else
   {
-#ifdef linux
+#ifdef HAVE_GETHOSTBYADDR_R
     iv_friendly_name_status = herrno;
 #else
     iv_friendly_name_status = h_errno;
 #endif
     return iv_friendly_name_status;
   }
+#endif //PPC603
 }
 
 //----[ IP address format output ]------------------------------------
@@ -927,7 +990,8 @@ void IpAddress::format_output() const
   }
   else
     *(char *)output_buffer = 0;
-  ((IpAddress *)this)->addr_changed = false;
+  IpAddress *nc_this = PP_CONST_CAST(IpAddress*, this);
+  nc_this->addr_changed = false;
 }
 
 //-----------------------------------------------------------------
@@ -947,11 +1011,43 @@ void IpAddress::mask(const IpAddress& ipaddr)
   }
 }
 
-/**
- * Map a IPv4 Address to a IPv6 address.
- *
- * @return - TRUE if no error occured.
- */
+
+// Get the count of matching bits from the left.
+int IpAddress::get_match_bits(const IpAddress match_ip) const
+{
+  ADDRESS_TRACE;
+
+  int bits = 0;
+
+  if (valid() && match_ip.valid() &&
+      (ip_version == match_ip.ip_version))
+  {
+    int count = (ip_version == version_ipv4) ? IPLEN : IP6LEN;
+
+    for (int i = 0; i < count; i++)
+    {
+	if (address_buffer[i] == match_ip.address_buffer[i])
+	    bits += 8;
+	else
+	{
+	    bits += 7;
+	    unsigned char c1 = address_buffer[i] >> 1;
+	    unsigned char c2 = match_ip.address_buffer[i] >> 1;
+	    while (c1 != c2)
+	    {
+		c1 = c1 >> 1;
+		c2 = c2 >> 1;
+		bits--;
+	    }
+	    break;
+	}
+    }
+  }
+
+  return bits;
+}
+
+// Map a IPv4 Address to a IPv6 address.
 int IpAddress::map_to_ipv6()
 {
   ADDRESS_TRACE;
@@ -1222,7 +1318,7 @@ bool UdpAddress::parse_address(const char *inaddr)
 
   int remove_brackets = FALSE;
   int found = FALSE;
-  int pos = strlen(buffer) - 1;
+  int pos = (int)strlen(buffer) - 1; // safe to cast as max is MAX_FRIENDLY_NAME
   int do_loop = TRUE;
   int another_colon_found = FALSE;
 
@@ -1296,7 +1392,7 @@ bool UdpAddress::parse_address(const char *inaddr)
   else
   {
     port = 0;
-    result = IpAddress::parse_address (buffer);
+    result = IpAddress::parse_address(buffer);
   }
 
   if (ip_version == version_ipv4)
@@ -1363,7 +1459,8 @@ void UdpAddress::format_output() const
   }
   else
     *(char*)output_buffer = 0;
-  ((UdpAddress *)this)->addr_changed = false;
+  UdpAddress *nc_this = PP_CONST_CAST(UdpAddress*, this);
+  nc_this->addr_changed = false;
 }
 
 /**
@@ -1653,7 +1750,8 @@ void IpxAddress::format_output() const
             address_buffer[8],address_buffer[9]);
   else
     *(char*)output_buffer = 0;
-  ((IpxAddress *)this)->addr_changed = false;
+  IpxAddress *nc_this = PP_CONST_CAST(IpxAddress*, this);
+  nc_this->addr_changed = false;
 }
 
 
@@ -1821,7 +1919,8 @@ void IpxSockAddress::format_output() const
             IpxAddress::get_printable(), get_socket());
   else
     *(char*)output_buffer = 0;
-  ((IpxSockAddress *)this)->addr_changed = false;
+  IpxSockAddress *nc_this = PP_CONST_CAST(IpxSockAddress*, this);
+  nc_this->addr_changed = false;
 }
 
 //-----[ IP Address parse Address ]---------------------------------
@@ -2074,7 +2173,8 @@ void MacAddress::format_output() const
 	    address_buffer[3], address_buffer[4], address_buffer[5]);
   else
     *(char*)output_buffer = 0;
-  ((MacAddress*)this)->addr_changed = false;
+  MacAddress *nc_this = PP_CONST_CAST(MacAddress*, this);
+  nc_this->addr_changed = false;
 }
 
 unsigned int MacAddress::hashFunction() const

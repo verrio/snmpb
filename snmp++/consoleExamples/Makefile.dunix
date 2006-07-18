@@ -2,9 +2,9 @@
   ## 
   ##  Makefile.dunix  
   ##
-  ##  SNMP++v3.2.14
+  ##  SNMP++v3.2.21
   ##  -----------------------------------------------
-  ##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  ##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   ##
   ##  This software is based on SNMP++2.6 from Hewlett Packard:
   ##  
@@ -23,7 +23,7 @@
   ##  hereby grants a royalty-free license to any and all derivatives based
   ##  upon this software code base. 
   ##  
-  ##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  ##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   ##  
   ##########################################################################*
 #

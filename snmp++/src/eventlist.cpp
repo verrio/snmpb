@@ -2,9 +2,9 @@
   _## 
   _##  eventlist.cpp  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -79,9 +79,8 @@ char event_list_version[]="@(#) SNMP++ $Id$";
 #include "snmp_pp/v3.h"
 #include "snmp_pp/eventlist.h"		// queue for holding all event sources
 #include "snmp_pp/msgqueue.h"		// queue for holding snmp event sources
-#include "snmp_pp/userdefined.h"        // queue for holding user defined event sources
-#include "snmp_pp/usertimeout.h"        // queue for holding user defined timeouts
 #include "snmp_pp/notifyqueue.h"	// queue for holding trap callbacks
+#include "snmp_pp/snmperrs.h"
 
 #ifdef SNMP_PP_NAMESPACE
 namespace Snmp_pp {
@@ -92,18 +91,18 @@ namespace Snmp_pp {
 CEventList::CEventListElt::CEventListElt(CEvents *events,
 					 CEventListElt *next,
 					 CEventListElt *previous):
-  m_events(events), m_next(next), m_previous(previous)
+  m_events(events), m_Next(next), m_previous(previous)
 {
   /* Finish insertion into doubly linked list */
-  if (m_next)     m_next->m_previous = this;
-  if (m_previous) m_previous->m_next = this;
+  if (m_Next)     m_Next->m_previous = this;
+  if (m_previous) m_previous->m_Next = this;
 }
 
 CEventList::CEventListElt::~CEventListElt()
 {
   /* Do deletion form doubly linked list */
-  if (m_next)     m_next->m_previous = m_previous;
-  if (m_previous) m_previous->m_next = m_next;
+  if (m_Next)     m_Next->m_previous = m_previous;
+  if (m_previous) m_previous->m_Next = m_Next;
   if (m_events)   delete m_events;
 }
 

@@ -2,9 +2,9 @@
   _## 
   _##  MainWindow.cpp  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 #ifndef _MSC_VER
@@ -46,6 +46,7 @@
 
 #include "snmp_pp/snmp_pp.h"
 #include "snmp_pp/notifyqueue.h"
+#include "snmp_pp/log.h"
 
 using std::cout;
 using std::cerr;
@@ -154,7 +155,16 @@ MainWindow::MainWindow(QWidget* parent, const char* name, WFlags fl)
 {
   int status;
 
-  debug_set_logfile("QtExample.log"); // Write debug info to a file
+#ifndef _NO_LOGGING
+  DefaultLog::log()->set_filter(ERROR_LOG, 5);
+  DefaultLog::log()->set_filter(WARNING_LOG, 5);
+  DefaultLog::log()->set_filter(EVENT_LOG, 5);
+  DefaultLog::log()->set_filter(INFO_LOG, 5);
+  DefaultLog::log()->set_filter(DEBUG_LOG, 8);
+
+  // Write debug info to a file
+  DefaultLog::init(new AgentLogImpl("QtExample.log"));
+#endif
 
   Snmp::socket_startup();  // Initialize socket subsystem
 
@@ -230,6 +240,8 @@ void MainWindow::update_combobox_sec_name()
   combo_box_sec_name->clear();
 
   // get all security names
+  usm->lock_user_name_table(); // lock table for peek_XXX()
+
   const struct UsmUserNameTableEntry *user = usm->peek_first_user();
   QStringList names;
   QString initial("initial");
@@ -243,6 +255,8 @@ void MainWindow::update_combobox_sec_name()
     
     user = usm->peek_next_user(user);
   }
+  usm->unlock_user_name_table(); // unlock table
+
   combo_box_sec_name->insertStringList(names);
 }
 
@@ -492,9 +506,8 @@ void MainWindow::push_button_traps_toggled(bool isOn)
     // get the port
     int port = line_edit_trap_port->text().toUInt();
 
-    // Set the Port, Note that all Snmp objects will try to use
-    // this port
-    CNotifyEventQueue::set_listen_port(port);
+    // Set the trap listen port for this Snmp object
+    snmp->notify_set_listen_port(port);
 
     OidCollection oidc;
     TargetCollection targetc;

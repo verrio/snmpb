@@ -2,9 +2,9 @@
   _## 
   _##  uxsnmp.h  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 
@@ -46,7 +46,7 @@ namespace Snmp_pp {
 #define MAX_ADDR_LEN 10              // maximum address len, ipx is 4+6
 #define SNMP_SHUTDOWN_MSG 0x0400+177 // shut down msg for stoping a blocked message
 #ifndef INVALID_SOCKET 
-#define INVALID_SOCKET ((SNMPHANDLE)(~0)) // value for invalid socket
+#define INVALID_SOCKET ((SnmpSocket)(~0)) // value for invalid socket
 #endif
 
 //-----[ async defines for engine ]---------------------------------------
@@ -59,7 +59,6 @@ namespace Snmp_pp {
 //-----[ trap / notify macros ]-------------------------------------------
 #define IP_NOTIFY  162     // IP notification
 #define IPX_NOTIFY 0x2121  // IPX notification
-
 
 //------[ forward declaration of Snmp class ]-----------------------------
 class Snmp;
@@ -98,7 +97,7 @@ typedef void (*snmp_callback)(int reason, Snmp *session,
  * @note If you use the async methods to send requests you MUST call
  *       Snmp::eventListHolder->SNMPProcessPendingEvents() while waiting
  *       for the responses. This function triggers the resend of
- *       packets and call your callback function if the response is
+ *       packets and calls your callback function if the response is
  *       received.
  *
  * @note Call srand() before creating the first Snmp object.
@@ -363,10 +362,13 @@ class DLLOPT Snmp: public SnmpSynchronized
    *
    * @param pdu    - Pdu to send
    * @param target - Target for the response
+   * @param fd     - file descriptor to use, should be the one
+   *                 that was passed to the callback function
    *
    * @return SNMP_CLASS_SUCCES or a negative error code
    */
-  virtual int response(Pdu &pdu, const SnmpTarget &target);
+  virtual int response(Pdu &pdu, const SnmpTarget &target,
+		       const SnmpSocket fd = INVALID_SOCKET);
 
 
   /**
@@ -402,6 +404,11 @@ class DLLOPT Snmp: public SnmpSynchronized
 				  const snmp_version version,
 				  const OctetStr *community = 0);
 
+#ifdef _SNMPv3
+  virtual int engine_id_discovery(OctetStr &engine_id,
+				  const int timeout_sec,
+				  const UdpAddress &addr);
+#endif
   //@}
 
   /**
@@ -417,6 +424,19 @@ class DLLOPT Snmp: public SnmpSynchronized
   /** @name Trap and Inform handling
    */
   //@{
+
+  /**
+   * Set the port for listening to traps and informs.
+   *
+   * @note This function must be called before notify_register(),
+   *       otherwise the default port is used.
+   */
+  virtual void notify_set_listen_port(const int port);
+
+  /**
+   * Get the port that is used for listening to traps and informs.
+   */
+  virtual int notify_get_listen_port();
 
   /**
    * Register to get traps and informs.
@@ -435,10 +455,11 @@ class DLLOPT Snmp: public SnmpSynchronized
                               const TargetCollection &targets,
                               const snmp_callback callback,
                               const void *callback_data=0);
+
   /**
    * Register to get traps and informs.
    *
-   * @note listen_addresses param is ignored!
+   * @note The AddressCollection param is currently ignored.
    *
    * @note Every call to one of the notify_register() methods overwrites
    *       the previous given values.
@@ -519,18 +540,40 @@ class DLLOPT Snmp: public SnmpSynchronized
    *
    * @return 0 on success, -1 on failure
    */
-  virtual int send_raw_data( unsigned char *send_buf,
-                             size_t send_len, UdpAddress &address,
-                             int fd = 0);
+  virtual int send_raw_data(unsigned char *send_buf,
+                            size_t send_len, UdpAddress &address,
+                            SnmpSocket fd = INVALID_SOCKET);
 
   const IpAddress &get_listen_address() const {return listen_address; };
 
   // this member var will simulate a global var
   EventListHolder *eventListHolder;
 
-#ifdef _SNMPv3
-  // lock for v3 cache information
-  static SnmpSynchronized v3Lock;
+  bool start_poll_thread(const int select_timeout);
+  void stop_poll_thread();
+
+protected:
+
+  /**
+   * Check for the status of the worker thread.
+   * @return BOOL - TRUE - if running, FALSE - otherwise
+   */
+  bool is_running(void) const
+      { return m_bThreadRunning; };
+	
+  /**
+   * This is a working thread for the recovery of the pending events.
+   *
+   * @param pSnmp [in] pointer to the whole object
+   *
+   * @return int
+   *          0 - if succesful,
+   *          1 - in the case of error
+   */
+#ifdef WIN32
+  static int process_thread(Snmp *pSnmp);
+#else
+  static void* process_thread(void *arg);
 #endif
 
  protected:
@@ -542,13 +585,24 @@ class DLLOPT Snmp: public SnmpSynchronized
    */
   long MyMakeReqId();
 
+  /**
+   * Common init function used by constructors.
+   */
+  void init(int& status, IpAddress*[2],
+            const unsigned short port_v4, const unsigned short port_v6);
+
+  /**
+   * Set the notify timestamp of a trap pdu if the user did not set it.
+   */
+  void check_notify_timestamp(Pdu &pdu);
+
   //-----------[ Snmp Engine ]----------------------------------------
   /**
    * gets, sets and get nexts go through here....
    * This mf does all snmp sending and reception
    * except for traps which are sent using trap().
    *
-   * @note that for a UTarget with an empty enngine id the
+   * @note that for a UTarget with an empty engine id the
    *       Utarget::set_engine_id() may be called.
    */
   int snmp_engine( Pdu &pdu,                  // pdu to use
@@ -556,8 +610,9 @@ class DLLOPT Snmp: public SnmpSynchronized
                    long int max_reps,         // get bulk only
                    const SnmpTarget &target,        // destination target
                    const snmp_callback cb,    // async callback function
-                   const void *cbd);          // callback data
-
+                   const void *cbd,          // callback data
+		   SnmpSocket fd = INVALID_SOCKET,
+		   int reports_received = 0);
 
   //--------[ map action ]------------------------------------------------
   // map the snmp++ action to a SMI pdu type
@@ -578,36 +633,37 @@ class DLLOPT Snmp: public SnmpSynchronized
     SnmpTarget *target;        ///< Pointer to the Target object to use
     snmp_callback oldCallback; ///< User callback function
     const void *cbd;           ///< User callback data
+    int reports_received;      ///< How many reports are already received
   };
 #endif
 
   //---[ instance variables ]
-#ifdef WIN32
-  unsigned long iv_snmp_session;
-  unsigned long iv_snmp_session_ipv6;
-#else
-  SNMPHANDLE iv_snmp_session;         // session handle
-  SNMPHANDLE iv_snmp_session_ipv6;    // session handle
-#endif
+  SnmpSocket iv_snmp_session;
+  SnmpSocket iv_snmp_session_ipv6;
+
   IpAddress listen_address;
-  int iv_notify_fd;                   // fd for notify session - DLD
-  SNMPHANDLE pdu_handler;             // pdu handler win proc
-  SNMPHANDLE pdu_handler_ipv6;        // pdu handler win proc
-  int construct_status;               // status of construction
-  int construct_status_ipv6;          // status of construction ipv6
+  SnmpSocket iv_notify_fd;            // fd for notify session - DLD
   long current_rid;                   // current rid to use
 
   // inform receive member variables
   snmp_callback  notifycallback;
   void * notifycallback_data;
 
-  void init(int& status, IpAddress*[2],
-            const unsigned short port_v4, const unsigned short port_v6);
+private:
 
-  /**
-   * Set the notify timestamp of a trap pdu if the user did not set it.
-   */
-  void check_notify_timestamp(Pdu &pdu);
+  bool m_bThreadRunning;
+  int m_iPollTimeOut;
+
+  // Keep track of the thread.
+#ifdef _THREADS
+#ifdef WIN32
+  HANDLE m_hThread;
+#elif defined (CPU) && CPU == PPC603
+  int m_hThread;
+#else
+  pthread_t m_hThread;
+#endif
+#endif
 };
 
 #ifdef SNMP_PP_NAMESPACE

@@ -2,9 +2,9 @@
   _## 
   _##  msec.cpp  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 /*
@@ -65,6 +65,12 @@ char msec_cpp_version[]="@(#) SNMP++ $Id$";
 namespace Snmp_pp {
 #endif
 
+#if !defined HAVE_LOCALTIME_R && !defined HAVE_REENTRANT_LOCALTIME
+#ifdef _THREADS
+SnmpSynchronized msec::m_localtime_mutex;
+#endif
+#endif
+
 int operator==(const msec &t1, const msec &t2)
 {
   return((t1.m_time.tv_sec == t2.m_time.tv_sec) &&
@@ -104,10 +110,10 @@ msec &msec::operator-=(const long millisec)
   timeval t1;
 
   // create a timeval
-  t1.tv_sec = (time_t) (millisec / 1000);
+  t1.tv_sec = millisec / 1000;
   t1.tv_usec = (millisec % 1000) * 1000;
   // subtract it from this
-  *this -= t1;
+  *this -= t1; // add m_changed = true if this line is removed!
   return *this;
 }
 
@@ -124,6 +130,7 @@ msec &msec::operator-=(const timeval &t1)
     m_time.tv_usec -= tmp_usec;
     m_time.tv_sec -= t1.tv_sec;
   }
+  m_changed = true;
   return *this;
 }
 
@@ -132,10 +139,10 @@ msec &msec::operator+=(const long millisec)
   timeval t1;
 
   // create a timeval
-  t1.tv_sec = (time_t) (millisec / 1000);
+  t1.tv_sec = millisec / 1000;
   t1.tv_usec = (millisec % 1000) * 1000;
   // add it to this
-  *this += t1;
+  *this += t1; // add m_changed = true if this line is removed!
   return *this;
 }
 
@@ -147,11 +154,12 @@ msec &msec::operator+=(const timeval &t1)
     m_time.tv_usec += tmp_usec;
     if (m_time.tv_usec > 1000) {
       // carry
-      m_time.tv_sec +=  (time_t) (m_time.tv_usec / 1000);
+      m_time.tv_sec +=  m_time.tv_usec / 1000;
       m_time.tv_usec = m_time.tv_usec % 1000;
     }
     m_time.tv_sec += t1.tv_sec;
   }
+  m_changed = true;
   return *this;
 }
 
@@ -159,21 +167,49 @@ msec &msec::operator=(const timeval &t1)
 {
   m_time.tv_sec  = t1.tv_sec;
   m_time.tv_usec = t1.tv_usec/1000; // convert usec to millisec
+  m_changed = true;
   return *this;
 }
 
-void msec::refresh() {
-// CK Ng    added #ifdef WIN32
+#if defined (CPU) && CPU == PPC603
+
+  struct SCommTimer
+  {
+	unsigned long NumMS;
+	unsigned long FractMS;
+  };
+
+  extern "C"
+  {
+  // The GetTime call is not part of the VxWorks library!
+  // If it is not already available in your environment,
+  // you will need to implement it!
+  void GetTime (struct SCommTimer *  Time);
+  }
+#endif
+
+void msec::refresh()
+{
 #ifdef WIN32
   struct _timeb timebuffer;
   _ftime( &timebuffer );
   m_time.tv_usec = timebuffer.millitm;
-  m_time.tv_sec  = timebuffer.time;
+  m_time.tv_sec  = SAFE_ULONG_CAST(timebuffer.time);
+#elif defined (CPU) && CPU == PPC603
+
+  SCommTimer theTime;
+
+  GetTime(&theTime);
+
+  m_time.tv_sec = theTime.NumMS/1000;
+  m_time.tv_usec = theTime.NumMS % 1000;
+
 #else
   class timezone tzone;
   gettimeofday((timeval *)&m_time, &tzone);
   m_time.tv_usec /= 1000; // convert usec to millisec
 #endif
+  m_changed = true;
 }
 
 #ifndef MAX_ALARM
@@ -184,7 +220,7 @@ void msec::GetDelta(const msec &future, timeval &timeout) const
 {
   if (future.IsInfinite())
   {
-    timeout.tv_sec = (time_t)MAX_ALARM;	// max allowable select timeout
+    timeout.tv_sec = MAX_ALARM; // max allowable select timeout
     timeout.tv_usec = 0;
   }
   else if (future > *this)
@@ -211,23 +247,32 @@ void msec::GetDelta(const msec &future, timeval &timeout) const
 // FIXME: does not print years and days!
 const char *msec::get_printable() const
 {
+  if (m_changed == false) return m_output_buffer;
+
   char msec_buffer[5];
-  char *buf = PP_CONST_CAST(char*, m_output_buffer);
+  msec *nc_this = PP_CONST_CAST(msec*, this);
 
 #ifdef HAVE_LOCALTIME_R
   struct tm stm;
   localtime_r((time_t *)&m_time.tv_sec, &stm);
-  strftime(buf, sizeof(m_output_buffer), "%H:%M:%S.", &stm);
+  strftime(nc_this->m_output_buffer, sizeof(m_output_buffer),
+           "%H:%M:%S.", &stm);
 #else
+#if defined _THREADS && !defined HAVE_REENTRANT_LOCALTIME
+  SnmpSynchronize s(m_localtime_mutex);  // Serialize all calls to localtime!
+#endif
   struct tm *tmptr;
   tmptr = localtime((time_t *)&m_time.tv_sec);
-  strftime(buf, sizeof(m_output_buffer), "%H:%M:%S.", tmptr);
+  strftime(nc_this->m_output_buffer, sizeof(m_output_buffer),
+           "%H:%M:%S.", tmptr);
 #endif
 
   sprintf(msec_buffer, "%.3ld", m_time.tv_usec);
-  strcat(buf, msec_buffer);
+  strcat(nc_this->m_output_buffer, msec_buffer);
 
-  return buf;
+  nc_this->m_changed = false;
+
+  return m_output_buffer;
 }
 
 #ifdef SNMP_PP_NAMESPACE

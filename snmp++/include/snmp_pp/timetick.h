@@ -2,9 +2,9 @@
   _## 
   _##  timetick.h  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -140,7 +140,8 @@ class DLLOPT TimeTicks : public SnmpUInt32
    * @return self reference
    */
   TimeTicks& operator=(const TimeTicks &uli)
-    { smival.value.uNumber = uli.smival.value.uNumber; return *this; };
+    { smival.value.uNumber = uli.smival.value.uNumber;
+      m_changed = true; return *this; };
 
   /**
    * Overloaded assignment for unsigned longs.
@@ -149,7 +150,7 @@ class DLLOPT TimeTicks : public SnmpUInt32
    * @return self reference
    */
   TimeTicks& operator=(const unsigned long i)
-    { smival.value.uNumber = i; return *this; };
+    { smival.value.uNumber = i; m_changed = true; return *this; };
 
   /**
    * Casting to unsigned long.
@@ -162,11 +163,10 @@ class DLLOPT TimeTicks : public SnmpUInt32
    * Reset the object.
    */
   void clear()
-    { smival.value.uNumber = 0; };
+    { smival.value.uNumber = 0; m_changed = true; };
 
  protected:
-  /*mutable*/ char output_buffer[TICKOUTBUF];  // for storing printed form
-
+  SNMP_PP_MUTABLE char output_buffer[TICKOUTBUF];  // for storing printed form
 };
 
 #ifdef SNMP_PP_NAMESPACE

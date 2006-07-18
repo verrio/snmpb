@@ -2,9 +2,9 @@
   _## 
   _##  eventlistholder.cpp  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,14 +23,15 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
+
+char event_list_holder_version[]="@(#) SNMP++ $Id$";
+
 #include "snmp_pp/eventlistholder.h"
 #include "snmp_pp/eventlist.h"
 #include "snmp_pp/msgqueue.h"
-#include "snmp_pp/userdefined.h"
-#include "snmp_pp/usertimeout.h"
 #include "snmp_pp/notifyqueue.h"
 #include "snmp_pp/mp_v3.h"
 #include "snmp_pp/v3.h"
@@ -38,13 +39,6 @@
 #ifdef SNMP_PP_NAMESPACE
 namespace Snmp_pp {
 #endif
-
-#ifdef SNMPX11
-XtAppContext global_app_context = CONTEXT_NOT_SET;
-XtIntervalId global_interval_id = TIMER_NOT_SET;
-msec global_next_timeout;
-#endif // SNMPX11
-
 
 #ifdef WU_APP
 
@@ -106,15 +100,6 @@ int yield_pump()
   }
 #endif
 
-
-//--------[ X Motif yield pump ]------------------------
-// yield for use with X motif only
-// no blocking yield implemented at this time
-
-#ifdef X_MOTIF
-
-#endif
-
   return SNMP_CLASS_SUCCESS;
 }
 
@@ -129,22 +114,6 @@ EventListHolder::EventListHolder(Snmp *snmp_session)
   // Automatically add the SNMP notification queue
   m_notifyEventQueue = new CNotifyEventQueue(this, snmp_session);
   m_eventList.AddEntry(m_notifyEventQueue);
-
-#ifdef _USER_DEFINED_EVENTS
-  // Automaticly add the user-defined event queue
-  m_udEventQueue = new CUDEventQueue(this);
-  m_eventList.AddEntry(m_udEventQueue);
-#endif
-
-#ifdef _USER_DEFINED_TIMEOUTS
-  // Automaticly add the user-defined timeout queue
-  m_utEventQueue = new CUTEventQueue(this);
-  m_eventList.AddEntry(m_utEventQueue);
-#endif
-}
-
-EventListHolder::~EventListHolder() 
-{
 }
 
 //---------[ Block For Response ]-----------------------------------
@@ -251,10 +220,10 @@ int EventListHolder::SNMPProcessEvents(const int max_block_milliseconds)
   if ((max_block_milliseconds > 0) &&
       ((fd_timeout.tv_sec > max_block_milliseconds / 1000) ||
        ((fd_timeout.tv_sec == max_block_milliseconds / 1000) &&
-	(fd_timeout.tv_usec > (max_block_milliseconds % 10000) * 1000))))
+	(fd_timeout.tv_usec > (max_block_milliseconds % 1000) * 1000))))
   {
     fd_timeout.tv_sec = max_block_milliseconds / 1000;
-    fd_timeout.tv_usec = (max_block_milliseconds % 10000) * 1000;
+    fd_timeout.tv_usec = (max_block_milliseconds % 1000) * 1000;
   }
 
   /* Prevent endless sleep in case no fd is open */
@@ -338,133 +307,6 @@ Uint32 EventListHolder::SNMPGetNextTimeout()
       return 0;
   }
 }
-
-#ifdef _USER_DEFINED_TIMEOUTS
-UtId EventListHolder::SNMPAddTimeOut(const unsigned long interval,
-				     const ut_callback callBack,
-				     const void * callData)
-{
-  msec now;
-  now += interval;
-  return m_utEventQueue->AddEntry(now, callBack, callData);
-}
-#endif
-
-#ifdef _USER_DEFINED_EVENTS
-UdId EventListHolder::SNMPAddInput(const int source,
-				   const UdInputMask condition,
-				   const ud_callback callBack,
-				   const void * callData)
-{
-  return m_udEventQueue->AddEntry(source, condition, callBack, callData);
-}
-#endif
-
-#ifdef SNMPX11
-// Required for integration with X11
-
-int SNMPX11Initialize(const XtAppContext app_context)
-{
-  // Save the app_context for future Xt calls.
-  global_app_context = app_context;
-
-  return SNMP_CLASS_SUCCESS;
-}
-
-void SnmpX11TimerCallback(XtPointer client_data,
-			  XtIntervalId */*id*/)
-{
-  // We have been called because one of our timers popped
-  // The timer is automatically unregistered from X11 after it is fired
-  global_interval_id = TIMER_NOT_SET;
-
-  if (client_data)
-  {
-    // Handle the event and any timeouts
-    ((EventListHolder*)client_data)->SNMPProcessPendingEvents();
-
-    // Set a timer for the next retransmission
-    ((EventListHolder*)client_data)->SnmpX11SetTimer();
-  }
-}
-
-void SnmpX11InputCallback(XtPointer client_data,
-			  int */*source*/, XtInputId */*id*/)
-{
-  if (client_data)
-  {
-    // We have been called because there is activity on one of our fds
-    // Handle the event and any timeouts
-    ((EventListHolder*)client_data)->SNMPProcessPendingEvents();
-
-    // Set a timer for the next retransmission
-    ((EventListHolder*)client_data)->SnmpX11SetTimer();
-  }
-}
-
-void EventListHolder::SnmpX11SetTimer()
-{
-  msec nextTimeout;
-
-  // if they have not yet initialized there is nothing we can do
-  if (global_app_context == CONTEXT_NOT_SET)
-    return;
-
-  // Before returning control set a timer with X11 in case we
-  // don't get any input before the next retransmission time
-  m_eventList.GetNextTimeout(nextTimeout);
-  if (global_interval_id != TIMER_NOT_SET) {
-    // we already have a timer set
-    if (global_next_timeout != nextTimeout) {
-      // The timeout registered with X11 is no longer what we want
-      XtRemoveTimeOut(global_interval_id);
-    }
-    else {
-      return;      // The current timeout is still valid
-    }
-  }
-  if (nextTimeout.IsInfinite()) {
-    // nothing left to wait for
-    global_interval_id = TIMER_NOT_SET;
-  }
-  else {
-    timeval alarm;
-    msec now;
-    unsigned long millisec;
-    // calcuate and set the next timer
-    now.GetDelta(nextTimeout, alarm);
-    millisec = (alarm.tv_sec * 1000) + (alarm.tv_usec / 1000);
-    global_next_timeout = nextTimeout;
-    global_interval_id = XtAppAddTimeOut(global_app_context, millisec,
-					 (XtTimerCallbackProc)SnmpX11TimerCallback, this);
-  }
-  return;
-}
-
-int EventListHolder::SnmpX11AddInput(int inputFd, XtInputId &inputId)
-{
-  if (global_app_context == CONTEXT_NOT_SET) {
-    // They have not called SnmpX11Initialize yet!
-    //TM: Need better error define
-    return SNMP_CLASS_ERROR;
-  }
-  // Tell X11 to call us back for any activity on our file descriptor
-  inputId = XtAppAddInput(global_app_context, inputFd,
-			  (XtPointer) (XtInputReadMask | XtInputExceptMask),
-			  (XtInputCallbackProc)(SnmpX11InputCallback),
-			  this);
-  SnmpX11SetTimer();
-  return SNMP_CLASS_SUCCESS;
-}
-
-int EventListHolder::SnmpX11RemoveInput(XtInputId &inputId)
-{
-  // Tell X11 to stop watching our file descriptor
-  XtRemoveInput(inputId);
-  SnmpX11SetTimer();
-  return SNMP_CLASS_SUCCESS;
-}
-#endif // SNMPX11
 
 #ifdef SNMP_PP_NAMESPACE
 }; // end of namespace Snmp_pp

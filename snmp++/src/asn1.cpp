@@ -2,9 +2,9 @@
   _## 
   _##  asn1.cpp  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 
@@ -48,11 +48,9 @@
 
   ASN encoder / decoder implementation
 
-  DESIGN + AUTHOR:
-  Peter E. Mellquist
+  DESIGN + AUTHOR:  Peter E. Mellquist
 
-  LANGUAGE:
-  ANSI C++
+  LANGUAGE:         ANSI C++
 
 =====================================================================*/
 char asn1_cpp_version[]="#(@) SNMP++ $Id$";
@@ -72,6 +70,7 @@ char asn1_cpp_version[]="#(@) SNMP++ $Id$";
 #include "snmp_pp/asn1.h"
 #include "snmp_pp/v3.h"
 #include "snmp_pp/snmperrs.h"
+#include "snmp_pp/log.h"
 
 #ifdef SNMP_PP_NAMESPACE
 namespace Snmp_pp {
@@ -133,7 +132,7 @@ unsigned char * asn_parse_int( unsigned char *data,
     ASNERROR("I don't support such large integers");
     return NULL;
   }
-  *datalength -= (int)asn_length + (bufp - data);
+  *datalength -= (int)asn_length + SAFE_INT_CAST(bufp - data);
   if (*bufp & 0x80)
     value = -1; /* integer is negative */
   while(asn_length--)
@@ -207,7 +206,7 @@ unsigned char * asn_parse_unsigned_int( unsigned char *data,
   }
 
   // fix the returned data length value
-  *datalength -= (int)asn_length + (bufp - data);
+  *datalength -= (int)asn_length + SAFE_INT_CAST(bufp - data);
 
   // calculate the value
   for (long i=0;i<(long)asn_length;i++)
@@ -390,7 +389,7 @@ unsigned char * asn_parse_string( unsigned char	*data,
 
   memcpy(str, bufp, asn_length);
   *strlength = (int)asn_length;
-  *datalength -= (int)asn_length + (bufp - data);
+  *datalength -= (int)asn_length + SAFE_INT_CAST(bufp - data);
   return bufp + asn_length;
 }
 
@@ -455,7 +454,7 @@ unsigned char *asn_parse_header( unsigned char *data,
   bufp = asn_parse_length(bufp + 1, &asn_length);
   if (bufp == NULL)
     return NULL;
-  header_len = bufp - data;
+  header_len = SAFE_INT_CAST(bufp - data);
   if ((unsigned long)(header_len + asn_length) > (unsigned long)*datalength){
     ASNERROR("asn length too long");
     return NULL;
@@ -536,7 +535,7 @@ unsigned char * asn_parse_length( unsigned char *data,
                                   unsigned long  *length)
 {
   unsigned char lengthbyte = *data;
-
+  *length = 0;
   if (lengthbyte & ASN_LONG_LEN){
     lengthbyte &= ~ASN_LONG_LEN;	/* turn MSb off */
     if (lengthbyte == 0){
@@ -552,7 +551,7 @@ unsigned char * asn_parse_length( unsigned char *data,
     *length = ntohl(*length);
     // ntohl even on ALPHA (DEC/COMPAQ) 64bit platforms works on 32bit int,
     // whereas long is 64bit - therefore:
-#ifdef alpha
+#ifdef __osf__
     *length >>= (8 * ((sizeof(int)) - lengthbyte));
 #else
     *length >>= (8 * ((sizeof(long)) - lengthbyte));
@@ -621,7 +620,7 @@ unsigned char *asn_build_length( unsigned char *data,
     *data++ = (unsigned char)((length >> 8) & 0xFF);
     *data++ = (unsigned char)(length & 0xFF);
   }
-  *datalength -= (data - start_data);
+  *datalength -= SAFE_INT_CAST(data - start_data);
   return data;
 }
 
@@ -667,7 +666,7 @@ unsigned char *asn_parse_objid( unsigned char *data,
     ASNERROR("overflow of message");
     return NULL;
   }
-  *datalength -= (int)asn_length + (bufp - data);
+  *datalength -= (int)asn_length + SAFE_INT_CAST(bufp - data);
 
   /* Handle invalid object identifier encodings of the form 06 00 robustly */
   if (asn_length == 0)
@@ -772,7 +771,7 @@ unsigned char *asn_build_objid( unsigned char *data,
       *bp++ = (unsigned char)(subid & mask);
     }
   }
-  asnlength = bp - buf;
+  asnlength = SAFE_INT_CAST(bp - buf);
   data = asn_build_header(data, datalength, type, asnlength);
   if (data == NULL)
     return NULL;
@@ -816,7 +815,7 @@ unsigned char *asn_parse_null(unsigned char	*data,
     ASNERROR("Malformed NULL");
     return NULL;
   }
-  *datalength -= (bufp - data);
+  *datalength -= SAFE_INT_CAST(bufp - data);
   return bufp + asn_length;
 }
 
@@ -892,7 +891,7 @@ unsigned char *asn_parse_bitstring( unsigned char *data,
   // fixed
   memcpy((char *)string,(char *)bufp,  (int)asn_length);
   *strlength = (int)asn_length;
-  *datalength -= (int)asn_length + (bufp - data);
+  *datalength -= (int)asn_length + SAFE_INT_CAST(bufp - data);
   return bufp + asn_length;
 }
 
@@ -981,7 +980,7 @@ unsigned char * asn_parse_unsigned_int64(  unsigned char *data,
     ASNERROR("I don't support such large integers");
     return NULL;
   }
-  *datalength -= (int)asn_length + (bufp - data);
+  *datalength -= (int)asn_length + SAFE_INT_CAST(bufp - data);
   if (*bufp & 0x80){
     low = (unsigned long) -1; // integer is negative
     high = (unsigned long) -1;
@@ -1303,10 +1302,9 @@ unsigned char * snmp_build_var_op(unsigned char *data,
 				  int *listlength)
 {
   int valueLen;
-
-  unsigned char buffer[SNMP_MSG_LENGTH];
-  unsigned char *buffer_pos = buffer;
-  int bufferLen = SNMP_MSG_LENGTH;
+  Buffer<unsigned char> buffer(MAX_SNMP_PACKET);
+  unsigned char *buffer_pos = buffer.get_ptr();
+  int bufferLen = MAX_SNMP_PACKET;
 
   buffer_pos = asn_build_objid( buffer_pos,
 			  &bufferLen,
@@ -1379,7 +1377,7 @@ unsigned char * snmp_build_var_op(unsigned char *data,
     return NULL;
   }
 
-  valueLen = buffer_pos - buffer;
+  valueLen = SAFE_INT_CAST(buffer_pos - buffer.get_ptr());
 
   data = asn_build_sequence(data, listlength,
                             (unsigned char)(ASN_SEQUENCE | ASN_CONSTRUCTOR),
@@ -1392,7 +1390,7 @@ unsigned char * snmp_build_var_op(unsigned char *data,
   }
   else
   {
-    memcpy( data, buffer, valueLen );
+    memcpy(data, buffer.get_ptr(), valueLen );
     data += valueLen;
     (*listlength)-=valueLen;
   }
@@ -1403,15 +1401,13 @@ unsigned char * snmp_build_var_op(unsigned char *data,
 unsigned char *build_vb(struct snmp_pdu *pdu,
 			unsigned char *buf, int *buf_len)
 {
+  Buffer<unsigned char> tmp_buf(MAX_SNMP_PACKET);
+  unsigned char *cp = tmp_buf.get_ptr();
   struct   variable_list *vp;
-  unsigned char *cp;
-  unsigned char  tmp_buf[SNMP_MSG_LENGTH];
   int vb_length;
-  int length;
+  int length = MAX_SNMP_PACKET;
 
   // build varbinds into packet buffer
-  cp = tmp_buf;
-  length = SNMP_MSG_LENGTH;
   for(vp = pdu->variables; vp; vp = vp->next_variable)
   {
     cp = snmp_build_var_op( cp, vp->name, &vp->name_length,
@@ -1420,7 +1416,7 @@ unsigned char *build_vb(struct snmp_pdu *pdu,
 			    &length);
     if (cp == NULL) return 0;
   }
-  vb_length = cp - tmp_buf;
+  vb_length = SAFE_INT_CAST(cp - tmp_buf.get_ptr());
   *buf_len -= vb_length;
   if (*buf_len <= 0) return 0;
 
@@ -1431,7 +1427,7 @@ unsigned char *build_vb(struct snmp_pdu *pdu,
   if (cp == NULL) return 0;
 
   // copy varbinds from packet behind header in buf
-  memcpy( (char *)cp, (char *)tmp_buf, vb_length);
+  memcpy(cp, tmp_buf.get_ptr(), vb_length);
 
   return (cp + vb_length);
 }
@@ -1440,17 +1436,16 @@ unsigned char *build_data_pdu(struct snmp_pdu *pdu,
 			      unsigned char *buf, int *buf_len,
 			      unsigned char *vb_buf, int vb_buf_len)
 {
-  unsigned char  tmp_buf[SNMP_MSG_LENGTH];
-  unsigned char *cp;
+  Buffer<unsigned char> tmp_buf(MAX_SNMP_PACKET);
+  unsigned char *cp = tmp_buf.get_ptr();
   int totallength;
-  int length;
+  int length = MAX_SNMP_PACKET;
 
   // build data of pdu into tmp_buf
-  length = SNMP_MSG_LENGTH;
   if (pdu->command != TRP_REQ_MSG)
   {
     // request id
-    cp = asn_build_int( tmp_buf, &length,
+    cp = asn_build_int( cp, &length,
 			(unsigned char )(ASN_UNIVERSAL | ASN_PRIMITIVE | ASN_INTEGER),
 			(long *)&pdu->reqid, sizeof(pdu->reqid));
     if (cp == NULL) return 0;
@@ -1470,7 +1465,7 @@ unsigned char *build_data_pdu(struct snmp_pdu *pdu,
   else
   { // this is a trap message
     // enterprise
-    cp = asn_build_objid( tmp_buf, &length,
+    cp = asn_build_objid( cp, &length,
 			  (unsigned char)(ASN_UNIVERSAL | ASN_PRIMITIVE | ASN_OBJECT_ID),
 			  (oid *)pdu->enterprise, pdu->enterprise_length);
     if (cp == NULL) return 0;
@@ -1506,8 +1501,8 @@ unsigned char *build_data_pdu(struct snmp_pdu *pdu,
   if (length < vb_buf_len) return 0;
 
   // save relative position of varbinds
-  int vb_rel_pos = cp - tmp_buf;
-  totallength = (cp - tmp_buf) + vb_buf_len;
+  int vb_rel_pos = SAFE_INT_CAST(cp - tmp_buf.get_ptr());
+  totallength = SAFE_INT_CAST(cp - tmp_buf.get_ptr()) + vb_buf_len;
 
   // build header for datapdu into buf
   cp = asn_build_header(buf, buf_len,
@@ -1516,7 +1511,7 @@ unsigned char *build_data_pdu(struct snmp_pdu *pdu,
   if (*buf_len < totallength) return 0;
 
   // copy data behind header
-  memcpy((char *)cp, (char *)tmp_buf, totallength - vb_buf_len);
+  memcpy(cp, tmp_buf.get_ptr(), totallength - vb_buf_len);
   memcpy((char *)cp + vb_rel_pos, (char *)vb_buf, vb_buf_len);
   *buf_len -= totallength;
   return (cp + totallength);
@@ -1528,7 +1523,7 @@ int snmp_build(struct snmp_pdu	*pdu,
                const long version,
                const unsigned char* community, const int community_len)
 {
-  unsigned char  buf[SNMP_MSG_LENGTH];
+  Buffer<unsigned char> buf(MAX_SNMP_PACKET);
   unsigned char  *cp;
   int	     length;
   int	 totallength;
@@ -1537,15 +1532,15 @@ int snmp_build(struct snmp_pdu	*pdu,
   length = *out_length;
   cp = build_vb(pdu, packet, &length);
   if (cp == 0) return -1;
-  totallength = cp - packet;
+  totallength = SAFE_INT_CAST(cp - packet);
   if (totallength >= *out_length) return -1;
 
   // encode datadpu into buf
-  length = SNMP_MSG_LENGTH;
-  cp = build_data_pdu(pdu, buf, &length,
+  length = MAX_SNMP_PACKET;
+  cp = build_data_pdu(pdu, buf.get_ptr(), &length,
 		      packet, totallength);
   if (cp == 0) return -1;
-  totallength = cp - buf;
+  totallength = SAFE_INT_CAST(cp - buf.get_ptr());
   if (totallength >= *out_length) return -1;
 
   // build SNMP header
@@ -1556,8 +1551,8 @@ int snmp_build(struct snmp_pdu	*pdu,
   if ((*out_length - (cp - packet)) < totallength) return -1;
 
   // copy data
-  memcpy((char *)cp, (char *)buf, totallength);
-  totallength += cp - packet;
+  memcpy(cp, buf.get_ptr(), totallength);
+  totallength += SAFE_INT_CAST(cp - packet);
   *out_length = totallength;
 
   return 0;
@@ -1681,12 +1676,12 @@ int snmp_parse_vb(struct snmp_pdu *pdu, unsigned char *&data, int &data_len)
     memcpy((char *)op, (char *)objid, vp->name_length * sizeof(oid));
     vp->name = op;
 
-    len = SNMP_MSG_LENGTH;
+    len = MAX_SNMP_PACKET;
     switch((short)vp->type){
     case ASN_INTEGER:
       vp->val.integer = (long *)malloc(sizeof(long));
       vp->val_len = sizeof(long);
-      asn_parse_int(var_val, &len, &vp->type, (long *)vp->val.integer, sizeof(vp->val.integer));
+      asn_parse_int(var_val, &len, &vp->type, (long *)vp->val.integer, sizeof(*vp->val.integer));
       break;
 
     case SMI_COUNTER:
@@ -1695,7 +1690,7 @@ int snmp_parse_vb(struct snmp_pdu *pdu, unsigned char *&data, int &data_len)
     case SMI_UINTEGER:
       vp->val.integer = (long *)malloc(sizeof(long));
       vp->val_len = sizeof(long);
-      asn_parse_unsigned_int(var_val, &len, &vp->type, (unsigned long *)vp->val.integer, sizeof(vp->val.integer));
+      asn_parse_unsigned_int(var_val, &len, &vp->type, (unsigned long *)vp->val.integer, sizeof(*vp->val.integer));
       break;
 
     case SMI_COUNTER64:
@@ -1902,7 +1897,7 @@ unsigned char *asn1_parse_header_data(unsigned char *buf, int *buf_len,
 	     "msg_max_size(0x%lx), msg_flags(0x%x), msg_security_model(0x%lx)",
 	      length, *msg_id, *msg_max_size, *msg_flags, *msg_security_model);
 
-  *buf_len -= (buf - buf_ptr);
+  *buf_len -= SAFE_INT_CAST(buf - buf_ptr);
   return buf;
 }
 
@@ -1960,7 +1955,7 @@ unsigned char *asn1_build_header_data(unsigned char *outBuf, int *maxLength,
     return NULL;
   }
 
-  totalLength = bufPtr - (unsigned char*)&buf;
+  totalLength = SAFE_INT_CAST(bufPtr - (unsigned char*)&buf);
 
   debugprintf(3, "Coding sequence (headerdata), length = 0x%x", totalLength);
   outBufPtr = asn_build_sequence(outBufPtr, maxLength,
@@ -1982,7 +1977,7 @@ unsigned char *asn1_build_header_data(unsigned char *outBuf, int *maxLength,
   *maxLength -= totalLength;
 
   debugprintf(21, "bufHeaderData:");
-  debughexprintf(21, outBuf, outBufPtr - outBuf);
+  debughexprintf(21, outBuf, SAFE_INT_CAST(outBufPtr - outBuf));
 
   return outBufPtr;
 }
@@ -2035,50 +2030,73 @@ unsigned char *asn1_build_scoped_pdu(
                    unsigned char *contextName, long contextNameLength,
                    unsigned char *data, long dataLength)
 {
-  unsigned char buf[MAXLENGTH_BUFFER];
-  unsigned char *bufPtr = (unsigned char*)&buf;
+  Buffer<unsigned char> buffer(MAX_SNMP_PACKET);
+  unsigned char *bufPtr = buffer.get_ptr();
   unsigned char *outBufPtr = outBuf;
   long  bufLength = 0;
 
-  debugprintf(3, "Coding contextEngineID, length(0x%lx)"
-	      ", contextName, length(0x%lx)",
-	      contextEngineIDLength, contextNameLength);
+  LOG_BEGIN(DEBUG_LOG | 10);
+  LOG("ASN1: coding (context engine id) (context name)");
+  LOG(OctetStr(contextEngineID, contextEngineIDLength).get_printable());
+  LOG(OctetStr(contextName, contextNameLength).get_printable());
+  LOG_END;
 
   bufPtr = asn_build_string(bufPtr, max_len,
                             (unsigned char)(ASN_UNI_PRIV | ASN_OCTET_STR),
                             contextEngineID, contextEngineIDLength);
-  if (bufPtr == NULL) {
-    debugprintf(0, "asn1_build_scoped_pdu: error coding contextEngineID");
-    return NULL;
+  if (!bufPtr)
+  {
+    LOG_BEGIN(ERROR_LOG | 1);
+    LOG("ASN1: Error encoding contextEngineID");
+    LOG_END;
+
+    return 0;
   }
 
   bufPtr = asn_build_string(bufPtr, max_len,
                             (unsigned char)(ASN_UNI_PRIV | ASN_OCTET_STR),
                             contextName, contextNameLength);
-  if (bufPtr == NULL) {
-    debugprintf(0, "asn1_build_scoped_pdu: error coding contextName");
-    return NULL;
+  if (!bufPtr)
+  {
+    LOG_BEGIN(ERROR_LOG | 1);
+    LOG("ASN1: Error encoding contextName");
+    LOG_END;
+
+    return 0;
   }
 
-  bufLength = bufPtr - (unsigned char*)&buf;
+  bufLength = SAFE_INT_CAST(bufPtr - buffer.get_ptr());
 
   memcpy((char *)bufPtr, (char *)data, dataLength);
   bufLength += dataLength;
 
-  debugprintf(3, "Coding sequence (scopedPDU), length = 0x%lx",bufLength);
+  LOG_BEGIN(DEBUG_LOG | 10);
+  LOG("ASN1: Encoding scoped PDU sequence (len)");
+  LOG(bufLength);
+  LOG_END;
+
   outBufPtr = asn_build_sequence(outBufPtr, max_len,
                                  (unsigned char)(ASN_SEQ_CON),
                                  bufLength);
-  if (outBufPtr == NULL) {
-    debugprintf(0, "asn1_build_scoped_pdu: error coding seq scopedPDU");
-    return NULL;
+  if (!outBufPtr)
+  {
+    LOG_BEGIN(ERROR_LOG | 1);
+    LOG("ASN1: Error encoding scopedPDU sequence");
+    LOG_END;
+
+    return 0;
   }
 
-  memcpy(outBufPtr, buf, bufLength);
+  memcpy(outBufPtr, buffer.get_ptr(), bufLength);
   outBufPtr += bufLength;
 
-  debugprintf(21, "outBuf of build_scoped_pdu:");
-  debughexprintf(21, outBuf, outBufPtr - outBuf);
+#ifdef __DEBUG
+  LOG_BEGIN(DEBUG_LOG | 15);
+  LOG("ASN1: Result of build_scoped_pdu (len) (data)");
+  LOG(outBufPtr - outBuf);
+  LOG(OctetStr(outBuf, outBufPtr - outBuf).get_printable_hex());
+  LOG_END;
+#endif
 
   return outBufPtr;
 }

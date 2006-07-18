@@ -2,9 +2,9 @@
   _## 
   _##  eventlist.h  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -88,7 +88,9 @@
 #include <time.h>
 #include <winsock.h>
 #else
+#if !(defined CPU && CPU == PPC603)
 #include <sys/time.h>  // time stuff and fd_set
+#endif
 #include <float.h>
 #endif
 
@@ -180,13 +182,13 @@ class DLLOPT CEventList: public SnmpSynchronized {
 		   CEventListElt *previous);
 
      ~CEventListElt();
-     CEventListElt *GetNext() { return m_next; };
-     CEvents *GetEvents() { return m_events; };
+     CEventListElt *GetNext() { return m_Next; }
+     CEvents *GetEvents() { return m_events; }
 
     private:
 
      CEvents *m_events;
-     class CEventListElt *m_next;
+     class CEventListElt *m_Next;
      class CEventListElt *m_previous;
    };
 

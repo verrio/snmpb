@@ -2,9 +2,9 @@
   _## 
   _##  counter.cpp  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -72,11 +72,13 @@ namespace Snmp_pp {
 #endif
 
 // copy constructor
-Counter32::Counter32( const Counter32 &c)
-   { this->smival.value.uNumber = c.smival.value.uNumber;
-     smival.syntax = sNMP_SYNTAX_CNTR32;
-     valid_flag = true;
-   }
+Counter32::Counter32(const Counter32 &c)
+{
+  smival.value.uNumber = c.smival.value.uNumber;
+  smival.syntax = sNMP_SYNTAX_CNTR32;
+  m_changed = true;
+  valid_flag = true;
+}
 
 // general assignment from any Value
 SnmpSyntax& Counter32::operator=(const SnmpSyntax &in_val)
@@ -93,12 +95,12 @@ SnmpSyntax& Counter32::operator=(const SnmpSyntax &in_val)
       case sNMP_SYNTAX_CNTR32:
       case sNMP_SYNTAX_TIMETICKS:
       case sNMP_SYNTAX_INT32:		// implied cast int -> uint
-	  this->smival.value.uNumber =
-		((Counter32 &)in_val).smival.value.uNumber;
+	  smival.value.uNumber = ((Counter32 &)in_val).smival.value.uNumber;
   	  valid_flag = true;
 	  break;
     }
   }
+  m_changed = true; 
   return *this;
 }
 

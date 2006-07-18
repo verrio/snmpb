@@ -2,9 +2,9 @@
   _## 
   _##  octet.h  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -86,7 +86,7 @@ class DLLOPT OctetStr: public  SnmpSyntax
   {
     OutputHexAndClear,
     OutputHex,
-    OutputClear,
+    OutputClear
   };
 
   //-----------[ Constructors and Destrucotr ]----------------------
@@ -141,84 +141,85 @@ class DLLOPT OctetStr: public  SnmpSyntax
   /**
    * Equal operator for two OctetStr.
    */
-  DLLOPT friend int operator==( const OctetStr &lhs, const OctetStr &rhs);
+  DLLOPT friend int operator==(const OctetStr &lhs, const OctetStr &rhs);
 
   /**
    * Not equal operator for two OctetStr.
    */
-  DLLOPT friend int operator!=( const OctetStr &lhs, const OctetStr &rhs);
+  DLLOPT friend int operator!=(const OctetStr &lhs, const OctetStr &rhs);
 
   /**
    * Not equal operator for two OctetStr.
    */
-  DLLOPT friend int operator<( const OctetStr &lhs, const OctetStr &rhs);
+  DLLOPT friend int operator<(const OctetStr &lhs, const OctetStr &rhs);
 
   /**
    * Less than operator for two OctetStr.
    */
-  DLLOPT friend int operator<=( const OctetStr &lhs,const OctetStr &rhs);
+  DLLOPT friend int operator<=(const OctetStr &lhs,const OctetStr &rhs);
 
   /**
    * Greater than operator for two OctetStr.
    */
-  DLLOPT friend int operator>( const OctetStr &lhs, const OctetStr &rhs);
+  DLLOPT friend int operator>(const OctetStr &lhs, const OctetStr &rhs);
 
   /**
    * Greater than or equal operator for two OctetStr.
    */
-  DLLOPT friend int operator>=( const OctetStr &lhs, const OctetStr &rhs);
+  DLLOPT friend int operator>=(const OctetStr &lhs, const OctetStr &rhs);
 
   /**
    * Equal operator for OctetStr and char string.
    */
-  DLLOPT friend int operator==( const OctetStr &lhs, const char *rhs);
+  DLLOPT friend int operator==(const OctetStr &lhs, const char *rhs);
 
   /**
    * Not equal operator for OctetStr and char string.
    */
-  DLLOPT friend int operator!=( const OctetStr &lhs, const char *rhs);
+  DLLOPT friend int operator!=(const OctetStr &lhs, const char *rhs);
 
   /**
    * Less than operator for OctetStr and char string.
    */
-  DLLOPT friend int operator<( const OctetStr &lhs, const char *rhs);
+  DLLOPT friend int operator<(const OctetStr &lhs, const char *rhs);
 
   /**
    * Less than or equal operator for OctetStr and char string.
    */
-  DLLOPT friend int operator<=( const OctetStr &lhs, const char *rhs);
+  DLLOPT friend int operator<=(const OctetStr &lhs, const char *rhs);
 
   /**
    * Greater than operator for OctetStr and char string.
    */
-  DLLOPT friend int operator>( const OctetStr &lhs, const char *rhs);
+  DLLOPT friend int operator>(const OctetStr &lhs, const char *rhs);
 
   /**
    * Greater than or equal operator for OctetStr and char string.
    */
-  DLLOPT friend int operator>=( const OctetStr &lhs, const char *rhs);
+  DLLOPT friend int operator>=(const OctetStr &lhs, const char *rhs);
 
   /**
    * Append a char string to this OctetStr.
    */
-  OctetStr& operator+=( const char *a);
+  OctetStr& operator+=(const char *a);
 
   /**
    * Append a single char to this OctetStr.
    */
-  OctetStr& operator+=( const unsigned char c);
+  OctetStr& operator+=(const unsigned char c);
 
   /**
    * Append another OctetStr to this OctetStr.
    */
-  OctetStr& operator+=( const OctetStr& octet);
+  OctetStr& operator+=(const OctetStr& octet);
 
   /**
    * Allow access as if it was an array.
    *
    * @note The given param is not checked for validity.
    */
-  unsigned char &operator[](int i) { return smival.value.string.ptr[i]; };
+  unsigned char &operator[](int i)
+    { m_changed = true; return smival.value.string.ptr[i]; };
 
   /**
    * Allow access as if it was an array for const OctetStr objects.
@@ -249,7 +250,7 @@ class DLLOPT OctetStr: public  SnmpSyntax
    *
    * @return Pointer to the newly created object (allocated through new).
    */
-  SnmpSyntax *clone() const { return ( SnmpSyntax *) new OctetStr(*this); };
+  SnmpSyntax *clone() const { return (SnmpSyntax *) new OctetStr(*this); };
 
   /**
    * Map other SnmpSyntax objects to OctetStr.
@@ -299,10 +300,10 @@ class DLLOPT OctetStr: public  SnmpSyntax
     { hex_output_type = ot; };
 
   /**
-   * Set the char get_printable_hex() will use for non printable
-   * characters.
+   * Set the char get_printable_hex() and get_printable_clear()
+   * will use for non printable characters.
    */
-  static void set_hex_np_char(const char np) { hex_nonprintable_char = np; };
+  static void set_np_char(const char np) { nonprintable_char = np; };
 
   /**
    * Set the data on an already constructed OctetStr.
@@ -325,8 +326,7 @@ class DLLOPT OctetStr: public  SnmpSyntax
   unsigned char *data() const { return smival.value.string.ptr; };
 
   // compare n elements of an octet
-  int nCompare( const unsigned long n,
-		const OctetStr &o) const;
+  int nCompare(const unsigned long n, const OctetStr &o) const;
 
   /**
    * Build an OctetStr from a hex string.
@@ -339,25 +339,62 @@ class DLLOPT OctetStr: public  SnmpSyntax
   static OctetStr from_hex_string(const OctetStr &hex_string);
 
   /**
+   * Set the character for linefeeds in get_printable() functions.
+   *
+   * The default linefeeds are \n for Unix and \r\n on other systems.
+   *
+   * @param lf_chars - string less than 3 bytes
+   * @return true on success
+   */
+  static bool set_linefeed_chars(const char* lf_chars);
+
+  /**
    * Null out the contents of the string. The string will be empty
    * after calling this method
    */
   void clear();
 
+  /**
+   * Append or shorten the internal data buffer.
+   *
+   * The buffer will either be shortened or extended. In the second case
+   * zeroes are added to the end of the string.
+   *
+   * @param new_len - The new length for the string
+   * @return true on success
+   */
+  bool set_len(const unsigned char new_len);
+
  protected:
 
-  /*mutable*/ char *output_buffer;	 // formatted Octet value
-  /*mutable*/ unsigned int output_buffer_len; // allocated space for outstring
+  enum OutputFunction
+  {
+      OutputFunctionDefault,
+      OutputFunctionHex,
+      OutputFunctionClear
+  };
+
+  SNMP_PP_MUTABLE char *output_buffer;	 // formatted Octet value
+  SNMP_PP_MUTABLE unsigned int output_buffer_len; // allocated space for string
+  SNMP_PP_MUTABLE bool m_changed;
+  SNMP_PP_MUTABLE enum OutputType output_last_type;
+  SNMP_PP_MUTABLE char output_last_np_char;
+  SNMP_PP_MUTABLE enum OutputFunction output_last_function;
+
+
   bool validity;		         // validity boolean
+
   static enum OutputType hex_output_type;
-  static char hex_nonprintable_char;
+  static char nonprintable_char;
+  static char linefeed_chars[3];
 };
 
 //-----------[ End OctetStr Class ]-------------------------------------
 
 /**
- * This class behaves exactly as the OctetStr class, beside the Syntax
- * of this class is sNMP_SYNTAX_OPAQUE.
+ * The OpaqueStr class represents the Opaque SNMP type. It is derived from
+ * the SNMP++ class OctetStr and has the same interfaces and behavior,
+ * except that its syntax is sNMP_SYNTAX_OPAQUE.
  */
 class OpaqueStr: public OctetStr
 {
@@ -384,7 +421,7 @@ class OpaqueStr: public OctetStr
    * @param str - string that may contain null bytes
    * @param len - length of the string
    */
-  OpaqueStr( const unsigned char *str, unsigned long len)
+  OpaqueStr(const unsigned char *str, unsigned long len)
     : OctetStr(str, len) { smival.syntax = sNMP_SYNTAX_OPAQUE; };
 
   /**
@@ -393,7 +430,7 @@ class OpaqueStr: public OctetStr
    *
    * @param octet - Value for the new object
    */
-  OpaqueStr( const OctetStr &octet) : OctetStr(octet)
+  OpaqueStr(const OctetStr &octet) : OctetStr(octet)
     { smival.syntax = sNMP_SYNTAX_OPAQUE; };
 
   /**
@@ -402,7 +439,7 @@ class OpaqueStr: public OctetStr
    *
    * @param opaque - Value for the new object
    */
-  OpaqueStr( const OpaqueStr& opaque) : OctetStr(opaque)
+  OpaqueStr(const OpaqueStr& opaque) : OctetStr(opaque)
     { smival.syntax = sNMP_SYNTAX_OPAQUE; };
 
   /**

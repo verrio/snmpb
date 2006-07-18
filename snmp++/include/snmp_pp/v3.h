@@ -2,9 +2,9 @@
   _## 
   _##  v3.h  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 // $Id$
@@ -58,15 +58,6 @@ class OctetStr;
 #define SNMP_SECURITY_MODEL_V2   2 //!< Can be used for SNMPv2 only.
 #define SNMP_SECURITY_MODEL_USM  3 //!< Can be used for SNMPv3 only.
 //@}
-
-/**
- * Set the logfile for logging output.
- *
- * @param filename - Complete path and name of the logfile.
- *
- * @note The string may not be deleted after the call.
- */
-DLLOPT void debug_set_logfile(const char *filename);
 
 /**
  * Set the amount of log messages you want to get. To disable all
@@ -126,7 +117,6 @@ void debugprintf(int db_level, const char *format, ...);
 
 #ifdef _SNMPv3
 
-#define V3MAXMESSAGESIZE         SNMP_MSG_LENGTH
 #define MAXLENGTH_ENGINEID       32
 #define MAXLENGTH_CONTEXT_NAME   32
 #define MAXLENGTH_FILENAME       255
@@ -239,6 +229,46 @@ DLLOPT int saveBootCounter(const char *fileName,
 
 
 #endif // _SNMPv3
+
+/**
+ * Tool class for easy allocation of buffer space.
+ */
+template <class T> class Buffer
+{
+ public:
+    /// Constructor: Allocate a buffer for size objects.
+    Buffer(const unsigned int size)
+    {
+	ptr = new T[size];
+	if (ptr)
+	  len = size;
+	else
+	  len = 0;
+    }
+
+    /// Destructor: Free allocated buffer
+    ~Buffer()
+     {
+	 if (ptr) delete [] ptr;
+     }
+
+    /// Get the buffer pointer
+    T *get_ptr()
+    {
+	return ptr;
+    }
+
+    /// Overwrite the buffer space with zero.
+    void clear()
+    {
+	if (ptr)
+	    memset(ptr, 0, len * sizeof(T));
+    }
+
+ private:
+    T *ptr;
+    unsigned int len;
+};
 
 // only for compatibility do not use these values:
 #define SecurityModel_any SNMP_SECURITY_MODEL_ANY

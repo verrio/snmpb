@@ -2,9 +2,9 @@
   _## 
   _##  notifyqueue.h  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -59,15 +59,8 @@
       LANGUAGE:
         ANSI C++
 
-      OPERATING SYSTEMS:
-        DOS/WINDOWS 3.1
-        BSD UNIX
-
       DESCRIPTION:
         Queue for holding sessions waiting for notifiactions
-
-      COMPILER DIRECTIVES:
-        UNIX - For UNIX build
 
 =====================================================================*/
 // $Id$
@@ -82,12 +75,11 @@
                                 //   will get conflicting definitions of
                                 //   "fd_set" resulting in link time errors.
 #ifndef WIN32
+#if !(defined CPU && CPU == PPC603)
 #include <sys/time.h>	// time stuff and fd_set
+#endif
 #else
 #include <winsock.h>
-#endif
-#ifdef SNMPX11
-#include <X11/Intrinsic.h>
 #endif
 
 //----[ snmp++ includes ]----------------------------------------------
@@ -123,7 +115,7 @@ class DLLOPT CNotifyEvent
   ~CNotifyEvent();
   Snmp * GetId() { return m_snmp; };
   int notify_filter(const Oid &trapid, SnmpTarget &target) const;
-  int Callback(SnmpTarget & target, Pdu & pdu, int status);
+  int Callback(SnmpTarget &target, Pdu &pdu, SnmpSocket fd, int status);
   void get_filter(OidCollection &o, TargetCollection &t,
 		  AddressCollection &a)
     { o = *notify_ids; t = *notify_targets; a = *notify_addresses; };
@@ -166,9 +158,10 @@ class DLLOPT CNotifyEventQueue: public CEvents
     int DoRetries(const msec &/*sendtime*/) { return 0; }; // nothing to retry
 
     int Done() { return 0; }; // we are never done
-    static void set_listen_port(int port) { m_listen_port = port; };
-    static int get_listen_port() { return m_listen_port; };
-    int get_notify_fd() const { return m_notify_fd; };
+    void set_listen_port(int port) { m_listen_port = port; };
+    int get_listen_port() { return m_listen_port; };
+    SnmpSocket get_notify_fd(const UdpAddress match_addr) const;
+    SnmpSocket get_notify_fd(const int i = 0) const;
 
   protected:
 
@@ -185,26 +178,25 @@ class DLLOPT CNotifyEventQueue: public CEvents
 			   CNotifyEventQueueElt *previous);
 
       ~CNotifyEventQueueElt();
-      CNotifyEventQueueElt *GetNext() { return m_next; };
+      CNotifyEventQueueElt *GetNext() { return m_Next; };
       CNotifyEvent *GetNotifyEvent() { return m_notifyevent; };
       CNotifyEvent *TestId(Snmp * snmp);
 
     private:
 
       CNotifyEvent *m_notifyevent;
-      class CNotifyEventQueueElt *m_next;
+      class CNotifyEventQueueElt *m_Next;
       class CNotifyEventQueueElt *m_previous;
     };
 
     CNotifyEventQueueElt m_head;
     int                  m_msgCount;
-    int                  m_notify_fd;
-    static int           m_listen_port;
-#ifdef SNMPX11
-    XtInputId            m_inputId;
-#endif // SNMPX11
+    SnmpSocket          *m_notify_fds;
+    int                  m_notify_fd_count;
+    int                  m_listen_port;
     EventListHolder *my_holder;
     Snmp *m_snmpSession;
+    AddressCollection m_notify_addrs;
 };
 
 #ifdef SNMP_PP_NAMESPACE

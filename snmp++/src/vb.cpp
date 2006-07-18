@@ -2,9 +2,9 @@
   _## 
   _##  vb.cpp  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -107,8 +107,6 @@ Vb& Vb::operator=(const Vb &vb)
   //-----[ next set the vb value portion ]
   if (vb.iv_vb_value)
     iv_vb_value = vb.iv_vb_value->clone();
-  else
-    iv_vb_value = 0;
 
   exception_status = vb.exception_status;
 
@@ -204,7 +202,7 @@ int Vb::get_value(unsigned char *ptr, unsigned long &len) const
     return SNMP_CLASS_SUCCESS;
   }
 
-  ptr[0] = 0;
+  if (ptr) ptr[0] = 0;
   len = 0;
   return SNMP_CLASS_INVALID;
 }
@@ -213,21 +211,29 @@ int Vb::get_value(unsigned char *ptr, unsigned long &len) const
 // get an unsigned char array
 // caller specifies max len of target space
 int Vb::get_value(unsigned char *ptr, unsigned long &len,
-		  const unsigned long maxlen) const
+		  const unsigned long maxlen,
+		  const bool add_null_byte) const
 {
   if (iv_vb_value &&
       iv_vb_value->valid() &&
-      (iv_vb_value->get_syntax() == sNMP_SYNTAX_OCTETS))
+      (iv_vb_value->get_syntax() == sNMP_SYNTAX_OCTETS) &&
+      (maxlen > 0))
   {
     OctetStr *p_os = (OctetStr *)iv_vb_value;
     len = p_os->len();
     if (len > maxlen) len = maxlen;
     memcpy(ptr, p_os->data(), len);
-    ptr[len] = 0;
+    if (add_null_byte)
+    {
+      if (len == maxlen)
+	ptr[len-1] = 0;
+      else
+	ptr[len] = 0;
+    }
     return SNMP_CLASS_SUCCESS;
   }
 
-  ptr[0] = 0;
+  if (ptr) ptr[0] = 0;
   len = 0;
   return SNMP_CLASS_INVALID;
 }
@@ -264,7 +270,7 @@ int Vb::get_value(char *ptr) const
     return SNMP_CLASS_SUCCESS;
   }
 
-  ptr[0] = 0;
+  if (ptr) ptr[0] = 0;
   return SNMP_CLASS_INVALID;
 }
 
@@ -357,13 +363,6 @@ int Vb::get_asn1_length() const
     return iv_vb_oid.get_asn1_length() + iv_vb_value->get_asn1_length() + 4;
 
   return iv_vb_oid.get_asn1_length() + 2 + 4;
-}
-
-// deprecated friend function to set exception status
-void set_exception_status(Vb *vb, const SmiUINT32 status)
-{
-  if (vb)
-    vb->set_exception_status(status);
 }
 
 #ifdef SNMP_PP_NAMESPACE

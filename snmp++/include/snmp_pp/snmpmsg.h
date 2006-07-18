@@ -2,9 +2,9 @@
   _## 
   _##  snmpmsg.h  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -92,7 +92,7 @@ class DLLOPT SnmpMessage
  public:
 
   // construct a SnmpMessage object
-  SnmpMessage() : bufflen(SNMP_MSG_LENGTH), valid_flag(false) {};
+  SnmpMessage() : bufflen(MAX_SNMP_PACKET), valid_flag(false) {};
 	// load up using a Pdu, community and SNMP version
 	// performs ASN.1 serialization
 	// result status returned
@@ -166,7 +166,7 @@ class DLLOPT SnmpMessage
 
 protected:
 
-	unsigned char databuff[SNMP_MSG_LENGTH];
+	unsigned char databuff[MAX_SNMP_PACKET];
 	unsigned int bufflen;
 	bool valid_flag;
 };

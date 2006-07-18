@@ -2,9 +2,9 @@
   _## 
   _##  mp_v3.cpp  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 char mp_v3_cpp_version[]="@(#) SNMP++ $Id$";
@@ -42,6 +42,7 @@ char mp_v3_cpp_version[]="@(#) SNMP++ $Id$";
 #include "snmp_pp/eventlistholder.h"
 #include "snmp_pp/asn1.h"
 #include "snmp_pp/vb.h"
+#include "snmp_pp/log.h"
 
 #ifdef SNMP_PP_NAMESPACE
 namespace Snmp_pp {
@@ -57,10 +58,19 @@ namespace Snmp_pp {
 
 v3MP *v3MP::I = 0;
 
+// Use locking on access methods in an multithreading enviroment.
+#ifdef _THREADS
+#define BEGIN_REENTRANT_CODE_BLOCK SnmpSynchronize auto_lock(lock)
+#define BEGIN_REENTRANT_CODE_BLOCK_CONST  \
+          SnmpSynchronize auto_lock(*(PP_CONST_CAST(SnmpSynchronized*, &lock)))
+#else
+#define BEGIN_REENTRANT_CODE_BLOCK
+#define BEGIN_REENTRANT_CODE_BLOCK_CONST
+#endif
 
 // ========================[ Engine id table ]=============================
 
-// Construct enigne id table
+// Construct engine id table
 v3MP::EngineIdTable::EngineIdTable(int initial_size)
 {
   if (initial_size < 1)
@@ -68,7 +78,9 @@ v3MP::EngineIdTable::EngineIdTable(int initial_size)
 
   if (!initialize_table(initial_size))
   {
-    debugprintf(0, "v3MP::EngineIdTable: Error creating empty table.");
+    LOG_BEGIN(ERROR_LOG | 0);
+    LOG("v3MP::EngineIdTable: Error creating empty table.");
+    LOG_END;
   }
 }
 
@@ -84,8 +96,17 @@ v3MP::EngineIdTable::~EngineIdTable()
 int v3MP::EngineIdTable::add_entry(const OctetStr &engine_id,
                                    const OctetStr &host, int port)
 {
-  if ((!table) && (!initialize_table(10)))
+  if (!table)
     return SNMPv3_MP_NOT_INITIALIZED;
+
+  LOG_BEGIN(INFO_LOG | 9);
+  LOG("v3MP::EngineIdTable: adding new entry (id) (host) (port)");
+  LOG(engine_id.get_printable());
+  LOG(host.get_printable());
+  LOG(port);
+  LOG_END;
+
+  BEGIN_REENTRANT_CODE_BLOCK;
 
   for (int i = 0; i < entries; i++)
     if ((table[i].port == port) &&
@@ -127,8 +148,12 @@ int v3MP::EngineIdTable::get_entry(OctetStr &engine_id,
                                    const OctetStr &hostport) const
 {
   int port;
-  char host[MAX_HOST_NAME_LENGTH];
+  char host[MAX_HOST_NAME_LENGTH + 1];
   char *ptr;
+
+  /* Check length */
+  if (hostport.len() > MAX_HOST_NAME_LENGTH)
+    return SNMPv3_MP_ERROR;
 
   /* split up port from hostport */
   strcpy(host, hostport.get_printable());
@@ -161,6 +186,8 @@ int v3MP::EngineIdTable::get_entry(OctetStr &engine_id,
   if (!table)
     return SNMPv3_MP_NOT_INITIALIZED;
 
+  BEGIN_REENTRANT_CODE_BLOCK_CONST;
+
   int i, found = 0;
 
   for (i = 0; i < entries; i++)
@@ -172,7 +199,12 @@ int v3MP::EngineIdTable::get_entry(OctetStr &engine_id,
     }
   if (!found)
   {
-    debugprintf(1, "mpGetFromEngineIDTable: EngineID unknown");
+    LOG_BEGIN(INFO_LOG | 4);
+    LOG("v3MP::EngineIdTable: Dont know engine id for (host) (port)");
+    LOG(host.get_printable());
+    LOG(port);
+    LOG_END;
+
     return SNMPv3_MP_ERROR;
   }
 
@@ -181,6 +213,94 @@ int v3MP::EngineIdTable::get_entry(OctetStr &engine_id,
   return SNMPv3_MP_OK;
 }
 
+// Remove all entries from the engine id table.
+int v3MP::EngineIdTable::reset()
+{
+  if (!table)
+    return SNMPv3_MP_NOT_INITIALIZED;
+
+  LOG_BEGIN(INFO_LOG | 1);
+  LOG("v3MP::EngineIdTable: Resetting table.");
+  LOG_END;
+
+  BEGIN_REENTRANT_CODE_BLOCK;
+
+  entries = 0;
+
+  return SNMPv3_MP_OK;
+}
+
+// Remove the given engine id from the table.
+int v3MP::EngineIdTable::delete_entry(const OctetStr &engine_id)
+{
+  if (!table)
+    return SNMPv3_MP_NOT_INITIALIZED;
+
+  int i, found = 0;
+
+  BEGIN_REENTRANT_CODE_BLOCK;
+
+  for (i = 0; i < entries; i++)
+    if (table[i].engine_id == engine_id)
+    {
+      found=1;
+      break;
+    }
+  if (!found)
+  {
+    LOG_BEGIN(WARNING_LOG | 4);
+    LOG("v3MP::EngineIdTable: cannot remove nonexisting entry (engine id)");
+    LOG(engine_id.get_printable());
+    LOG_END;
+
+    return SNMPv3_MP_ERROR;
+  }
+
+  /* i is the entry to remove */
+  if (i != entries - 1)
+    table[i] = table[entries-1];
+
+  entries--;
+
+  return SNMPv3_MP_OK;
+}
+
+// Remove the entry for the given address/port from the table.
+int v3MP::EngineIdTable::delete_entry(const OctetStr &host, int port)
+{
+  if (!table)
+    return SNMPv3_MP_NOT_INITIALIZED;
+
+  int i, found = 0;
+
+  BEGIN_REENTRANT_CODE_BLOCK;
+
+  for (i = 0; i < entries; i++)
+    if ((table[i].port == port) &&
+        (table[i].host == host))
+    {
+      found=1;
+      break;
+    }
+  if (!found)
+  {
+    LOG_BEGIN(WARNING_LOG | 4);
+    LOG("v3MP::EngineIdTable: cannot remove nonexisting entry (host) (port)");
+    LOG(host.get_printable());
+    LOG(port);
+    LOG_END;
+
+    return SNMPv3_MP_ERROR;
+  }
+
+  /* i is the entry to remove */
+  if (i != entries - 1)
+    table[i] = table[entries-1];
+
+  entries--;
+
+  return SNMPv3_MP_OK;
+}
 
 int v3MP::EngineIdTable::initialize_table(const int size)
 {
@@ -197,22 +317,16 @@ int v3MP::EngineIdTable::initialize_table(const int size)
 
 // ===============================[ Cache ]==================================
 
-// Use locking on access methods in an multithreading enviroment.
-#ifdef _THREADS
-#define CS_LOCK() _cachesync.lock()
-#define CS_UNLOCK() _cachesync.unlock()
-#else
-#define CS_LOCK()
-#define CS_UNLOCK()
-#endif
-
 v3MP::Cache::Cache()
 {
   // init cache
   table = new struct Entry_T[5];
   if (!table)
   {
-    debugprintf(0, "v3MP::Cache: could not create table.");
+    LOG_BEGIN(ERROR_LOG | 1);
+    LOG("v3MP::Cache: could not create empty table.");
+    LOG_END;
+
     max_entries = 0;
   }
   else
@@ -247,7 +361,17 @@ int v3MP::Cache::add_entry(int msg_id, unsigned long req_id,
 {
   if (!table)
     return SNMPv3_MP_ERROR;
-  CS_LOCK();
+
+  LOG_BEGIN(INFO_LOG | 8);
+  LOG("v3MP::Cache: adding new entry (n) (msg id) (req id) (type)");
+  LOG(entries);
+  LOG(msg_id);
+  LOG(req_id);
+  LOG(local_request ? "local" : "remote");
+  LOG_END;
+
+  BEGIN_REENTRANT_CODE_BLOCK;
+
   for (int i = 0; i < entries; i++)
     if ((table[i].msg_id == msg_id) &&
         (table[i].req_id == req_id) &&
@@ -259,15 +383,14 @@ int v3MP::Cache::add_entry(int msg_id, unsigned long req_id,
         (table[i].context_engine_id == context_engine_id) &&
         (table[i].context_name == context_name))
     {
-      debugprintf(8, "v3MP::Cache: *** entry with msg_id 0x%x and "
-                  "req_id 0x%lx already in cache, ignoring! *** ",
-                  msg_id, req_id);
-      CS_UNLOCK();
+      LOG_BEGIN(WARNING_LOG | 3);
+      LOG("v3MP::Cache: Dont add doubled entry (msg id) (req id)");
+      LOG(msg_id);
+      LOG(req_id);
+      LOG_END;
+
       return SNMPv3_MP_DOUBLED_MESSAGE;
     }
-
-  debugprintf(8, "MpCache: adding %s entry[%i], msg_id = 0x%x, reqID = 0x%lx",
-              local_request ? "local" : "remote", entries, msg_id, req_id);
 
   table[entries].msg_id            = msg_id;
   table[entries].req_id            = req_id;
@@ -290,7 +413,6 @@ int v3MP::Cache::add_entry(int msg_id, unsigned long req_id,
     if (!tmp)
     {
       entries--;
-      CS_UNLOCK();
       return SNMPv3_MP_ERROR;
     }
     for (int i=0; i<entries;i++)
@@ -299,7 +421,6 @@ int v3MP::Cache::add_entry(int msg_id, unsigned long req_id,
     table = tmp;
     max_entries *= 2;
   }
-  CS_UNLOCK();
   return SNMPv3_MP_OK;
 }
 
@@ -309,10 +430,8 @@ int v3MP::Cache::get_entry(int msg_id, bool local_request, int *error_code,
 {
   if (!table) return SNMPv3_MP_ERROR;
 
-  debugprintf(8, "v3MP::Cache::get_entry: searching for %s msg_id 0x%lx",
-              local_request ? "local" : "remote", msg_id);
+  BEGIN_REENTRANT_CODE_BLOCK;
 
-  CS_LOCK();
   for (int i=0; i < entries; i++)
   {
     if ((msg_id == table[i].msg_id) &&
@@ -322,52 +441,121 @@ int v3MP::Cache::get_entry(int msg_id, bool local_request, int *error_code,
       *sec_state_ref = table[i].sec_state_ref;
       entries--;
 
-      debugprintf(8, "v3MP::Cache::get_entry: found entry[%i]", i);
+      LOG_BEGIN(INFO_LOG | 8);
+      LOG("v3MP::Cache: Found entry (n) (msg id) (type)");
+      LOG(i);
+      LOG(msg_id);
+      LOG(local_request ? "local" : "remote");
+      LOG_END;
 
       if (entries > i)
       {
         table[i] = table[entries];
 
-        debugprintf(8, "v3MP::Cache::get_entry: moved entry[%i] to entry[%i].",
-                    entries, i);
+	LOG_BEGIN(INFO_LOG | 10);
+	LOG("v3MP::Cache: Moving entry (from) (to)");
+	LOG(entries);
+	LOG(i);
+	LOG_END;
       }
-      CS_UNLOCK();
       return SNMPv3_MP_OK;
     }
   }
-  CS_UNLOCK();
-  debugprintf(3, "v3MP::Cache::get_entry: msg_id not found.");
+
+  LOG_BEGIN(WARNING_LOG | 5);
+  LOG("v3MP::Cache: Entry not found (msg id) (type)");
+  LOG(msg_id);
+  LOG(local_request ? "local" : "remote");
+  LOG_END;
+
   return SNMPv3_MP_ERROR;
 }
 
 // Delete the entry with the given request id from the cache.
 void v3MP::Cache::delete_entry(unsigned long req_id, bool local_request)
 {
-  debugprintf(8, "v3MP::Cache::delete_entry: searching for %s req_id 0x%x.",
-              local_request ? "local" : "remote", req_id);
-
   if (!table) return;
 
-  CS_LOCK();
+  BEGIN_REENTRANT_CODE_BLOCK;
+
   for (int i=0; i<entries; i++)
     if ((table[i].req_id == req_id) &&
         (table[i].local_request == local_request))
     {
-      debugprintf(8, "v3MP::Cache::delete_entry:found entry[%i], msg_id= 0x%x",
-                  i, table[i].msg_id);
+      LOG_BEGIN(INFO_LOG | 8);
+      LOG("v3MP::Cache: Delete unprocessed entry (n) (req id) (type)");
+      LOG(i);
+      LOG(req_id);
+      LOG(local_request ? "local" : "remote");
+      LOG_END;
 
       usm->delete_sec_state_reference(table[i].sec_state_ref);
       entries--;
       if (entries > i)
       {
         table[i] = table[entries];
-        debugprintf(8, "v3MP::Cache::delete_entry: moved entry[%i] to [%i].",
-                    entries, i);
+
+	LOG_BEGIN(INFO_LOG | 10);
+	LOG("v3MP::Cache: Moving entry (from) (to)");
+	LOG(entries);
+	LOG(i);
+	LOG_END;
       }
-      CS_UNLOCK();
       return;
     }
-  CS_UNLOCK();
+
+  LOG_BEGIN(INFO_LOG | 8);
+  LOG("v3MP::Cache: Entry to delete not found (req id) (type)");
+  LOG(req_id);
+  LOG(local_request ? "local" : "remote");
+  LOG_END;
+
+  return;
+}
+
+// Delete the entry with the given request ans message id from the cache.
+void v3MP::Cache::delete_entry(unsigned long req_id, int msg_id,
+			       bool local_request)
+{
+  if (!table) return;
+
+  BEGIN_REENTRANT_CODE_BLOCK;
+
+  for (int i=0; i<entries; i++)
+    if ((table[i].req_id == req_id) &&
+	(table[i].msg_id == msg_id) &&
+        (table[i].local_request == local_request))
+    {
+      LOG_BEGIN(INFO_LOG | 8);
+      LOG("v3MP::Cache: Delete unprocessed entry (n) (req id) (msg id) (type)");
+      LOG(i);
+      LOG(req_id);
+      LOG(msg_id);
+      LOG(local_request ? "local" : "remote");
+      LOG_END;
+
+      usm->delete_sec_state_reference(table[i].sec_state_ref);
+      entries--;
+      if (entries > i)
+      {
+        table[i] = table[entries];
+
+	LOG_BEGIN(INFO_LOG | 10);
+	LOG("v3MP::Cache: Moving entry (from) (to)");
+	LOG(entries);
+	LOG(i);
+	LOG_END;
+      }
+      return;
+    }
+
+  LOG_BEGIN(INFO_LOG | 8);
+  LOG("v3MP::Cache: Entry to delete not found (req id) (msg id) (type)");
+  LOG(req_id);
+  LOG(msg_id);
+  LOG(local_request ? "local" : "remote");
+  LOG_END;
+
   return;
 }
 
@@ -377,10 +565,8 @@ int v3MP::Cache::get_entry(int searchedID, bool local_request,
 {
   if ((!table) || (!res)) return SNMPv3_MP_ERROR;
 
-  debugprintf(8, "v3MP::Cache::get_entry: searching %s msg_id 0x%x.",
-              local_request ? "local" : "remote", searchedID);
+  BEGIN_REENTRANT_CODE_BLOCK;
 
-  CS_LOCK();
   for (int i=0; i < entries; i++)
     if ((table[i].msg_id == searchedID) &&
         (table[i].local_request == local_request))
@@ -397,20 +583,34 @@ int v3MP::Cache::get_entry(int searchedID, bool local_request,
       res->sec_state_ref     = table[i].sec_state_ref;
       res->error_code        = table[i].error_code;
 
-      debugprintf(8, "v3MP::Cache::get_entry: msg_id found at entry[%i].", i);
+      LOG_BEGIN(INFO_LOG | 8);
+      LOG("v3MP::Cache: Found entry (n) (msg id) (type)");
+      LOG(i);
+      LOG(searchedID);
+      LOG(local_request ? "local" : "remote");
+      LOG_END;
+
       entries--;
 
       if (entries > i)
       {
         table[i] = table[entries];
-        debugprintf(8, "v3MP::Cache::get_entry: moved entry[%i] to entry[%i].",
-                    entries, i);
+
+	LOG_BEGIN(INFO_LOG | 10);
+	LOG("v3MP::Cache: Moving entry (from) (to)");
+	LOG(entries);
+	LOG(i);
+	LOG_END;
       }
-      CS_UNLOCK();
       return SNMPv3_MP_OK;
     }
-  CS_UNLOCK();
-  debugprintf(1, "v3MP::Cache::get_entry: msg_id not found");
+
+  LOG_BEGIN(WARNING_LOG | 5);
+  LOG("v3MP::Cache: Entry not found (msg id) (type)");
+  LOG(searchedID);
+  LOG(local_request ? "local" : "remote");
+  LOG_END;
+
   return SNMPv3_MP_ERROR;
 }
 
@@ -419,9 +619,6 @@ void v3MP::Cache::delete_content(struct v3MP::Cache::Entry_T &ce)
   if (ce.sec_state_ref)
     usm->delete_sec_state_reference(ce.sec_state_ref);
 }
-
-#undef CS_LOCK
-#undef CS_UNLOCK
 
 // ==========================[ class v3MP ]===============================
 
@@ -480,6 +677,22 @@ v3MP::~v3MP()
   I = 0;
 }
 
+// Remove all occurences of this engine id from v3MP and USM.
+int v3MP::remove_engine_id(const OctetStr &engine_id)
+{
+  int retval1, retval2;
+
+  retval1 = engine_id_table.delete_entry(engine_id);
+
+  retval2 = usm->remove_engine_id(engine_id);
+
+  if ((retval1 == SNMPv3_MP_NOT_INITIALIZED) ||
+      (retval2 == SNMPv3_USM_ERROR))
+    return SNMPv3_MP_NOT_INITIALIZED;
+
+  return SNMPv3_MP_OK;
+}
+
 // Send a report message.
 int v3MP::send_report(unsigned char* scopedPDU, int scopedPDULength,
 		      struct snmp_pdu *pdu, int errorCode, int sLevel,
@@ -491,10 +704,13 @@ int v3MP::send_report(unsigned char* scopedPDU, int scopedPDULength,
   unsigned char *data;
   int dataLength;
   int pdu_type = 0;
-  unsigned char cEngineID[MAXLENGTH_ENGINEID+1], cName[MAXLENGTH_BUFFER];
-  int cEngineIDLength = MAXLENGTH_ENGINEID+1, cNameLength = MAXLENGTH_BUFFER;
+  unsigned char cEngineID[MAXLENGTH_ENGINEID+1];
+  unsigned char cName[MAXLENGTH_CONTEXT_NAME+1];
+  int cEngineIDLength = MAXLENGTH_ENGINEID+1;
+  int cNameLength = MAXLENGTH_CONTEXT_NAME+1;
 
-  if (scopedPDULength != MAXLENGTH_BUFFER) {
+  if (scopedPDULength != MAX_SNMP_PACKET)
+  {
     // try to get scopedPDU and PDU
     data = asn1_parse_scoped_pdu(scopedPDU, &scopedPDULength,
 				 cEngineID, &cEngineIDLength,
@@ -520,8 +736,8 @@ int v3MP::send_report(unsigned char* scopedPDU, int scopedPDULength,
         debugprintf(0, "mp: Error while trying to parse PDU!");
       }
     } // end of: if (data == NULL)
-  } // end if (scopedPDULength != MAXLENGTH_BUFFER)
-  else { // scopedPDULength == MAXLENGTH_BUFFER
+  } // end if (scopedPDULength != MAX_SNMP_PACKET)
+  else { // scopedPDULength == MAX_SNMP_PACKET
     cEngineID[0] = '\0';
     cEngineIDLength = 0;
     cName[0] = '\0';
@@ -569,6 +785,7 @@ int v3MP::send_report(unsigned char* scopedPDU, int scopedPDULength,
     }
     case SNMPv3_USM_UNKNOWN_ENGINEID:
     case SNMPv3_MP_INVALID_ENGINEID: {
+      sLevel = SNMP_SECURITY_LEVEL_NOAUTH_NOPRIV;
       counterVb.set_oid(oidUsmStatsUnknownEngineIDs);
       counterVb.set_value(Counter32(usm->get_stats_unknown_engine_ids()));
       break;
@@ -615,9 +832,9 @@ int v3MP::send_report(unsigned char* scopedPDU, int scopedPDULength,
                (int) smioid->len, &smival);
   freeSmivalDescriptor(&smival);
 
-  unsigned char sendbuffer[MAXLENGTH_BUFFER];
-  int sendbufferlen= MAXLENGTH_BUFFER;
-  status = snmp_build( pdu, sendbuffer, (int *)&sendbufferlen,
+  Buffer<unsigned char> sendbuffer(MAX_SNMP_PACKET);
+  int sendbufferlen= MAX_SNMP_PACKET;
+  status = snmp_build( pdu, sendbuffer.get_ptr(), &sendbufferlen,
 		       own_engine_id_oct, sName, sModel, sLevel,
 		       OctetStr(cEngineID, cEngineIDLength),
 		       OctetStr(cName, cNameLength));
@@ -625,7 +842,7 @@ int v3MP::send_report(unsigned char* scopedPDU, int scopedPDULength,
     debugprintf(2, "v3MP::send_report: error serializing message (mpSnmpBuild returns: %i).", status);
     return SNMPv3_MP_ERROR;
   }
-  int send_fd = 0;
+  SnmpSocket send_fd = INVALID_SOCKET;
   if (pdu_type == sNMP_PDU_INFORM)
   {
     debugprintf(4, "Received a snmpInform pdu.");
@@ -633,7 +850,7 @@ int v3MP::send_report(unsigned char* scopedPDU, int scopedPDULength,
       send_fd = snmp_session->eventListHolder->notifyEventList()->get_notify_fd();
   }
 
-  status = snmp_session->send_raw_data(sendbuffer,
+  status = snmp_session->send_raw_data(sendbuffer.get_ptr(),
                                        (size_t)sendbufferlen,// pdu to send
 			               destination,          // target address
 			               send_fd);             // the fd to use
@@ -663,7 +880,7 @@ int v3MP::snmp_parse(Snmp *snmp_session,
   debugprintf(3, "mp is parsing incoming message:");
   debughexprintf(25, inBuf, inBufLength);
 
-  if (inBufLength > MAXLENGTH_BUFFER)
+  if (inBufLength > MAX_SNMP_PACKET)
     return  SNMPv3_MP_ERROR;
 
   unsigned char type;
@@ -672,10 +889,11 @@ int v3MP::snmp_parse(Snmp *snmp_session,
   unsigned char *inBufPtr = inBuf;
   long msgID, msgMaxSize;
   unsigned char msgFlags;
-  unsigned char msgSecurityParameters[MAXLENGTH_BUFFER], msgData[MAXLENGTH_BUFFER];
+  Buffer<unsigned char> msgSecurityParameters(MAX_SNMP_PACKET);
+  Buffer<unsigned char> msgData(MAX_SNMP_PACKET);
   int msgSecurityParametersLength = inBufLength,   msgDataLength = inBufLength;
-  unsigned char scopedPDU[MAXLENGTH_BUFFER];
-  int scopedPDULength = MAXLENGTH_BUFFER;
+  Buffer<unsigned char> scopedPDU(MAX_SNMP_PACKET);
+  int scopedPDULength = MAX_SNMP_PACKET;
   long  maxSizeResponseScopedPDU = 0;
   struct SecurityStateReference *securityStateReference = NULL;
   int securityParametersPosition;
@@ -734,7 +952,7 @@ int v3MP::snmp_parse(Snmp *snmp_session,
   pdu->maxsize_scopedpdu = msgMaxSize;
 
   inBuf = asn_parse_string( inBuf, &inBufLength, &type,
-                            (unsigned char*)&msgSecurityParameters,
+                            msgSecurityParameters.get_ptr(),
                             &msgSecurityParametersLength);
 
   if (inBuf == NULL){
@@ -742,12 +960,12 @@ int v3MP::snmp_parse(Snmp *snmp_session,
     return SNMPv3_MP_PARSE_ERROR;
   }
 
-  securityParametersPosition= (inBuf - inBufPtr) - msgSecurityParametersLength;
+  securityParametersPosition= SAFE_INT_CAST(inBuf - inBufPtr) - msgSecurityParametersLength;
 
   // the rest of the message is passed directly to the security module
 
-  msgDataLength = origLength - (inBuf - inBufPtr);
-  memcpy((unsigned char*)&msgData, inBuf, msgDataLength);
+  msgDataLength = origLength - SAFE_INT_CAST(inBuf - inBufPtr);
+  memcpy(msgData.get_ptr(), inBuf, msgDataLength);
 
   debugprintf(3, "Parsed msgdata length(0x%x), "
 	      "msgSecurityParameters length(0x%x)", msgDataLength,
@@ -779,16 +997,18 @@ int v3MP::snmp_parse(Snmp *snmp_session,
       {
         rc = usm->process_msg(
                            msgMaxSize,
-                           msgSecurityParameters, msgSecurityParametersLength,
+                           msgSecurityParameters.get_ptr(),
+			   msgSecurityParametersLength,
                            securityParametersPosition,
                            securityLevel,
                            inBufPtr, origLength, //wholeMsg
-                           (unsigned char*)msgData, msgDataLength,
+                           msgData.get_ptr(), msgDataLength,
                            securityEngineID,
                            securityName,
-                           (unsigned char*)scopedPDU, &scopedPDULength,
+                           scopedPDU.get_ptr(), &scopedPDULength,
                            &maxSizeResponseScopedPDU,
-                           securityStateReference);
+                           securityStateReference,
+			   from_address);
         pdu->maxsize_scopedpdu = maxSizeResponseScopedPDU;
         if (rc != SNMPv3_USM_OK) {
           if (rc == SNMPv3_USM_NOT_IN_TIME_WINDOW) {
@@ -807,16 +1027,16 @@ int v3MP::snmp_parse(Snmp *snmp_session,
       }
     default: {
         snmpUnknownSecurityModels++;
+	usm->delete_sec_state_reference(securityStateReference);
         debugprintf(0, "SecurityModel of incomming Message not supported!");
         // Message should be dropped without a report
         return SNMPv3_MP_UNSUPPORTED_SECURITY_MODEL;
       }
   }
   // process scopedPDU
-  debugprintf(21, "scoped PDU:");
-  debughexprintf(21, scopedPDU, scopedPDULength);
+  debughexcprintf(21, "scoped PDU", scopedPDU.get_ptr(), scopedPDULength);
 
-  unsigned char *scopedPDUPtr= (unsigned char*)&scopedPDU;
+  unsigned char *scopedPDUPtr= scopedPDU.get_ptr();
   unsigned char tmp_contextEngineID[MAXLENGTH_ENGINEID];
   unsigned char tmp_contextName[MAXLENGTH_CONTEXT_NAME];
   int tmp_contextEngineIDLength = MAXLENGTH_ENGINEID;
@@ -878,6 +1098,9 @@ int v3MP::snmp_parse(Snmp *snmp_session,
 		  from_address, snmp_session);
       clear_pdu(pdu, true);   // Clear pdu and free all content AND IDs!
     }
+    else {
+      usm->delete_sec_state_reference(securityStateReference);
+    }
     return errorCode;
   }
 
@@ -893,16 +1116,17 @@ int v3MP::snmp_parse(Snmp *snmp_session,
       inc_stats_unknown_pdu_handlers();
       return SNMPv3_MP_UNKNOWN_PDU_HANDLERS;
     }
-    if ((!pdu->reqid) && (pdu->command == REPORT_MSG))
+    if (((pdu->reqid == 0) || (pdu->reqid == 0x7fffffff))
+	&& (pdu->command == REPORT_MSG))
       pdu->reqid = centry.req_id;
   }
 
   if (pdu->command == REPORT_MSG) {
     // !! rfc2262 page 33
 
-    debugprintf(2, "***Receiving a ReportPDU ***");
-    if (((securityEngineID != centry.sec_engine_id)
-         && (centry.sec_engine_id.len() != 0)) ||
+    debugprintf(2, "*** Receiving a ReportPDU ***");
+    if (/*((securityEngineID != centry.sec_engine_id)
+	  && (centry.sec_engine_id.len() != 0)) ||*/
         ((msgSecurityModel != centry.sec_model)
          && (msgSecurityModel != SecurityModel_USM)) ||
         ((securityName != centry.sec_name)
@@ -918,7 +1142,7 @@ int v3MP::snmp_parse(Snmp *snmp_session,
     return SNMPv3_MP_OK;
   }
 
-  if ((pdu->command == GET_RSP_MSG)) {
+  if (pdu->command == GET_RSP_MSG) {
     if (((securityEngineID != centry.sec_engine_id)
          && (centry.sec_engine_id.len() != 0)) ||
         (msgSecurityModel != centry.sec_model) ||
@@ -949,6 +1173,35 @@ int v3MP::snmp_parse(Snmp *snmp_session,
       if (!(unsignedCharCompare(securityEngineID.data(), securityEngineID.len(),
                                 own_engine_id, own_engine_id_len))) {
         debugprintf(0, "snmp_parse: securityEngineID doesn't match own_engine_id.");
+	/* we are authoritative but engine id of message is wrong
+	   if discovery in USM is enabled:
+	   - remove automatically added illegal engine id from USM tables
+	   - send a report
+	*/
+	if (usm->is_discovery_enabled())
+	{
+	  // TODO: try to remove engine id from USM
+	  if (reportableFlag)
+	  {
+	    cache.add_entry(msgID, pdu->reqid, securityEngineID,
+			    msgSecurityModel,
+			    securityName, securityLevel, "", "",
+			    securityStateReference,
+			    SNMPv3_MP_INVALID_ENGINEID,
+			    CACHE_REMOTE_REQ);
+
+	    send_report(0, MAX_SNMP_PACKET, pdu, SNMPv3_MP_INVALID_ENGINEID,
+			SNMP_SECURITY_LEVEL_NOAUTH_NOPRIV, msgSecurityModel,
+			securityName, from_address, snmp_session);
+	    clear_pdu(pdu, true);  // Clear pdu and free all content AND IDs!
+	  }
+	  else
+	  {
+	    usm->delete_sec_state_reference(securityStateReference);
+	  }
+	  return SNMPv3_MP_INVALID_ENGINEID;
+	}
+
         usm->delete_sec_state_reference(securityStateReference);
         return SNMPv3_MP_MATCH_ERROR;
       }
@@ -975,39 +1228,50 @@ int v3MP::snmp_parse(Snmp *snmp_session,
   }
 
   debugprintf(0, "mp error: This line should not be executed.");
+  usm->delete_sec_state_reference(securityStateReference);
   return SNMPv3_MP_ERROR;
 }
 
 
 // Tests if the given buffer contains a SNMPv3-Message.
-bool v3MP::is_v3_msg( unsigned char *buffer, int length)
+bool v3MP::is_v3_msg(unsigned char *buffer, int length)
 {
   unsigned char type;
   long version;
 
   // get the type
-  buffer = asn_parse_header( buffer, &length, &type);
-  if (buffer == NULL){
-    debugprintf(0, "mpTestV3 bad header");
+  buffer = asn_parse_header(buffer, &length, &type);
+  if (!buffer)
+  {
+    LOG_BEGIN(WARNING_LOG | 1);
+    LOG("Testing for v3 message: Bad header");
+    LOG_END;
+
     return FALSE;
   }
 
-  if (type != (ASN_SEQ_CON)){
-    debugprintf(0, "mpTestV3: wrong auth header type");
+  if (type != ASN_SEQ_CON)
+  {
+    LOG_BEGIN(WARNING_LOG | 1);
+    LOG("Testing for v3 message: Wrong auth header type");
+    LOG((int)type);
+    LOG_END;
+
     return FALSE;
   }
 
   // get the version
   buffer = asn_parse_int(buffer, &length, &type, &version, sizeof(version));
-  if (buffer == NULL){
-    debugprintf(0, "mpTestV3: bad parse of version");
+  if (!buffer)
+  {
+    LOG_BEGIN(WARNING_LOG | 1);
+    LOG("Testing for v3 message: Bad parse of version");
+    LOG_END;
+
     return 0;
   }
 
-  if ( version == SNMP_VERSION_3 )
-    return TRUE;
-
-  return FALSE;
+  return (version == SNMP_VERSION_3);
 }
 
 
@@ -1024,13 +1288,13 @@ int v3MP::snmp_build(struct snmp_pdu *pdu,
 		     const OctetStr &contextEngineID,
 		     const OctetStr &contextName)
 {
-  unsigned char scopedPDU[MAXLENGTH_BUFFER];
-  unsigned char *scopedPDUPtr = (unsigned char*)&scopedPDU;
+  Buffer<unsigned char> scopedPDU(MAX_SNMP_PACKET);
+  unsigned char *scopedPDUPtr = scopedPDU.get_ptr();
   unsigned char globalData[MAXLENGTH_GLOBALDATA];
   int globalDataLength = MAXLENGTH_GLOBALDATA;
   int scopedPDULength, maxLen = *out_length;
-  unsigned char buf[MAXLENGTH_BUFFER];
-  unsigned char *bufPtr = (unsigned char*)&buf;
+  Buffer<unsigned char> buf(MAX_SNMP_PACKET);
+  unsigned char *bufPtr = buf.get_ptr();
   long bufLength = 0, rc;
   int msgID;
   int cachedErrorCode = SNMPv3_MP_OK;
@@ -1056,7 +1320,10 @@ int v3MP::snmp_build(struct snmp_pdu *pdu,
       cur_msg_id = 1;
 
 #ifdef INVALID_MSGID
-    debugprintf(-10, "\nWARNING: Using constant MessageID!\n");
+    LOG_BEGIN(ERROR_LOG | 1);
+    LOG("*** WARNING: Using constant MessageID! ***");
+    LOG_END;
+
     msgID = 0xdead;
 #endif
 
@@ -1081,31 +1348,42 @@ int v3MP::snmp_build(struct snmp_pdu *pdu,
     }
   }
 
-  debugprintf(5, "SecurityEngineID: %s, securityName: %s",
-              securityEngineID.get_printable(), securityName.get_printable());
-  debugprintf(5, "securityLevel: %i ",securityLevel);
-  debugprintf(5, "contextEngineID: %s, contextName: %s",
-              contextEngineID.get_printable(), contextName.get_printable());
+  LOG_BEGIN(DEBUG_LOG | 5);
+  LOG("v3MP: Building message with (SecurityEngineID) (securityName) (securityLevel) (contextEngineID) (contextName)");
+  LOG(securityEngineID.get_printable());
+  LOG(securityName.get_printable());
+  LOG(securityLevel);
+  LOG(contextEngineID.get_printable());
+  LOG(contextName.get_printable());
+  LOG_END;
 
   // encode vb in buf
   scopedPDUPtr = build_vb(pdu, scopedPDUPtr, &maxLen);
-  if (scopedPDUPtr == NULL) {
-    debugprintf(0, "build_vb returns nullpointer");
+  if (!scopedPDUPtr)
+  {
+    LOG_BEGIN(WARNING_LOG | 1);
+    LOG("v3MP: Error encoding vbs into buffer");
+    LOG_END;
+
     return SNMPv3_MP_BUILD_ERROR;
   }
-  scopedPDULength = scopedPDUPtr - (unsigned char*)scopedPDU;
+  scopedPDULength = SAFE_INT_CAST(scopedPDUPtr - scopedPDU.get_ptr());
 
   //build dataPDU in buf
   maxLen = *out_length;
-  scopedPDUPtr = (unsigned char*)scopedPDU;
+  scopedPDUPtr = scopedPDU.get_ptr();
   bufPtr = build_data_pdu(pdu, bufPtr, &maxLen, scopedPDUPtr, scopedPDULength);
 
-  if (bufPtr==NULL) {
-    debugprintf(0, "build_data_pdu returns nullpointer");
+  if (!bufPtr)
+  {
+    LOG_BEGIN(WARNING_LOG | 1);
+    LOG("v3MP: Error encoding data pdu into buffer");
+    LOG_END;
+
     return SNMPv3_MP_BUILD_ERROR;
   }
 
-  bufLength = bufPtr - (unsigned char*)&buf;
+  bufLength = SAFE_INT_CAST(bufPtr - buf.get_ptr());
 
   //  serialize scopedPDU
   maxLen = *out_length;
@@ -1113,14 +1391,18 @@ int v3MP::snmp_build(struct snmp_pdu *pdu,
 				       contextEngineID.data(),
 				       contextEngineID.len(),
 				       contextName.data(), contextName.len(),
-				       buf, bufLength);
+				       buf.get_ptr(), bufLength);
 
-  if (scopedPDUPtr==NULL) {
-    debugprintf(0, "mpBuildScopedPDU returns nullpointer");
+  if (!scopedPDUPtr)
+  {
+    LOG_BEGIN(WARNING_LOG | 1);
+    LOG("v3MP: Error encoding scoped pdu into buffer");
+    LOG_END;
+
     return SNMPv3_MP_BUILD_ERROR;
   }
 
-  scopedPDULength = scopedPDUPtr - (unsigned char*)&scopedPDU;
+  scopedPDULength = SAFE_INT_CAST(scopedPDUPtr - scopedPDU.get_ptr());
 
   // build msgGlobalData
   unsigned char *globalDataPtr = (unsigned char *)&globalData;
@@ -1132,8 +1414,13 @@ int v3MP::snmp_build(struct snmp_pdu *pdu,
       { msgFlags = SNMPv3_AUTHFLAG; break;}
     case SNMP_SECURITY_LEVEL_AUTH_PRIV:
       { msgFlags = SNMPv3_AUTHFLAG | SNMPv3_PRIVFLAG; break;}
-    default: {
-      debugprintf(0, "mpSnmpBuild: unknown securityLevel (%i) requested. authPriv will be used!", securityLevel);
+    default:
+    {
+      LOG_BEGIN(WARNING_LOG | 1);
+      LOG("v3MP: Unknown security level requested, will use authPriv");
+      LOG(securityLevel);
+      LOG_END;
+
       msgFlags = SNMPv3_AUTHFLAG | SNMPv3_PRIVFLAG;
     }
   }
@@ -1146,11 +1433,15 @@ int v3MP::snmp_build(struct snmp_pdu *pdu,
   globalDataPtr = asn1_build_header_data(globalDataPtr, &globalDataLength,
 					 msgID, *out_length,  // maxMessageSize
 					 msgFlags, securityModel);
-  if (globalDataPtr == NULL) {
-    debugprintf(0, "mp: Error in build_header_data");
+  if (!globalDataPtr)
+  {
+    LOG_BEGIN(ERROR_LOG | 1);
+    LOG("v3MP: Error building header data");
+    LOG_END;
+
     return SNMPv3_MP_BUILD_ERROR;
   }
-  globalDataLength = globalDataPtr - (unsigned char *)&globalData;
+  globalDataLength = SAFE_INT_CAST(globalDataPtr - (unsigned char *)&globalData);
 
   switch (securityModel) {
     case SecurityModel_USM: {
@@ -1164,7 +1455,7 @@ int v3MP::snmp_build(struct snmp_pdu *pdu,
                              (use_own_engine_id ?
                                         own_engine_id_oct : securityEngineID),
                              securityName, securityLevel,
-                             scopedPDU, scopedPDULength,
+                             scopedPDU.get_ptr(), scopedPDULength,
                              securityStateReference, packet, out_length);
 
       if ( rc == SNMPv3_USM_OK ) {
@@ -1176,16 +1467,29 @@ int v3MP::snmp_build(struct snmp_pdu *pdu,
                           contextEngineID, contextName, securityStateReference,
                           SNMPv3_MP_OK, CACHE_LOCAL_REQ);
 
-        debugprintf(1, "v3MP finished OK.");
+	LOG_BEGIN(INFO_LOG | 3);
+	LOG("v3MP: Message built OK");
+	LOG_END;
+
         return SNMPv3_MP_OK;
       }
-      else {
-        debugprintf(0, "v3MP finished NOT OK: errorcode %li.", rc);
+      else
+      {
+	LOG_BEGIN(WARNING_LOG | 1);
+	LOG("v3MP: Returning error for building message");
+	LOG(rc);
+	LOG_END;
+
         return rc;
       }
     }
-    default: {
-      debugprintf(0, "mp: unsupported securityModel");
+    default:
+    {
+      LOG_BEGIN(WARNING_LOG | 1);
+      LOG("v3MP: Should build message with unsupported securityModel");
+      LOG(securityModel);
+      LOG_END;
+
       return SNMPv3_MP_UNSUPPORTED_SECURITY_MODEL;
     }
   }

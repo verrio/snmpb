@@ -2,9 +2,9 @@
   _## 
   _##  mp_v3.h  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 
@@ -174,6 +174,27 @@ class DLLOPT v3MP
     { return engine_id_table.add_entry(engine_id, host, port); };
 
   /**
+   * Remove an entry from the engine id table.
+   *
+   * @param host      - The numerical IP address
+   * @param port      - The port
+   *
+   * @return - SNMPv3_MP_ERROR, SNMPv3_MP_OK
+   */
+  int remove_from_engine_id_table(const OctetStr &host, int port)
+    { return engine_id_table.delete_entry(host, port); };
+
+  /**
+   * Remove an entry from the engine id table.
+   *
+   * @param engine_id - The engine id
+   *
+   * @return - SNMPv3_MP_ERROR, SNMPv3_MP_OK
+   */
+  int remove_from_engine_id_table(const OctetStr &engine_id)
+    { return engine_id_table.delete_entry(engine_id); };
+
+  /**
    * Get the engine id of the SNMP entity at the given host/port.
    *
    * @param engine_id - OUT: The engine id
@@ -200,6 +221,25 @@ class DLLOPT v3MP
   int get_from_engine_id_table(OctetStr &engineID,
 			       const OctetStr &host, int port) const
     {  return engine_id_table.get_entry(engineID, host, port); };
+
+  /**
+   * Remove all entries from the engine id table.
+   *
+   * @return - SNMPv3_MP_NOT_INITIALIZED, SNMPv3_MP_ERROR,
+   *           SNMPv3_MP_OK
+   */
+  int reset_engine_id_table()
+    {  return engine_id_table.reset(); };
+
+  /**
+   * Remove all occurences of this engine id from v3MP and USM.
+   *
+   * @param engine_id - The engine id to remove
+   *
+   * @return - SNMPv3_MP_NOT_INITIALIZED, SNMPv3_MP_ERROR,
+   *           SNMPv3_MP_OK
+   */
+  int remove_engine_id(const OctetStr &engine_id);
 
   // ----------[ Access to status counters for agent++ ]--------------
 
@@ -326,9 +366,28 @@ class DLLOPT v3MP
    * has timed out.
    *
    * @param requestID - The request id.
+   * @param local_request - Does the request id belong to a local or to
+   *                        a remote request?
    */
-  void delete_from_cache(unsigned long requestID)
-    { cache.delete_entry(requestID, true); };
+  void delete_from_cache(unsigned long requestID,
+			 const bool local_request = true)
+    { cache.delete_entry(requestID, local_request); };
+
+ public:
+
+  /**
+   * Delete the entry with the given request id from the cache.
+   * This function is used in agent++ RequestList.
+   *
+   * @param requestID - The request id.
+   * @param messageID - The message id.
+   * @param local_request - Does the request id belong to a local or to
+   *                        a remote request?
+   */
+  void delete_from_cache(unsigned long requestID,
+			 unsigned long messageID,
+			 const bool local_request)
+    { cache.delete_entry(requestID, messageID, local_request); };
 
  private:
 
@@ -404,6 +463,35 @@ class DLLOPT v3MP
      */
     int get_entry(OctetStr &engine_id, const OctetStr &host, int port) const;
 
+    /**
+     * Remove all entries from the engine id table.
+     *
+     * @return - SNMPv3_MP_NOT_INITIALIZED, SNMPv3_MP_ERROR,
+     *           SNMPv3_MP_OK
+     */
+    int reset();
+
+    /**
+     * Remove the given engine id from the table.
+     *
+     * @param engine_id - The engine id to remove
+     *
+     * @return - SNMPv3_MP_NOT_INITIALIZED, SNMPv3_MP_ERROR,
+     *           SNMPv3_MP_OK
+     */
+    int delete_entry(const OctetStr &engine_id);
+
+    /**
+     * Remove the entry for the given address/port from the table.
+     *
+     * @param host - Numeric IP address
+     * @param port - listen port of the snmp entity
+     *
+     * @return - SNMPv3_MP_NOT_INITIALIZED, SNMPv3_MP_ERROR,
+     *           SNMPv3_MP_OK
+     */
+    int delete_entry(const OctetStr &host, int port);
+
   private:
     int initialize_table(const int size);
 
@@ -417,6 +505,7 @@ class DLLOPT v3MP
     struct Entry_T *table;
     int max_entries;      ///< the maximum number of entries
     int entries;          ///< the current amount of entries
+    SNMP_PP_MUTABLE SnmpSynchronized lock;
   };
 
 
@@ -496,6 +585,15 @@ class DLLOPT v3MP
     void delete_entry(unsigned long req_id, bool local_request);
 
     /**
+     * Delete the entry with the given request and message id from the cache.
+     *
+     * @param req_id - The request id.
+     * @param msg_id - The message id.
+     */
+    void delete_entry(unsigned long req_id, int msg_id,
+		      bool local_request);
+
+    /**
      * Search the cache for a message id, return the whole entry and
      * delete the entry from the cache.
      *
@@ -514,7 +612,7 @@ class DLLOPT v3MP
 
    private:
 #ifdef _THREADS
-    SnmpSynchronized _cachesync;
+    SNMP_PP_MUTABLE SnmpSynchronized lock;
 #endif
     struct Entry_T *table; ///< whole table
     int max_entries;       ///< the maximum number of entries

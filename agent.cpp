@@ -155,7 +155,7 @@ Agent::Agent(QComboBox* UN, QComboBox* SL, QLineEdit* CN,
     }
     
     // Bind on the SNMP trap port
-    CNotifyEventQueue::set_listen_port(TRAP_PORT);
+    snmp->notify_set_listen_port(TRAP_PORT);
 
     OidCollection oidc;
     TargetCollection targetc;

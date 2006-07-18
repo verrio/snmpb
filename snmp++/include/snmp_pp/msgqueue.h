@@ -2,9 +2,9 @@
   _## 
   _##  msgqueue.h  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -85,7 +85,9 @@
 #ifdef WIN32
 #include <winsock.h>
 #else
+#if !(defined CPU && CPU == PPC603)
 #include <sys/time.h>	// time stuff and fd_set
+#endif
 #endif
 
 //----[ snmp++ includes ]----------------------------------------------
@@ -116,7 +118,7 @@ class DLLOPT CSNMPMessage
  public:
   CSNMPMessage(unsigned long id,
 	       Snmp * snmp,
-	       int socket,
+	       SnmpSocket socket,
 	       const SnmpTarget &target,
 	       Pdu &pdu,
 	       unsigned char * rawPdu,
@@ -129,7 +131,7 @@ class DLLOPT CSNMPMessage
   void ResetId(const unsigned long newId) { m_uniqueId = newId; };
   void SetSendTime();
   void GetSendTime(msec &sendTime) const { sendTime = m_sendTime; };
-  int GetSocket() const { return m_socket; };
+  SnmpSocket GetSocket() const { return m_socket; };
   int SetPdu(const int reason, const Pdu &pdu, const UdpAddress &fromaddress);
   int GetPdu(int &reason, Pdu &pdu)
                                  { pdu = m_pdu; reason = m_reason; return 0; };
@@ -142,7 +144,7 @@ class DLLOPT CSNMPMessage
   unsigned long	  m_uniqueId;
   msec		  m_sendTime;
   Snmp *	  m_snmp;
-  int		  m_socket;
+  SnmpSocket	  m_socket;
   SnmpTarget *	  m_target;
   Pdu		  m_pdu;
   unsigned char * m_rawPdu;
@@ -163,13 +165,13 @@ class DLLOPT CSNMPMessageQueue: public CEvents
  public:
     CSNMPMessageQueue(EventListHolder *holder, Snmp *session);
     virtual ~CSNMPMessageQueue();
-    CSNMPMessage *AddEntry(unsigned long id,Snmp * snmp, int socket,
+    CSNMPMessage *AddEntry(unsigned long id, Snmp *snmp, SnmpSocket socket,
 			   const SnmpTarget &target, Pdu &pdu, unsigned char * rawPdu,
 			   size_t rawPduLen, const Address & address,
 			   snmp_callback callBack, void * callData);
     CSNMPMessage *GetEntry(const unsigned long uniqueId);
     int DeleteEntry(const unsigned long uniqueId);
-    void DeleteSocketEntry(const int socket);
+    void DeleteSocketEntry(const SnmpSocket socket);
   // find the next msg that will timeout
     CSNMPMessage *GetNextTimeoutEntry();
   // find the next timeout
@@ -207,14 +209,14 @@ class DLLOPT CSNMPMessageQueue: public CEvents
 			   CSNMPMessageQueueElt *previous);
 
       ~CSNMPMessageQueueElt();
-      CSNMPMessageQueueElt *GetNext() { return m_next; };
-      CSNMPMessage *GetMessage() { return m_message; };
+      CSNMPMessageQueueElt *GetNext() { return m_Next; }
+      CSNMPMessage *GetMessage() { return m_message; }
       CSNMPMessage *TestId(const unsigned long uniqueId);
 
      private:
 
       CSNMPMessage *m_message;
-      class CSNMPMessageQueueElt *m_next;
+      class CSNMPMessageQueueElt *m_Next;
       class CSNMPMessageQueueElt *m_previous;
     };
 

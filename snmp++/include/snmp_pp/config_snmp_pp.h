@@ -2,9 +2,9 @@
   _## 
   _##  config_snmp_pp.h  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 
@@ -32,13 +32,10 @@
 #ifndef _CONFIG_SNMP_PP_H_
 #define _CONFIG_SNMP_PP_H_
 
-#define SNMP_PP_VERSION_STRING "3.2.14"
+#define SNMP_PP_VERSION_STRING "3.2.21"
 #define SNMP_PP_VERSION 3
 #define SNMP_PP_RELEASE 2
-#define SNMP_PP_PATCHLEVEL 14
-
-//! This is the amount of variable bindings, a snmp++ Pdu object can contain.
-#define PDU_MAX_VBS 50
+#define SNMP_PP_PATCHLEVEL 21
 
 //! The maximum size of a message that can be sent or received.
 #define MAX_SNMP_PACKET 4096
@@ -47,16 +44,19 @@
 #if defined (WIN32) && defined (SNMP_PP_DLL)
 #ifdef SNMP_PP_EXPORTS
 #define DLLOPT __declspec(dllexport)
+#define DLLOPT_TEMPL
 #else
 #define DLLOPT __declspec(dllimport)	
+#define DLLOPT_TEMPL extern
 #endif
 #else
 #define DLLOPT
+#define DLLOPT_TEMPL
 #endif
 #endif
 
 // define SNMP_PP_IPv6 if you want to use IPv6
-#ifndef WIN32
+#if !defined WIN32 && !(defined (CPU) && CPU == PPC603)
 #define SNMP_PP_IPv6
 #endif
 
@@ -74,7 +74,8 @@
 // #define _USE_LIBTOMCRYPT
 
 // If you define _USE_OPENSSL, snmp++ will use OpenSSL for SHA1,
-// MD5, DES and AES. 
+// MD5, DES and AES. Please note that you will have to change the Makefiles
+// of the examples: Add -lssl to the link command
 #define _USE_OPENSSL
 
 // If you do not use SNMP++ for commercial purposes or if you
@@ -86,15 +87,14 @@
 // (default is to include thread support)
 // #define _NO_THREADS
 
+// define _NO_LOGGING if you do not want any logging output 
+// (increases performance drastically and minimizes memory consumption)
+#define _NO_LOGGING
+
 // define _IPX_ADDRESS and/or _MAC_ADDRESS if you want to use the
 // classess IpxAddress/IpxSockAddress and/or MacAddress
 #define _IPX_ADDRESS
 #define _MAC_ADDRESS
-
-// define _USER_DEFINED_EVENTS or _USER_DEFINED_TMEOUTS
-// if you want to use user defined events/timeouts
-#define _USER_DEFINED_EVENTS
-#define _USER_DEFINED_TMEOUTS
 
 // define this if you want to send out broadcasts
 #define SNMP_BROADCAST
@@ -148,9 +148,44 @@
 #define HAVE_REENTRANT_GETHOSTBYADDR
 #endif
 
+// Enable 3DES Privacy
+// #define _USE_3DES_EDE
+
+// Define a unsigned 64 bit integer:
+#ifdef WIN32
+#include <windows.h>
+#ifdef __BCPLUSPLUS__
+typedef unsigned __int64 pp_uint64;
+#else
+typedef ULONGLONG pp_uint64;
+#endif
+#else // not WIN32
+typedef unsigned long long pp_uint64;
+#endif
+
+// Define a type used for sockets
+#ifdef _MSC_VER
+    typedef SOCKET SnmpSocket;
+#else
+    typedef int SnmpSocket;
+#endif
+
+
 ///////////////////////////////////////////////////////////////////////
 // Changes below this line should not be necessary
 ///////////////////////////////////////////////////////////////////////
+
+
+// Make use of mutable keyword
+//#define SNMP_PP_MUTABLE mutable
+#define SNMP_PP_MUTABLE
+
+#define SAFE_INT_CAST(expr)  ((int)(expr))
+#define SAFE_UINT_CAST(expr) ((unsigned int)(expr))
+
+// Safe until 32 bit second counter wraps to zero (time functions)
+#define SAFE_LONG_CAST(expr)  ((long)(expr))
+#define SAFE_ULONG_CAST(expr) ((unsigned long)(expr))
 
 #ifndef _NO_THREADS
 

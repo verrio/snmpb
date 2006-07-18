@@ -2,9 +2,9 @@
   _## 
   _##  pdu.h  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -47,15 +47,7 @@
 
   PDU CLASS DEFINITION
 
-  DESIGN + AUTHOR:
-  Peter E Mellquist
-
-  LANGUAGE:
-  ANSI C++
-
-  OPERATING SYSTEMS:
-  MS-Windows Win32
-  BSD UNIX
+  DESIGN + AUTHOR:  Peter E Mellquist
 
   DESCRIPTION:
   Pdu class definition. Encapsulation of an SMI Protocol
@@ -78,9 +70,6 @@ namespace Snmp_pp {
 #endif
 
 class Vb;
-
-/** The maximum amount of Vb objects a Pdu can contain (config_snmp_pp.h). */
-#define MAX_VBS PDU_MAX_VBS
 
 #define PDU_MAX_RID 32767         ///< max request id to use
 #define PDU_MIN_RID 1000          ///< min request id to use
@@ -119,7 +108,7 @@ class DLLOPT Pdu
    *
    * @param pdu - source pdu object
    */
-  Pdu(const Pdu &pdu) : vb_count(0) { *this = pdu; };
+  Pdu(const Pdu &pdu) : vbs(0), vbs_size(0), vb_count(0) { *this = pdu; };
 
   /**
    * Destructor
@@ -161,7 +150,7 @@ class DLLOPT Pdu
    *
    * @return TRUE on success
    */
-  int get_vblist(Vb* pvbs, const int pvb_count);
+  int get_vblist(Vb* pvbs, const int pvb_count) const;
 
   /**
    * Deposit all Vbs to Pdu.
@@ -218,6 +207,15 @@ class DLLOPT Pdu
   int get_vb_count() const { return vb_count; };
 
   /**
+   * Get a Vb.
+   *
+   * @note The index has to be checked by the caller.
+   *
+   * @param i zero based index
+   */
+  Vb& operator[](const int i) { return *vbs[i]; };
+
+  /**
    * Get the error status.
    *
    * @return The SNMP error status
@@ -227,7 +225,7 @@ class DLLOPT Pdu
   /**
    * Set the error status.
    *
-   * @param err - The SNMP error status.
+   * @param err - The new SNMP error status.
    */
   void set_error_status(const int err) {  error_status = err; };
 
@@ -246,14 +244,19 @@ class DLLOPT Pdu
   /**
    * Set the error index.
    *
-   * @param err - The SNMP error index.
+   * @param err - The new SNMP error index.
    */
-  void set_error_index(const int err) { error_index = err; };
+  void set_error_index(const int index) { error_index = index; };
 
   /**
    * Clear the error index.
    */
   void clear_error_index() { error_index = 0; };
+
+  /**
+   * Clear error status and error index.
+   */
+  void clear_error() { set_error_status(0); set_error_index(0); }
 
   /**
    * Get the request id.
@@ -265,7 +268,7 @@ class DLLOPT Pdu
   /**
    * Set the request id.
    *
-   * @param rid - The SNMP request id
+   * @param rid - The new SNMP request id
    */
   void set_request_id(const unsigned long rid) { request_id = rid; };
 
@@ -365,21 +368,24 @@ class DLLOPT Pdu
    *
    * @param name - The context name
    */
-  void set_context_name(const OctetStr &name) { context_name = name; };
+  bool set_context_name(const OctetStr &name)
+    { context_name = name; return (context_name.valid() && name.valid()); };
 
   /**
    * Set the context name of the Pdu.
    *
    * @param name - The context name
    */
-  void set_context_name(const char * name) { context_name = name; };
+  bool set_context_name(const char *name)
+    { context_name = name; return context_name.valid(); };
 
   /**
    * Get the context name of the Pdu.
    *
    * @param name - Object fot the context name
    */
-  void get_context_name(OctetStr &name) const { name = context_name; };
+  bool get_context_name(OctetStr &name) const
+    { name = context_name; return (context_name.valid() && name.valid()); };
 
   /**
    * Get the context name of the Pdu.
@@ -393,21 +399,24 @@ class DLLOPT Pdu
    *
    * @param id - The new context engine id
    */
-  void set_context_engine_id(const OctetStr &id) { context_engine_id = id; };
+  bool set_context_engine_id(const OctetStr &id) { context_engine_id = id;
+    return (context_engine_id.valid() && id.valid()); };
 
   /**
    * Set the context engine id of the Pdu.
    *
    * @param id - The new context engine id
    */
-  void set_context_engine_id(const char *id) { context_engine_id = id; };
+  bool set_context_engine_id(const char *id)
+    { context_engine_id = id; return context_engine_id.valid(); };
 
   /**
    * Get the context engine id of the Pdu.
    *
    * @param id - Object for the context engine
    */
-  void get_context_engine_id(OctetStr &id) const { id = context_engine_id; };
+  bool get_context_engine_id(OctetStr &id) const { id = context_engine_id;
+    return (context_engine_id.valid() && id.valid()); };
 
   /**
    * Get the context engine id of the Pdu.
@@ -466,7 +475,7 @@ class DLLOPT Pdu
   int get_asn1_length() const;
 
   /**
-   * Clear all members of the object.
+   * Clear the Pdu contents (destruct and construct in one go)
    */
   void clear();
 
@@ -475,9 +484,18 @@ class DLLOPT Pdu
    */
   static bool match_type(const int request, const int response);
 
-  //-------------[ protected instance variables ]--------------------------
+  //-------------[ protected members ]--------------------------
  protected:
-  Vb *vbs[PDU_MAX_VBS];        // pointer to array of Vbs
+
+  /**
+   * Extend the vbs array.
+   *
+   * @return true on success
+   */
+  bool extend_vbs();
+
+  Vb **vbs;                    // pointer to array of Vbs
+  int vbs_size;                // Size of array
   int vb_count;                // count of Vbs
   int error_status;            // SMI error status
   int error_index;             // SMI error index
@@ -501,19 +519,6 @@ class DLLOPT Pdu
   OctetStr context_engine_id;
 #endif // _SNMPv3
 };
-
-#if 1
-//! deprecated: set the error status
-DLLOPT void set_error_status(Pdu *pdu, const int status);
-//! deprecated: set the error index
-DLLOPT void set_error_index(Pdu *pdu, const int index);
-//! deprecated: clear error status
-DLLOPT void clear_error_status(Pdu *pdu);
-//! deprecated: clear error index
-DLLOPT void clear_error_index(Pdu *pdu);
-//! deprecated: set the request id
-DLLOPT void set_request_id(Pdu *pdu, const unsigned long rid);
-#endif
 
 #ifdef SNMP_PP_NAMESPACE
 }; // end of namespace Snmp_pp

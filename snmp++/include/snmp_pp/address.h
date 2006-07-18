@@ -2,9 +2,9 @@
   _## 
   _##  address.h  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 /*
@@ -46,15 +46,7 @@
 
   ADDRESS CLASS DEFINITION
 
-  DESIGN + AUTHOR:
-  Peter E Mellquist
-
-  LANGUAGE:
-  ANSI C++
-
-  OPERATING SYSTEMS:
-  MS-Windows Win32
-  BSD UNIX
+  DESIGN + AUTHOR:   Peter E Mellquist
 
   DESCRIPTION:
   Address class definition. Encapsulates various network
@@ -69,25 +61,35 @@
 
 //----[ includes ]-----------------------------------------------------
 #include <string.h>
+
+#if defined (CPU) && CPU == PPC603
+#undef HASH1
+#undef HASH2
+#else
 #include <memory.h>
+#endif
 
 #include "snmp_pp/config_snmp_pp.h" // for _IPX_ADDRESS and _MAC_ADDRESS
 #include "snmp_pp/smival.h"
 #include "snmp_pp/collect.h"
+#include "snmp_pp/reentrant.h"
 
 // include sockets header files
 // for Windows16 and Windows32 include Winsock
 // otherwise assume UNIX
-#ifdef __unix
-// The /**/ stuff below is meant to fool MS C++ into skipping these
-// files when creating its makefile.  8-Dec-95 TM
-#ifndef _AIX
-#include /**/ <unistd.h>
+#if defined (CPU) && CPU == PPC603
+#include <inetLib.h>
+#include <hostLib.h>
 #endif
-#include /**/ <sys/socket.h>
-#include /**/ <netinet/in.h>
-#include /**/ <netdb.h>
-#include /**/ <arpa/inet.h>
+
+#ifdef __unix
+#if !defined(_AIX) && !defined(__QNX_NEUTRINO)
+#include <unistd.h>
+#endif
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <arpa/inet.h>
 #if defined _AIX
 #include <strings.h> // This is needed for FD_SET, bzero
 #endif
@@ -109,7 +111,7 @@ namespace Snmp_pp {
 #endif
 
 //----[ macros ]-------------------------------------------------------
-#define BUFSIZE 40     // worst case of address lens
+#define ADDRBUF 40     // worst case of address lens
 #define OUTBUFF 80     // worst case of output lens
 
 #define IPLEN      4
@@ -239,7 +241,7 @@ class DLLOPT Address : public SnmpSyntax
    */
   unsigned char& operator[](const int position)
     { addr_changed = true; valid_flag = true;
-      return (position < BUFSIZE) ? address_buffer[position]
+      return (position < ADDRBUF) ? address_buffer[position]
                                   : address_buffer[0]; };
 
   /**
@@ -250,7 +252,7 @@ class DLLOPT Address : public SnmpSyntax
    * @return the byte at the given position
    */
   unsigned char operator[](const int position) const
-    { return (position < BUFSIZE) ? address_buffer[ position] : 0; }
+    { return (position < ADDRBUF) ? address_buffer[ position] : 0; }
 
 
   /**
@@ -273,9 +275,9 @@ class DLLOPT Address : public SnmpSyntax
   virtual unsigned int hashFunction() const { return 0;};
 
  protected:
-  bool addr_changed;
+  SNMP_PP_MUTABLE bool addr_changed;
   bool valid_flag;
-  unsigned char address_buffer[BUFSIZE]; // internal representation
+  unsigned char address_buffer[ADDRBUF]; // internal representation
 
   // parse the address string
   // redefined for each specific address subclass
@@ -301,6 +303,13 @@ class DLLOPT Address : public SnmpSyntax
    * Reset the object.
    */
   void clear();
+
+#if !defined HAVE_GETHOSTBYNAME_R || !defined HAVE_GETHOSTBYADDR_R || !defined HAVE_REENTRANT_GETHOSTBYNAME || !defined HAVE_REENTRANT_GETHOSTBYADDR
+#ifdef _THREADS
+  static SnmpSynchronized syscall_mutex;
+#endif
+#endif
+
 };
 
 
@@ -400,6 +409,14 @@ class DLLOPT IpAddress : public Address
    */
   void mask(const IpAddress &ipaddr);
 
+
+  /**
+   * Get the count of matching bits from the left.
+   *
+   * @param match_ip - address to match with
+   */
+  int get_match_bits(const IpAddress match_ip) const;
+
   /**
    * Get the length of the binary address (accessible through operator[]).
    */
@@ -446,7 +463,7 @@ class DLLOPT IpAddress : public Address
   void clear();
 
  protected:
-  char output_buffer[OUTBUFF];           // output buffer
+  SNMP_PP_MUTABLE char output_buffer[OUTBUFF];           // output buffer
 
   // friendly name storage
   char iv_friendly_name[MAX_FRIENDLY_NAME];
@@ -623,7 +640,7 @@ class DLLOPT UdpAddress : public IpAddress
     { Address::clear(); memset(output_buffer, 0, sizeof(output_buffer)); };
 
  protected:
-  char output_buffer[OUTBUFF];           // output buffer
+  SNMP_PP_MUTABLE char output_buffer[OUTBUFF];           // output buffer
   char sep;                              // separator
 
   // redefined parse address
@@ -722,7 +739,7 @@ public:
     { Address::clear(); memset(output_buffer, 0, sizeof(output_buffer)); };
 
  protected:
-  char output_buffer[OUTBUFF];           // output buffer
+  SNMP_PP_MUTABLE char output_buffer[OUTBUFF];           // output buffer
 
   // redefined parse address for macs
   virtual bool parse_address(const char *inaddr);
@@ -823,7 +840,7 @@ public:
  protected:
   // ipx format separator
   char separator;
-  char output_buffer[OUTBUFF];           // output buffer
+  SNMP_PP_MUTABLE char output_buffer[OUTBUFF];           // output buffer
 
   // redefined parse address for ipx strings
   virtual bool parse_address(const char  *inaddr);
@@ -925,7 +942,7 @@ public:
     { Address::clear(); memset(output_buffer, 0, sizeof(output_buffer)); };
 
  protected:
-  char output_buffer[OUTBUFF];           // output buffer
+  SNMP_PP_MUTABLE char output_buffer[OUTBUFF];           // output buffer
 
   // redefined parse address for ipx strings
   virtual bool parse_address(const char  *inaddr);
@@ -1116,6 +1133,12 @@ protected:
    */
   virtual bool is_gen_address() const { return true; };
 };
+
+#if !defined (DLLOPT_TEMPL_ADDRESSCOLLECTION)
+#define DLLOPT_TEMPL_ADDRESSCOLLECTION
+//	DLLOPT_TEMPL template class DLLOPT SnmpCollection<GenAddress>;
+//	DLLOPT_TEMPL template class DLLOPT SnmpCollection<UdpAddress>;
+#endif
 
 // create AddressCollection type
 typedef SnmpCollection <GenAddress> AddressCollection;

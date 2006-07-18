@@ -2,9 +2,9 @@
   _## 
   _##  eventlistholder.h  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 
@@ -35,8 +35,6 @@
 #include "snmp_pp/snmperrs.h"
 #include "snmp_pp/eventlist.h"
 #include "snmp_pp/reentrant.h"
-#include "snmp_pp/usertimeout.h"
-#include "snmp_pp/userdefined.h"
 
 #ifdef SNMP_PP_NAMESPACE
 namespace Snmp_pp {
@@ -44,47 +42,20 @@ namespace Snmp_pp {
 
 class CSNMPMessageQueue;
 class CNotifyEventQueue;
-class CUDEventQueue;
-class CUTEventQueue;
 class Pdu;
 class v3MP;
 class Snmp;
 
 typedef unsigned long Uint32;
 
-//------------[ if using X11... ]
-#ifdef SNMPX11
-#include <X11/Intrinsic.h>
-#define TIMER_NOT_SET ((unsigned long) -1)
-#define CONTEXT_NOT_SET ((XtAppContext) NULL)
-
-void SnmpX11TimerCallback(XtPointer client_data, XtIntervalId *id);
-void SnmpX11InputCallback(XtPointer client_data, int *source, XtInputId *id);
-int SNMPX11Initialize(const XtAppContext app_context);
-
-#endif // SNMPX11
-
 class DLLOPT EventListHolder
 {
  public:
   EventListHolder(Snmp *snmp_session);
-  ~EventListHolder();
+  ~EventListHolder() {};
 
   CSNMPMessageQueue *&snmpEventList()   { return m_snmpMessageQueue; };
   CNotifyEventQueue *&notifyEventList() { return m_notifyEventQueue; };
-#ifdef _USER_DEFINED_EVENTS
-  CUDEventQueue     *&udEventList()     { return m_udEventQueue;     };
-#endif
-#ifdef _USER_DEFINED_TIMEOUTS
-  CUTEventQueue     *&utEventList()     { return m_utEventQueue;     };
-#endif
-
-#ifdef SNMPX11
-  // these are not user-callable functions
-  int SnmpX11AddInput(int inputFd, XtInputId &inputId);
-  int SnmpX11RemoveInput(XtInputId &inputId);
-  void SnmpX11SetTimer();
-#endif // SNMPX11
 
   Uint32 SNMPGetNextTimeout();
 
@@ -127,33 +98,10 @@ class DLLOPT EventListHolder
   int SNMPBlockForResponse(const unsigned long req_id,
 			   Pdu &    pdu);
 
-  //--------[ usertimeout ]---------------------------------------------------
-#ifdef _USER_DEFINED_TIMEOUTS
-  UtId SNMPAddTimeOut(const unsigned long interval,
-		      const ut_callback callBack,
-		      const void * callData);
-  void SNMPRemoveTimeOut(const UtId utId) { m_utEventQueue->DeleteEntry(utId);};
-#endif
-
-//--------[ userdefined ]---------------------------------------------------
-#ifdef _USER_DEFINED_EVENTS
-  UdId SNMPAddInput(const int source,
-		    const UdInputMask condition,
-		    const ud_callback callBack,
-		    const void * callData);
-  void SNMPRemoveInput(const UdId udId) { m_udEventQueue->DeleteEntry(udId); };
-#endif
-
  private:
 
   CSNMPMessageQueue *m_snmpMessageQueue;  // contains all outstanding messages
   CNotifyEventQueue *m_notifyEventQueue; // contains all sessions waiting for notifications
-#ifdef _USER_DEFINED_EVENTS
-  CUDEventQueue     *m_udEventQueue;  // contains all user-defined events
-#endif
-#ifdef _USER_DEFINED_TMEOUTS
-  CUTEventQueue     *m_utEventQueue;  // contains all user-defined timeouts
-#endif
   CEventList   m_eventList;  // contains all expected events
 
   SnmpSynchronized      pevents_mutex;

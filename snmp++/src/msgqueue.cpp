@@ -2,9 +2,9 @@
   _## 
   _##  msgqueue.cpp  
   _##
-  _##  SNMP++v3.2.14
+  _##  SNMP++v3.2.21
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2004 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Tue Sep  7 21:25:32 CEST 2004 
+  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -47,18 +47,11 @@
       MSG QUEUE CLASS DECLARATION
 
 
-      Description:
-	HPUX version of Snmp class
+      Description:	HPUX version of Snmp class
 
-      Language:
-	ANSI C++
+      Language:         ANSI C++
 
-      Modules Used:
-	- Optional, X-Windows Motif
-
-      Author:
-	Peter E Mellquist
-	HP RND R & D
+      Author:           Peter E Mellquist
 
 =====================================================================*/
 char msgqueue_version[]="#(@) SNMP++ $Id$";
@@ -67,10 +60,10 @@ char msgqueue_version[]="#(@) SNMP++ $Id$";
 
 //----[ snmp++ includes ]----------------------------------------------
 
-#include "snmp_pp/msgqueue.h"		// queue for holding outstanding messages
+#include "snmp_pp/msgqueue.h"	// queue for holding outstanding messages
 #include "snmp_pp/snmpmsg.h"
 #include "snmp_pp/eventlistholder.h"
-#include "snmp_pp/v3.h"
+#include "snmp_pp/log.h"
 #include "snmp_pp/vb.h"
 
 #ifdef SNMP_PP_NAMESPACE
@@ -81,9 +74,9 @@ namespace Snmp_pp {
 #define SNMP_PORT 161
 
 //--------[ externs ]---------------------------------------------------
-extern int send_snmp_request( int sock, unsigned char *send_buf,
+extern int send_snmp_request(SnmpSocket sock, unsigned char *send_buf,
 			      size_t send_len, Address &address);
-extern int receive_snmp_response(int sock, Snmp &snmp_session,
+extern int receive_snmp_response(SnmpSocket sock, Snmp &snmp_session,
                                  Pdu &pdu, UdpAddress &fromaddress,
 				 bool process_msg = true);
 
@@ -91,7 +84,7 @@ extern int receive_snmp_response(int sock, Snmp &snmp_session,
 
 CSNMPMessage::CSNMPMessage(unsigned long id,
 			   Snmp * snmp,
-			   int socket,
+			   SnmpSocket socket,
 			   const SnmpTarget &target,
 			   Pdu &pdu,
 			   unsigned char * rawPdu,
@@ -140,20 +133,33 @@ int CSNMPMessage::SetPdu(const int reason, const Pdu &pdu,
 {
   if (Pdu::match_type(m_pdu.get_type(), pdu.get_type()) == false)
   {
-    debugprintf(10, "Response type does not match. Ignore it.");
+    LOG_BEGIN(INFO_LOG | 1);
+    LOG("MsgQueue: Response pdu type does not match, pdu is ignored: (id) (type1) (type2)");
+    LOG(m_uniqueId);
+    LOG(m_pdu.get_type());
+    LOG(pdu.get_type());
+    LOG_END;
+
     return -1;
   }
 
   unsigned short orig_type = m_pdu.get_type();
   if (m_received)
   {
-    debugprintf(1, "SetPdu[%s:%i]: Warning: Message is already marked as"
-                   " received.", __FILE__ , __LINE__);
-    debugprintf(4, "Old reason (%i) m_reason (%i)", reason, m_reason);
+    LOG_BEGIN(WARNING_LOG | 1);
+    LOG("MsgQueue: Message is already marked as received (id) (reason) (new reason)");
+    LOG(m_uniqueId);
+    LOG(reason);
+    LOG(m_reason);
+    LOG_END;
+
     // TODO: better check based on error codes
     if (reason || !m_reason)
     {
-      debugprintf(1, "ignoring the second pdu");
+      LOG_BEGIN(WARNING_LOG | 1);
+      LOG("MsgQueue: ignoring the second pdu");
+      LOG_END;
+
       return 0;
     }
   }
@@ -237,18 +243,18 @@ CSNMPMessageQueue::CSNMPMessageQueueElt::CSNMPMessageQueueElt(
                                            CSNMPMessage *message,
 					   CSNMPMessageQueueElt *next,
 					   CSNMPMessageQueueElt *previous):
-  m_message(message), m_next(next), m_previous(previous)
+  m_message(message), m_Next(next), m_previous(previous)
 {
   /* Finish insertion into doubly linked list */
-  if (m_next)     m_next->m_previous = this;
-  if (m_previous) m_previous->m_next = this;
+  if (m_Next)     m_Next->m_previous = this;
+  if (m_previous) m_previous->m_Next = this;
 }
 
 CSNMPMessageQueue::CSNMPMessageQueueElt::~CSNMPMessageQueueElt()
 {
   /* Do deletion form doubly linked list */
-  if (m_next)     m_next->m_previous = m_previous;
-  if (m_previous) m_previous->m_next = m_next;
+  if (m_Next)     m_Next->m_previous = m_previous;
+  if (m_previous) m_previous->m_Next = m_Next;
   if (m_message)  delete m_message;
 }
 
@@ -287,7 +293,7 @@ CSNMPMessageQueue::~CSNMPMessageQueue()
 
 CSNMPMessage * CSNMPMessageQueue::AddEntry(unsigned long id,
 					   Snmp * snmp,
-					   int socket,
+					   SnmpSocket socket,
 					   const SnmpTarget &target,
 					   Pdu &pdu,
 					   unsigned char * rawPdu,
@@ -298,7 +304,9 @@ CSNMPMessage * CSNMPMessageQueue::AddEntry(unsigned long id,
 {
   if (snmp != m_snmpSession)
   {
-    debugprintf(0, "WARNING: Adding message for other Snmp object");
+    LOG_BEGIN(WARNING_LOG | 1);
+    LOG("MsgQueue: WARNING: Adding message for other Snmp object.");
+    LOG_END;
   }
 
   CSNMPMessage *newMsg = new CSNMPMessage(id, snmp, socket, target, pdu,
@@ -311,9 +319,6 @@ CSNMPMessage * CSNMPMessageQueue::AddEntry(unsigned long id,
     /*---------------------------------------------------------*/
   (void) new CSNMPMessageQueueElt(newMsg, m_head.GetNext(), &m_head);
   ++m_msgCount;
-#ifdef SNMPX11
-  my_holder->SnmpX11SetTimer();
-#endif
   unlock();
   return newMsg;
 }
@@ -340,9 +345,6 @@ int CSNMPMessageQueue::DeleteEntry(const unsigned long uniqueId)
     if (msgEltPtr->TestId(uniqueId)) {
       delete msgEltPtr;
       m_msgCount--;
-#ifdef SNMPX11
-      my_holder->SnmpX11SetTimer();
-#endif
       return SNMP_CLASS_SUCCESS;
     }
     msgEltPtr = msgEltPtr->GetNext();
@@ -350,7 +352,8 @@ int CSNMPMessageQueue::DeleteEntry(const unsigned long uniqueId)
   return SNMP_CLASS_INVALID_REQID;
 }
 
-void CSNMPMessageQueue::DeleteSocketEntry(const int socket) REENTRANT ({
+void CSNMPMessageQueue::DeleteSocketEntry(const SnmpSocket socket)
+REENTRANT({
   CSNMPMessageQueueElt *msgEltPtr = m_head.GetNext();
   CSNMPMessageQueueElt *tmp_msgEltPtr;
   CSNMPMessage *msg = NULL;
@@ -410,13 +413,13 @@ int CSNMPMessageQueue::GetNextTimeout(msec &sendTime)
 void CSNMPMessageQueue::GetFdSets(int &maxfds, fd_set &readfds,
 				  fd_set &, fd_set &) REENTRANT ({
   CSNMPMessageQueueElt *msgEltPtr = m_head.GetNext();
-  int sock;
+  SnmpSocket sock;
 
   while (msgEltPtr){
     sock = msgEltPtr->GetMessage()->GetSocket();
     FD_SET(sock, &readfds);
-    if (maxfds < (sock+1))
-      maxfds = sock+1;
+    if (maxfds < sock+1)
+      maxfds = SAFE_INT_CAST(sock+1);
     msgEltPtr = msgEltPtr->GetNext();
   }
 })
@@ -552,8 +555,11 @@ int CSNMPMessageQueue::DoRetries(const msec &now)
 	  // delete entry in cache
 	  if (v3MP::I)
 	    v3MP::I->delete_from_cache(req_id);
-	  debugprintf(8, "DoRetries, called v3MP::delete_from_cache"
-		      " due to timeout");
+
+          LOG_BEGIN(INFO_LOG | 6);
+          LOG("MsgQueue: Message timed out, removed id from v3MP cache (rid)");
+          LOG(req_id);
+          LOG_END;
 #endif
 	}
 	else {
