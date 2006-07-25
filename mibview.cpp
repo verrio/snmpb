@@ -146,9 +146,9 @@ void BasicMibView::contextMenuEvent ( QContextMenuEvent *)
     QLabel *caption = new QLabel( "<font color=darkblue><b>Operations</b></font>", this );
     caption->setAlignment( Qt::AlignCenter );
     contextMenu->insertItem( caption->text() );
-    contextMenu->insertItem( qPixmapFromMimeSource( "expand.png" ), 
+    contextMenu->insertItem( qPixmapFromMimeSource( "images/expand.png" ), 
                              "&Expand", this, SLOT(ExpandFromNode()));
-    contextMenu->insertItem( qPixmapFromMimeSource( "collapse.png" ), 
+    contextMenu->insertItem( qPixmapFromMimeSource( "images/collapse.png" ), 
                              "&Collapse", this, SLOT(CollapseFromNode()));
     
     contextMenu->exec( QCursor::pos() );
@@ -249,9 +249,9 @@ void MibView::contextMenuEvent ( QContextMenuEvent *)
     QLabel *caption = new QLabel( "<font color=darkblue><b>Operations</b></font>", this );
     caption->setAlignment( Qt::AlignCenter );
     contextMenu->insertItem( caption->text() );
-    contextMenu->insertItem( qPixmapFromMimeSource( "expand.png" ), 
+    contextMenu->insertItem( qPixmapFromMimeSource( "images/expand.png" ), 
                              "&Expand", this, SLOT(ExpandFromNode()));
-    contextMenu->insertItem( qPixmapFromMimeSource( "collapse.png" ), 
+    contextMenu->insertItem( qPixmapFromMimeSource( "images/collapse.png" ), 
                              "&Collapse", this, SLOT(CollapseFromNode()));
     contextMenu->insertSeparator();
     contextMenu->insertItem("&Walk", this, SLOT(WalkFromNode()));
