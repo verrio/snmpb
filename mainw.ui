@@ -1252,7 +1252,7 @@
                   <widget class="QComboBox" name="GraphName" >
                    <property name="sizePolicy" >
                     <sizepolicy>
-                     <hsizetype>2</hsizetype>
+                     <hsizetype>7</hsizetype>
                      <vsizetype>0</vsizetype>
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
