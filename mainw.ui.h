@@ -8,10 +8,11 @@
 *****************************************************************************/
 
 #include "mibview.h"
+#include "ui_mainw.h"
 
 void MainW::HorizontalSplit(bool value)
 {
-    QuerySplitter->setOrientation(value==FALSE?QSplitter::Horizontal:QSplitter::Vertical);
+    QuerySplitter->setOrientation(value==FALSE?Qt::Horizontal:Qt::Vertical);
 }
 
 void MainW::TreeTabSelected( const QString &Name )

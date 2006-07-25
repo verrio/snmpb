@@ -1,33 +1,38 @@
 #ifndef MIBVIEW_H
 #define MIBVIEW_H
 
-#include <qlistview.h>
-#include <qscrollview.h>
+#include <q3listview.h>
+#include <q3scrollview.h>
 #include <qstring.h>
 #include <qfile.h>
 #include <qfileinfo.h>
 #include <qtimer.h>
 #include <qpixmap.h>
-#include <qheader.h> 
+#include <q3header.h> 
+//Added by qt3to4:
+#include <Q3StrList>
+#include <QContextMenuEvent>
+#include <Q3PtrList>
 
 #include "mibnode.h"
 #include "smi.h"
 
-class BasicMibView : public QListView
+class BasicMibView : public Q3ListView
 {
     Q_OBJECT
     
 public:
-    BasicMibView ( QWidget * parent = 0, const char * name = 0, WFlags f = 0 );
+    BasicMibView ( QWidget * parent = 0, const char * name = 0, Qt::WFlags f = 0 );
     void Populate (void);
     void SetDirty(void);
+    void TreeTabSelected(int index);
     
 protected slots:
-    void ExpandNode( QListViewItem * item);
-    void CollapseNode( QListViewItem * item);
+    void ExpandNode( Q3ListViewItem * item);
+    void CollapseNode( Q3ListViewItem * item);
     void ExpandFromNode(void);
     void CollapseFromNode(void);
-    virtual void SelectedNode( QListViewItem * item);
+    virtual void SelectedNode( Q3ListViewItem * item);
 
 signals:
     void SelectedOid(const QString& oid);
@@ -44,10 +49,10 @@ class MibView : public BasicMibView
     Q_OBJECT
     
 public:
-    MibView ( QWidget * parent = 0, const char * name = 0, WFlags f = 0 );
+    MibView ( QWidget * parent = 0, const char * name = 0, Qt::WFlags f = 0 );
     
 protected slots:
-    void SelectedNode( QListViewItem * item);
+    void SelectedNode( Q3ListViewItem * item);
     void WalkFromNode(void);
     void GetFromNode(void);
     void GetNextFromNode(void);
@@ -72,7 +77,7 @@ class MibViewLoader
 {
 public:
     MibViewLoader();
-    void Load (QStrList &);
+    void Load (Q3StrList &);
     MibNode *PopulateSubTree (SmiNode *smiNode, MibNode *parent, MibNode *sibling);    
     void RegisterView(BasicMibView* view);
     
@@ -86,7 +91,7 @@ private:
     int ignoreconformance;
     int ignoreleafs;
     
-    QPtrList<BasicMibView> views;
+    Q3PtrList<BasicMibView> views;
 };
 
 extern MibViewLoader MibLoader;

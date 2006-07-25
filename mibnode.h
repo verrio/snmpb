@@ -1,8 +1,8 @@
 #ifndef MIBNODE_H
 #define MIBNODE_H
 
-#include <qlistview.h>
-#include <qstylesheet.h>
+#include <q3listview.h>
+#include <q3stylesheet.h>
 #include <qstring.h>
 #include <qfile.h>
 #include <qfileinfo.h>
@@ -11,7 +11,7 @@
 
 #include "smi.h"
 
-class MibNode : public QListViewItem
+class MibNode : public Q3ListViewItem
 {
 public:
     enum MibType 
@@ -28,7 +28,7 @@ public:
     };
     
     MibNode(enum MibType mibtype, SmiNode* node, MibNode* parent, MibNode * sibling = NULL);
-    MibNode(QString label, QListView * parent);
+    MibNode(QString label, Q3ListView * parent);
 
     void SetPixmap(bool isOpened);
     void PrintProperties(QString& text);

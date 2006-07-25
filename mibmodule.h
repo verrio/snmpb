@@ -1,9 +1,12 @@
 #ifndef MIBMODULE_H
 #define MIBMODULE_H
 
-#include "mainw.h"
+#include "ui_mainw.h"
 #include "mibview.h"
 #include "smi.h"
+//Added by qt3to4:
+#include <Q3StrList>
+#include <Q3PtrList>
 
 class LoadedMibModule
 {
@@ -17,13 +20,13 @@ public:
     SmiModule *module;
 };
 
-class LoadedModule: public QPtrList<LoadedMibModule>
+class LoadedModule: public Q3PtrList<LoadedMibModule>
 {
 public:
     LoadedModule() { setAutoDelete(TRUE); }
     
 protected:
-    int compareItems ( QPtrCollection::Item item1, QPtrCollection::Item item2 )
+    int compareItems ( Q3PtrCollection::Item item1, Q3PtrCollection::Item item2 )
     {
 	return (strcmp(((LoadedMibModule*)item1)->name.latin1(), 
 		        ((LoadedMibModule*)item2)->name.latin1()));
@@ -35,7 +38,7 @@ class MibModule: public QObject
     Q_OBJECT
     
 public:
-    MibModule(QTextEdit *MI, QListView *AM, QListView *LM);
+    MibModule(Q3TextEdit *MI, Q3ListView *AM, Q3ListView *LM);
     void Refresh(void);
 
 public slots:
@@ -53,14 +56,14 @@ private:
     void RebuildUnloadedList(void);
     
 private:
-    QStrList Unloaded;
+    Q3StrList Unloaded;
     LoadedModule Loaded;
-    QStrList Total;
-    QStrList Wanted;
+    Q3StrList Total;
+    Q3StrList Wanted;
     
-    QTextEdit *ModuleInfo;
-    QListView *UnloadedM;
-    QListView *LoadedM;
+    Q3TextEdit *ModuleInfo;
+    Q3ListView *UnloadedM;
+    Q3ListView *LoadedM;
 };
 
 #endif /* MIBMODULE_H */

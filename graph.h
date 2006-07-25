@@ -6,6 +6,10 @@
 #include <qcombobox.h>
 #include <qtabwidget.h>
 #include <qwt_plot.h>
+//Added by qt3to4:
+#include <QTimerEvent>
+#include <Q3PtrList>
+#include <q3combobox.h>
 #include "mibview.h"
 
 #define NUM_PLOT_PER_GRAPH 10
@@ -32,22 +36,24 @@ private:
     
     struct
     {
-        long key;
+#if 0 //TODO
+        QwtPlotCurve key;
+#endif
         QString name;
         double data[PLOT_HISTORY];
     } curves[NUM_PLOT_PER_GRAPH];
 };
 
-class GraphItemList: public QPtrList<GraphItem>
+class GraphItemList: public Q3PtrList<GraphItem>
 {
 public:
     GraphItemList() { setAutoDelete(TRUE); }
     
 protected:
-    int compareItems ( QPtrCollection::Item item1, QPtrCollection::Item item2 )
+    int compareItems ( Q3PtrCollection::Item item1, Q3PtrCollection::Item item2 )
     {
-	    return (strcmp(((GraphItem*)item1)->title().latin1(),
-		        ((GraphItem*)item2)->title().latin1()));
+	    return (strcmp(((GraphItem*)item1)->title().text().toLatin1(),
+		        ((GraphItem*)item2)->title().text().toLatin1()));
     }
 };
 

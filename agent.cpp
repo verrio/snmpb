@@ -1,4 +1,5 @@
 #include <qmessagebox.h>
+#include <QDate>
 
 #include "mibview.h"
 #include "agent.h"
@@ -46,7 +47,7 @@ Agent::Agent(QComboBox* UN, QComboBox* SL, QLineEdit* CN,
              QRadioButton* v1, QRadioButton* v2, QRadioButton* v3,
              QLineEdit* RC, QLineEdit* WC, 
              QPushButton* DU, QPushButton* AU, QPushButton* SU,
-             MibView* MV, QTextEdit* Q, Trap* TR)
+             MibView* MV, Q3TextEdit* Q, Trap* TR)
 {
     // Save all widget pointers in this class ... (ugly, I know ...)
     UserName = UN;
@@ -107,7 +108,7 @@ Agent::Agent(QComboBox* UN, QComboBox* SL, QLineEdit* CN,
         QString err = QString("Error loading snmpEngineBoots counter: %1\n")
                       .arg(status);
         QMessageBox::warning ( NULL, "SnmpB", err, 
-                               QMessageBox::Ok, QMessageBox::NoButton);
+                               QMessageBox::Ok, Qt::NoButton);
     }
     
     // increase the boot counter
@@ -120,7 +121,7 @@ Agent::Agent(QComboBox* UN, QComboBox* SL, QLineEdit* CN,
         QString err = QString("Error saving snmpEngineBoots counter: %1\n")
                       .arg(status);
         QMessageBox::warning ( NULL, "SnmpB", err, 
-                               QMessageBox::Ok, QMessageBox::NoButton);
+                               QMessageBox::Ok, Qt::NoButton);
     }
     
     // Create our SNMP session object
@@ -130,7 +131,7 @@ Agent::Agent(QComboBox* UN, QComboBox* SL, QLineEdit* CN,
         QString err = QString("Could not create SNMP++ session:\n")
                       .arg(Snmp::error_msg(status));
         QMessageBox::warning ( NULL, "SnmpB", err, 
-                               QMessageBox::Ok, QMessageBox::NoButton);
+                               QMessageBox::Ok, Qt::NoButton);
     }
     
     // If _SNMPv3 is enabled we MUST create ONE v3MP object!
@@ -140,7 +141,7 @@ Agent::Agent(QComboBox* UN, QComboBox* SL, QLineEdit* CN,
         QString err = QString("Could not create v3MP object:\n")
                       .arg(Snmp::error_msg(status));
         QMessageBox::warning ( NULL, "SnmpB", err, 
-                               QMessageBox::Ok, QMessageBox::NoButton);
+                               QMessageBox::Ok, Qt::NoButton);
     }
     
     // The v3MP creates a USM object, get the pointer to it
@@ -151,7 +152,7 @@ Agent::Agent(QComboBox* UN, QComboBox* SL, QLineEdit* CN,
     {
         QString err = QString("Could not load users from file.");
         QMessageBox::warning ( NULL, "SnmpB", err, 
-                               QMessageBox::Ok, QMessageBox::NoButton);
+                               QMessageBox::Ok, Qt::NoButton);
     }
     
     // Bind on the SNMP trap port
@@ -166,7 +167,7 @@ Agent::Agent(QComboBox* UN, QComboBox* SL, QLineEdit* CN,
         QString err = QString("Could not bind on trap port %1:\n%2\n")
                       .arg(TRAP_PORT).arg(Snmp::error_msg(status));
         QMessageBox::warning ( NULL, "SnmpB", err,
-                               QMessageBox::Ok, QMessageBox::NoButton);
+                               QMessageBox::Ok, Qt::NoButton);
         return;
     }
 
@@ -197,7 +198,7 @@ int Agent::Setup(const QString& oid, SnmpTarget **t, Pdu **p)
         QString err = QString("Invalid Address or DNS Name: %1\n")
                       .arg(Address->currentText());
         QMessageBox::warning ( NULL, "SnmpB", err, 
-                               QMessageBox::Ok, QMessageBox::NoButton);
+                               QMessageBox::Ok, Qt::NoButton);
         return -1;
     }
     
@@ -365,7 +366,7 @@ void Agent::AsyncCallbackTrap(int reason, Pdu &pdu, SnmpTarget &target)
     UdpAddress agentUDP(addr);
     
     char buf[10];
-    sprintf(buf, "%.4u", nbr);
+    sprintf(buf, "%.4lu", nbr);
     no = QString("%1").arg(buf);
     date = QDate::currentDate().toString(Qt::ISODate);
     time = QTime::currentTime().toString(Qt::ISODate);  

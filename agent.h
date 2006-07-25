@@ -4,10 +4,10 @@
 #include <qpushbutton.h>
 #include <qwidget.h>
 #include <qlabel.h>
-#include <qtextedit.h>
+#include <q3textedit.h>
 #include <qcombobox.h>
 #include <qlineedit.h>
-#include <qbuttongroup.h>
+#include <q3buttongroup.h>
 #include <qspinbox.h>
 #include <qradiobutton.h>
 #include <qtimer.h>
@@ -28,7 +28,7 @@ public:
           QRadioButton* v1, QRadioButton* v2, QRadioButton* v3,
           QLineEdit* RC, QLineEdit* WC, 
           QPushButton* DU, QPushButton* AU, QPushButton* SU,
-          MibView* MV, QTextEdit* Q, Trap* TR);
+          MibView* MV, Q3TextEdit* Q, Trap* TR);
     void AsyncCallback(int reason, Pdu &pdu, 
                        SnmpTarget &target, int iswalk);
     void AsyncCallbackTrap(int reason, Pdu &pdu, SnmpTarget &target);
@@ -73,7 +73,7 @@ private:
     QPushButton* DeleteUser;
     QPushButton* AddUser;
     QPushButton* SaveUser;
-    QTextEdit* Query;
+    Q3TextEdit* Query;
     Trap* Tr;
     
     Snmp *snmp;

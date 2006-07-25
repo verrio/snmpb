@@ -1,6 +1,8 @@
 #include "mibnode.h"
+//Added by qt3to4:
+#include <q3mimefactory.h>
 
-MibNode::MibNode(enum MibType mibtype, SmiNode *node, MibNode * parent, MibNode * sibling) : QListViewItem(parent, sibling)
+MibNode::MibNode(enum MibType mibtype, SmiNode *node, MibNode * parent, MibNode * sibling) : Q3ListViewItem(parent, sibling)
 {    
     Type = mibtype;
     Node = node;
@@ -8,7 +10,7 @@ MibNode::MibNode(enum MibType mibtype, SmiNode *node, MibNode * parent, MibNode 
     SetPixmap(FALSE);
 }
 
-MibNode::MibNode(QString label, QListView* parent) : QListViewItem(parent, label)
+MibNode::MibNode(QString label, Q3ListView* parent) : Q3ListViewItem(parent, label)
 {
     Type = MIBNODE_NODE;
     Node = NULL;
@@ -20,41 +22,41 @@ void MibNode::SetPixmap(bool isOpened)
     switch(Type)
     {
     case MIBNODE_SCALAR:
-        setPixmap( 0,  QPixmap::fromMimeSource( "scalar.png" ));
+        setPixmap( 0,  qPixmapFromMimeSource( "scalar.png" ));
         break;
     case MIBNODE_COLUMN:
-        setPixmap( 0,  QPixmap::fromMimeSource( "column_item.png" ));
+        setPixmap( 0,  qPixmapFromMimeSource( "column_item.png" ));
         break;
     case MIBNODE_ROW:
        if (isOpened)		
-            setPixmap( 0,  QPixmap::fromMimeSource( "folder_red_open.png" ));
+            setPixmap( 0,  qPixmapFromMimeSource( "folder_red_open.png" ));
         else
-            setPixmap( 0,  QPixmap::fromMimeSource( "folder_red.png" ));
+            setPixmap( 0,  qPixmapFromMimeSource( "folder_red.png" ));
         break;
     case MIBNODE_TABLE:	    
        if (isOpened)		
-            setPixmap( 0,  QPixmap::fromMimeSource( "folder_blue_open.png" ));
+            setPixmap( 0,  qPixmapFromMimeSource( "folder_blue_open.png" ));
         else
-            setPixmap( 0,  QPixmap::fromMimeSource( "folder_blue.png" ));
+            setPixmap( 0,  qPixmapFromMimeSource( "folder_blue.png" ));
         break;
     case MIBNODE_NOTIFICATION:
-        setPixmap( 0,  QPixmap::fromMimeSource( "notification.png" ));
+        setPixmap( 0,  qPixmapFromMimeSource( "notification.png" ));
         break;
     case MIBNODE_GROUP:
-        setPixmap( 0,  QPixmap::fromMimeSource( "group.png" ));
+        setPixmap( 0,  qPixmapFromMimeSource( "group.png" ));
         break;
     case MIBNODE_COMPLIANCE:
-        setPixmap( 0,  QPixmap::fromMimeSource( "compliance.png" ));
+        setPixmap( 0,  qPixmapFromMimeSource( "compliance.png" ));
         break;
     case MIBNODE_CAPABILITIES:
-        setPixmap( 0,  QPixmap::fromMimeSource( "agentcap.png" ));
+        setPixmap( 0,  qPixmapFromMimeSource( "agentcap.png" ));
         break;
     case MIBNODE_NODE:
     default:
         if (isOpened)		
-            setPixmap( 0,  QPixmap::fromMimeSource( "folder_yellow_open.png" ));
+            setPixmap( 0,  qPixmapFromMimeSource( "folder_yellow_open.png" ));
         else
-            setPixmap( 0,  QPixmap::fromMimeSource( "folder_yellow.png" ));
+            setPixmap( 0,  qPixmapFromMimeSource( "folder_yellow.png" ));
     }
 }
 
@@ -255,12 +257,12 @@ void MibNode::PrintProperties(QString& text)
 
        // Add the reference
        text += QString("<tr><td><b>Reference:</b></td><td><font face=fixed size=-1 color=blue>");
-       text += QStyleSheet::convertFromPlainText (Node->reference);
+       text += Q3StyleSheet::convertFromPlainText (Node->reference);
        text += QString("</font></td>>/tr>");
        
        // Add the description
        text += QString("<tr><td><b>Description:</b></td><td><font face=fixed size=-1 color=blue>");
-       text += QStyleSheet::convertFromPlainText (Node->description);
+       text += Q3StyleSheet::convertFromPlainText (Node->description);
        text += QString("</font></td>>/tr>");
 	   
        text += QString("</table>");

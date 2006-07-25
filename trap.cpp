@@ -1,16 +1,16 @@
-#include <qstylesheet.h>
+#include <q3stylesheet.h>
 
 #include "smi.h"
 #include "trap.h"
 #include "agent.h"
 
-TrapItem::TrapItem(Oid &id, QListView* parent, QString no, QString date,
+TrapItem::TrapItem(Oid &id, Q3ListView* parent, QString no, QString date,
                    QString time, QString timestamp,
                    QString nottype, QString msgtype, QString version, 
                    QString agtaddr, QString agtport,
                    QString community, QString seclevel, 
                    QString ctxname, QString ctxid, QString msgid) : 
-                   QListViewItem(parent, no, date, time, timestamp,
+                   Q3ListViewItem(parent, no, date, time, timestamp,
                                  nottype, msgtype, version, agtaddr)
 {
     setText(8, agtport);
@@ -57,25 +57,25 @@ void TrapItem::PrintProperties(QString& text)
 
     // Add the reference
     text += QString("<tr><td><b>Reference:</b></td><td><font face=fixed size=-1 color=blue>");
-    text += QStyleSheet::convertFromPlainText (Node->reference);
+    text += Q3StyleSheet::convertFromPlainText (Node->reference);
     text += QString("</font></td>>/tr>");
        
     // Add the description
     text += QString("<tr><td><b>Description:</b></td><td><font face=fixed size=-1 color=blue>");
-    text += QStyleSheet::convertFromPlainText (Node->description);
+    text += Q3StyleSheet::convertFromPlainText (Node->description);
     text += QString("</font></td>>/tr>");
 	   
     text += QString("</table>");
 }
 
-void TrapItem::PrintContent(QListView* TrapContent)
+void TrapItem::PrintContent(Q3ListView* TrapContent)
 {
     TrapContent->clear();
         
     QString bd_title = QString("Bindings (%1)").arg(content.count());
-    QListViewItem *bd = new QListViewItem(TrapContent, bd_title);
+    Q3ListViewItem *bd = new Q3ListViewItem(TrapContent, bd_title);
     
-    QPtrListIterator<Vb> it( content );
+    Q3PtrListIterator<Vb> it( content );
     Vb *vb;
     Oid id;
     QString bd_val;
@@ -111,13 +111,13 @@ void TrapItem::PrintContent(QListView* TrapContent)
                                            .arg(vb->get_printable_value());
         }
         
-        new QListViewItem(bd, bd_val);
+        new Q3ListViewItem(bd, bd_val);
         ++it;
         i++;
     }
     
     QString com_title = QString("Community: %1").arg(_community);
-    new QListViewItem(TrapContent, com_title);
+    new Q3ListViewItem(TrapContent, com_title);
 }
 
 void TrapItem::AddVarBind(Vb& vb)
@@ -125,7 +125,7 @@ void TrapItem::AddVarBind(Vb& vb)
     content.append(new Vb(vb));
 }
    
-Trap::Trap(QListView* TL, QListView* TC, QTextEdit* TI)
+Trap::Trap(Q3ListView* TL, Q3ListView* TC, Q3TextEdit* TI)
 {
     TrapLog = TL;
     TrapContent = TC;
@@ -134,8 +134,8 @@ Trap::Trap(QListView* TL, QListView* TC, QTextEdit* TI)
     TrapContent->header()->hide();
     TrapContent->setSortColumn(-1);
 
-    connect( TrapLog, SIGNAL( currentChanged( QListViewItem * ) ),
-             this, SLOT( SelectedTrap( QListViewItem * ) ) );
+    connect( TrapLog, SIGNAL( currentChanged( Q3ListViewItem * ) ),
+             this, SLOT( SelectedTrap( Q3ListViewItem * ) ) );
     connect( this, SIGNAL(TrapProperties(const QString&)),
              (QObject*)TrapInfo, SLOT(setText(const QString&)) );
 }
@@ -155,7 +155,7 @@ TrapItem* Trap::Add(Oid &id, QString &no, QString &date,
     return (ti);
 }
 
-void Trap::SelectedTrap(QListViewItem * item)
+void Trap::SelectedTrap(Q3ListViewItem * item)
 {
     TrapItem *trap = (TrapItem*)item;
     QString text;

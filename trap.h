@@ -1,15 +1,17 @@
 #ifndef TRAP_H
 #define TRAP_H
 
-#include <qlistview.h>
+#include <q3listview.h>
+//Added by qt3to4:
+#include <Q3PtrList>
 
-#include "mainw.h"
+#include "ui_mainw.h"
 #include "snmp_pp/snmp_pp.h"
 
-class TrapItem : public QListViewItem
+class TrapItem : public Q3ListViewItem
 {
 public:
-    TrapItem(Oid &id, QListView* parent, QString no, QString date,
+    TrapItem(Oid &id, Q3ListView* parent, QString no, QString date,
              QString time, QString timestamp,
              QString nottype, QString msgtype, QString version, 
              QString agtaddr, QString agtport,
@@ -17,7 +19,7 @@ public:
              QString ctxname, QString ctxid, QString msgid);
 
     void PrintProperties(QString& text);
-    void PrintContent(QListView* TrapContent);
+    void PrintContent(Q3ListView* TrapContent);
     void AddVarBind(Vb& vb);
     
 private:
@@ -37,7 +39,7 @@ private:
     QString _ctxid;
     QString _msgid;
 
-    QPtrList<Vb> content;
+    Q3PtrList<Vb> content;
 };
 
 class Trap: public QObject
@@ -45,7 +47,7 @@ class Trap: public QObject
     Q_OBJECT
     
 public:
-    Trap(QListView* TL, QListView* TC, QTextEdit* TI);
+    Trap(Q3ListView* TL, Q3ListView* TC, Q3TextEdit* TI);
     TrapItem* Add(Oid &id, QString &no, QString &date, 
                   QString &time, QString &timestamp, 
                   QString &nottype, QString &msgtype, QString &version, 
@@ -54,15 +56,15 @@ public:
                   QString &ctxname, QString &ctxid, QString &msgid);
     
 protected slots:
-    void SelectedTrap( QListViewItem * item);
+    void SelectedTrap( Q3ListViewItem * item);
     
 signals:
     void TrapProperties(const QString& text);
     
 private:
-    QListView* TrapLog;
-    QListView* TrapContent;
-    QTextEdit* TrapInfo;
+    Q3ListView* TrapLog;
+    Q3ListView* TrapContent;
+    Q3TextEdit* TrapInfo;
 };
 
 #endif /* TRAP_H */

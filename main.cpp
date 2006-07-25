@@ -1,5 +1,5 @@
 #include <qapplication.h>
-#include "mainw.h"
+#include "ui_mainw.h"
 #include "mibmodule.h"
 #include "agent.h"
 #include "trap.h"
@@ -8,8 +8,10 @@
 int main( int argc, char ** argv )
 {
     QApplication a( argc, argv );
-    MainW w;
-    
+    Ui_MainW w;
+    Q3MainWindow mw;
+    w.setupUi(&mw);
+
     MibModule modules(w.ModuleInfo,
                       w.UnloadedModules, w.LoadedModules);
     Trap trap (w.TrapLog, w.TrapContent, w.TrapInfo);
@@ -27,8 +29,14 @@ int main( int argc, char ** argv )
                 w.PlotMIBTree);
  
     CurrentAgent = &agent;
-    
-    w.show();
+
+    // TEMP, mart
+    // Connect some signals
+    QObject::connect( w.TabW, SIGNAL( currentChanged(int index) ),
+             w.MIBTree, SLOT( TreeTabSelected(int index) ) );
+    w.MIBTree->TreeTabSelected(0);
+
+    mw.show();
     a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
     
     return a.exec();

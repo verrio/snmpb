@@ -78,3 +78,6 @@ win32:INCLUDEPATH	+= C:\smi\include C:\openssl\include
 win32:LIBS	+= -L. C:\smi\lib\smi.lib C:\openssl\lib\vc\libeay32.lib
 unix:LIBS	+= -L. -lsmi -lcrypto -lqwt
 LANGUAGE	= C++
+#The following line was inserted by qt3to4
+QT +=  qt3support 
+

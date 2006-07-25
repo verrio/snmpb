@@ -1,18 +1,22 @@
-#include <qptrlist.h>
+#include <q3ptrlist.h>
 #include <qmessagebox.h>
-#include <qlistbox.h>
+#include <q3listbox.h>
 #include <qpainter.h>
 #include <qstyle.h>
 #include <qcolor.h>
 #include <qnamespace.h>
+//Added by qt3to4:
+#include <QTimerEvent>
+#include <q3combobox.h>
+
 #include "graph.h"
 #include "agent.h"
 
-class ColorListBoxItem : public QListBoxItem
+class ColorListBoxItem : public Q3ListBoxItem
 {
 public:
     ColorListBoxItem(QColor col)
-        : QListBoxItem()
+        : Q3ListBoxItem()
     {
         color = col;
         setCustomHighlighting( TRUE );
@@ -20,18 +24,18 @@ public:
 
 protected:
     virtual void paint( QPainter * );
-    virtual int width( const QListBox* ) const { return 65; }
-    virtual int height( const QListBox* ) const { return 18; }
+    virtual int width( const Q3ListBox* ) const { return 65; }
+    virtual int height( const Q3ListBox* ) const { return 18; }
     
 private:
     QColor color;
 };
 
-class PenWidthListBoxItem : public QListBoxItem
+class PenWidthListBoxItem : public Q3ListBoxItem
 {
 public:
     PenWidthListBoxItem(uint w)
-        : QListBoxItem()
+        : Q3ListBoxItem()
     {
         thewidth = w;
         setCustomHighlighting( TRUE );
@@ -39,18 +43,18 @@ public:
 
 protected:
     virtual void paint( QPainter * );
-    virtual int width( const QListBox* ) const { return 65; }
-    virtual int height( const QListBox* ) const { return 18; }
+    virtual int width( const Q3ListBox* ) const { return 65; }
+    virtual int height( const Q3ListBox* ) const { return 18; }
     
 private:
     uint thewidth;
 };
 
-class PenStyleListBoxItem : public QListBoxItem
+class PenStyleListBoxItem : public Q3ListBoxItem
 {
 public:
     PenStyleListBoxItem(enum Qt::PenStyle s)
-        : QListBoxItem()
+        : Q3ListBoxItem()
     {
         style = s;
         setCustomHighlighting( TRUE );
@@ -58,8 +62,8 @@ public:
 
 protected:
     virtual void paint( QPainter * );
-    virtual int width( const QListBox* ) const { return 65; }
-    virtual int height( const QListBox* ) const { return 18; }
+    virtual int width( const Q3ListBox* ) const { return 65; }
+    virtual int height( const Q3ListBox* ) const { return 18; }
     
 private:
     enum Qt::PenStyle style;
@@ -69,21 +73,20 @@ void ColorListBoxItem::paint( QPainter *painter )
 {
     // evil trick: find out whether we are painted onto our listbox
     bool in_list_box = listBox() && listBox()->viewport() == painter->device();
-
+    QStyleOptionFocusRect f;
     QRect r ( 0, 0, width( listBox() ), height( listBox() ) );
     if ( in_list_box && isSelected() )
         painter->eraseRect( r );
     painter->fillRect( 3, 3, width(listBox())-6, height(listBox())-6, color);
     if ( in_list_box && isCurrent() )
-        listBox()->style().drawPrimitive( QStyle::PE_FocusRect, painter, r, 
-                                          listBox()->colorGroup() );
+        listBox()->style()->drawPrimitive( QStyle::PE_FrameFocusRect, &f, painter);
 }
 
 void PenWidthListBoxItem::paint( QPainter *painter )
 {
     // evil trick: find out whether we are painted onto our listbox
     bool in_list_box = listBox() && listBox()->viewport() == painter->device();
-    
+    QStyleOptionFocusRect f; 
     QRect r ( 0, 0, width( listBox() ), height( listBox() ) );
     if ( in_list_box && isSelected() )
         painter->eraseRect( r );
@@ -91,15 +94,14 @@ void PenWidthListBoxItem::paint( QPainter *painter )
     painter->setPen(pen);
     painter->drawLine ( 0, height(listBox())/2, width(listBox()), height(listBox())/2);    
     if ( in_list_box && isCurrent() )
-        listBox()->style().drawPrimitive( QStyle::PE_FocusRect, painter, r, 
-                                          listBox()->colorGroup() );
+        listBox()->style()->drawPrimitive( QStyle::PE_FrameFocusRect, &f, painter);
 }
 
 void PenStyleListBoxItem::paint( QPainter *painter )
 {
     // evil trick: find out whether we are painted onto our listbox
     bool in_list_box = listBox() && listBox()->viewport() == painter->device();
-    
+    QStyleOptionFocusRect f; 
     QRect r ( 0, 0, width( listBox() ), height( listBox() ) );
     if ( in_list_box && isSelected() )
         painter->eraseRect( r );
@@ -107,8 +109,7 @@ void PenStyleListBoxItem::paint( QPainter *painter )
     painter->setPen(pen);
     painter->drawLine ( 0, height(listBox())/2, width(listBox()), height(listBox())/2);    
     if ( in_list_box && isCurrent() )
-        listBox()->style().drawPrimitive( QStyle::PE_FocusRect, painter, r, 
-                                          listBox()->colorGroup() );
+        listBox()->style()->drawPrimitive( QStyle::PE_FrameFocusRect, &f, painter);
 }
 
 GraphItem::GraphItem(QString name, QTabWidget* tab):QwtPlot(name)
@@ -124,7 +125,9 @@ GraphItem::GraphItem(QString name, QTabWidget* tab):QwtPlot(name)
     // Zero all curve structures
     for( int j = 0; j < NUM_PLOT_PER_GRAPH; j++)
     {
+#if 0 //TODO
         curves[j].key = 0;
+#endif
         memset(curves[j].data, 0, sizeof(double)*PLOT_HISTORY);
     }
 }
@@ -140,19 +143,21 @@ void GraphItem::AddCurve(QString name, QPen& pen)
     
     for (i=0; i<NUM_PLOT_PER_GRAPH; i++)
     {
+#if 0 //TODO
         if (curves[i].key && (curves[i].name == name))
             return;
         else if (curves[i].key == 0)
             break;
+#endif
     }
     
     if (i >= NUM_PLOT_PER_GRAPH)
         return;
-    
+#if 0 //TODO
     curves[i].key = insertCurve(name);
     curves[i].name = name;
     setCurvePen(curves[i].key, pen);
-    
+#endif 
     if (!timerID)
         timerID = startTimer(1000); // 1 second
     
@@ -167,7 +172,9 @@ void GraphItem::RemoveCurve(QString name)
         killTimer(timerID);
         timerID = 0;
     }
-    
+
+#if 0 //TODO
+      
     for (int i=0; i<NUM_PLOT_PER_GRAPH; i++)
     {
         if (curves[i].key && (curves[i].name == name))
@@ -178,6 +185,7 @@ void GraphItem::RemoveCurve(QString name)
         else if (curves[i].key == 0)
             return;
     }
+#endif
 }
 
 void GraphItem::timerEvent(QTimerEvent *)
@@ -206,13 +214,13 @@ void GraphItem::timerEvent(QTimerEvent *)
     
     setAxisScale(QwtPlot::xBottom,
         timeData[PLOT_HISTORY - 1], timeData[0]);
-
+#if 0 //TODO
     for ( int c = 0; c < 1/* TODO */; c++ )
     {
         setCurveRawData(curves[c].key,
             timeData, curves[c].data, dataCount);
     }
-
+#endif
     replot();
 }
 
@@ -241,7 +249,7 @@ Graph::Graph(QTabWidget* GT, QPushButton* GC, QPushButton* GD,
     connect( PD, SIGNAL( clicked() ), this, SLOT( DeletePlot() ));    
     connect( PM, SIGNAL( SelectedOid(const QString&) ), 
              this, SLOT( SetObjectString(const QString&) ));    
-    
+   #if 0 // TODO  
     // Fill the color combobox ...
     PlotColor->listBox()->insertItem( new ColorListBoxItem(Qt::black) );
     PlotColor->listBox()->insertItem( new ColorListBoxItem(Qt::white) );
@@ -274,13 +282,14 @@ Graph::Graph(QTabWidget* GT, QPushButton* GC, QPushButton* GD,
     PlotShape->listBox()->insertItem( new PenStyleListBoxItem(Qt::DotLine) );
     PlotShape->listBox()->insertItem( new PenStyleListBoxItem(Qt::DashDotLine) );
     PlotShape->listBox()->insertItem( new PenStyleListBoxItem(Qt::DashDotDotLine) );
+#endif
 }
 
 void Graph::CreateGraph(void)
 {
     if (!GraphName->currentText().isEmpty())
     {        
-        QPtrListIterator<GraphItem> it( Items );
+        Q3PtrListIterator<GraphItem> it( Items );
         GraphItem *GI;
         while ( (GI = it.current()) != 0 ) {
             if (GI->title() == GraphName->currentText())
@@ -288,7 +297,7 @@ void Graph::CreateGraph(void)
                 QString err = QString("Graph \"%1\" already exist !")
                       .arg(GraphName->currentText());
                 QMessageBox::information ( NULL, "Graph", err, 
-                             QMessageBox::Ok, QMessageBox::NoButton);
+                             QMessageBox::Ok, Qt::NoButton);
                 return;
             }
             ++it;
@@ -303,7 +312,7 @@ void Graph::DeleteGraph(void)
 {
     if (!GraphName->currentText().isEmpty())
     {
-        QPtrListIterator<GraphItem> it( Items );
+        Q3PtrListIterator<GraphItem> it( Items );
         GraphItem *GI;
         while ( (GI = it.current()) != 0 ) {
             if (GI->title() == GraphName->currentText())
@@ -361,7 +370,7 @@ void Graph::CreatePlot(void)
         
         if (!GraphName->currentText().isEmpty())
         {
-            QPtrListIterator<GraphItem> it( Items );
+            Q3PtrListIterator<GraphItem> it( Items );
             GraphItem *GI;
             while ( (GI = it.current()) != 0 ) {
                 if (GI->title() == GraphName->currentText())
@@ -382,7 +391,7 @@ void Graph::DeletePlot(void)
         
         if (!GraphName->currentText().isEmpty())
         {
-            QPtrListIterator<GraphItem> it( Items );
+            Q3PtrListIterator<GraphItem> it( Items );
             GraphItem *GI;
             while ( (GI = it.current()) != 0 ) {
                 if (GI->title() == GraphName->currentText())

@@ -2,8 +2,8 @@
 #include <string.h>
 #include <qfileinfo.h>
 #include <qdir.h>
-#include <qlistview.h>
-#include <qptrlist.h>
+#include <q3listview.h>
+#include <q3ptrlist.h>
 
 #include "mibmodule.h"
 
@@ -28,7 +28,7 @@ void LoadedMibModule::PrintProperties(QString& text)
     
     // Add the description
     text += QString("<tr><td><b>Description:</b></td><td><font face=fixed size=-1 color=blue>");
-    text += QStyleSheet::convertFromPlainText (module->description);
+    text += Q3StyleSheet::convertFromPlainText (module->description);
     text += QString("</font></td>>/tr>");
     
     // Add root node name
@@ -56,12 +56,12 @@ void LoadedMibModule::PrintProperties(QString& text)
     
     // Add organization
     text += QString("<tr><td><b>Organization:</b></td><td>");
-    text += QStyleSheet::convertFromPlainText (module->organization);
+    text += Q3StyleSheet::convertFromPlainText (module->organization);
     text += QString("</td>>/tr>");
     
     // Add contact info
     text += QString("<tr><td><b>Contact Info:</b></td><td><font face=fixed size=-1>");
-    text += QStyleSheet::convertFromPlainText (module->contactinfo);
+    text += Q3StyleSheet::convertFromPlainText (module->contactinfo);
     text += QString("</font></td>>/tr>");
              
     text += QString("</table>");
@@ -84,7 +84,7 @@ char* LoadedMibModule::GetMibLanguage(void)
     }
 }
 
-MibModule::MibModule(QTextEdit *MI, QListView *AM, QListView *LM)
+MibModule::MibModule(Q3TextEdit *MI, Q3ListView *AM, Q3ListView *LM)
 {
     ModuleInfo = MI;
     UnloadedM = AM;
@@ -98,9 +98,9 @@ MibModule::MibModule(QTextEdit *MI, QListView *AM, QListView *LM)
     RebuildTotalList();
     
     // Connect some signals
-    connect( UnloadedM, SIGNAL(doubleClicked ( QListViewItem *, const QPoint &, int )),
+    connect( UnloadedM, SIGNAL(doubleClicked ( Q3ListViewItem *, const QPoint &, int )),
              this, SLOT( AddModule() ) );
-    connect( LoadedM, SIGNAL(doubleClicked ( QListViewItem *, const QPoint &, int )),
+    connect( LoadedM, SIGNAL(doubleClicked ( Q3ListViewItem *, const QPoint &, int )),
              this, SLOT( RemoveModule() ) );
     connect( LoadedM, SIGNAL(selectionChanged ()),
              this, SLOT( ShowModuleInfo() ) );
@@ -120,7 +120,7 @@ MibModule::MibModule(QTextEdit *MI, QListView *AM, QListView *LM)
 
 void MibModule::ShowModuleInfo(void)
 {
-    QListViewItem *item;
+    Q3ListViewItem *item;
     
     if ((item = LoadedM->selectedItem()) != 0)
     {	
@@ -156,16 +156,16 @@ void MibModule::RebuildTotalList(void)
     for (dir = strtok(smipath, sep); dir; dir = strtok(NULL, sep)) {
         QDir d(dir, QString::null, QDir::Unsorted, 
                QDir::Files | QDir::Readable | QDir::NoSymLinks);
-        const QFileInfoList *list = d.entryInfoList();
-        if (!list) continue;
-        QFileInfoListIterator it( *list );
-        QFileInfo *fi;
+        QStringList list = d.entryList();
+        if (list.isEmpty()) continue;
+        QStringListIterator it( list );
+        const QString *fi;
         
-        while ( (fi = it.current()) != 0 ) {
+        while ( it.hasNext() ) {
+            fi = &it.next();
             // Exclude -orig files
-            if (!(((str = strstr(fi->fileName(), "-orig")) != NULL) && (strlen(str) == 5)))
-                Total.append(fi->fileName());
-            ++it;
+            if (!(((str = strstr(fi->toLatin1(), "-orig")) != NULL) && (strlen(str) == 5)))
+                Total.append(fi->toLatin1());
         }    
     }
     
@@ -196,7 +196,7 @@ void MibModule::RebuildLoadedList(void)
         else
             required = "no";
         
-        new QListViewItem(LoadedM, 
+        new Q3ListViewItem(LoadedM, 
                           lmodule->name.latin1(), 
                           required, 
                           lmodule->GetMibLanguage(),
@@ -225,7 +225,7 @@ void MibModule::RebuildUnloadedList(void)
             }
             if (!lmodule) {
                 Unloaded.append(current);
-                new QListViewItem(UnloadedM, current);
+                new Q3ListViewItem(UnloadedM, current);
             }
         } while ( (current = Total.next()) != 0);
     }
@@ -233,7 +233,7 @@ void MibModule::RebuildUnloadedList(void)
 
 void MibModule::AddModule(void)
 {
-    QListViewItem *item;//, *nextitem  = NULL;
+    Q3ListViewItem *item;//, *nextitem  = NULL;
     //    char buf[200];
     
     if ((item = UnloadedM->selectedItem()) != 0)
@@ -257,7 +257,7 @@ void MibModule::AddModule(void)
 
 void MibModule::RemoveModule(void)
 {
-    QListViewItem *item;
+    Q3ListViewItem *item;
     
     if ((item = LoadedM->selectedItem()) != 0)
     {
