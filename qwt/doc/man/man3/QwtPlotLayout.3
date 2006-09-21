@@ -1,0 +1,579 @@
+.TH "QwtPlotLayout" 3 "17 Sep 2006" "Version 5.0.0-rc0" "Qwt User's Guide" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+QwtPlotLayout \- 
+.SH SYNOPSIS
+.br
+.PP
+.SH "Detailed Description"
+.PP 
+Layout class for \fBQwtPlot\fP. 
+
+Organizes the geometry for the different \fBQwtPlot\fP components.
+.PP
+Definition at line 22 of file qwt_plot_layout.h.
+.SS "Public Types"
+
+.in +1c
+.ti -1c
+.RI "enum \fBOptions\fP { \fBAlignScales\fP =  1, \fBIgnoreScrollbars\fP =  2, \fBIgnoreFrames\fP =  4, \fBIgnoreMargin\fP =  8, \fBIgnoreLegend\fP =  16 }"
+.br
+.in -1c
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBQwtPlotLayout\fP ()"
+.br
+.ti -1c
+.RI "virtual \fB~QwtPlotLayout\fP ()"
+.br
+.ti -1c
+.RI "void \fBsetMargin\fP (int)"
+.br
+.ti -1c
+.RI "int \fBmargin\fP () const "
+.br
+.ti -1c
+.RI "void \fBsetCanvasMargin\fP (int margin, int axis=-1)"
+.br
+.ti -1c
+.RI "int \fBcanvasMargin\fP (int axis) const "
+.br
+.ti -1c
+.RI "void \fBsetAlignCanvasToScales\fP (bool)"
+.br
+.ti -1c
+.RI "bool \fBalignCanvasToScales\fP () const "
+.br
+.ti -1c
+.RI "void \fBsetSpacing\fP (int)"
+.br
+.ti -1c
+.RI "int \fBspacing\fP () const "
+.br
+.ti -1c
+.RI "void \fBsetLegendPosition\fP (\fBQwtPlot::LegendPosition\fP pos, double ratio)"
+.br
+.ti -1c
+.RI "void \fBsetLegendPosition\fP (\fBQwtPlot::LegendPosition\fP pos)"
+.br
+.ti -1c
+.RI "\fBQwtPlot::LegendPosition\fP \fBlegendPosition\fP () const "
+.br
+.ti -1c
+.RI "void \fBsetLegendRatio\fP (double ratio)"
+.br
+.ti -1c
+.RI "double \fBlegendRatio\fP () const "
+.br
+.ti -1c
+.RI "virtual QSize \fBminimumSizeHint\fP (const \fBQwtPlot\fP *) const "
+.br
+.ti -1c
+.RI "virtual void \fBactivate\fP (const \fBQwtPlot\fP *, const QRect &rect, int options=0)"
+.br
+.ti -1c
+.RI "virtual void \fBinvalidate\fP ()"
+.br
+.ti -1c
+.RI "const QRect & \fBtitleRect\fP () const "
+.br
+.ti -1c
+.RI "const QRect & \fBlegendRect\fP () const "
+.br
+.ti -1c
+.RI "const QRect & \fBscaleRect\fP (int axis) const "
+.br
+.ti -1c
+.RI "const QRect & \fBcanvasRect\fP () const "
+.br
+.in -1c
+.SS "Protected Member Functions"
+
+.in +1c
+.ti -1c
+.RI "QRect \fBlayoutLegend\fP (int options, const QRect &) const "
+.br
+.ti -1c
+.RI "QRect \fBalignLegend\fP (const QRect &canvasRect, const QRect &legendRect) const "
+.br
+.ti -1c
+.RI "void \fBexpandLineBreaks\fP (int options, const QRect &rect, int &dimTitle, int dimAxes[QwtPlot::axisCnt]) const "
+.br
+.ti -1c
+.RI "void \fBalignScales\fP (int options, QRect &canvasRect, QRect scaleRect[QwtPlot::axisCnt]) const "
+.br
+.in -1c
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "QwtPlotLayout::QwtPlotLayout ()\fC [explicit]\fP"
+.PP
+Constructor. 
+.PP
+Definition at line 183 of file qwt_plot_layout.cpp.
+.PP
+References invalidate(), setCanvasMargin(), and setLegendPosition().
+.SS "QwtPlotLayout::~QwtPlotLayout ()\fC [virtual]\fP"
+.PP
+Destructor. 
+.PP
+Definition at line 194 of file qwt_plot_layout.cpp.
+.SH "Member Function Documentation"
+.PP 
+.SS "void QwtPlotLayout::activate (const \fBQwtPlot\fP * plot, const QRect & plotRect, int options = \fC0\fP)\fC [virtual]\fP"
+.PP
+Recalculate the geometry of all components. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIplot\fP Plot to be layout 
+.br
+\fIplotRect\fP Rect where to place the components 
+.br
+\fIoptions\fP Options
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBinvalidate()\fP, \fBtitleRect()\fP, \fBlegendRect()\fP, \fBscaleRect()\fP, \fBcanvasRect()\fP
+.RE
+.PP
+
+.PP
+Definition at line 1017 of file qwt_plot_layout.cpp.
+.PP
+References alignLegend(), alignScales(), expandLineBreaks(), invalidate(), QwtLegend::isEmpty(), layoutLegend(), QwtPlot::legend(), and scaleRect().
+.SS "bool QwtPlotLayout::alignCanvasToScales () const"
+.PP
+Return the align-canvas-to-axis-scales setting. The canvas may:
+.IP "\(bu" 2
+extend beyond the axis scale ends to maximize its size
+.IP "\(bu" 2
+align with the axis scale ends to control its size.
+.PP
+.PP
+\fBReturns:\fP
+.RS 4
+align-canvas-to-axis-scales setting 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBsetAlignCanvasToScales\fP, \fBsetCanvasMargin()\fP 
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+In this context the term 'scale' means the backbone of a scale.
+.RE
+.PP
+
+.PP
+Definition at line 288 of file qwt_plot_layout.cpp.
+.SS "QRect QwtPlotLayout::alignLegend (const QRect & canvasRect, const QRect & legendRect) const\fC [protected]\fP"
+.PP
+Align the legend to the canvas 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIcanvasRect\fP Geometry of the canvas 
+.br
+\fIlegendRect\fP Maximum geometry for the legend 
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+Geometry for the aligned legend
+.RE
+.PP
+
+.PP
+Definition at line 709 of file qwt_plot_layout.cpp.
+.PP
+Referenced by activate().
+.SS "void QwtPlotLayout::alignScales (int options, QRect & canvasRect, QRect scaleRect[QwtPlot::axisCnt]) const\fC [protected]\fP"
+.PP
+Align the ticks of the axis to the canvas borders using the empty corners.
+.PP
+Definition at line 850 of file qwt_plot_layout.cpp.
+.PP
+References qwtMax, qwtMin, and scaleRect().
+.PP
+Referenced by activate().
+.SS "int QwtPlotLayout::canvasMargin (int axis) const"
+.PP
+\fBReturns:\fP
+.RS 4
+Margin around the scale tick borders 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBsetCanvasMargin()\fP
+.RE
+.PP
+
+.PP
+Definition at line 254 of file qwt_plot_layout.cpp.
+.PP
+Referenced by QwtPlot::canvasMap(), and QwtPlot::print().
+.SS "const QRect & QwtPlotLayout::canvasRect () const"
+.PP
+\fBReturns:\fP
+.RS 4
+Geometry for the canvas 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBactivate()\fP, \fBinvalidate()\fP
+.RE
+.PP
+
+.PP
+Definition at line 443 of file qwt_plot_layout.cpp.
+.PP
+Referenced by QwtPlot::print().
+.SS "void QwtPlotLayout::expandLineBreaks (int options, const QRect & rect, int & dimTitle, int dimAxis[QwtPlot::axisCnt]) const\fC [protected]\fP"
+.PP
+Expand all line breaks in text labels, and calculate the height of their widgets in orientation of the text.
+.PP
+\fBParameters:\fP
+.RS 4
+\fIoptions\fP Options how to layout the legend 
+.br
+\fIrect\fP Bounding rect for title, axes and canvas. 
+.br
+\fIdimTitle\fP Expanded height of the title widget 
+.br
+\fIdimAxis\fP Expanded heights of the axis in axis orientation.
+.RE
+.PP
+
+.PP
+Definition at line 744 of file qwt_plot_layout.cpp.
+.PP
+References qwtMin.
+.PP
+Referenced by activate().
+.SS "void QwtPlotLayout::invalidate ()\fC [virtual]\fP"
+.PP
+Invalidate the geometry of all components. 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBactivate()\fP
+.RE
+.PP
+
+.PP
+Definition at line 452 of file qwt_plot_layout.cpp.
+.PP
+Referenced by activate(), and QwtPlotLayout().
+.SS "QRect QwtPlotLayout::layoutLegend (int options, const QRect & rect) const\fC [protected]\fP"
+.PP
+Find the geometry for the legend 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIoptions\fP Options how to layout the legend 
+.br
+\fIrect\fP Rectangle where to place the legend 
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+Geometry for the legend
+.RE
+.PP
+
+.PP
+Definition at line 648 of file qwt_plot_layout.cpp.
+.PP
+References legendRect(), qwtMax, and qwtMin.
+.PP
+Referenced by activate().
+.SS "\fBQwtPlot::LegendPosition\fP QwtPlotLayout::legendPosition () const"
+.PP
+\fBReturns:\fP
+.RS 4
+Position of the legend 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBsetLegendPosition()\fP, QwtPlot::setLegendPosition(), QwtPlot::legendPosition()
+.RE
+.PP
+
+.PP
+Definition at line 374 of file qwt_plot_layout.cpp.
+.PP
+Referenced by setLegendRatio().
+.SS "double QwtPlotLayout::legendRatio () const"
+.PP
+\fBReturns:\fP
+.RS 4
+The relative size of the legend in the plot. 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBsetLegendPosition()\fP
+.RE
+.PP
+
+.PP
+Definition at line 397 of file qwt_plot_layout.cpp.
+.SS "const QRect & QwtPlotLayout::legendRect () const"
+.PP
+\fBReturns:\fP
+.RS 4
+Geometry for the legend 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBactivate()\fP, \fBinvalidate()\fP
+.RE
+.PP
+
+.PP
+Definition at line 417 of file qwt_plot_layout.cpp.
+.PP
+Referenced by layoutLegend().
+.SS "int QwtPlotLayout::margin () const"
+.PP
+\fBReturns:\fP
+.RS 4
+margin 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBsetMargin()\fP, \fBspacing()\fP, \fBQwtPlot::margin()\fP
+.RE
+.PP
+
+.PP
+Definition at line 218 of file qwt_plot_layout.cpp.
+.SS "QSize QwtPlotLayout::minimumSizeHint (const \fBQwtPlot\fP * plot) const\fC [virtual]\fP"
+.PP
+Return a minimum size hint. 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBQwtPlot::minimumSizeHint()\fP
+.RE
+.PP
+
+.PP
+Definition at line 464 of file qwt_plot_layout.cpp.
+.PP
+References QwtPlot::axisEnabled(), QwtPlot::axisWidget(), QwtPlot::canvas(), QwtScaleWidget::getBorderDistHint(), QwtAbstractScaleDraw::hasComponent(), QwtLegend::heightForWidth(), QwtTextLabel::heightForWidth(), QwtLegend::isEmpty(), QwtText::isEmpty(), QwtPlot::legend(), QwtAbstractScaleDraw::majTickLength(), QwtScaleWidget::margin(), QwtScaleWidget::minimumSizeHint(), qwtMax, qwtMin, QwtScaleWidget::scaleDraw(), QwtLegend::sizeHint(), QwtTextLabel::text(), QwtPlot::titleLabel(), and QwtLegend::verticalScrollBar().
+.SS "const QRect & QwtPlotLayout::scaleRect (int axis) const"
+.PP
+\fBParameters:\fP
+.RS 4
+\fIaxis\fP Axis index 
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+Geometry for the scale 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBactivate()\fP, \fBinvalidate()\fP
+.RE
+.PP
+
+.PP
+Definition at line 428 of file qwt_plot_layout.cpp.
+.PP
+Referenced by activate(), alignScales(), and QwtPlot::print().
+.SS "void QwtPlotLayout::setAlignCanvasToScales (bool alignCanvasToScales)"
+.PP
+Change the align-canvas-to-axis-scales setting. The canvas may:
+.IP "\(bu" 2
+extend beyond the axis scale ends to maximize its size,
+.IP "\(bu" 2
+align with the axis scale ends to control its size.
+.PP
+.PP
+\fBParameters:\fP
+.RS 4
+\fIalignCanvasToScales\fP New align-canvas-to-axis-scales setting
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBsetCanvasMargin()\fP 
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+In this context the term 'scale' means the backbone of a scale. 
+.RE
+.PP
+\fBWarning:\fP
+.RS 4
+In case of alignCanvasToScales == true canvasMargin will have no effect
+.RE
+.PP
+
+.PP
+Definition at line 274 of file qwt_plot_layout.cpp.
+.SS "void QwtPlotLayout::setCanvasMargin (int margin, int axis = \fC-1\fP)"
+.PP
+Change a margin of the canvas. The margin is the space above/below the scale ticks. A negative margin will be set to -1, excluding the borders of the scales.
+.PP
+\fBParameters:\fP
+.RS 4
+\fImargin\fP New margin 
+.br
+\fIaxis\fP One of \fBQwtPlot::Axis\fP. Specifies where the position of the margin. -1 means margin at all borders. 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBcanvasMargin()\fP
+.RE
+.PP
+\fBWarning:\fP
+.RS 4
+The margin will have no effect when alignCanvasToScales is true
+.RE
+.PP
+
+.PP
+Definition at line 236 of file qwt_plot_layout.cpp.
+.PP
+Referenced by QwtPlotLayout().
+.SS "void QwtPlotLayout::setLegendPosition (\fBQwtPlot::LegendPosition\fP pos)"
+.PP
+Specify the position of the legend. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIpos\fP The legend's position. Valid values are \fCQwtPlot::LeftLegend\fP, \fCQwtPlot::RightLegend\fP, \fCQwtPlot::TopLegend\fP, \fCQwtPlot::BottomLegend\fP.
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+QwtPlot::setLegendPosition()
+.RE
+.PP
+
+.PP
+Definition at line 364 of file qwt_plot_layout.cpp.
+.PP
+References setLegendPosition().
+.SS "void QwtPlotLayout::setLegendPosition (\fBQwtPlot::LegendPosition\fP pos, double ratio)"
+.PP
+Specify the position of the legend. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIpos\fP The legend's position. 
+.br
+\fIratio\fP Ratio between legend and the bounding rect of title, canvas and axes. The legend will be shrinked if it would need more space than the given ratio. The ratio is limited to ]0.0 .. 1.0]. In case of <= 0.0 it will be reset to the default ratio. The default vertical/horizontal ratio is 0.33/0.5.
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+QwtPlot::setLegendPosition()
+.RE
+.PP
+
+.PP
+Definition at line 327 of file qwt_plot_layout.cpp.
+.PP
+Referenced by QwtPlotLayout(), setLegendPosition(), and setLegendRatio().
+.SS "void QwtPlotLayout::setLegendRatio (double ratio)"
+.PP
+Specify the relative size of the legend in the plot 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIratio\fP Ratio between legend and the bounding rect of title, canvas and axes. The legend will be shrinked if it would need more space than the given ratio. The ratio is limited to ]0.0 .. 1.0]. In case of <= 0.0 it will be reset to the default ratio. The default vertical/horizontal ratio is 0.33/0.5.
+.RE
+.PP
+
+.PP
+Definition at line 388 of file qwt_plot_layout.cpp.
+.PP
+References legendPosition(), and setLegendPosition().
+.SS "void QwtPlotLayout::setMargin (int margin)"
+.PP
+Change the margin of the plot. The margin is the space around all components.
+.PP
+\fBParameters:\fP
+.RS 4
+\fImargin\fP new margin 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBmargin()\fP, \fBsetSpacing()\fP, \fBQwtPlot::setMargin()\fP
+.RE
+.PP
+
+.PP
+Definition at line 207 of file qwt_plot_layout.cpp.
+.SS "void QwtPlotLayout::setSpacing (int spacing)"
+.PP
+Change the spacing of the plot. The spacing is the distance between the plot components.
+.PP
+\fBParameters:\fP
+.RS 4
+\fIspacing\fP new spacing 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBsetMargin()\fP, \fBspacing()\fP
+.RE
+.PP
+
+.PP
+Definition at line 300 of file qwt_plot_layout.cpp.
+.PP
+References qwtMax.
+.SS "int QwtPlotLayout::spacing () const"
+.PP
+\fBReturns:\fP
+.RS 4
+spacing 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBmargin()\fP, \fBsetSpacing()\fP
+.RE
+.PP
+
+.PP
+Definition at line 309 of file qwt_plot_layout.cpp.
+.SS "const QRect & QwtPlotLayout::titleRect () const"
+.PP
+\fBReturns:\fP
+.RS 4
+Geometry for the title 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBactivate()\fP, \fBinvalidate()\fP
+.RE
+.PP
+
+.PP
+Definition at line 407 of file qwt_plot_layout.cpp.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Qwt User's Guide from the source code.

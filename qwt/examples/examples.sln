@@ -1,0 +1,101 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bode", "bode\bode.vcproj", "{E10E8414-9F43-3C4C-9509-BCDBC55591A6}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cpuplot", "cpuplot\cpuplot.vcproj", "{9931B4EE-EFA0-3573-A641-D6E1EB556416}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "curvdemo1", "curvdemo1\curvdemo1.vcproj", "{EAC8DB29-987C-3F5A-96B1-F0EA425740FB}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "curvdemo2", "curvdemo2\curvdemo2.vcproj", "{2D86E32A-D965-307D-AEE4-1FE6C00CD206}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "data_plot", "data_plot\data_plot.vcproj", "{6C56A8A9-672A-30A3-B4C6-A7693BBEDA5C}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dials", "dials\dials.vcproj", "{B558359A-E168-36E7-88E6-4B47010AAACE}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "event_filter", "event_filter\event_filter.vcproj", "{971A6937-0DB3-3C4F-8976-E59387B8C52A}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "radio", "radio\radio.vcproj", "{6CF0EA43-B3DC-3654-9452-27BB5208DC67}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "realtime", "realtime_plot\realtime.vcproj", "{9AD468E4-3EE6-3A4D-873D-6BA6F9A3E094}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "simple", "simple_plot\simple.vcproj", "{74E95DC2-D9BA-31B6-B7AA-CA2EFD99074C}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sliders", "sliders\sliders.vcproj", "{48F5D85C-613F-3BAD-AA81-A49EDF46059E}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{E10E8414-9F43-3C4C-9509-BCDBC55591A6}.Debug.ActiveCfg = Debug|Win32
+		{E10E8414-9F43-3C4C-9509-BCDBC55591A6}.Debug.Build.0 = Debug|Win32
+		{E10E8414-9F43-3C4C-9509-BCDBC55591A6}.Release.ActiveCfg = Release|Win32
+		{E10E8414-9F43-3C4C-9509-BCDBC55591A6}.Release.Build.0 = Release|Win32
+		{9931B4EE-EFA0-3573-A641-D6E1EB556416}.Debug.ActiveCfg = Debug|Win32
+		{9931B4EE-EFA0-3573-A641-D6E1EB556416}.Debug.Build.0 = Debug|Win32
+		{9931B4EE-EFA0-3573-A641-D6E1EB556416}.Release.ActiveCfg = Release|Win32
+		{9931B4EE-EFA0-3573-A641-D6E1EB556416}.Release.Build.0 = Release|Win32
+		{EAC8DB29-987C-3F5A-96B1-F0EA425740FB}.Debug.ActiveCfg = Debug|Win32
+		{EAC8DB29-987C-3F5A-96B1-F0EA425740FB}.Debug.Build.0 = Debug|Win32
+		{EAC8DB29-987C-3F5A-96B1-F0EA425740FB}.Release.ActiveCfg = Release|Win32
+		{EAC8DB29-987C-3F5A-96B1-F0EA425740FB}.Release.Build.0 = Release|Win32
+		{2D86E32A-D965-307D-AEE4-1FE6C00CD206}.Debug.ActiveCfg = Debug|Win32
+		{2D86E32A-D965-307D-AEE4-1FE6C00CD206}.Debug.Build.0 = Debug|Win32
+		{2D86E32A-D965-307D-AEE4-1FE6C00CD206}.Release.ActiveCfg = Release|Win32
+		{2D86E32A-D965-307D-AEE4-1FE6C00CD206}.Release.Build.0 = Release|Win32
+		{6C56A8A9-672A-30A3-B4C6-A7693BBEDA5C}.Debug.ActiveCfg = Debug|Win32
+		{6C56A8A9-672A-30A3-B4C6-A7693BBEDA5C}.Debug.Build.0 = Debug|Win32
+		{6C56A8A9-672A-30A3-B4C6-A7693BBEDA5C}.Release.ActiveCfg = Release|Win32
+		{6C56A8A9-672A-30A3-B4C6-A7693BBEDA5C}.Release.Build.0 = Release|Win32
+		{B558359A-E168-36E7-88E6-4B47010AAACE}.Debug.ActiveCfg = Debug|Win32
+		{B558359A-E168-36E7-88E6-4B47010AAACE}.Debug.Build.0 = Debug|Win32
+		{B558359A-E168-36E7-88E6-4B47010AAACE}.Release.ActiveCfg = Release|Win32
+		{B558359A-E168-36E7-88E6-4B47010AAACE}.Release.Build.0 = Release|Win32
+		{971A6937-0DB3-3C4F-8976-E59387B8C52A}.Debug.ActiveCfg = Debug|Win32
+		{971A6937-0DB3-3C4F-8976-E59387B8C52A}.Debug.Build.0 = Debug|Win32
+		{971A6937-0DB3-3C4F-8976-E59387B8C52A}.Release.ActiveCfg = Release|Win32
+		{971A6937-0DB3-3C4F-8976-E59387B8C52A}.Release.Build.0 = Release|Win32
+		{6CF0EA43-B3DC-3654-9452-27BB5208DC67}.Debug.ActiveCfg = Debug|Win32
+		{6CF0EA43-B3DC-3654-9452-27BB5208DC67}.Debug.Build.0 = Debug|Win32
+		{6CF0EA43-B3DC-3654-9452-27BB5208DC67}.Release.ActiveCfg = Release|Win32
+		{6CF0EA43-B3DC-3654-9452-27BB5208DC67}.Release.Build.0 = Release|Win32
+		{9AD468E4-3EE6-3A4D-873D-6BA6F9A3E094}.Debug.ActiveCfg = Debug|Win32
+		{9AD468E4-3EE6-3A4D-873D-6BA6F9A3E094}.Debug.Build.0 = Debug|Win32
+		{9AD468E4-3EE6-3A4D-873D-6BA6F9A3E094}.Release.ActiveCfg = Release|Win32
+		{9AD468E4-3EE6-3A4D-873D-6BA6F9A3E094}.Release.Build.0 = Release|Win32
+		{74E95DC2-D9BA-31B6-B7AA-CA2EFD99074C}.Debug.ActiveCfg = Debug|Win32
+		{74E95DC2-D9BA-31B6-B7AA-CA2EFD99074C}.Debug.Build.0 = Debug|Win32
+		{74E95DC2-D9BA-31B6-B7AA-CA2EFD99074C}.Release.ActiveCfg = Release|Win32
+		{74E95DC2-D9BA-31B6-B7AA-CA2EFD99074C}.Release.Build.0 = Release|Win32
+		{48F5D85C-613F-3BAD-AA81-A49EDF46059E}.Debug.ActiveCfg = Debug|Win32
+		{48F5D85C-613F-3BAD-AA81-A49EDF46059E}.Debug.Build.0 = Debug|Win32
+		{48F5D85C-613F-3BAD-AA81-A49EDF46059E}.Release.ActiveCfg = Release|Win32
+		{48F5D85C-613F-3BAD-AA81-A49EDF46059E}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

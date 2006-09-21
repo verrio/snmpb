@@ -1,0 +1,5 @@
+base referer
+rect $class_qwt_analog_clock.html 7,233 127,257
+rect $class_qwt_compass.html 151,233 253,257
+rect $class_qwt_abstract_slider.html 70,83 198,107
+rect $class_qwt_double_range.html 71,9 197,33

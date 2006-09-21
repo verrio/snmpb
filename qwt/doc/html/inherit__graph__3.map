@@ -1,0 +1,3 @@
+base referer
+rect $class_qwt_compass_rose.html 7,8 141,32
+rect $class_qwt_simple_compass_rose.html 189,8 362,32

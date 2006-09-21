@@ -1,0 +1,118 @@
+.TH "QwtCompassWindArrow" 3 "17 Sep 2006" "Version 5.0.0-rc0" "Qwt User's Guide" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+QwtCompassWindArrow \- 
+.SH SYNOPSIS
+.br
+.PP
+Inherits \fBQwtDialNeedle\fP.
+.PP
+.SH "Detailed Description"
+.PP 
+An indicator for the wind direction. 
+
+QwtCompassWindArrow shows the direction where the wind comes from.
+.PP
+.IP "\(bu" 2
+QColorGroup::Light
+.br
+ Used for Style1, or the light half of Style2
+.IP "\(bu" 2
+QColorGroup::Dark
+.br
+ Used for the dark half of Style2
+.PP
+.PP
+\fBSee also:\fP
+.RS 4
+\fBQwtDial\fP, \fBQwtCompass\fP
+.RE
+.PP
+
+.PP
+Definition at line 168 of file qwt_dial_needle.h.
+.SS "Public Types"
+
+.in +1c
+.ti -1c
+.RI "enum \fBStyle\fP { \fBStyle1\fP, \fBStyle2\fP }"
+.br
+.in -1c
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBQwtCompassWindArrow\fP (\fBStyle\fP, const QColor &light=Qt::white, const QColor &dark=Qt::gray)"
+.br
+.ti -1c
+.RI "virtual void \fBdraw\fP (QPainter *, const QPoint &, int length, double direction, QPalette::ColorGroup=QPalette::Active) const "
+.br
+.in -1c
+.SS "Static Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "static void \fBdrawStyle1Needle\fP (QPainter *, const QPalette &, QPalette::ColorGroup, const QPoint &, int length, double direction)"
+.br
+.ti -1c
+.RI "static void \fBdrawStyle2Needle\fP (QPainter *, const QPalette &, QPalette::ColorGroup, const QPoint &, int length, double direction)"
+.br
+.in -1c
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "QwtCompassWindArrow::QwtCompassWindArrow (\fBStyle\fP, const QColor & light = \fCQt::white\fP, const QColor & dark = \fCQt::gray\fP)"
+.PP
+Constructor. 
+.PP
+Definition at line 440 of file qwt_dial_needle.cpp.
+.PP
+References QwtDialNeedle::palette(), and QwtDialNeedle::setPalette().
+.SH "Member Function Documentation"
+.PP 
+.SS "void QwtCompassWindArrow::draw (QPainter * painter, const QPoint & center, int length, double direction, QPalette::ColorGroup colorGroup = \fCQPalette::Active\fP) const\fC [virtual]\fP"
+.PP
+Draw the needle
+.PP
+\fBParameters:\fP
+.RS 4
+\fIpainter\fP Painter 
+.br
+\fIcenter\fP Center of the dial, start position for the needle 
+.br
+\fIlength\fP Length of the needle 
+.br
+\fIdirection\fP Direction of the needle, in degrees counter clockwise 
+.br
+\fIcolorGroup\fP Color group, used for painting
+.RE
+.PP
+
+.PP
+Implements \fBQwtDialNeedle\fP.
+.PP
+Definition at line 465 of file qwt_dial_needle.cpp.
+.PP
+References drawStyle1Needle(), drawStyle2Needle(), and QwtDialNeedle::palette().
+.SS "void QwtCompassWindArrow::drawStyle1Needle (QPainter * painter, const QPalette & palette, QPalette::ColorGroup colorGroup, const QPoint & center, int length, double direction)\fC [static]\fP"
+.PP
+Draw a compass needle
+.PP
+Definition at line 483 of file qwt_dial_needle.cpp.
+.PP
+References qwtDegree2Pos().
+.PP
+Referenced by draw().
+.SS "void QwtCompassWindArrow::drawStyle2Needle (QPainter * painter, const QPalette & palette, QPalette::ColorGroup colorGroup, const QPoint & center, int length, double direction)\fC [static]\fP"
+.PP
+Draw a compass needle
+.PP
+Definition at line 513 of file qwt_dial_needle.cpp.
+.PP
+References qwtDegree2Pos().
+.PP
+Referenced by draw().
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Qwt User's Guide from the source code.

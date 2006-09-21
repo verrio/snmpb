@@ -1,0 +1,198 @@
+.TH "QwtColorMap" 3 "17 Sep 2006" "Version 5.0.0-rc0" "Qwt User's Guide" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+QwtColorMap \- 
+.SH SYNOPSIS
+.br
+.PP
+Inherited by \fBQwtAlphaColorMap\fP, and \fBQwtLinearColorMap\fP.
+.PP
+.SH "Detailed Description"
+.PP 
+QwtColorMap is used to map values into colors. 
+
+For displaying 3D data on a 2D plane the 3rd dimension is often displayed using colors, like f.e in a spectrogram.
+.PP
+Each color map is optimized to return colors for only one of the following image formats:
+.PP
+.IP "\(bu" 2
+QImage::Format_Indexed8
+.br
+
+.IP "\(bu" 2
+QImage::Format_ARGB32
+.br
+
+.PP
+.PP
+\fBSee also:\fP
+.RS 4
+\fBQwtPlotSpectrogram\fP, \fBQwtScaleWidget\fP
+.RE
+.PP
+
+.PP
+Definition at line 44 of file qwt_color_map.h.
+.SS "Public Types"
+
+.in +1c
+.ti -1c
+.RI "enum \fBFormat\fP { \fBRGB\fP, \fBIndexed\fP }"
+.br
+.in -1c
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBQwtColorMap\fP (\fBFormat\fP=QwtColorMap::RGB)"
+.br
+.ti -1c
+.RI "virtual \fB~QwtColorMap\fP ()"
+.br
+.ti -1c
+.RI "\fBFormat\fP \fBformat\fP () const "
+.br
+.ti -1c
+.RI "virtual \fBQwtColorMap\fP * \fBcopy\fP () const =0"
+.br
+.ti -1c
+.RI "virtual QRgb \fBrgb\fP (const \fBQwtDoubleInterval\fP &, double value) const =0"
+.br
+.ti -1c
+.RI "virtual unsigned char \fBcolorIndex\fP (const \fBQwtDoubleInterval\fP &, double value) const =0"
+.br
+.ti -1c
+.RI "QColor \fBcolor\fP (const \fBQwtDoubleInterval\fP &, double value) const "
+.br
+.ti -1c
+.RI "virtual QVector< QRgb > \fBcolorTable\fP (const \fBQwtDoubleInterval\fP &) const "
+.br
+.in -1c
+.SH "Member Enumeration Documentation"
+.PP 
+.SS "enum \fBQwtColorMap::Format\fP"
+.PP
+.IP "\(bu" 2
+RGB
+.br
+ The map is intended to map into QRgb values.
+.IP "\(bu" 2
+Indexed
+.br
+ The map is intended to map into 8 bit values, that are indices into the color table.
+.PP
+.PP
+\fBSee also:\fP
+.RS 4
+\fBrgb()\fP, \fBcolorIndex()\fP, \fBcolorTable()\fP
+.RE
+.PP
+
+.PP
+Definition at line 57 of file qwt_color_map.h.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "QwtColorMap::QwtColorMap (\fBFormat\fP = \fCQwtColorMap::RGB\fP)"
+.PP
+Constructor. 
+.PP
+Definition at line 164 of file qwt_color_map.cpp.
+.SS "QwtColorMap::~QwtColorMap ()\fC [virtual]\fP"
+.PP
+Destructor. 
+.PP
+Definition at line 170 of file qwt_color_map.cpp.
+.SH "Member Function Documentation"
+.PP 
+.SS "QColor QwtColorMap::color (const \fBQwtDoubleInterval\fP & interval, double value) const"
+.PP
+Map a value into a color
+.PP
+\fBParameters:\fP
+.RS 4
+\fIinterval\fP Valid interval for values 
+.br
+\fIvalue\fP Value
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+Color corresponding to value
+.RE
+.PP
+\fBWarning:\fP
+.RS 4
+This method is slow for Indexed color maps. If it is necessary to map many values, its better to get the color table once and find the color using \fBcolorIndex()\fP.
+.RE
+.PP
+
+.PP
+Definition at line 187 of file qwt_color_map.h.
+.PP
+References colorIndex(), colorTable(), and rgb().
+.SS "virtual unsigned char QwtColorMap::colorIndex (const \fBQwtDoubleInterval\fP &, double value) const\fC [pure virtual]\fP"
+.PP
+Map a value of a given interval into a color index. 
+.PP
+Implemented in \fBQwtLinearColorMap\fP.
+.PP
+Referenced by color(), and QwtPainter::drawColorBar().
+.SS "QwtColorTable QwtColorMap::colorTable (const \fBQwtDoubleInterval\fP & interval) const\fC [virtual]\fP"
+.PP
+Build and return a color map of 256 colors
+.PP
+The color table is needed for rendering indexed images in combination with using \fBcolorIndex()\fP.
+.PP
+\fBParameters:\fP
+.RS 4
+\fIinterval\fP Range for the values 
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+A color table, that can be used for a QImage
+.RE
+.PP
+
+.PP
+Definition at line 183 of file qwt_color_map.cpp.
+.PP
+References QwtDoubleInterval::isValid(), QwtDoubleInterval::minValue(), rgb(), and QwtDoubleInterval::width().
+.PP
+Referenced by color(), and QwtPainter::drawColorBar().
+.SS "virtual \fBQwtColorMap\fP* QwtColorMap::copy () const\fC [pure virtual]\fP"
+.PP
+Clone the color map. 
+.PP
+Implemented in \fBQwtLinearColorMap\fP, and \fBQwtAlphaColorMap\fP.
+.PP
+Referenced by QwtScaleWidget::setColorMap(), and QwtPlotSpectrogram::setColorMap().
+.SS "\fBQwtColorMap::Format\fP QwtColorMap::format () const"
+.PP
+\fBReturns:\fP
+.RS 4
+Intended format of the color map 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBFormat\fP
+.RE
+.PP
+
+.PP
+Definition at line 205 of file qwt_color_map.h.
+.PP
+Referenced by QwtPainter::drawColorBar().
+.SS "virtual QRgb QwtColorMap::rgb (const \fBQwtDoubleInterval\fP &, double value) const\fC [pure virtual]\fP"
+.PP
+Map a value of a given interval into a rgb value. 
+.PP
+Implemented in \fBQwtLinearColorMap\fP, and \fBQwtAlphaColorMap\fP.
+.PP
+Referenced by color(), colorTable(), and QwtPainter::drawColorBar().
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Qwt User's Guide from the source code.

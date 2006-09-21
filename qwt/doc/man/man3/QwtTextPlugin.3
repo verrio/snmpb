@@ -1,0 +1,64 @@
+.TH "QwtTextPlugin" 3 "17 Sep 2006" "Version 5.0.0-rc0" "Qwt User's Guide" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+QwtTextPlugin \- 
+.SH SYNOPSIS
+.br
+.PP
+.SH "Detailed Description"
+.PP 
+Interface to import text engines as plugins. 
+
+\fBSee also:\fP
+.RS 4
+\fBQwtTextEngine\fP, \fBQwtText\fP
+.RE
+.PP
+
+.PP
+Definition at line 28 of file qwt_text_plugin.h.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "virtual \fB~QwtTextPlugin\fP ()"
+.br
+.ti -1c
+.RI "virtual int \fBformat\fP () const =0"
+.br
+.ti -1c
+.RI "virtual \fBQwtTextEngine\fP * \fBengine\fP () const =0"
+.br
+.in -1c
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "virtual QwtTextPlugin::~QwtTextPlugin ()\fC [virtual]\fP"
+.PP
+Destructor. 
+.PP
+Definition at line 32 of file qwt_text_plugin.h.
+.SH "Member Function Documentation"
+.PP 
+.SS "virtual \fBQwtTextEngine\fP* QwtTextPlugin::engine () const\fC [pure virtual]\fP"
+.PP
+\fBReturns:\fP
+.RS 4
+Engine loaded from the plugin 
+.RE
+.PP
+
+.SS "virtual int QwtTextPlugin::format () const\fC [pure virtual]\fP"
+.PP
+Return the format, that can be handled by the text engine. 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBQwtText::TextFormat\fP
+.RE
+.PP
+
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Qwt User's Guide from the source code.

@@ -1,0 +1,117 @@
+.TH "QwtScaleTransformation" 3 "17 Sep 2006" "Version 5.0.0-rc0" "Qwt User's Guide" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+QwtScaleTransformation \- 
+.SH SYNOPSIS
+.br
+.PP
+.SH "Detailed Description"
+.PP 
+Operations for linear or logarithmic (base 10) transformations. 
+.PP
+Definition at line 19 of file qwt_scale_map.h.
+.SS "Public Types"
+
+.in +1c
+.ti -1c
+.RI "enum \fBType\fP { \fBLinear\fP, \fBLog10\fP, \fBOther\fP }"
+.br
+.in -1c
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBQwtScaleTransformation\fP (\fBType\fP type)"
+.br
+.ti -1c
+.RI "virtual \fB~QwtScaleTransformation\fP ()"
+.br
+.ti -1c
+.RI "virtual double \fBxForm\fP (double x, double s1, double s2, double p1, double p2) const "
+.br
+.ti -1c
+.RI "virtual double \fBinvXForm\fP (double x, double s1, double s2, double p1, double p2) const "
+.br
+.ti -1c
+.RI "\fBType\fP \fBtype\fP () const "
+.br
+.ti -1c
+.RI "virtual \fBQwtScaleTransformation\fP * \fBcopy\fP () const "
+.br
+.in -1c
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "QwtScaleTransformation::QwtScaleTransformation (\fBType\fP type)"
+.PP
+Constructor for a linear transformation. 
+.PP
+Definition at line 16 of file qwt_scale_map.cpp.
+.PP
+Referenced by copy().
+.SH "Member Function Documentation"
+.PP 
+.SS "double QwtScaleTransformation::invXForm (double p, double p1, double p2, double s1, double s2) const\fC [virtual]\fP"
+.PP
+Transform a value from a linear to a logarithmic interval. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIx\fP value related to the linear interval [p1, p2] 
+.br
+\fIp1\fP first border of linear interval 
+.br
+\fIp2\fP first border of linear interval 
+.br
+\fIs1\fP first border of logarithmic interval 
+.br
+\fIs2\fP first border of logarithmic interval 
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+.IP "\fBexp((x - p1) / (p2 - p1) * log(s2 / s1)) * s1; \fP" 1c
+.PP
+.RE
+.PP
+
+.PP
+Definition at line 70 of file qwt_scale_map.cpp.
+.PP
+Referenced by QwtScaleMap::invTransform().
+.SS "double QwtScaleTransformation::xForm (double s, double s1, double s2, double p1, double p2) const\fC [virtual]\fP"
+.PP
+Transform a value between 2 linear intervals. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIx\fP value related to the interval [x1, x2] 
+.br
+\fIx1\fP first border of source interval 
+.br
+\fIx2\fP first border of source interval 
+.br
+\fIy1\fP first border of target interval 
+.br
+\fIy2\fP first border of target interval 
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+.IP "\fBlinear mapping:\fP" 1c
+y1 + (y2 - y1) / (x2 - x1) * (x - x1) 
+.PP
+.IP "\fBlog10 mapping: \fP" 1c
+p1 + (p2 - p1) / log(s2 / s1) * log(x / s1) 
+.PP
+.RE
+.PP
+
+.PP
+Definition at line 47 of file qwt_scale_map.cpp.
+.PP
+Referenced by QwtScaleMap::xTransform().
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Qwt User's Guide from the source code.

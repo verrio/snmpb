@@ -1,0 +1,310 @@
+.TH "QwtSymbol" 3 "17 Sep 2006" "Version 5.0.0-rc0" "Qwt User's Guide" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+QwtSymbol \- 
+.SH SYNOPSIS
+.br
+.PP
+.SH "Detailed Description"
+.PP 
+A class for drawing symbols. 
+.PP
+Definition at line 22 of file qwt_symbol.h.
+.SS "Public Types"
+
+.in +1c
+.ti -1c
+.RI "enum \fBStyle\fP { \fBNone\fP =  -1, \fBEllipse\fP, \fBRect\fP, \fBDiamond\fP, \fBTriangle\fP, \fBDTriangle\fP, \fBUTriangle\fP, \fBLTriangle\fP, \fBRTriangle\fP, \fBCross\fP, \fBXCross\fP, \fBHLine\fP, \fBVLine\fP, \fBStar1\fP, \fBStar2\fP, \fBHexagon\fP, \fBStyleCnt\fP }"
+.br
+.in -1c
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBQwtSymbol\fP ()"
+.br
+.ti -1c
+.RI "\fBQwtSymbol\fP (\fBStyle\fP st, const QBrush &bd, const QPen &pn, const QSize &s)"
+.br
+.ti -1c
+.RI "virtual \fB~QwtSymbol\fP ()"
+.br
+.ti -1c
+.RI "bool \fBoperator!=\fP (const \fBQwtSymbol\fP &) const "
+.br
+.ti -1c
+.RI "bool \fBoperator==\fP (const \fBQwtSymbol\fP &) const "
+.br
+.ti -1c
+.RI "void \fBsetSize\fP (const QSize &s)"
+.br
+.ti -1c
+.RI "void \fBsetSize\fP (int a, int b=-1)"
+.br
+.ti -1c
+.RI "void \fBsetBrush\fP (const QBrush &b)"
+.br
+.ti -1c
+.RI "void \fBsetPen\fP (const QPen &p)"
+.br
+.ti -1c
+.RI "void \fBsetStyle\fP (\fBStyle\fP s)"
+.br
+.ti -1c
+.RI "const QBrush & \fBbrush\fP () const "
+.br
+.ti -1c
+.RI "const QPen & \fBpen\fP () const "
+.br
+.ti -1c
+.RI "const QSize & \fBsize\fP () const "
+.br
+.ti -1c
+.RI "\fBStyle\fP \fBstyle\fP () const "
+.br
+.ti -1c
+.RI "void \fBdraw\fP (QPainter *p, const QPoint &pt) const "
+.br
+.ti -1c
+.RI "void \fBdraw\fP (QPainter *p, int x, int y) const "
+.br
+.ti -1c
+.RI "virtual void \fBdraw\fP (QPainter *p, const QRect &r) const "
+.br
+.in -1c
+.SH "Member Enumeration Documentation"
+.PP 
+.SS "enum \fBQwtSymbol::Style\fP"
+.PP
+Style 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBQwtSymbol::setStyle\fP, \fBQwtSymbol::style\fP
+.RE
+.PP
+
+.PP
+Definition at line 29 of file qwt_symbol.h.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "QwtSymbol::QwtSymbol ()"
+.PP
+Default Constructor
+.PP
+The symbol is constructed with gray interior, black outline with zero width, no size and style 'None'.
+.PP
+Definition at line 22 of file qwt_symbol.cpp.
+.SS "QwtSymbol::QwtSymbol (\fBQwtSymbol::Style\fP style, const QBrush & brush, const QPen & pen, const QSize & size)"
+.PP
+Constructor. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIstyle\fP Symbol Style 
+.br
+\fIbrush\fP brush to fill the interior 
+.br
+\fIpen\fP outline pen 
+.br
+\fIsize\fP size
+.RE
+.PP
+
+.PP
+Definition at line 37 of file qwt_symbol.cpp.
+.SS "QwtSymbol::~QwtSymbol ()\fC [virtual]\fP"
+.PP
+Destructor. 
+.PP
+Definition at line 47 of file qwt_symbol.cpp.
+.SH "Member Function Documentation"
+.PP 
+.SS "const QBrush& QwtSymbol::brush () const"
+.PP
+Return Brush. 
+.PP
+Definition at line 67 of file qwt_symbol.h.
+.PP
+Referenced by QwtPlotPrintFilter::apply(), QwtPlotCurve::drawSymbols(), operator==(), and QwtPlotPrintFilter::reset().
+.SS "void QwtSymbol::draw (QPainter * painter, const QRect & r) const\fC [virtual]\fP"
+.PP
+Draw the symbol into a bounding rectangle. 
+.PP
+This function assumes that the painter has been initialized with brush and pen before. This allows a much more performant implementation when painting many symbols with the same brush and pen like in curves.
+.PP
+\fBParameters:\fP
+.RS 4
+\fIpainter\fP Painter 
+.br
+\fIr\fP Bounding rectangle
+.RE
+.PP
+
+.PP
+Definition at line 116 of file qwt_symbol.cpp.
+.PP
+References QwtPainter::drawEllipse(), QwtPainter::drawLine(), QwtPainter::drawPolygon(), and QwtPainter::drawRect().
+.SS "void QwtSymbol::draw (QPainter * p, int x, int y) const"
+.PP
+Draw the symbol at a point (x,y). 
+.PP
+Definition at line 100 of file qwt_symbol.cpp.
+.PP
+References draw().
+.SS "void QwtSymbol::draw (QPainter * painter, const QPoint & pos) const"
+.PP
+Draw the symbol at a specified point. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIpainter\fP Painter 
+.br
+\fIpos\fP Center of the symbol
+.RE
+.PP
+
+.PP
+Definition at line 294 of file qwt_symbol.cpp.
+.PP
+References QwtPainter::metricsMap().
+.PP
+Referenced by draw(), and QwtPlotCurve::drawSymbols().
+.SS "bool QwtSymbol::operator!= (const \fBQwtSymbol\fP &) const"
+.PP
+!= operator 
+.PP
+Definition at line 342 of file qwt_symbol.cpp.
+.SS "bool QwtSymbol::operator== (const \fBQwtSymbol\fP &) const"
+.PP
+== operator 
+.PP
+Definition at line 335 of file qwt_symbol.cpp.
+.PP
+References brush(), pen(), size(), and style().
+.SS "const QPen& QwtSymbol::pen () const"
+.PP
+Return Pen. 
+.PP
+Definition at line 69 of file qwt_symbol.h.
+.PP
+Referenced by QwtPlotPrintFilter::apply(), QwtPlotCurve::drawSymbols(), operator==(), and QwtPlotPrintFilter::reset().
+.SS "void QwtSymbol::setBrush (const QBrush & br)"
+.PP
+Assign a brush. 
+.PP
+The brush is used to draw the interior of the symbol. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIbr\fP brush
+.RE
+.PP
+
+.PP
+Definition at line 80 of file qwt_symbol.cpp.
+.PP
+Referenced by QwtPlotPrintFilter::apply(), and QwtPlotPrintFilter::reset().
+.SS "void QwtSymbol::setPen (const QPen & pn)"
+.PP
+Assign a pen. 
+.PP
+The pen is used to draw the symbol's outline.
+.PP
+\fBParameters:\fP
+.RS 4
+\fIpn\fP pen
+.RE
+.PP
+
+.PP
+Definition at line 92 of file qwt_symbol.cpp.
+.PP
+Referenced by QwtPlotPrintFilter::apply(), and QwtPlotPrintFilter::reset().
+.SS "void QwtSymbol::setSize (int w, int h = \fC-1\fP)"
+.PP
+Specify the symbol's size. 
+.PP
+If the 'h' parameter is left out or less than 0, and the 'w' parameter is greater than or equal to 0, the symbol size will be set to (w,w). 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIw\fP width 
+.br
+\fIh\fP height (defaults to -1)
+.RE
+.PP
+
+.PP
+Definition at line 60 of file qwt_symbol.cpp.
+.SS "void QwtSymbol::setSize (const QSize & s)"
+.PP
+Set the symbol's size. 
+.PP
+Definition at line 68 of file qwt_symbol.cpp.
+.SS "void QwtSymbol::setStyle (\fBQwtSymbol::Style\fP s)"
+.PP
+Specify the symbol style. 
+.PP
+The following styles are defined:
+.IP "\fBNone\fP" 1c
+No Style. The symbol cannot be drawn. 
+.IP "\fBEllipse\fP" 1c
+Ellipse or circle 
+.IP "\fBRect\fP" 1c
+Rectangle 
+.IP "\fBDiamond\fP" 1c
+Diamond 
+.IP "\fBTriangle\fP" 1c
+Triangle pointing upwards 
+.IP "\fBDTriangle\fP" 1c
+Triangle pointing downwards 
+.IP "\fBUTriangle\fP" 1c
+Triangle pointing upwards 
+.IP "\fBLTriangle\fP" 1c
+Triangle pointing left 
+.IP "\fBRTriangle\fP" 1c
+Triangle pointing right 
+.IP "\fBCross\fP" 1c
+Cross (+) 
+.IP "\fBXCross\fP" 1c
+Diagonal cross (X) 
+.IP "\fBHLine\fP" 1c
+Horizontal line 
+.IP "\fBVLine\fP" 1c
+Vertical line 
+.IP "\fBStar1\fP" 1c
+X combined with + 
+.IP "\fBStar2\fP" 1c
+Six-pointed star 
+.IP "\fBHexagon\fP" 1c
+Hexagon
+.PP
+.PP
+\fBParameters:\fP
+.RS 4
+\fIs\fP style
+.RE
+.PP
+
+.PP
+Definition at line 329 of file qwt_symbol.cpp.
+.SS "const QSize& QwtSymbol::size () const"
+.PP
+Return Size. 
+.PP
+Definition at line 71 of file qwt_symbol.h.
+.PP
+Referenced by QwtPlotCurve::drawSymbols(), and operator==().
+.SS "\fBStyle\fP QwtSymbol::style () const"
+.PP
+Return Style. 
+.PP
+Definition at line 73 of file qwt_symbol.h.
+.PP
+Referenced by operator==().
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Qwt User's Guide from the source code.

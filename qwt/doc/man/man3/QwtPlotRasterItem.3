@@ -1,0 +1,277 @@
+.TH "QwtPlotRasterItem" 3 "17 Sep 2006" "Version 5.0.0-rc0" "Qwt User's Guide" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+QwtPlotRasterItem \- 
+.SH SYNOPSIS
+.br
+.PP
+Inherits \fBQwtPlotItem\fP.
+.PP
+Inherited by \fBQwtPlotSpectrogram\fP.
+.PP
+.SH "Detailed Description"
+.PP 
+A class, which displays raster data. 
+
+Raster data is a grid of pixel values, that can be represented as a QImage. It is used for many types of information like spectrograms, cartograms, geographical maps ...
+.PP
+Often a plot has several types of raster data organized in layers. ( f.e a geographical map, with weather statistics ). Using \fBsetAlpha()\fP raster items can be stacked easily.
+.PP
+QwtPlotRasterItem is only implemented for images of the following formats: QImage::Format_Indexed8, QImage::Format_ARGB32.
+.PP
+\fBSee also:\fP
+.RS 4
+\fBQwtPlotSpectrogram\fP
+.RE
+.PP
+
+.PP
+Definition at line 36 of file qwt_plot_rasteritem.h.
+.SS "Public Types"
+
+.in +1c
+.ti -1c
+.RI "enum \fBCachePolicy\fP { \fBNoCache\fP, \fBPaintCache\fP, \fBScreenCache\fP }"
+.br
+.in -1c
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBQwtPlotRasterItem\fP (const QString &title=QString::null)"
+.br
+.ti -1c
+.RI "\fBQwtPlotRasterItem\fP (const \fBQwtText\fP &title)"
+.br
+.ti -1c
+.RI "virtual \fB~QwtPlotRasterItem\fP ()"
+.br
+.ti -1c
+.RI "void \fBsetAlpha\fP (int alpha)"
+.br
+.ti -1c
+.RI "int \fBalpha\fP () const "
+.br
+.ti -1c
+.RI "void \fBsetCachePolicy\fP (\fBCachePolicy\fP)"
+.br
+.ti -1c
+.RI "\fBCachePolicy\fP \fBcachePolicy\fP () const "
+.br
+.ti -1c
+.RI "void \fBinvalidateCache\fP ()"
+.br
+.ti -1c
+.RI "virtual void \fBdraw\fP (QPainter *p, const \fBQwtScaleMap\fP &xMap, const \fBQwtScaleMap\fP &yMap, const QRect &rect) const "
+.br
+.ti -1c
+.RI "virtual QSize \fBrasterHint\fP (const QwtDoubleRect &) const "
+.br
+.in -1c
+.SS "Protected Member Functions"
+
+.in +1c
+.ti -1c
+.RI "virtual QImage \fBrenderImage\fP (const \fBQwtScaleMap\fP &xMap, const \fBQwtScaleMap\fP &yMap, const QwtDoubleRect &area) const =0"
+.br
+.in -1c
+.SH "Member Enumeration Documentation"
+.PP 
+.SS "enum \fBQwtPlotRasterItem::CachePolicy\fP"
+.PP
+.IP "\(bu" 2
+NoCache
+.br
+ \fBrenderImage()\fP is called, whenever the item has to be repainted
+.IP "\(bu" 2
+PaintCache
+.br
+ \fBrenderImage()\fP is called, whenever the image cache is not valid, or the scales, or the size of the canvas has changed. This type of cache is only useful for improving the performance of hide/show operations. All other situations are already handled by the plot canvas cache.
+.IP "\(bu" 2
+ScreenCache
+.br
+ The screen cache is an image in size of the screen. As long as the scales don't change the target image is scaled from the cache. This might improve the performance when resizing the plot widget, but suffers from scaling effects.
+.PP
+.PP
+The default policy is NoCache
+.PP
+Definition at line 56 of file qwt_plot_rasteritem.h.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "QwtPlotRasterItem::QwtPlotRasterItem (const QString & title = \fCQString::null\fP)\fC [explicit]\fP"
+.PP
+Constructor. 
+.PP
+Definition at line 91 of file qwt_plot_rasteritem.cpp.
+.SS "QwtPlotRasterItem::QwtPlotRasterItem (const \fBQwtText\fP & title)\fC [explicit]\fP"
+.PP
+Constructor. 
+.PP
+Definition at line 98 of file qwt_plot_rasteritem.cpp.
+.SS "QwtPlotRasterItem::~QwtPlotRasterItem ()\fC [virtual]\fP"
+.PP
+Destructor. 
+.PP
+Definition at line 105 of file qwt_plot_rasteritem.cpp.
+.SH "Member Function Documentation"
+.PP 
+.SS "int QwtPlotRasterItem::alpha () const"
+.PP
+\fBReturns:\fP
+.RS 4
+Alpha value of the raster item 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBsetAlpha()\fP
+.RE
+.PP
+
+.PP
+Definition at line 163 of file qwt_plot_rasteritem.cpp.
+.SS "\fBQwtPlotRasterItem::CachePolicy\fP QwtPlotRasterItem::cachePolicy () const"
+.PP
+\fBReturns:\fP
+.RS 4
+Cache policy 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBCachePolicy\fP, \fBsetCachePolicy()\fP
+.RE
+.PP
+
+.PP
+Definition at line 192 of file qwt_plot_rasteritem.cpp.
+.SS "void QwtPlotRasterItem::draw (QPainter * painter, const \fBQwtScaleMap\fP & xMap, const \fBQwtScaleMap\fP & yMap, const QRect & canvasRect) const\fC [virtual]\fP"
+.PP
+Draw the raster data. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIpainter\fP Painter 
+.br
+\fIxMap\fP X-Scale Map 
+.br
+\fIyMap\fP Y-Scale Map 
+.br
+\fIcanvasRect\fP Contents rect of the plot canvas
+.RE
+.PP
+
+.PP
+Implements \fBQwtPlotItem\fP.
+.PP
+Reimplemented in \fBQwtPlotSpectrogram\fP.
+.PP
+Definition at line 229 of file qwt_plot_rasteritem.cpp.
+.PP
+References QwtPlotItem::boundingRect(), QwtPlotItem::invTransform(), QwtPlotItem::paintRect(), renderImage(), QwtScaleMap::setPaintInterval(), and QwtPlotItem::transform().
+.PP
+Referenced by QwtPlotSpectrogram::draw().
+.SS "void QwtPlotRasterItem::invalidateCache ()"
+.PP
+Invalidate the paint cache 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBsetCachePolicy\fP
+.RE
+.PP
+
+.PP
+Definition at line 201 of file qwt_plot_rasteritem.cpp.
+.PP
+Referenced by setCachePolicy(), QwtPlotSpectrogram::setColorMap(), and QwtPlotSpectrogram::setData().
+.SS "QSize QwtPlotRasterItem::rasterHint (const QwtDoubleRect &) const\fC [virtual]\fP"
+.PP
+Returns the recommended raster for a given rect. 
+.PP
+F.e the raster hint can be used to limit the resolution of the image that is rendered.
+.PP
+The default implementation returns an invalid size (QSize()), what means: no hint.
+.PP
+Reimplemented in \fBQwtPlotSpectrogram\fP.
+.PP
+Definition at line 217 of file qwt_plot_rasteritem.cpp.
+.SS "virtual QImage QwtPlotRasterItem::renderImage (const \fBQwtScaleMap\fP & xMap, const \fBQwtScaleMap\fP & yMap, const QwtDoubleRect & area) const\fC [protected, pure virtual]\fP"
+.PP
+Renders an image for an area
+.PP
+The format of the image must be QImage::Format_Indexed8, QImage::Format_RGB32 or QImage::Format_ARGB32
+.PP
+\fBParameters:\fP
+.RS 4
+\fIxMap\fP Maps x-values into pixel coordinates. 
+.br
+\fIyMap\fP Maps y-values into pixel coordinates. 
+.br
+\fIarea\fP Requested area for the image in scale coordinates
+.RE
+.PP
+
+.PP
+Implemented in \fBQwtPlotSpectrogram\fP.
+.PP
+Referenced by draw().
+.SS "void QwtPlotRasterItem::setAlpha (int alpha)"
+.PP
+Set an alpha value for the raster data. 
+.PP
+Often a plot has several types of raster data organized in layers. ( f.e a geographical map, with weather statistics ). Using \fBsetAlpha()\fP raster items can be stacked easily.
+.PP
+The alpha value is a value [0, 255] to control the transparency of the image. 0 represents a fully transparent color, while 255 represents a fully opaque color.
+.PP
+\fBParameters:\fP
+.RS 4
+\fIalpha\fP Alpha value
+.RE
+.PP
+.IP "\(bu" 2
+alpha >= 0
+.br
+ All alpha values of the pixels returned by \fBrenderImage()\fP will be set to alpha, beside those with an alpha value of 0 (invalid pixels).
+.IP "\(bu" 2
+alpha < 0 The alpha values returned by \fBrenderImage()\fP are not changed.
+.PP
+.PP
+The default alpha value is -1.
+.PP
+\fBSee also:\fP
+.RS 4
+\fBalpha()\fP
+.RE
+.PP
+
+.PP
+Definition at line 143 of file qwt_plot_rasteritem.cpp.
+.PP
+References QwtPlotItem::itemChanged().
+.SS "void QwtPlotRasterItem::setCachePolicy (\fBQwtPlotRasterItem::CachePolicy\fP policy)"
+.PP
+Change the cache policy
+.PP
+The default policy is NoCache
+.PP
+\fBParameters:\fP
+.RS 4
+\fIpolicy\fP Cache policy 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBCachePolicy\fP, \fBcachePolicy()\fP
+.RE
+.PP
+
+.PP
+Definition at line 176 of file qwt_plot_rasteritem.cpp.
+.PP
+References invalidateCache(), and QwtPlotItem::itemChanged().
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Qwt User's Guide from the source code.

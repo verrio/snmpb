@@ -1,0 +1,528 @@
+.TH "QwtPlotPicker" 3 "17 Sep 2006" "Version 5.0.0-rc0" "Qwt User's Guide" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+QwtPlotPicker \- 
+.SH SYNOPSIS
+.br
+.PP
+Inherits \fBQwtPicker\fP.
+.PP
+Inherited by \fBQwtPlotZoomer\fP.
+.PP
+.SH "Detailed Description"
+.PP 
+QwtPlotPicker provides selections on a plot canvas. 
+
+QwtPlotPicker is a \fBQwtPicker\fP tailored for selections on a plot canvas. It is set to a x-Axis and y-Axis and translates all pixel coordinates into this coodinate system.
+.PP
+Definition at line 29 of file qwt_plot_picker.h.
+.SS "Signals"
+
+.in +1c
+.ti -1c
+.RI "void \fBselected\fP (const QwtDoublePoint &pos)"
+.br
+.ti -1c
+.RI "void \fBselected\fP (const QwtDoubleRect &rect)"
+.br
+.ti -1c
+.RI "void \fBselected\fP (const QwtArray< QwtDoublePoint > &pa)"
+.br
+.ti -1c
+.RI "void \fBappended\fP (const QwtDoublePoint &pos)"
+.br
+.ti -1c
+.RI "void \fBmoved\fP (const QwtDoublePoint &pos)"
+.br
+.in -1c
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBQwtPlotPicker\fP (\fBQwtPlotCanvas\fP *)"
+.br
+.ti -1c
+.RI "\fBQwtPlotPicker\fP (int xAxis, int yAxis, \fBQwtPlotCanvas\fP *)"
+.br
+.ti -1c
+.RI "\fBQwtPlotPicker\fP (int xAxis, int yAxis, int selectionFlags, \fBRubberBand\fP rubberBand, \fBDisplayMode\fP trackerMode, \fBQwtPlotCanvas\fP *)"
+.br
+.ti -1c
+.RI "virtual void \fBsetAxis\fP (int xAxis, int yAxis)"
+.br
+.ti -1c
+.RI "int \fBxAxis\fP () const "
+.br
+.ti -1c
+.RI "int \fByAxis\fP () const "
+.br
+.ti -1c
+.RI "\fBQwtPlot\fP * \fBplot\fP ()"
+.br
+.ti -1c
+.RI "const \fBQwtPlot\fP * \fBplot\fP () const "
+.br
+.ti -1c
+.RI "\fBQwtPlotCanvas\fP * \fBcanvas\fP ()"
+.br
+.ti -1c
+.RI "const \fBQwtPlotCanvas\fP * \fBcanvas\fP () const "
+.br
+.in -1c
+.SS "Protected Member Functions"
+
+.in +1c
+.ti -1c
+.RI "QwtDoubleRect \fBscaleRect\fP () const "
+.br
+.ti -1c
+.RI "QwtDoubleRect \fBinvTransform\fP (const QRect &) const "
+.br
+.ti -1c
+.RI "QRect \fBtransform\fP (const QwtDoubleRect &) const "
+.br
+.ti -1c
+.RI "QwtDoublePoint \fBinvTransform\fP (const QPoint &) const "
+.br
+.ti -1c
+.RI "QPoint \fBtransform\fP (const QwtDoublePoint &) const "
+.br
+.ti -1c
+.RI "virtual \fBQwtText\fP \fBtrackerText\fP (const QPoint &) const "
+.br
+.ti -1c
+.RI "virtual \fBQwtText\fP \fBtrackerText\fP (const QwtDoublePoint &) const "
+.br
+.ti -1c
+.RI "virtual void \fBmove\fP (const QPoint &)"
+.br
+.ti -1c
+.RI "virtual void \fBappend\fP (const QPoint &)"
+.br
+.ti -1c
+.RI "virtual bool \fBend\fP (bool ok=true)"
+.br
+.in -1c
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "QwtPlotPicker::QwtPlotPicker (\fBQwtPlotCanvas\fP * canvas)\fC [explicit]\fP"
+.PP
+Create a plot picker. 
+.PP
+The picker is set to those x- and y-axis of the plot that are enabled. If both or no x-axis are enabled, the picker is set to QwtPlot::xBottom. If both or no y-axis are enabled, it is set to QwtPlot::yLeft.
+.PP
+\fBParameters:\fP
+.RS 4
+\fIcanvas\fP Plot canvas to observe, also the parent object
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBQwtPlot::autoReplot()\fP, \fBQwtPlot::replot()\fP, \fBQwtPlotPicker::scaleRect()\fP
+.RE
+.PP
+
+.PP
+Definition at line 32 of file qwt_plot_picker.cpp.
+.PP
+References QwtPlot::axisEnabled(), plot(), setAxis(), xAxis(), and yAxis().
+.SS "QwtPlotPicker::QwtPlotPicker (int xAxis, int yAxis, \fBQwtPlotCanvas\fP * canvas)\fC [explicit]\fP"
+.PP
+Create a plot picker
+.PP
+\fBParameters:\fP
+.RS 4
+\fIxAxis\fP Set the x axis of the picker 
+.br
+\fIyAxis\fP Set the y axis of the picker 
+.br
+\fIcanvas\fP Plot canvas to observe, also the parent object
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBQwtPlot::autoReplot()\fP, \fBQwtPlot::replot()\fP, \fBQwtPlotPicker::scaleRect()\fP
+.RE
+.PP
+
+.PP
+Definition at line 70 of file qwt_plot_picker.cpp.
+.SS "QwtPlotPicker::QwtPlotPicker (int xAxis, int yAxis, int selectionFlags, \fBRubberBand\fP rubberBand, \fBDisplayMode\fP trackerMode, \fBQwtPlotCanvas\fP * canvas)\fC [explicit]\fP"
+.PP
+Create a plot picker
+.PP
+\fBParameters:\fP
+.RS 4
+\fIxAxis\fP X axis of the picker 
+.br
+\fIyAxis\fP Y axis of the picker 
+.br
+\fIselectionFlags\fP Or´d value of SelectionType, RectSelectionType and SelectionMode 
+.br
+\fIrubberBand\fP Rubberband style 
+.br
+\fItrackerMode\fP Tracker mode 
+.br
+\fIcanvas\fP Plot canvas to observe, also the parent object
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBQwtPicker\fP, \fBQwtPicker::setSelectionFlags()\fP, \fBQwtPicker::setRubberBand()\fP, \fBQwtPicker::setTrackerMode\fP
+.PP
+\fBQwtPlot::autoReplot()\fP, \fBQwtPlot::replot()\fP, \fBQwtPlotPicker::scaleRect()\fP
+.RE
+.PP
+
+.PP
+Definition at line 93 of file qwt_plot_picker.cpp.
+.SH "Member Function Documentation"
+.PP 
+.SS "void QwtPlotPicker::append (const QPoint & pos)\fC [protected, virtual]\fP"
+.PP
+Append a point to the selection and update rubberband and tracker.
+.PP
+\fBParameters:\fP
+.RS 4
+\fIpos\fP Additional point 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBisActive\fP, \fBbegin()\fP, \fBend()\fP, \fBmove()\fP, \fBappended()\fP
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+The \fBappended(const QPoint &)\fP, appended(const QDoublePoint &) signals are emitted.
+.RE
+.PP
+
+.PP
+Reimplemented from \fBQwtPicker\fP.
+.PP
+Definition at line 231 of file qwt_plot_picker.cpp.
+.PP
+References QwtPicker::append(), appended(), and invTransform().
+.SS "void QwtPlotPicker::appended (const QwtDoublePoint & pos)\fC [signal]\fP"
+.PP
+A signal emitted when a point has been appended to the selection
+.PP
+\fBParameters:\fP
+.RS 4
+\fIpos\fP Position of the appended point. 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBappend()\fP. \fBmoved()\fP
+.RE
+.PP
+
+.PP
+Referenced by append().
+.SS "const \fBQwtPlotCanvas\fP * QwtPlotPicker::canvas () const"
+.PP
+Return Observed plot canvas. 
+.PP
+Definition at line 113 of file qwt_plot_picker.cpp.
+.SS "\fBQwtPlotCanvas\fP * QwtPlotPicker::canvas ()"
+.PP
+Return observed plot canvas. 
+.PP
+Definition at line 103 of file qwt_plot_picker.cpp.
+.PP
+References QwtPicker::parentWidget().
+.PP
+Referenced by plot().
+.SS "bool QwtPlotPicker::end (bool ok = \fCtrue\fP)\fC [protected, virtual]\fP"
+.PP
+Close a selection setting the state to inactive.
+.PP
+\fBParameters:\fP
+.RS 4
+\fIok\fP If true, complete the selection and emit selected signals otherwise discard the selection. 
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+true if the selection is accepted, false otherwise
+.RE
+.PP
+
+.PP
+Reimplemented from \fBQwtPicker\fP.
+.PP
+Reimplemented in \fBQwtPlotZoomer\fP.
+.PP
+Definition at line 260 of file qwt_plot_picker.cpp.
+.PP
+References QwtPicker::end(), invTransform(), plot(), qwtAbs, qwtMax, selected(), QwtPicker::selection(), and QwtPicker::selectionFlags().
+.PP
+Referenced by QwtPlotZoomer::end().
+.SS "QwtDoublePoint QwtPlotPicker::invTransform (const QPoint & pos) const\fC [protected]\fP"
+.PP
+Translate a point from pixel into plot coordinates 
+.PP
+\fBReturns:\fP
+.RS 4
+Point in plot coordinates 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBQwtPlotPicker::transform()\fP
+.RE
+.PP
+
+.PP
+Definition at line 356 of file qwt_plot_picker.cpp.
+.PP
+References QwtPlot::canvasMap(), QwtScaleMap::invTransform(), and plot().
+.SS "QwtDoubleRect QwtPlotPicker::invTransform (const QRect & rect) const\fC [protected]\fP"
+.PP
+Translate a rectangle from pixel into plot coordinates
+.PP
+\fBReturns:\fP
+.RS 4
+Rectangle in plot coordinates 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBQwtPlotPicker::transform()\fP
+.RE
+.PP
+
+.PP
+Definition at line 319 of file qwt_plot_picker.cpp.
+.PP
+References QwtPlot::canvasMap(), QwtScaleMap::invTransform(), and plot().
+.PP
+Referenced by append(), QwtPlotZoomer::end(), end(), move(), and trackerText().
+.SS "void QwtPlotPicker::move (const QPoint & pos)\fC [protected, virtual]\fP"
+.PP
+Move the last point of the selection
+.PP
+\fBParameters:\fP
+.RS 4
+\fIpos\fP New position 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBisActive\fP, \fBbegin()\fP, \fBend()\fP, \fBappend()\fP
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+The \fBmoved(const QPoint &)\fP, moved(const QDoublePoint &) signals are emitted.
+.RE
+.PP
+
+.PP
+Reimplemented from \fBQwtPicker\fP.
+.PP
+Definition at line 246 of file qwt_plot_picker.cpp.
+.PP
+References invTransform(), QwtPicker::move(), and moved().
+.SS "void QwtPlotPicker::moved (const QwtDoublePoint & pos)\fC [signal]\fP"
+.PP
+A signal emitted whenever the last appended point of the selection has been moved.
+.PP
+\fBParameters:\fP
+.RS 4
+\fIpos\fP Position of the moved last point of the selection. 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBmove()\fP, \fBappended()\fP
+.RE
+.PP
+
+.PP
+Referenced by move().
+.SS "const \fBQwtPlot\fP * QwtPlotPicker::plot () const"
+.PP
+Return plot widget, containing the observed plot canvas. 
+.PP
+Definition at line 133 of file qwt_plot_picker.cpp.
+.SS "\fBQwtPlot\fP * QwtPlotPicker::plot ()"
+.PP
+Return plot widget, containing the observed plot canvas. 
+.PP
+Definition at line 119 of file qwt_plot_picker.cpp.
+.PP
+References canvas().
+.PP
+Referenced by QwtPlotZoomer::end(), end(), invTransform(), QwtPlotPicker(), QwtPlotZoomer::rescale(), scaleRect(), setAxis(), QwtPlotZoomer::setZoomBase(), and transform().
+.SS "QwtDoubleRect QwtPlotPicker::scaleRect () const\fC [protected]\fP"
+.PP
+Return normalized bounding rect of the axes
+.PP
+\fBSee also:\fP
+.RS 4
+\fBQwtPlot::autoReplot()\fP, \fBQwtPlot::replot()\fP.
+.RE
+.PP
+
+.PP
+Definition at line 143 of file qwt_plot_picker.cpp.
+.PP
+References QwtPlot::axisScaleDiv(), QwtScaleDiv::lBound(), plot(), QwtScaleDiv::range(), xAxis(), and yAxis().
+.PP
+Referenced by QwtPlotZoomer::rescale(), QwtPlotZoomer::setAxis(), and QwtPlotZoomer::setZoomBase().
+.SS "void QwtPlotPicker::selected (const QwtArray< QwtDoublePoint > & pa)\fC [signal]\fP"
+.PP
+A signal emitting the selected points, at the end of a selection.
+.PP
+\fBParameters:\fP
+.RS 4
+\fIpa\fP Selected points
+.RE
+.PP
+
+.SS "void QwtPlotPicker::selected (const QwtDoubleRect & rect)\fC [signal]\fP"
+.PP
+A signal emitted in case of \fBselectionFlags()\fP & RectSelection. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIrect\fP Selected rectangle
+.RE
+.PP
+
+.SS "void QwtPlotPicker::selected (const QwtDoublePoint & pos)\fC [signal]\fP"
+.PP
+A signal emitted in case of \fBselectionFlags()\fP & PointSelection. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIpos\fP Selected point
+.RE
+.PP
+
+.PP
+Referenced by end().
+.SS "void QwtPlotPicker::setAxis (int xAxis, int yAxis)\fC [virtual]\fP"
+.PP
+Set the x and y axes of the picker
+.PP
+\fBParameters:\fP
+.RS 4
+\fIxAxis\fP X axis 
+.br
+\fIyAxis\fP Y axis
+.RE
+.PP
+
+.PP
+Reimplemented in \fBQwtPlotZoomer\fP.
+.PP
+Definition at line 160 of file qwt_plot_picker.cpp.
+.PP
+References plot().
+.PP
+Referenced by QwtPlotPicker(), and QwtPlotZoomer::setAxis().
+.SS "\fBQwtText\fP QwtPlotPicker::trackerText (const QwtDoublePoint & pos) const\fC [protected, virtual]\fP"
+.PP
+Translate a position into a position string. 
+.PP
+In case of HLineRubberBand the label is the value of the y position, in case of VLineRubberBand the value of the x position. Otherwise the label contains x and y position separated by a ´, ´.
+.PP
+The format for the double to string conversion is '%.4f'.
+.PP
+\fBParameters:\fP
+.RS 4
+\fIpos\fP Position 
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+Position string
+.RE
+.PP
+
+.PP
+Definition at line 208 of file qwt_plot_picker.cpp.
+.PP
+References QwtPicker::rubberBand().
+.SS "\fBQwtText\fP QwtPlotPicker::trackerText (const QPoint & pos) const\fC [protected, virtual]\fP"
+.PP
+Translate a pixel position into a position string
+.PP
+\fBParameters:\fP
+.RS 4
+\fIpos\fP Position in pixel coordinates 
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+Position string
+.RE
+.PP
+
+.PP
+Reimplemented from \fBQwtPicker\fP.
+.PP
+Definition at line 191 of file qwt_plot_picker.cpp.
+.PP
+References invTransform().
+.SS "QPoint QwtPlotPicker::transform (const QwtDoublePoint & pos) const\fC [protected]\fP"
+.PP
+Translate a point from plot into pixel coordinates 
+.PP
+\fBReturns:\fP
+.RS 4
+Point in pixel coordinates 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBQwtPlotPicker::invTransform()\fP
+.RE
+.PP
+
+.PP
+Definition at line 372 of file qwt_plot_picker.cpp.
+.PP
+References QwtPlot::canvasMap(), plot(), and QwtScaleMap::transform().
+.SS "QRect QwtPlotPicker::transform (const QwtDoubleRect & rect) const\fC [protected]\fP"
+.PP
+Translate a rectangle from plot into pixel coordinates 
+.PP
+\fBReturns:\fP
+.RS 4
+Rectangle in pixel coordinates 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBQwtPlotPicker::invTransform()\fP
+.RE
+.PP
+
+.PP
+Definition at line 338 of file qwt_plot_picker.cpp.
+.PP
+References QwtPlot::canvasMap(), plot(), and QwtScaleMap::transform().
+.SS "int QwtPlotPicker::xAxis () const"
+.PP
+Return x axis. 
+.PP
+Definition at line 174 of file qwt_plot_picker.cpp.
+.PP
+Referenced by QwtPlotPicker(), QwtPlotZoomer::rescale(), scaleRect(), and QwtPlotZoomer::setAxis().
+.SS "int QwtPlotPicker::yAxis () const"
+.PP
+Return y axis. 
+.PP
+Definition at line 180 of file qwt_plot_picker.cpp.
+.PP
+Referenced by QwtPlotPicker(), QwtPlotZoomer::rescale(), scaleRect(), and QwtPlotZoomer::setAxis().
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Qwt User's Guide from the source code.

@@ -1,0 +1,106 @@
+.TH "QwtMetricsMap" 3 "17 Sep 2006" "Version 5.0.0-rc0" "Qwt User's Guide" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+QwtMetricsMap \- 
+.SH SYNOPSIS
+.br
+.PP
+.SH "Detailed Description"
+.PP 
+A Map to translate between layout, screen and paint device metrics. 
+.PP
+Definition at line 31 of file qwt_layout_metrics.h.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBQwtMetricsMap\fP ()"
+.br
+.ti -1c
+.RI "bool \fBisIdentity\fP () const "
+.br
+.ti -1c
+.RI "void \fBsetMetrics\fP (const QPaintDevice *layoutMetrics, const QPaintDevice *deviceMetrics)"
+.br
+.ti -1c
+.RI "int \fBlayoutToDeviceX\fP (int x) const "
+.br
+.ti -1c
+.RI "int \fBdeviceToLayoutX\fP (int x) const "
+.br
+.ti -1c
+.RI "int \fBscreenToLayoutX\fP (int x) const "
+.br
+.ti -1c
+.RI "int \fBlayoutToScreenX\fP (int x) const "
+.br
+.ti -1c
+.RI "int \fBlayoutToDeviceY\fP (int y) const "
+.br
+.ti -1c
+.RI "int \fBdeviceToLayoutY\fP (int y) const "
+.br
+.ti -1c
+.RI "int \fBscreenToLayoutY\fP (int y) const "
+.br
+.ti -1c
+.RI "int \fBlayoutToScreenY\fP (int y) const "
+.br
+.ti -1c
+.RI "QPoint \fBlayoutToDevice\fP (const QPoint &, const QPainter *=NULL) const "
+.br
+.ti -1c
+.RI "QPoint \fBdeviceToLayout\fP (const QPoint &, const QPainter *=NULL) const "
+.br
+.ti -1c
+.RI "QPoint \fBscreenToLayout\fP (const QPoint &) const "
+.br
+.ti -1c
+.RI "QPoint \fBlayoutToScreen\fP (const QPoint &point) const "
+.br
+.ti -1c
+.RI "QSize \fBlayoutToDevice\fP (const QSize &) const "
+.br
+.ti -1c
+.RI "QSize \fBdeviceToLayout\fP (const QSize &) const "
+.br
+.ti -1c
+.RI "QSize \fBscreenToLayout\fP (const QSize &) const "
+.br
+.ti -1c
+.RI "QSize \fBlayoutToScreen\fP (const QSize &) const "
+.br
+.ti -1c
+.RI "QRect \fBlayoutToDevice\fP (const QRect &, const QPainter *=NULL) const "
+.br
+.ti -1c
+.RI "QRect \fBdeviceToLayout\fP (const QRect &, const QPainter *=NULL) const "
+.br
+.ti -1c
+.RI "QRect \fBscreenToLayout\fP (const QRect &) const "
+.br
+.ti -1c
+.RI "QRect \fBlayoutToScreen\fP (const QRect &) const "
+.br
+.ti -1c
+.RI "QwtPolygon \fBlayoutToDevice\fP (const QwtPolygon &, const QPainter *=NULL) const "
+.br
+.ti -1c
+.RI "QwtPolygon \fBdeviceToLayout\fP (const QwtPolygon &, const QPainter *=NULL) const "
+.br
+.in -1c
+.SS "Static Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "static QwtPolygon \fBtranslate\fP (const QMatrix &, const QwtPolygon &)"
+.br
+.ti -1c
+.RI "static QRect \fBtranslate\fP (const QMatrix &, const QRect &)"
+.br
+.in -1c
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Qwt User's Guide from the source code.

@@ -1,0 +1,3 @@
+base referer
+rect $class_qwt_dial_scale_draw.html 21,158 151,182
+rect $class_qwt_abstract_scale_draw.html 7,9 165,33

@@ -1,0 +1,198 @@
+.TH "QwtPlotPrintFilter" 3 "17 Sep 2006" "Version 5.0.0-rc0" "Qwt User's Guide" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+QwtPlotPrintFilter \- 
+.SH SYNOPSIS
+.br
+.PP
+.SH "Detailed Description"
+.PP 
+A base class for plot print filters. 
+
+A priint filter can be used to customize \fBQwtPlot::print()\fP.
+.PP
+\fBNote:\fP
+.RS 4
+In Qwt 5.0 the design of \fBQwtPlot\fP allows/recommends writing individual QwtPlotItems, that are not known to QwtPlotPrintFilter. So this concept is outdated and QwtPlotPrintFilter will be removed/replaced in Qwt 6.x.
+.RE
+.PP
+
+.PP
+Definition at line 30 of file qwt_plot_printfilter.h.
+.SS "Public Types"
+
+.in +1c
+.ti -1c
+.RI "enum \fBOptions\fP { \fBPrintMargin\fP =  1, \fBPrintTitle\fP =  2, \fBPrintLegend\fP =  4, \fBPrintGrid\fP =  8, \fBPrintCanvasBackground\fP =  16, \fBPrintWidgetBackground\fP =  32, \fBPrintAll\fP =  ~PrintWidgetBackground }"
+.br
+.ti -1c
+.RI "enum \fBItem\fP { \fBTitle\fP, \fBLegend\fP, \fBCurve\fP, \fBCurveSymbol\fP, \fBMarker\fP, \fBMarkerSymbol\fP, \fBMajorGrid\fP, \fBMinorGrid\fP, \fBCanvasBackground\fP, \fBAxisScale\fP, \fBAxisTitle\fP, \fBWidgetBackground\fP }"
+.br
+.in -1c
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBQwtPlotPrintFilter\fP ()"
+.br
+.ti -1c
+.RI "virtual \fB~QwtPlotPrintFilter\fP ()"
+.br
+.ti -1c
+.RI "virtual QColor \fBcolor\fP (const QColor &, \fBItem\fP item) const "
+.br
+.ti -1c
+.RI "virtual QFont \fBfont\fP (const QFont &, \fBItem\fP item) const "
+.br
+.ti -1c
+.RI "void \fBsetOptions\fP (int options)"
+.br
+.ti -1c
+.RI "int \fBoptions\fP () const "
+.br
+.ti -1c
+.RI "virtual void \fBapply\fP (\fBQwtPlot\fP *) const "
+.br
+.ti -1c
+.RI "virtual void \fBreset\fP (\fBQwtPlot\fP *) const "
+.br
+.ti -1c
+.RI "virtual void \fBapply\fP (\fBQwtPlotItem\fP *) const "
+.br
+.ti -1c
+.RI "virtual void \fBreset\fP (\fBQwtPlotItem\fP *) const "
+.br
+.in -1c
+.SH "Member Enumeration Documentation"
+.PP 
+.SS "enum \fBQwtPlotPrintFilter::Item\fP"
+.PP
+Print items. 
+.PP
+Definition at line 47 of file qwt_plot_printfilter.h.
+.SS "enum \fBQwtPlotPrintFilter::Options\fP"
+.PP
+Print options. 
+.PP
+Definition at line 34 of file qwt_plot_printfilter.h.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "QwtPlotPrintFilter::QwtPlotPrintFilter ()\fC [explicit]\fP"
+.PP
+Sets filter options to PrintAll
+.PP
+Definition at line 82 of file qwt_plot_printfilter.cpp.
+.SS "QwtPlotPrintFilter::~QwtPlotPrintFilter ()\fC [virtual]\fP"
+.PP
+Destructor. 
+.PP
+Definition at line 88 of file qwt_plot_printfilter.cpp.
+.SH "Member Function Documentation"
+.PP 
+.SS "void QwtPlotPrintFilter::apply (\fBQwtPlot\fP * plot) const\fC [virtual]\fP"
+.PP
+Change color and fonts of a plot 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBapply\fP
+.RE
+.PP
+
+.PP
+Definition at line 157 of file qwt_plot_printfilter.cpp.
+.PP
+References QwtPlot::autoReplot(), QwtPlot::axisWidget(), QwtSymbol::brush(), QwtPlot::canvasBackground(), QwtText::color(), color(), QwtLegendItem::curvePen(), QwtText::font(), font(), QwtScaleWidget::getBorderDistHint(), QwtPlot::legend(), QwtLegend::legendItems(), QwtSymbol::pen(), QwtPlot::setAutoReplot(), QwtScaleWidget::setBorderDist(), QwtSymbol::setBrush(), QwtPlot::setCanvasBackground(), QwtText::setColor(), QwtLegendItem::setCurvePen(), QwtText::setFont(), QwtSymbol::setPen(), QwtLegendItem::setSymbol(), QwtScaleWidget::setTitle(), QwtLegendItem::symbol(), QwtText::testPaintAttribute(), QwtScaleWidget::title(), and QwtPlot::titleLabel().
+.PP
+Referenced by QwtPlot::print().
+.SS "QColor QwtPlotPrintFilter::color (const QColor & c, \fBItem\fP item) const\fC [virtual]\fP"
+.PP
+Modifies a color for printing. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIc\fP Color to be modified 
+.br
+\fIitem\fP Type of item where the color belongs 
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+Modified color.
+.RE
+.PP
+In case of !(\fBQwtPlotPrintFilter::options()\fP & PrintBackground) MajorGrid is modified to Qt::darkGray, MinorGrid to Qt::gray. All other colors are returned unmodified.
+.PP
+Definition at line 124 of file qwt_plot_printfilter.cpp.
+.PP
+References options().
+.PP
+Referenced by apply().
+.SS "QFont QwtPlotPrintFilter::font (const QFont & f, \fBItem\fP item) const\fC [virtual]\fP"
+.PP
+Modifies a font for printing. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIf\fP Font to be modified 
+.br
+\fIitem\fP Type of item where the font belongs
+.RE
+.PP
+All fonts are returned unmodified
+.PP
+Definition at line 148 of file qwt_plot_printfilter.cpp.
+.PP
+Referenced by apply().
+.SS "int QwtPlotPrintFilter::options () const"
+.PP
+Get plot print options. 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBsetOptions()\fP
+.RE
+.PP
+
+.PP
+Definition at line 108 of file qwt_plot_printfilter.cpp.
+.PP
+Referenced by color(), QwtPlot::drawItems(), QwtPlot::print(), and QwtPlot::printCanvas().
+.SS "void QwtPlotPrintFilter::reset (\fBQwtPlot\fP * plot) const\fC [virtual]\fP"
+.PP
+Reset color and fonts of a plot 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBapply\fP
+.RE
+.PP
+
+.PP
+Definition at line 366 of file qwt_plot_printfilter.cpp.
+.PP
+References QwtPlot::autoReplot(), QwtPlot::axisWidget(), QwtSymbol::brush(), QwtLegendItem::curvePen(), QwtLegend::find(), QwtScaleWidget::getBorderDistHint(), QwtPlot::legend(), QwtLegend::legendItems(), QwtSymbol::pen(), QwtPlot::setAutoReplot(), QwtScaleWidget::setBorderDist(), QwtSymbol::setBrush(), QwtPlot::setCanvasBackground(), QwtText::setColor(), QwtLegendItem::setCurvePen(), QwtText::setFont(), QwtSymbol::setPen(), QwtLegendItem::setSymbol(), QwtTextLabel::setText(), QwtScaleWidget::setTitle(), QwtLegendItem::symbol(), QwtText::testPaintAttribute(), QwtTextLabel::text(), and QwtPlot::titleLabel().
+.PP
+Referenced by QwtPlot::print().
+.SS "void QwtPlotPrintFilter::setOptions (int options)"
+.PP
+Set plot print options. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIoptions\fP Or'd \fBQwtPlotPrintFilter::Options\fP values
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBoptions()\fP
+.RE
+.PP
+
+.PP
+Definition at line 99 of file qwt_plot_printfilter.cpp.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Qwt User's Guide from the source code.

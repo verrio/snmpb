@@ -1,0 +1,192 @@
+.TH "qwt_math.h" 3 "17 Sep 2006" "Version 5.0.0-rc0" "Qwt User's Guide" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+qwt_math.h \- 
+.SH "Detailed Description"
+.PP 
+A set of mathematical routines. 
+
+
+.PP
+Definition in file \fBqwt_math.h\fP.
+.SH SYNOPSIS
+.br
+.PP
+.SS "Defines"
+
+.in +1c
+.ti -1c
+.RI "#define \fBqwtMax\fP   qMax"
+.br
+.ti -1c
+.RI "#define \fBqwtMin\fP   qMin"
+.br
+.ti -1c
+.RI "#define \fBqwtAbs\fP   qAbs"
+.br
+.ti -1c
+.RI "#define \fBLOG10_2\fP   0.30102999566398119802"
+.br
+.ti -1c
+.RI "#define \fBLOG10_3\fP   0.47712125471966243540"
+.br
+.ti -1c
+.RI "#define \fBLOG10_5\fP   0.69897000433601885749"
+.br
+.ti -1c
+.RI "#define \fBM_2PI\fP   6.28318530717958623200"
+.br
+.ti -1c
+.RI "#define \fBLOG_MIN\fP   1.0e-100"
+.br
+.ti -1c
+.RI "#define \fBLOG_MAX\fP   1.0e100"
+.br
+.ti -1c
+.RI "#define \fBM_E\fP   2.7182818284590452354"
+.br
+.ti -1c
+.RI "#define \fBM_LOG2E\fP   1.4426950408889634074"
+.br
+.ti -1c
+.RI "#define \fBM_LN2\fP   0.69314718055994530942"
+.br
+.ti -1c
+.RI "#define \fBM_LN10\fP   2.30258509299404568402"
+.br
+.ti -1c
+.RI "#define \fBM_PI\fP   3.14159265358979323846"
+.br
+.ti -1c
+.RI "#define \fBM_PI_2\fP   1.57079632679489661923"
+.br
+.ti -1c
+.RI "#define \fBM_PI_4\fP   0.78539816339744830962"
+.br
+.ti -1c
+.RI "#define \fBM_1_PI\fP   0.31830988618379067154"
+.br
+.ti -1c
+.RI "#define \fBM_2_PI\fP   0.63661977236758134308"
+.br
+.ti -1c
+.RI "#define \fBM_2_SQRTPI\fP   1.12837916709551257390"
+.br
+.ti -1c
+.RI "#define \fBM_SQRT2\fP   1.41421356237309504880"
+.br
+.ti -1c
+.RI "#define \fBM_SQRT1_2\fP   0.70710678118654752440"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "QWT_EXPORT double \fBqwtGetMin\fP (const double *array, int size)"
+.br
+.ti -1c
+.RI "QWT_EXPORT double \fBqwtGetMax\fP (const double *array, int size)"
+.br
+.ti -1c
+.RI "int \fBqwtSign\fP (double x)"
+.br
+.ti -1c
+.RI "double \fBqwtSqr\fP (const double x)"
+.br
+.ti -1c
+.RI "template<class T> T \fBqwtLim\fP (const T &x, const T &x1, const T &x2)"
+.br
+.ti -1c
+.RI "QPoint \fBqwtPolar2Pos\fP (const QPoint &center, double radius, double angle)"
+.br
+.ti -1c
+.RI "QPoint \fBqwtDegree2Pos\fP (const QPoint &center, double radius, double angle)"
+.br
+.in -1c
+.SH "Define Documentation"
+.PP 
+.SS "#define LOG_MAX   1.0e100"
+.PP
+Maximum value for logarithmic scales. 
+.PP
+Definition at line 59 of file qwt_math.h.
+.PP
+Referenced by QwtLog10ScaleEngine::autoScale(), and QwtLog10ScaleEngine::divideScale().
+.SS "#define LOG_MIN   1.0e-100"
+.PP
+Mininum value for logarithmic scales. 
+.PP
+Definition at line 54 of file qwt_math.h.
+.PP
+Referenced by QwtLog10ScaleEngine::autoScale(), and QwtLog10ScaleEngine::divideScale().
+.SH "Function Documentation"
+.PP 
+.SS "QWT_EXPORT double qwtGetMax (const double * array, int size)"
+.PP
+Find the largest value in an array. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIarray\fP Pointer to an array 
+.br
+\fIsize\fP Array size
+.RE
+.PP
+
+.PP
+Definition at line 37 of file qwt_math.cpp.
+.PP
+References qwtMax.
+.SS "QWT_EXPORT double qwtGetMin (const double * array, int size)"
+.PP
+Find the smallest value in an array. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIarray\fP Pointer to an array 
+.br
+\fIsize\fP Array size
+.RE
+.PP
+
+.PP
+Definition at line 19 of file qwt_math.cpp.
+.PP
+References qwtMin.
+.SS "template<class T> T qwtLim (const T & x, const T & x1, const T & x2)"
+.PP
+Limit a value to fit into a specified interval. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIx\fP Input value 
+.br
+\fIx1\fP First interval boundary 
+.br
+\fIx2\fP Second interval boundary
+.RE
+.PP
+
+.PP
+Definition at line 142 of file qwt_math.h.
+.PP
+References qwtMax, and qwtMin.
+.PP
+Referenced by QwtArrowButton::QwtArrowButton(), QwtRoundScaleDraw::setAngleRange(), QwtDoubleRange::setRange(), QwtWheel::setTickCnt(), and QwtWheel::setViewAngle().
+.SS "int qwtSign (double x)"
+.PP
+Return the sign. 
+.PP
+Definition at line 119 of file qwt_math.h.
+.SS "double qwtSqr (const double x)"
+.PP
+Return the square of a number. 
+.PP
+Definition at line 130 of file qwt_math.h.
+.PP
+Referenced by QwtSpline::buildPeriodicSpline(), and QwtPlotCurve::closestPoint().
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Qwt User's Guide from the source code.

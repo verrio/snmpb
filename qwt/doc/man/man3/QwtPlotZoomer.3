@@ -1,0 +1,608 @@
+.TH "QwtPlotZoomer" 3 "17 Sep 2006" "Version 5.0.0-rc0" "Qwt User's Guide" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+QwtPlotZoomer \- 
+.SH SYNOPSIS
+.br
+.PP
+Inherits \fBQwtPlotPicker\fP.
+.PP
+.SH "Detailed Description"
+.PP 
+QwtPlotZoomer provides stacked zooming for a plot widget. 
+
+QwtPlotZoomer offers rubberband selections on the plot canvas, translating the selected rectangles into plot coordinates and adjusting the axes to them. Zooming can repeated as often as possible, limited only by \fBmaxStackDepth()\fP or \fBminZoomSize()\fP. Each rectangle is pushed on a stack.
+.PP
+Zoom rectangles can be selected depending on \fBselectionFlags()\fP using the mouse or keyboard (\fBQwtEventPattern\fP, \fBQwtPickerMachine\fP). QwtEventPattern::MouseSelect3/QwtEventPatternKeyUndo, or QwtEventPattern::MouseSelect6/QwtEventPatternKeyRedo walk up and down the zoom stack. QwtEventPattern::MouseSelect2 or QwtEventPattern::KeyHome unzoom to the initial size.
+.PP
+QwtPlotZoomer is tailored for plots with one x and y axis, but it is allowed to attach a second QwtPlotZoomer for the other axes.
+.PP
+\fBNote:\fP
+.RS 4
+The realtime example includes an derived zoomer class that adds scrollbars to the plot canvas.
+.RE
+.PP
+
+.PP
+Definition at line 49 of file qwt_plot_zoomer.h.
+.SS "Public Slots"
+
+.in +1c
+.ti -1c
+.RI "void \fBmoveBy\fP (double x, double y)"
+.br
+.ti -1c
+.RI "virtual void \fBmove\fP (double x, double y)"
+.br
+.ti -1c
+.RI "virtual void \fBzoom\fP (const QwtDoubleRect &)"
+.br
+.ti -1c
+.RI "virtual void \fBzoom\fP (int up)"
+.br
+.in -1c
+.SS "Signals"
+
+.in +1c
+.ti -1c
+.RI "void \fBzoomed\fP (const QwtDoubleRect &rect)"
+.br
+.in -1c
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBQwtPlotZoomer\fP (\fBQwtPlotCanvas\fP *, bool doReplot=true)"
+.br
+.ti -1c
+.RI "\fBQwtPlotZoomer\fP (int xAxis, int yAxis, \fBQwtPlotCanvas\fP *, bool doReplot=true)"
+.br
+.ti -1c
+.RI "\fBQwtPlotZoomer\fP (int xAxis, int yAxis, int selectionFlags, \fBDisplayMode\fP trackerMode, \fBQwtPlotCanvas\fP *, bool doReplot=true)"
+.br
+.ti -1c
+.RI "virtual \fB~QwtPlotZoomer\fP ()"
+.br
+.ti -1c
+.RI "virtual void \fBsetZoomBase\fP ()"
+.br
+.ti -1c
+.RI "virtual void \fBsetZoomBase\fP (const QwtDoubleRect &)"
+.br
+.ti -1c
+.RI "QwtDoubleRect \fBzoomBase\fP () const "
+.br
+.ti -1c
+.RI "QwtDoubleRect \fBzoomRect\fP () const "
+.br
+.ti -1c
+.RI "virtual void \fBsetAxis\fP (int xAxis, int yAxis)"
+.br
+.ti -1c
+.RI "void \fBsetMaxStackDepth\fP (int)"
+.br
+.ti -1c
+.RI "int \fBmaxStackDepth\fP () const "
+.br
+.ti -1c
+.RI "const QStack< QwtDoubleRect > & \fBzoomStack\fP () const "
+.br
+.ti -1c
+.RI "uint \fBzoomRectIndex\fP () const "
+.br
+.ti -1c
+.RI "virtual void \fBsetSelectionFlags\fP (int)"
+.br
+.in -1c
+.SS "Protected Member Functions"
+
+.in +1c
+.ti -1c
+.RI "virtual void \fBrescale\fP ()"
+.br
+.ti -1c
+.RI "virtual QwtDoubleSize \fBminZoomSize\fP () const "
+.br
+.ti -1c
+.RI "virtual void \fBwidgetMouseReleaseEvent\fP (QMouseEvent *)"
+.br
+.ti -1c
+.RI "virtual void \fBwidgetKeyPressEvent\fP (QKeyEvent *)"
+.br
+.ti -1c
+.RI "virtual void \fBbegin\fP ()"
+.br
+.ti -1c
+.RI "virtual bool \fBend\fP (bool ok=true)"
+.br
+.ti -1c
+.RI "virtual bool \fBaccept\fP (QwtPolygon &) const "
+.br
+.in -1c
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "QwtPlotZoomer::QwtPlotZoomer (\fBQwtPlotCanvas\fP * canvas, bool doReplot = \fCtrue\fP)\fC [explicit]\fP"
+.PP
+Create a zoomer for a plot canvas. 
+.PP
+The zoomer is set to those x- and y-axis of the parent plot of the canvas that are enabled. If both or no x-axis are enabled, the picker is set to QwtPlot::xBottom. If both or no y-axis are enabled, it is set to QwtPlot::yLeft.
+.PP
+The \fBselectionFlags()\fP are set to QwtPicker::RectSelection & QwtPicker::ClickSelection, the tracker mode to QwtPicker::ActiveOnly.
+.PP
+\fBParameters:\fP
+.RS 4
+\fIcanvas\fP Plot canvas to observe, also the parent object 
+.br
+\fIdoReplot\fP Call replot for the attached plot before initializing the zoomer with its scales. This might be necessary, when the plot is in a state with pending scale changes.
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBQwtPlot::autoReplot()\fP, \fBQwtPlot::replot()\fP, QwtPlotPicker::setZoomBase()
+.RE
+.PP
+
+.PP
+Definition at line 51 of file qwt_plot_zoomer.cpp.
+.SS "QwtPlotZoomer::QwtPlotZoomer (int xAxis, int yAxis, \fBQwtPlotCanvas\fP * canvas, bool doReplot = \fCtrue\fP)\fC [explicit]\fP"
+.PP
+Create a zoomer for a plot canvas. 
+.PP
+The \fBselectionFlags()\fP are set to QwtPicker::RectSelection & QwtPicker::ClickSelection, the tracker mode to QwtPicker::ActiveOnly.
+.PP
+\fBParameters:\fP
+.RS 4
+\fIxAxis\fP X axis of the zoomer 
+.br
+\fIyAxis\fP Y axis of the zoomer 
+.br
+\fIcanvas\fP Plot canvas to observe, also the parent object 
+.br
+\fIdoReplot\fP Call replot for the attached plot before initializing the zoomer with its scales. This might be necessary, when the plot is in a state with pending scale changes.
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBQwtPlot::autoReplot()\fP, \fBQwtPlot::replot()\fP, QwtPlotPicker::setZoomBase()
+.RE
+.PP
+
+.PP
+Definition at line 75 of file qwt_plot_zoomer.cpp.
+.SS "QwtPlotZoomer::QwtPlotZoomer (int xAxis, int yAxis, int selectionFlags, \fBDisplayMode\fP trackerMode, \fBQwtPlotCanvas\fP * canvas, bool doReplot = \fCtrue\fP)\fC [explicit]\fP"
+.PP
+Create a zoomer for a plot canvas.
+.PP
+\fBParameters:\fP
+.RS 4
+\fIxAxis\fP X axis of the zoomer 
+.br
+\fIyAxis\fP Y axis of the zoomer 
+.br
+\fIselectionFlags\fP Or´d value of \fBQwtPicker::RectSelectionType\fP and \fBQwtPicker::SelectionMode\fP. QwtPicker::RectSelection will be auto added. 
+.br
+\fItrackerMode\fP Tracker mode 
+.br
+\fIcanvas\fP Plot canvas to observe, also the parent object 
+.br
+\fIdoReplot\fP Call replot for the attached plot before initializing the zoomer with its scales. This might be necessary, when the plot is in a state with pending scale changes.
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBQwtPicker\fP, \fBQwtPicker::setSelectionFlags()\fP, \fBQwtPicker::setRubberBand()\fP, \fBQwtPicker::setTrackerMode\fP
+.PP
+\fBQwtPlot::autoReplot()\fP, \fBQwtPlot::replot()\fP, \fBsetZoomBase()\fP
+.RE
+.PP
+
+.PP
+Definition at line 103 of file qwt_plot_zoomer.cpp.
+.SH "Member Function Documentation"
+.PP 
+.SS "bool QwtPlotZoomer::accept (QwtPolygon & pa) const\fC [protected, virtual]\fP"
+.PP
+Check and correct a selected rectangle. 
+.PP
+Reject rectangles with a hight or width < 2, otherwise expand the selected rectangle to a minimum size of 11x11 and accept it.
+.PP
+\fBReturns:\fP
+.RS 4
+true If rect is accepted, or has been changed to a accepted rectangle.
+.RE
+.PP
+
+.PP
+Reimplemented from \fBQwtPicker\fP.
+.PP
+Definition at line 497 of file qwt_plot_zoomer.cpp.
+.PP
+References minZoomSize().
+.SS "void QwtPlotZoomer::begin ()\fC [protected, virtual]\fP"
+.PP
+Rejects selections, when the stack depth is too deep, or the zoomed rectangle is \fBminZoomSize()\fP.
+.PP
+\fBSee also:\fP
+.RS 4
+\fBminZoomSize()\fP, \fBmaxStackDepth()\fP
+.RE
+.PP
+
+.PP
+Reimplemented from \fBQwtPicker\fP.
+.PP
+Definition at line 545 of file qwt_plot_zoomer.cpp.
+.PP
+References QwtPicker::begin(), and minZoomSize().
+.SS "bool QwtPlotZoomer::end (bool ok = \fCtrue\fP)\fC [protected, virtual]\fP"
+.PP
+Expand the selected rectangle to \fBminZoomSize()\fP and zoom in if accepted.
+.PP
+\fBSee also:\fP
+.RS 4
+\fBQwtPlotZoomer::accept()\fPa, \fBQwtPlotZoomer::minZoomSize()\fP
+.RE
+.PP
+
+.PP
+Reimplemented from \fBQwtPlotPicker\fP.
+.PP
+Definition at line 575 of file qwt_plot_zoomer.cpp.
+.PP
+References QwtPlotPicker::end(), QwtPlotPicker::invTransform(), minZoomSize(), QwtPlotPicker::plot(), QwtPicker::selection(), zoom(), and zoomRect().
+.SS "int QwtPlotZoomer::maxStackDepth () const"
+.PP
+\fBReturns:\fP
+.RS 4
+Maximal depth of the zoom stack. 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBsetMaxStackDepth()\fP
+.RE
+.PP
+
+.PP
+Definition at line 172 of file qwt_plot_zoomer.cpp.
+.SS "QwtDoubleSize QwtPlotZoomer::minZoomSize () const\fC [protected, virtual]\fP"
+.PP
+Limit zooming by a minimum rectangle. 
+.PP
+\fBReturns:\fP
+.RS 4
+\fBzoomBase()\fP.width() / 10e4, \fBzoomBase()\fP.height() / 10e4
+.RE
+.PP
+
+.PP
+Definition at line 531 of file qwt_plot_zoomer.cpp.
+.PP
+Referenced by accept(), begin(), and end().
+.SS "void QwtPlotZoomer::move (double x, double y)\fC [virtual, slot]\fP"
+.PP
+Move the the current zoom rectangle.
+.PP
+\fBParameters:\fP
+.RS 4
+\fIx\fP X value 
+.br
+\fIy\fP Y value
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+QwtDoubleRect::move 
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+The changed rectangle is limited by the zoom base
+.RE
+.PP
+
+.PP
+Definition at line 467 of file qwt_plot_zoomer.cpp.
+.PP
+References rescale(), zoomBase(), and zoomRect().
+.PP
+Referenced by moveBy().
+.SS "void QwtPlotZoomer::moveBy (double dx, double dy)\fC [slot]\fP"
+.PP
+Move the current zoom rectangle.
+.PP
+\fBParameters:\fP
+.RS 4
+\fIdx\fP X offset 
+.br
+\fIdy\fP Y offset
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+The changed rectangle is limited by the zoom base
+.RE
+.PP
+
+.PP
+Definition at line 452 of file qwt_plot_zoomer.cpp.
+.PP
+References move().
+.SS "void QwtPlotZoomer::rescale ()\fC [protected, virtual]\fP"
+.PP
+Adjust the observed plot to \fBzoomRect()\fP
+.PP
+\fBNote:\fP
+.RS 4
+Initiates \fBQwtPlot::replot\fP
+.RE
+.PP
+
+.PP
+Definition at line 343 of file qwt_plot_zoomer.cpp.
+.PP
+References QwtPlot::autoReplot(), QwtPlot::axisScaleDiv(), QwtScaleDiv::hBound(), QwtScaleDiv::lBound(), QwtPlotPicker::plot(), QwtPlot::replot(), QwtPlotPicker::scaleRect(), QwtPlot::setAutoReplot(), QwtPlot::setAxisScale(), QwtPlotPicker::xAxis(), and QwtPlotPicker::yAxis().
+.PP
+Referenced by move(), setZoomBase(), and zoom().
+.SS "void QwtPlotZoomer::setAxis (int xAxis, int yAxis)\fC [virtual]\fP"
+.PP
+Reinitialize the axes, and set the zoom base to their scales.
+.PP
+\fBParameters:\fP
+.RS 4
+\fIxAxis\fP X axis 
+.br
+\fIyAxis\fP Y axis
+.RE
+.PP
+
+.PP
+Reimplemented from \fBQwtPlotPicker\fP.
+.PP
+Definition at line 387 of file qwt_plot_zoomer.cpp.
+.PP
+References QwtPlotPicker::scaleRect(), QwtPlotPicker::setAxis(), setZoomBase(), QwtPlotPicker::xAxis(), and QwtPlotPicker::yAxis().
+.SS "void QwtPlotZoomer::setMaxStackDepth (int depth)"
+.PP
+Limit the number of recursive zoom operations to depth. 
+.PP
+A value of -1 set the depth to unlimited, 0 disables zooming. If the current zoom rectangle is below depth, the plot is unzoomed.
+.PP
+\fBParameters:\fP
+.RS 4
+\fIdepth\fP Maximum for the stack depth 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBmaxStackDepth()\fP 
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+depth doesn´t include the zoom base, so \fBzoomStack()\fP.count() might be \fBmaxStackDepth()\fP + 1.
+.RE
+.PP
+
+.PP
+Definition at line 145 of file qwt_plot_zoomer.cpp.
+.PP
+References zoom().
+.SS "void QwtPlotZoomer::setSelectionFlags (int flags)\fC [virtual]\fP"
+.PP
+Set the selection flags
+.PP
+\fBParameters:\fP
+.RS 4
+\fIflags\fP Or´d value of \fBQwtPicker::RectSelectionType\fP and \fBQwtPicker::SelectionMode\fP. The default value is QwtPicker::RectSelection & QwtPicker::ClickSelection.
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBselectionFlags()\fP, \fBSelectionType\fP, \fBRectSelectionType\fP, \fBSelectionMode\fP 
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+QwtPicker::RectSelection will be auto added.
+.RE
+.PP
+
+.PP
+Reimplemented from \fBQwtPicker\fP.
+.PP
+Definition at line 619 of file qwt_plot_zoomer.cpp.
+.PP
+References QwtPicker::setSelectionFlags().
+.SS "void QwtPlotZoomer::setZoomBase (const QwtDoubleRect & base)\fC [virtual]\fP"
+.PP
+Set the initial size of the zoomer. 
+.PP
+base is united with the current \fBscaleRect()\fP and the zoom stack is reinitalized with it as zoom base. plot is zoomed to \fBscaleRect()\fP.
+.PP
+\fBParameters:\fP
+.RS 4
+\fIbase\fP Zoom base
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBzoomBase()\fP, \fBscaleRect()\fP
+.RE
+.PP
+
+.PP
+Definition at line 231 of file qwt_plot_zoomer.cpp.
+.PP
+References QwtPlotPicker::plot(), rescale(), and QwtPlotPicker::scaleRect().
+.SS "void QwtPlotZoomer::setZoomBase ()\fC [virtual]\fP"
+.PP
+Reinitialized the zoom stack with \fBscaleRect()\fP as base.
+.PP
+\fBSee also:\fP
+.RS 4
+\fBzoomBase()\fP, \fBscaleRect()\fP
+.RE
+.PP
+\fBWarning:\fP
+.RS 4
+Calling \fBQwtPlot::setAxisScale()\fP while \fBQwtPlot::autoReplot()\fP is false leaves the axis in an 'intermediate' state. In this case, to prevent buggy behaviour, you must call \fBQwtPlot::replot()\fP before calling \fBQwtPlotZoomer::setZoomBase()\fP. This quirk will be removed in a future release.
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBQwtPlot::autoReplot()\fP, \fBQwtPlot::replot()\fP.
+.RE
+.PP
+
+.PP
+Definition at line 208 of file qwt_plot_zoomer.cpp.
+.PP
+References QwtPlotPicker::plot(), rescale(), and QwtPlotPicker::scaleRect().
+.PP
+Referenced by setAxis().
+.SS "void QwtPlotZoomer::widgetKeyPressEvent (QKeyEvent * ke)\fC [protected, virtual]\fP"
+.PP
+Qt::Key_Plus zooms out, Qt::Key_Minus zooms in one position on the zoom stack, Qt::Key_Escape zooms out to the zoom base.
+.PP
+Changes the current position on the stack, but doesn´t pop any rectangle.
+.PP
+\fBNote:\fP
+.RS 4
+The keys codes can be changed, using \fBQwtEventPattern::setKeyPattern\fP: 3, 4, 5
+.RE
+.PP
+
+.PP
+Reimplemented from \fBQwtPicker\fP.
+.PP
+Definition at line 429 of file qwt_plot_zoomer.cpp.
+.PP
+References QwtPicker::isActive(), QwtEventPattern::keyMatch(), QwtPicker::widgetKeyPressEvent(), and zoom().
+.SS "void QwtPlotZoomer::widgetMouseReleaseEvent (QMouseEvent * me)\fC [protected, virtual]\fP"
+.PP
+Qt::MidButton zooms out one position on the zoom stack, Qt::RightButton to the zoom base.
+.PP
+Changes the current position on the stack, but doesn´t pop any rectangle.
+.PP
+\fBNote:\fP
+.RS 4
+The mouse events can be changed, using \fBQwtEventPattern::setMousePattern\fP: 2, 1
+.RE
+.PP
+
+.PP
+Reimplemented from \fBQwtPicker\fP.
+.PP
+Definition at line 406 of file qwt_plot_zoomer.cpp.
+.PP
+References QwtEventPattern::mouseMatch(), QwtPicker::widgetMouseReleaseEvent(), and zoom().
+.SS "void QwtPlotZoomer::zoom (int offset)\fC [virtual, slot]\fP"
+.PP
+Zoom in or out. 
+.PP
+Activate a rectangle on the zoom stack with an offset relative to the current position. Negative values of offest will zoom out, positive zoom in. A value of 0 zooms out to the zoom base.
+.PP
+\fBParameters:\fP
+.RS 4
+\fIoffset\fP Offset relative to the current position of the zoom stack. 
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+The zoomed signal is emitted. 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBzoomRectIndex()\fP
+.RE
+.PP
+
+.PP
+Definition at line 319 of file qwt_plot_zoomer.cpp.
+.PP
+References qwtMax, qwtMin, rescale(), zoomed(), and zoomRect().
+.SS "void QwtPlotZoomer::zoom (const QwtDoubleRect & rect)\fC [virtual, slot]\fP"
+.PP
+Zoom in. 
+.PP
+Clears all rectangles above the current position of the zoom stack and pushs the intersection of \fBzoomRect()\fP and the normalized rect on it.
+.PP
+\fBNote:\fP
+.RS 4
+If the maximal stack depth is reached, zoom is ignored. 
+.PP
+The zoomed signal is emitted.
+.RE
+.PP
+
+.PP
+Definition at line 282 of file qwt_plot_zoomer.cpp.
+.PP
+References rescale(), zoomed(), and zoomRect().
+.PP
+Referenced by end(), setMaxStackDepth(), widgetKeyPressEvent(), and widgetMouseReleaseEvent().
+.SS "QwtDoubleRect QwtPlotZoomer::zoomBase () const"
+.PP
+\fBReturns:\fP
+.RS 4
+Initial rectangle of the zoomer 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBsetZoomBase()\fP, \fBzoomRect()\fP
+.RE
+.PP
+
+.PP
+Definition at line 190 of file qwt_plot_zoomer.cpp.
+.PP
+Referenced by move().
+.SS "void QwtPlotZoomer::zoomed (const QwtDoubleRect & rect)\fC [signal]\fP"
+.PP
+A signal emitting the \fBzoomRect()\fP, when the plot has been zoomed in or out.
+.PP
+\fBParameters:\fP
+.RS 4
+\fIrect\fP Current zoom rectangle.
+.RE
+.PP
+
+.PP
+Referenced by zoom().
+.SS "QwtDoubleRect QwtPlotZoomer::zoomRect () const"
+.PP
+Rectangle at the current position on the zoom stack.
+.PP
+\fBSee also:\fP
+.RS 4
+\fBQwtPlotZoomer::zoomRectIndex()\fP, \fBQwtPlotZoomer::scaleRect()\fP.
+.RE
+.PP
+
+.PP
+Definition at line 258 of file qwt_plot_zoomer.cpp.
+.PP
+Referenced by end(), move(), and zoom().
+.SS "uint QwtPlotZoomer::zoomRectIndex () const"
+.PP
+\fBReturns:\fP
+.RS 4
+Index of current position of zoom stack.
+.RE
+.PP
+
+.PP
+Definition at line 266 of file qwt_plot_zoomer.cpp.
+.SS "const QwtZoomStack & QwtPlotZoomer::zoomStack () const"
+.PP
+Return the zoom stack. \fBzoomStack()\fP[0] is the zoom base, \fBzoomStack()\fP[1] the first zoomed rectangle.
+.PP
+Definition at line 181 of file qwt_plot_zoomer.cpp.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Qwt User's Guide from the source code.

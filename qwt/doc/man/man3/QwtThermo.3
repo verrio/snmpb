@@ -1,0 +1,596 @@
+.TH "QwtThermo" 3 "17 Sep 2006" "Version 5.0.0-rc0" "Qwt User's Guide" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+QwtThermo \- 
+.SH SYNOPSIS
+.br
+.PP
+Inherits \fBQwtAbstractScale\fP.
+.PP
+.SH "Detailed Description"
+.PP 
+The Thermometer Widget. 
+
+QwtThermo is a widget which displays a value in an interval. It supports:
+.IP "\(bu" 2
+a horizontal or vertical layout;
+.IP "\(bu" 2
+a range;
+.IP "\(bu" 2
+a scale;
+.IP "\(bu" 2
+an alarm level.
+.PP
+.PP
+.PP
+By default, the scale and range run over the same interval of values. \fBQwtAbstractScale::setScale()\fP changes the interval of the scale and allows easy conversion between physical units.
+.PP
+The example shows how to make the scale indicate in degrees Fahrenheit and to set the value in degrees Kelvin: 
+.PP
+.nf
+#include <qapplication.h>
+#include <qwt_thermo.h>
+
+double Kelvin2Fahrenheit(double kelvin)
+{
+    // see http://en.wikipedia.org/wiki/Kelvin
+    return 1.8*kelvin - 459.67;
+}
+
+int main(int argc, char **argv)
+{
+    const double minKelvin = 0.0;
+    const double maxKelvin = 500.0;
+
+    QApplication a(argc, argv);
+    QwtThermo t;
+    t.setRange(minKelvin, maxKelvin);
+    t.setScale(Kelvin2Fahrenheit(minKelvin), Kelvin2Fahrenheit(maxKelvin));
+    // set the value in Kelvin but the scale displays in Fahrenheit
+    // 273.15 Kelvin = 0 Celsius = 32 Fahrenheit
+    t.setValue(273.15);
+    a.setMainWidget(&t);
+    t.show();
+    return a.exec();
+}
+
+.fi
+.PP
+.PP
+\fBTodo\fP
+.RS 4
+Improve the support for a logarithmic range and/or scale. 
+.RE
+.PP
+
+.PP
+Definition at line 69 of file qwt_thermo.h.
+.SS "Public Types"
+
+.in +1c
+.ti -1c
+.RI "enum \fBScalePos\fP { \fBNone\fP, \fBLeft\fP, \fBRight\fP, \fBTop\fP, \fBBottom\fP }"
+.br
+.in -1c
+.SS "Public Slots"
+
+.in +1c
+.ti -1c
+.RI "void \fBsetValue\fP (double val)"
+.br
+.in -1c
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBQwtThermo\fP (QWidget *parent=NULL)"
+.br
+.ti -1c
+.RI "virtual \fB~QwtThermo\fP ()"
+.br
+.ti -1c
+.RI "void \fBsetOrientation\fP (Qt::Orientation o, \fBScalePos\fP s)"
+.br
+.ti -1c
+.RI "void \fBsetScalePosition\fP (\fBScalePos\fP s)"
+.br
+.ti -1c
+.RI "\fBScalePos\fP \fBscalePosition\fP () const "
+.br
+.ti -1c
+.RI "void \fBsetBorderWidth\fP (int w)"
+.br
+.ti -1c
+.RI "int \fBborderWidth\fP () const "
+.br
+.ti -1c
+.RI "void \fBsetFillBrush\fP (const QBrush &b)"
+.br
+.ti -1c
+.RI "const QBrush & \fBfillBrush\fP () const "
+.br
+.ti -1c
+.RI "void \fBsetFillColor\fP (const QColor &c)"
+.br
+.ti -1c
+.RI "const QColor & \fBfillColor\fP () const "
+.br
+.ti -1c
+.RI "void \fBsetAlarmBrush\fP (const QBrush &b)"
+.br
+.ti -1c
+.RI "const QBrush & \fBalarmBrush\fP () const "
+.br
+.ti -1c
+.RI "void \fBsetAlarmColor\fP (const QColor &c)"
+.br
+.ti -1c
+.RI "const QColor & \fBalarmColor\fP () const "
+.br
+.ti -1c
+.RI "void \fBsetAlarmLevel\fP (double v)"
+.br
+.ti -1c
+.RI "double \fBalarmLevel\fP () const "
+.br
+.ti -1c
+.RI "void \fBsetAlarmEnabled\fP (bool tf)"
+.br
+.ti -1c
+.RI "bool \fBalarmEnabled\fP () const "
+.br
+.ti -1c
+.RI "void \fBsetPipeWidth\fP (int w)"
+.br
+.ti -1c
+.RI "int \fBpipeWidth\fP () const "
+.br
+.ti -1c
+.RI "void \fBsetMaxValue\fP (double v)"
+.br
+.ti -1c
+.RI "double \fBmaxValue\fP () const "
+.br
+.ti -1c
+.RI "void \fBsetMinValue\fP (double v)"
+.br
+.ti -1c
+.RI "double \fBminValue\fP () const "
+.br
+.ti -1c
+.RI "double \fBvalue\fP () const "
+.br
+.ti -1c
+.RI "void \fBsetRange\fP (double vmin, double vmax, bool lg=false)"
+.br
+.ti -1c
+.RI "void \fBsetMargin\fP (int m)"
+.br
+.ti -1c
+.RI "virtual QSize \fBsizeHint\fP () const "
+.br
+.ti -1c
+.RI "virtual QSize \fBminimumSizeHint\fP () const "
+.br
+.ti -1c
+.RI "void \fBsetScaleDraw\fP (\fBQwtScaleDraw\fP *)"
+.br
+.ti -1c
+.RI "const \fBQwtScaleDraw\fP * \fBscaleDraw\fP () const "
+.br
+.in -1c
+.SS "Protected Member Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBdraw\fP (QPainter *p, const QRect &update_rect)"
+.br
+.ti -1c
+.RI "void \fBdrawThermo\fP (QPainter *p)"
+.br
+.ti -1c
+.RI "void \fBlayoutThermo\fP (bool update=true)"
+.br
+.ti -1c
+.RI "virtual void \fBscaleChange\fP ()"
+.br
+.ti -1c
+.RI "virtual void \fBfontChange\fP (const QFont &oldFont)"
+.br
+.ti -1c
+.RI "virtual void \fBpaintEvent\fP (QPaintEvent *e)"
+.br
+.ti -1c
+.RI "virtual void \fBresizeEvent\fP (QResizeEvent *e)"
+.br
+.ti -1c
+.RI "\fBQwtScaleDraw\fP * \fBscaleDraw\fP ()"
+.br
+.in -1c
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "QwtThermo::QwtThermo (QWidget * parent = \fCNULL\fP)\fC [explicit]\fP"
+.PP
+Constructor 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIparent\fP Parent widget
+.RE
+.PP
+
+.PP
+Definition at line 64 of file qwt_thermo.cpp.
+.SS "QwtThermo::~QwtThermo ()\fC [virtual]\fP"
+.PP
+Destructor. 
+.PP
+Definition at line 105 of file qwt_thermo.cpp.
+.SH "Member Function Documentation"
+.PP 
+.SS "const QBrush & QwtThermo::alarmBrush () const"
+.PP
+Return the liquid brush above the alarm threshold. 
+.PP
+Definition at line 692 of file qwt_thermo.cpp.
+.SS "const QColor & QwtThermo::alarmColor () const"
+.PP
+Return the liquid color above the alarm threshold. 
+.PP
+Definition at line 708 of file qwt_thermo.cpp.
+.SS "bool QwtThermo::alarmEnabled () const"
+.PP
+Return if the alarm threshold is enabled or disabled. 
+.PP
+Definition at line 774 of file qwt_thermo.cpp.
+.SS "double QwtThermo::alarmLevel () const"
+.PP
+Return the alarm threshold. 
+.PP
+Definition at line 722 of file qwt_thermo.cpp.
+.SS "int QwtThermo::borderWidth () const"
+.PP
+Return the border width of the thermometer pipe. 
+.PP
+Definition at line 613 of file qwt_thermo.cpp.
+.SS "void QwtThermo::draw (QPainter * p, const QRect & update_rect)\fC [protected]\fP"
+.PP
+Draw the whole QwtThermo. 
+.PP
+Definition at line 183 of file qwt_thermo.cpp.
+.PP
+References QwtAbstractScaleDraw::draw(), drawThermo(), and scaleDraw().
+.PP
+Referenced by paintEvent().
+.SS "void QwtThermo::drawThermo (QPainter * p)\fC [protected]\fP"
+.PP
+Redraw the liquid in thermometer pipe. 
+.PP
+Definition at line 438 of file qwt_thermo.cpp.
+.PP
+Referenced by draw().
+.SS "const QBrush & QwtThermo::fillBrush () const"
+.PP
+Return the liquid brush. 
+.PP
+Definition at line 660 of file qwt_thermo.cpp.
+.SS "const QColor & QwtThermo::fillColor () const"
+.PP
+Return the liquid color. 
+.PP
+Definition at line 676 of file qwt_thermo.cpp.
+.SS "void QwtThermo::fontChange (const QFont & oldFont)\fC [protected, virtual]\fP"
+.PP
+Notify a font change. 
+.PP
+Definition at line 424 of file qwt_thermo.cpp.
+.PP
+References layoutThermo().
+.SS "void QwtThermo::layoutThermo (bool update_geometry = \fCtrue\fP)\fC [protected]\fP"
+.PP
+Recalculate the QwtThermo geometry and layout based on the QwtThermo::rect() and the fonts. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIupdate_geometry\fP notify the layout system and call update to redraw the scale
+.RE
+.PP
+
+.PP
+Definition at line 223 of file qwt_thermo.cpp.
+.PP
+References QwtScaleDraw::getBorderDistHint(), QwtScaleDraw::move(), qwtMax, scaleDraw(), QwtScaleDraw::setAlignment(), and QwtScaleDraw::setLength().
+.PP
+Referenced by fontChange(), resizeEvent(), scaleChange(), setBorderWidth(), setOrientation(), setPipeWidth(), and setRange().
+.SS "double QwtThermo::maxValue () const"
+.PP
+Return the maximum value. 
+.PP
+Definition at line 117 of file qwt_thermo.cpp.
+.SS "QSize QwtThermo::minimumSizeHint () const\fC [virtual]\fP"
+.PP
+Return a minimum size hint. 
+.PP
+\fBWarning:\fP
+.RS 4
+The return value depends on the font and the scale. 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBQwtThermo::sizeHint\fP
+.RE
+.PP
+
+.PP
+Definition at line 793 of file qwt_thermo.cpp.
+.PP
+References QwtScaleDraw::extent(), QwtScaleDraw::minLength(), and scaleDraw().
+.PP
+Referenced by sizeHint().
+.SS "double QwtThermo::minValue () const"
+.PP
+Return the minimum value. 
+.PP
+Definition at line 129 of file qwt_thermo.cpp.
+.SS "void QwtThermo::paintEvent (QPaintEvent * e)\fC [protected, virtual]\fP"
+.PP
+Qt paint event. 
+.PP
+Definition at line 166 of file qwt_thermo.cpp.
+.PP
+References draw().
+.SS "int QwtThermo::pipeWidth () const"
+.PP
+Return the width of the pipe. 
+.PP
+Definition at line 738 of file qwt_thermo.cpp.
+.SS "void QwtThermo::resizeEvent (QResizeEvent * e)\fC [protected, virtual]\fP"
+.PP
+Qt resize event handler. 
+.PP
+Definition at line 212 of file qwt_thermo.cpp.
+.PP
+References layoutThermo().
+.SS "void QwtThermo::scaleChange ()\fC [protected, virtual]\fP"
+.PP
+Notify a scale change. 
+.PP
+Reimplemented from \fBQwtAbstractScale\fP.
+.PP
+Definition at line 431 of file qwt_thermo.cpp.
+.PP
+References layoutThermo().
+.SS "\fBQwtThermo::ScalePos\fP QwtThermo::scalePosition () const"
+.PP
+Return the scale position. 
+.PP
+Definition at line 418 of file qwt_thermo.cpp.
+.SS "void QwtThermo::setAlarmBrush (const QBrush & brush)"
+.PP
+Specify the liquid brush above the alarm threshold. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIbrush\fP New brush. The default is solid white.
+.RE
+.PP
+
+.PP
+Definition at line 685 of file qwt_thermo.cpp.
+.SS "void QwtThermo::setAlarmColor (const QColor & c)"
+.PP
+Specify the liquid color above the alarm threshold. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIc\fP New color. The default is white.
+.RE
+.PP
+
+.PP
+Definition at line 701 of file qwt_thermo.cpp.
+.SS "void QwtThermo::setAlarmEnabled (bool tf)"
+.PP
+Enable or disable the alarm threshold. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fItf\fP true (disabled) or false (enabled)
+.RE
+.PP
+
+.PP
+Definition at line 767 of file qwt_thermo.cpp.
+.SS "void QwtThermo::setAlarmLevel (double v)"
+.PP
+Specify the alarm threshold. 
+.PP
+Definition at line 714 of file qwt_thermo.cpp.
+.SS "void QwtThermo::setBorderWidth (int w)"
+.PP
+Set the border width of the pipe. 
+.PP
+Definition at line 602 of file qwt_thermo.cpp.
+.PP
+References layoutThermo(), and qwtMin.
+.SS "void QwtThermo::setFillBrush (const QBrush & brush)"
+.PP
+Change the brush of the liquid. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIbrush\fP New brush. The default brush is solid black.
+.RE
+.PP
+
+.PP
+Definition at line 653 of file qwt_thermo.cpp.
+.SS "void QwtThermo::setFillColor (const QColor & c)"
+.PP
+Change the color of the liquid. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIc\fP New color. The default color is black.
+.RE
+.PP
+
+.PP
+Definition at line 669 of file qwt_thermo.cpp.
+.SS "void QwtThermo::setMargin (int m)"
+.PP
+Specify the distance between the pipe's endpoints and the widget's border. 
+.PP
+The margin is used to leave some space for the scale labels. If a large font is used, it is advisable to adjust the margins. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIm\fP New Margin. The default values are 10 for horizontal orientation and 20 for vertical orientation. 
+.RE
+.PP
+\fBWarning:\fP
+.RS 4
+The margin has no effect if the scale is disabled. 
+.PP
+This function is a NOOP because margins are determined automatically.
+.RE
+.PP
+
+.PP
+Definition at line 758 of file qwt_thermo.cpp.
+.SS "void QwtThermo::setMaxValue (double v)"
+.PP
+Set the maximum value. 
+.PP
+Definition at line 111 of file qwt_thermo.cpp.
+.PP
+References setRange().
+.SS "void QwtThermo::setMinValue (double v)"
+.PP
+Set the minimum value. 
+.PP
+Definition at line 123 of file qwt_thermo.cpp.
+.PP
+References setRange().
+.SS "void QwtThermo::setOrientation (Qt::Orientation o, \fBScalePos\fP s)"
+.PP
+Set the thermometer orientation and the scale position. 
+.PP
+The scale position None disables the scale. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIo\fP orientation. Possible values are Qt::Horizontal and Qt::Vertical. The default value is Qt::Vertical. 
+.br
+\fIs\fP Position of the scale. The default value is None.
+.RE
+.PP
+A valid combination of scale position and orientation is enforced:
+.IP "\(bu" 2
+a horizontal thermometer can have the scale positions Top, Bottom or None;
+.IP "\(bu" 2
+a vertical thermometer can have the scale positions Left, Right or None;
+.IP "\(bu" 2
+an invalid scale position will default to None.
+.PP
+.PP
+\fBSee also:\fP
+.RS 4
+\fBQwtThermo::setScalePosition()\fP
+.RE
+.PP
+
+.PP
+Definition at line 344 of file qwt_thermo.cpp.
+.PP
+References layoutThermo().
+.PP
+Referenced by setScalePosition().
+.SS "void QwtThermo::setPipeWidth (int w)"
+.PP
+Change the width of the pipe. 
+.PP
+Definition at line 728 of file qwt_thermo.cpp.
+.PP
+References layoutThermo().
+.SS "void QwtThermo::setRange (double vmin, double vmax, bool logarithmic = \fCfalse\fP)"
+.PP
+Set the range. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIvmin\fP value corresponding lower or left end of the thermometer 
+.br
+\fIvmax\fP value corresponding to the upper or right end of the thermometer 
+.br
+\fIlogarithmic\fP logarithmic mapping, true or false
+.RE
+.PP
+
+.PP
+Definition at line 624 of file qwt_thermo.cpp.
+.PP
+References QwtAbstractScale::autoScale(), layoutThermo(), QwtAbstractScale::rescale(), QwtAbstractScale::scaleEngine(), and QwtAbstractScale::setScaleEngine().
+.PP
+Referenced by setMaxValue(), and setMinValue().
+.SS "void QwtThermo::setScalePosition (\fBScalePos\fP s)"
+.PP
+Change the scale position (and thermometer orientation). 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIs\fP Position of the scale.
+.RE
+.PP
+A valid combination of scale position and orientation is enforced:
+.IP "\(bu" 2
+if the new scale position is Left or Right, the scale orientation will become Qt::Vertical;
+.IP "\(bu" 2
+if the new scale position is Bottom or Top, the scale orientation will become Qt::Horizontal;
+.IP "\(bu" 2
+if the new scale position is None, the scale orientation will not change.
+.PP
+.PP
+\fBSee also:\fP
+.RS 4
+\fBQwtThermo::setOrientation()\fP
+.RE
+.PP
+
+.PP
+Definition at line 407 of file qwt_thermo.cpp.
+.PP
+References setOrientation().
+.SS "void QwtThermo::setValue (double val)\fC [slot]\fP"
+.PP
+Set the current value. 
+.PP
+Definition at line 135 of file qwt_thermo.cpp.
+.SS "QSize QwtThermo::sizeHint () const\fC [virtual]\fP"
+.PP
+\fBReturns:\fP
+.RS 4
+the minimum size hint 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBQwtThermo::minimumSizeHint\fP
+.RE
+.PP
+
+.PP
+Definition at line 783 of file qwt_thermo.cpp.
+.PP
+References minimumSizeHint().
+.SS "double QwtThermo::value () const"
+.PP
+Return the value. 
+.PP
+Definition at line 145 of file qwt_thermo.cpp.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Qwt User's Guide from the source code.

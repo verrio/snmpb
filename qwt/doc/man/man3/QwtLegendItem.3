@@ -1,0 +1,509 @@
+.TH "QwtLegendItem" 3 "17 Sep 2006" "Version 5.0.0-rc0" "Qwt User's Guide" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+QwtLegendItem \- 
+.SH SYNOPSIS
+.br
+.PP
+Inherits \fBQwtTextLabel\fP.
+.PP
+.SH "Detailed Description"
+.PP 
+A legend label. 
+
+QwtLegendItem represents a curve on a legend. It displays an curve identifier with an explaining text. The identifier might be a combination of curve symbol and line. In readonly mode it behaves like a label, otherwise like an unstylish push button.
+.PP
+\fBSee also:\fP
+.RS 4
+\fBQwtLegend\fP, QwtCurve
+.RE
+.PP
+
+.PP
+Definition at line 35 of file qwt_legend_item.h.
+.SS "Public Types"
+
+.in +1c
+.ti -1c
+.RI "enum \fBIdentifierMode\fP { \fBNoIdentifier\fP =  0, \fBShowLine\fP =  1, \fBShowSymbol\fP =  2, \fBShowText\fP =  4 }"
+.br
+.in -1c
+.SS "Public Slots"
+
+.in +1c
+.ti -1c
+.RI "void \fBsetChecked\fP (bool on)"
+.br
+.in -1c
+.SS "Signals"
+
+.in +1c
+.ti -1c
+.RI "void \fBclicked\fP ()"
+.br
+.ti -1c
+.RI "void \fBpressed\fP ()"
+.br
+.ti -1c
+.RI "void \fBreleased\fP ()"
+.br
+.ti -1c
+.RI "void \fBchecked\fP (bool)"
+.br
+.in -1c
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBQwtLegendItem\fP (QWidget *parent=0)"
+.br
+.ti -1c
+.RI "\fBQwtLegendItem\fP (const \fBQwtSymbol\fP &, const QPen &, const \fBQwtText\fP &, QWidget *parent=0)"
+.br
+.ti -1c
+.RI "virtual \fB~QwtLegendItem\fP ()"
+.br
+.ti -1c
+.RI "virtual void \fBsetText\fP (const \fBQwtText\fP &)"
+.br
+.ti -1c
+.RI "void \fBsetItemMode\fP (\fBQwtLegend::LegendItemMode\fP)"
+.br
+.ti -1c
+.RI "\fBQwtLegend::LegendItemMode\fP \fBitemMode\fP () const "
+.br
+.ti -1c
+.RI "void \fBsetIdentifierMode\fP (int)"
+.br
+.ti -1c
+.RI "int \fBidentifierMode\fP () const "
+.br
+.ti -1c
+.RI "void \fBsetIdentfierWidth\fP (int width)"
+.br
+.ti -1c
+.RI "int \fBidentifierWidth\fP () const "
+.br
+.ti -1c
+.RI "void \fBsetSpacing\fP (int spacing)"
+.br
+.ti -1c
+.RI "int \fBspacing\fP () const "
+.br
+.ti -1c
+.RI "void \fBsetSymbol\fP (const \fBQwtSymbol\fP &)"
+.br
+.ti -1c
+.RI "const \fBQwtSymbol\fP & \fBsymbol\fP () const "
+.br
+.ti -1c
+.RI "void \fBsetCurvePen\fP (const QPen &)"
+.br
+.ti -1c
+.RI "const QPen & \fBcurvePen\fP () const "
+.br
+.ti -1c
+.RI "virtual void \fBdrawIdentifier\fP (QPainter *, const QRect &) const "
+.br
+.ti -1c
+.RI "virtual void \fBdrawItem\fP (QPainter *p, const QRect &) const "
+.br
+.ti -1c
+.RI "virtual QSize \fBsizeHint\fP () const "
+.br
+.ti -1c
+.RI "bool \fBisChecked\fP () const "
+.br
+.in -1c
+.SS "Protected Member Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBsetDown\fP (bool)"
+.br
+.ti -1c
+.RI "bool \fBisDown\fP () const "
+.br
+.ti -1c
+.RI "virtual void \fBpaintEvent\fP (QPaintEvent *)"
+.br
+.ti -1c
+.RI "virtual void \fBmousePressEvent\fP (QMouseEvent *)"
+.br
+.ti -1c
+.RI "virtual void \fBmouseReleaseEvent\fP (QMouseEvent *)"
+.br
+.ti -1c
+.RI "virtual void \fBkeyPressEvent\fP (QKeyEvent *)"
+.br
+.ti -1c
+.RI "virtual void \fBkeyReleaseEvent\fP (QKeyEvent *)"
+.br
+.ti -1c
+.RI "virtual void \fBdrawText\fP (QPainter *, const QRect &)"
+.br
+.in -1c
+.SH "Member Enumeration Documentation"
+.PP 
+.SS "enum \fBQwtLegendItem::IdentifierMode\fP"
+.PP
+Identifier mode. 
+.PP
+Default is ShowLine | ShowText 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBQwtLegendItem::identifierMode\fP, \fBQwtLegendItem::setIdentifierMode\fP
+.RE
+.PP
+
+.PP
+Definition at line 47 of file qwt_legend_item.h.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "QwtLegendItem::QwtLegendItem (QWidget * parent = \fC0\fP)\fC [explicit]\fP"
+.PP
+\fBParameters:\fP
+.RS 4
+\fIparent\fP Parent widget
+.RE
+.PP
+
+.PP
+Definition at line 74 of file qwt_legend_item.cpp.
+.SS "QwtLegendItem::QwtLegendItem (const \fBQwtSymbol\fP & symbol, const QPen & curvePen, const \fBQwtText\fP & text, QWidget * parent = \fC0\fP)\fC [explicit]\fP"
+.PP
+\fBParameters:\fP
+.RS 4
+\fIsymbol\fP Curve symbol 
+.br
+\fIcurvePen\fP Curve pen 
+.br
+\fItext\fP Label text 
+.br
+\fIparent\fP Parent widget
+.RE
+.PP
+
+.PP
+Definition at line 87 of file qwt_legend_item.cpp.
+.SS "QwtLegendItem::~QwtLegendItem ()\fC [virtual]\fP"
+.PP
+Destructor. 
+.PP
+Definition at line 108 of file qwt_legend_item.cpp.
+.SH "Member Function Documentation"
+.PP 
+.SS "void QwtLegendItem::checked (bool)\fC [signal]\fP"
+.PP
+Signal, when the legend item has been toggled. 
+.PP
+Referenced by setDown().
+.SS "void QwtLegendItem::clicked ()\fC [signal]\fP"
+.PP
+Signal, when the legend item has been clicked. 
+.PP
+Referenced by setDown().
+.SS "const QPen & QwtLegendItem::curvePen () const"
+.PP
+\fBReturns:\fP
+.RS 4
+The curve pen. 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBsetCurvePen()\fP
+.RE
+.PP
+
+.PP
+Definition at line 288 of file qwt_legend_item.cpp.
+.PP
+Referenced by QwtPlotPrintFilter::apply(), and QwtPlotPrintFilter::reset().
+.SS "void QwtLegendItem::drawIdentifier (QPainter * painter, const QRect & rect) const\fC [virtual]\fP"
+.PP
+Paint the identifier to a given rect. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIpainter\fP Painter 
+.br
+\fIrect\fP Rect where to paint
+.RE
+.PP
+
+.PP
+Definition at line 298 of file qwt_legend_item.cpp.
+.PP
+References QwtPainter::drawLine(), QwtPainter::metricsMap(), and QwtMetricsMap::screenToLayout().
+.PP
+Referenced by drawItem(), and paintEvent().
+.SS "void QwtLegendItem::drawItem (QPainter * painter, const QRect & rect) const\fC [virtual]\fP"
+.PP
+Draw the legend item to a given rect. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIpainter\fP Painter 
+.br
+\fIrect\fP Rect where to paint the button
+.RE
+.PP
+
+.PP
+Definition at line 354 of file qwt_legend_item.cpp.
+.PP
+References QwtText::draw(), drawIdentifier(), identifierWidth(), QwtTextLabel::margin(), QwtPainter::metricsMap(), QwtMetricsMap::screenToLayoutX(), spacing(), and QwtTextLabel::text().
+.PP
+Referenced by QwtPlot::printLegendItem().
+.SS "void QwtLegendItem::drawText (QPainter *, const QRect &)\fC [protected, virtual]\fP"
+.PP
+Redraw the text. 
+.PP
+Reimplemented from \fBQwtTextLabel\fP.
+.PP
+Definition at line 535 of file qwt_legend_item.cpp.
+.PP
+References QwtTextLabel::drawText().
+.SS "int QwtLegendItem::identifierMode () const"
+.PP
+Or'd values of IdentifierMode. 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBsetIdentifierMode()\fP, \fBIdentifierMode\fP
+.RE
+.PP
+
+.PP
+Definition at line 186 of file qwt_legend_item.cpp.
+.SS "int QwtLegendItem::identifierWidth () const"
+.PP
+Return the width of the identifier
+.PP
+\fBSee also:\fP
+.RS 4
+\fBsetIdentfierWidth\fP
+.RE
+.PP
+
+.PP
+Definition at line 214 of file qwt_legend_item.cpp.
+.PP
+Referenced by drawItem().
+.SS "\fBQwtLegend::LegendItemMode\fP QwtLegendItem::itemMode () const"
+.PP
+Return the item mode
+.PP
+\fBSee also:\fP
+.RS 4
+\fBsetItemMode()\fP
+.RE
+.PP
+
+.PP
+Definition at line 161 of file qwt_legend_item.cpp.
+.SS "void QwtLegendItem::paintEvent (QPaintEvent *)\fC [protected, virtual]\fP"
+.PP
+Qt paint event. 
+.PP
+Reimplemented from \fBQwtTextLabel\fP.
+.PP
+Definition at line 378 of file qwt_legend_item.cpp.
+.PP
+References QwtTextLabel::drawContents(), drawIdentifier(), and QwtTextLabel::margin().
+.SS "void QwtLegendItem::pressed ()\fC [signal]\fP"
+.PP
+Signal, when the legend item has been pressed. 
+.PP
+Referenced by setDown().
+.SS "void QwtLegendItem::released ()\fC [signal]\fP"
+.PP
+Signal, when the legend item has been relased. 
+.PP
+Referenced by setDown().
+.SS "void QwtLegendItem::setCurvePen (const QPen & pen)"
+.PP
+Set curve pen. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIpen\fP Curve pen
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBcurvePen()\fP
+.RE
+.PP
+
+.PP
+Definition at line 275 of file qwt_legend_item.cpp.
+.PP
+Referenced by QwtPlotPrintFilter::apply(), QwtPlotPrintFilter::reset(), and QwtPlotCurve::updateLegend().
+.SS "void QwtLegendItem::setIdentfierWidth (int width)"
+.PP
+Set the width for the identifier Default is 8 pixels
+.PP
+\fBParameters:\fP
+.RS 4
+\fIWidth\fP New width
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBidentifierMode()\fP, \fBidentifierWidth\fP
+.RE
+.PP
+
+.PP
+Definition at line 199 of file qwt_legend_item.cpp.
+.PP
+References QwtTextLabel::margin(), qwtMax, and QwtTextLabel::setIndent().
+.SS "void QwtLegendItem::setIdentifierMode (int mode)"
+.PP
+Set identifier mode. Default is ShowLine | ShowText. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fImode\fP Or'd values of IdentifierMode
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBidentifierMode()\fP
+.RE
+.PP
+
+.PP
+Definition at line 173 of file qwt_legend_item.cpp.
+.PP
+Referenced by QwtPlotCurve::updateLegend().
+.SS "void QwtLegendItem::setItemMode (\fBQwtLegend::LegendItemMode\fP mode)"
+.PP
+Set the item mode The default is QwtLegend::ReadOnlyItem
+.PP
+\fBParameters:\fP
+.RS 4
+\fImode\fP Item mode 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBitemMode()\fP
+.RE
+.PP
+
+.PP
+Definition at line 142 of file qwt_legend_item.cpp.
+.PP
+References QwtTextLabel::setMargin().
+.PP
+Referenced by QwtPlotItem::updateLegend().
+.SS "void QwtLegendItem::setSpacing (int spacing)"
+.PP
+Change the spacing 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIspacing\fP Spacing 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBspacing()\fP, \fBidentifierWidth()\fP, \fBQwtTextLabel::margin()\fP
+.RE
+.PP
+
+.PP
+Definition at line 224 of file qwt_legend_item.cpp.
+.PP
+References QwtTextLabel::margin(), qwtMax, and QwtTextLabel::setIndent().
+.SS "void QwtLegendItem::setSymbol (const \fBQwtSymbol\fP & symbol)"
+.PP
+Set curve symbol. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIsymbol\fP Symbol
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBsymbol()\fP
+.RE
+.PP
+
+.PP
+Definition at line 250 of file qwt_legend_item.cpp.
+.PP
+Referenced by QwtPlotPrintFilter::apply(), QwtPlotPrintFilter::reset(), and QwtPlotCurve::updateLegend().
+.SS "void QwtLegendItem::setText (const \fBQwtText\fP & text)\fC [virtual]\fP"
+.PP
+Set the text to the legend item
+.PP
+\fBParameters:\fP
+.RS 4
+\fItext\fP Text label 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBQwtTextLabel::text()\fP
+.RE
+.PP
+
+.PP
+Reimplemented from \fBQwtTextLabel\fP.
+.PP
+Definition at line 120 of file qwt_legend_item.cpp.
+.PP
+References QwtText::setRenderFlags(), and QwtTextLabel::setText().
+.PP
+Referenced by QwtPlotItem::updateLegend(), and QwtPlotCurve::updateLegend().
+.SS "QSize QwtLegendItem::sizeHint () const\fC [virtual]\fP"
+.PP
+Return label's margin in pixels. 
+.PP
+Reimplemented from \fBQwtTextLabel\fP.
+.PP
+Definition at line 526 of file qwt_legend_item.cpp.
+.PP
+References QwtTextLabel::sizeHint().
+.SS "int QwtLegendItem::spacing () const"
+.PP
+Return the spacing 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBsetSpacing()\fP, \fBidentifierWidth()\fP, \fBQwtTextLabel::margin()\fP
+.RE
+.PP
+
+.PP
+Definition at line 239 of file qwt_legend_item.cpp.
+.PP
+Referenced by drawItem().
+.SS "const \fBQwtSymbol\fP & QwtLegendItem::symbol () const"
+.PP
+\fBReturns:\fP
+.RS 4
+The curve symbol. 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBsetSymbol()\fP
+.RE
+.PP
+
+.PP
+Definition at line 263 of file qwt_legend_item.cpp.
+.PP
+Referenced by QwtPlotPrintFilter::apply(), and QwtPlotPrintFilter::reset().
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Qwt User's Guide from the source code.

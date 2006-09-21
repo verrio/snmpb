@@ -1,0 +1,104 @@
+.TH "QwtPickerMachine" 3 "17 Sep 2006" "Version 5.0.0-rc0" "Qwt User's Guide" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+QwtPickerMachine \- 
+.SH SYNOPSIS
+.br
+.PP
+Inherited by \fBQwtPickerClickPointMachine\fP, \fBQwtPickerClickRectMachine\fP, \fBQwtPickerDragPointMachine\fP, \fBQwtPickerDragRectMachine\fP, and \fBQwtPickerPolygonMachine\fP.
+.PP
+.SH "Detailed Description"
+.PP 
+A state machine for \fBQwtPicker\fP selections. 
+
+QwtPickerMachine accepts key and mouse events and translates them into selection commands.
+.PP
+\fBSee also:\fP
+.RS 4
+\fBQwtEventPattern::MousePatternCode\fP, \fBQwtEventPattern::KeyPatternCode\fP
+.RE
+.PP
+
+.PP
+Definition at line 32 of file qwt_picker_machine.h.
+.SS "Public Types"
+
+.in +1c
+.ti -1c
+.RI "typedef QList< \fBCommand\fP > \fBCommandList\fP"
+.br
+.ti -1c
+.RI "enum \fBCommand\fP { \fBBegin\fP, \fBAppend\fP, \fBMove\fP, \fBEnd\fP }"
+.br
+.in -1c
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "virtual \fB~QwtPickerMachine\fP ()"
+.br
+.ti -1c
+.RI "virtual \fBCommandList\fP \fBtransition\fP (const \fBQwtEventPattern\fP &, const QEvent *)=0"
+.br
+.ti -1c
+.RI "void \fBreset\fP ()"
+.br
+.ti -1c
+.RI "int \fBstate\fP () const "
+.br
+.ti -1c
+.RI "void \fBsetState\fP (int)"
+.br
+.in -1c
+.SS "Protected Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBQwtPickerMachine\fP ()"
+.br
+.in -1c
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "QwtPickerMachine::~QwtPickerMachine ()\fC [virtual]\fP"
+.PP
+Destructor. 
+.PP
+Definition at line 21 of file qwt_picker_machine.cpp.
+.SS "QwtPickerMachine::QwtPickerMachine ()\fC [protected]\fP"
+.PP
+Constructor. 
+.PP
+Definition at line 15 of file qwt_picker_machine.cpp.
+.SH "Member Function Documentation"
+.PP 
+.SS "void QwtPickerMachine::reset ()"
+.PP
+Set the current state to 0. 
+.PP
+Definition at line 38 of file qwt_picker_machine.cpp.
+.PP
+References setState().
+.SS "void QwtPickerMachine::setState (int)"
+.PP
+Change the current state. 
+.PP
+Definition at line 32 of file qwt_picker_machine.cpp.
+.PP
+Referenced by reset(), QwtPickerPolygonMachine::transition(), QwtPickerDragRectMachine::transition(), QwtPickerClickRectMachine::transition(), and QwtPickerDragPointMachine::transition().
+.SS "int QwtPickerMachine::state () const"
+.PP
+Return the current state. 
+.PP
+Definition at line 26 of file qwt_picker_machine.cpp.
+.PP
+Referenced by QwtPickerPolygonMachine::transition(), QwtPickerDragRectMachine::transition(), QwtPickerClickRectMachine::transition(), and QwtPickerDragPointMachine::transition().
+.SS "virtual \fBCommandList\fP QwtPickerMachine::transition (const \fBQwtEventPattern\fP &, const QEvent *)\fC [pure virtual]\fP"
+.PP
+Transition. 
+.PP
+Implemented in \fBQwtPickerClickPointMachine\fP, \fBQwtPickerDragPointMachine\fP, \fBQwtPickerClickRectMachine\fP, \fBQwtPickerDragRectMachine\fP, and \fBQwtPickerPolygonMachine\fP.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Qwt User's Guide from the source code.

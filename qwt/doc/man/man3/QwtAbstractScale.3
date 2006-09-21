@@ -1,0 +1,384 @@
+.TH "QwtAbstractScale" 3 "17 Sep 2006" "Version 5.0.0-rc0" "Qwt User's Guide" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+QwtAbstractScale \- 
+.SH SYNOPSIS
+.br
+.PP
+Inherited by \fBQwtKnob\fP, \fBQwtSlider\fP, and \fBQwtThermo\fP.
+.PP
+.SH "Detailed Description"
+.PP 
+An abstract base class for classes containing a scale. 
+
+QwtAbstractScale is used to provide classes with a \fBQwtScaleDraw\fP, and a \fBQwtScaleDiv\fP. The \fBQwtScaleDiv\fP might be set explicitely or calculated by a \fBQwtScaleEngine\fP.
+.PP
+Definition at line 29 of file qwt_abstract_scale.h.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBQwtAbstractScale\fP ()"
+.br
+.ti -1c
+.RI "virtual \fB~QwtAbstractScale\fP ()"
+.br
+.ti -1c
+.RI "void \fBsetScale\fP (double vmin, double vmax, double step=0.0)"
+.br
+.ti -1c
+.RI "void \fBsetScale\fP (const \fBQwtDoubleInterval\fP &, double step=0.0)"
+.br
+.ti -1c
+.RI "void \fBsetScale\fP (const \fBQwtScaleDiv\fP &s)"
+.br
+.ti -1c
+.RI "void \fBsetAutoScale\fP ()"
+.br
+.ti -1c
+.RI "bool \fBautoScale\fP () const "
+.br
+.ti -1c
+.RI "void \fBsetScaleMaxMajor\fP (int ticks)"
+.br
+.ti -1c
+.RI "int \fBscaleMaxMinor\fP () const "
+.br
+.ti -1c
+.RI "void \fBsetScaleMaxMinor\fP (int ticks)"
+.br
+.ti -1c
+.RI "int \fBscaleMaxMajor\fP () const "
+.br
+.ti -1c
+.RI "void \fBsetScaleEngine\fP (\fBQwtScaleEngine\fP *)"
+.br
+.ti -1c
+.RI "const \fBQwtScaleEngine\fP * \fBscaleEngine\fP () const "
+.br
+.ti -1c
+.RI "\fBQwtScaleEngine\fP * \fBscaleEngine\fP ()"
+.br
+.ti -1c
+.RI "const \fBQwtScaleMap\fP & \fBscaleMap\fP () const "
+.br
+.in -1c
+.SS "Protected Member Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBrescale\fP (double vmin, double vmax, double step=0.0)"
+.br
+.ti -1c
+.RI "void \fBsetAbstractScaleDraw\fP (\fBQwtAbstractScaleDraw\fP *)"
+.br
+.ti -1c
+.RI "const \fBQwtAbstractScaleDraw\fP * \fBabstractScaleDraw\fP () const "
+.br
+.ti -1c
+.RI "\fBQwtAbstractScaleDraw\fP * \fBabstractScaleDraw\fP ()"
+.br
+.ti -1c
+.RI "virtual void \fBscaleChange\fP ()"
+.br
+.in -1c
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "QwtAbstractScale::QwtAbstractScale ()"
+.PP
+Constructor
+.PP
+Creates a default \fBQwtScaleDraw\fP and a \fBQwtLinearScaleEngine\fP. Autoscaling is enabled, and the stepSize is initialized by 0.0.
+.PP
+Definition at line 53 of file qwt_abstract_scale.cpp.
+.PP
+References rescale().
+.SS "QwtAbstractScale::~QwtAbstractScale ()\fC [virtual]\fP"
+.PP
+Destructor. 
+.PP
+Definition at line 60 of file qwt_abstract_scale.cpp.
+.SH "Member Function Documentation"
+.PP 
+.SS "\fBQwtAbstractScaleDraw\fP * QwtAbstractScale::abstractScaleDraw ()\fC [protected]\fP"
+.PP
+\fBReturns:\fP
+.RS 4
+Scale draw 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBsetAbstractScaleDraw()\fP
+.RE
+.PP
+
+.PP
+Definition at line 237 of file qwt_abstract_scale.cpp.
+.SS "const \fBQwtAbstractScaleDraw\fP * QwtAbstractScale::abstractScaleDraw () const\fC [protected]\fP"
+.PP
+\fBReturns:\fP
+.RS 4
+Scale draw 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBsetAbstractScaleDraw()\fP
+.RE
+.PP
+
+.PP
+Definition at line 246 of file qwt_abstract_scale.cpp.
+.PP
+Referenced by QwtThermo::scaleDraw(), QwtSlider::scaleDraw(), and QwtKnob::scaleDraw().
+.SS "bool QwtAbstractScale::autoScale () const"
+.PP
+\fBReturns:\fP
+.RS 4
+\fCtrue\fP if autoscaling is enabled
+.RE
+.PP
+
+.PP
+Definition at line 159 of file qwt_abstract_scale.cpp.
+.PP
+Referenced by QwtSlider::rangeChange(), and QwtThermo::setRange().
+.SS "void QwtAbstractScale::rescale (double vmin, double vmax, double stepSize = \fC0.0\fP)\fC [protected]\fP"
+.PP
+Recalculate the scale division and update the scale draw.
+.PP
+\fBParameters:\fP
+.RS 4
+\fIvmin\fP Lower limit of the scale interval 
+.br
+\fIvmax\fP Upper limit of the scale interval 
+.br
+\fIstepSize\fP Major step size
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBscaleChange()\fP
+.RE
+.PP
+
+.PP
+Definition at line 127 of file qwt_abstract_scale.cpp.
+.PP
+References scaleChange().
+.PP
+Referenced by QwtAbstractScale(), QwtSlider::rangeChange(), QwtThermo::setRange(), and setScale().
+.SS "void QwtAbstractScale::scaleChange ()\fC [protected, virtual]\fP"
+.PP
+Notify changed scale. 
+.PP
+Dummy empty implementation, intended to be overloaded by derived classes
+.PP
+Reimplemented in \fBQwtSlider\fP, and \fBQwtThermo\fP.
+.PP
+Definition at line 298 of file qwt_abstract_scale.cpp.
+.PP
+Referenced by rescale(), setAutoScale(), and setScale().
+.SS "\fBQwtScaleEngine\fP * QwtAbstractScale::scaleEngine ()"
+.PP
+\fBReturns:\fP
+.RS 4
+Scale engine 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBsetScaleEngine()\fP
+.RE
+.PP
+
+.PP
+Definition at line 288 of file qwt_abstract_scale.cpp.
+.SS "const \fBQwtScaleEngine\fP * QwtAbstractScale::scaleEngine () const"
+.PP
+\fBReturns:\fP
+.RS 4
+Scale engine 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBsetScaleEngine()\fP
+.RE
+.PP
+
+.PP
+Definition at line 279 of file qwt_abstract_scale.cpp.
+.PP
+Referenced by QwtThermo::setRange().
+.SS "int QwtAbstractScale::scaleMaxMajor () const"
+.PP
+\fBReturns:\fP
+.RS 4
+Max. number of major tick intervals The default value is 5.
+.RE
+.PP
+
+.PP
+Definition at line 213 of file qwt_abstract_scale.cpp.
+.SS "int QwtAbstractScale::scaleMaxMinor () const"
+.PP
+\fBReturns:\fP
+.RS 4
+Max. number of minor tick intervals The default value is 3.
+.RE
+.PP
+
+.PP
+Definition at line 204 of file qwt_abstract_scale.cpp.
+.SS "void QwtAbstractScale::setAbstractScaleDraw (\fBQwtAbstractScaleDraw\fP * scaleDraw)\fC [protected]\fP"
+.PP
+Set a scale draw. 
+.PP
+scaleDraw has to be created with new and will be deleted in ~QwtAbstractScale or the next call of setAbstractScaleDraw.
+.PP
+Definition at line 224 of file qwt_abstract_scale.cpp.
+.PP
+Referenced by QwtThermo::setScaleDraw(), QwtSlider::setScaleDraw(), and QwtKnob::setScaleDraw().
+.SS "void QwtAbstractScale::setAutoScale ()"
+.PP
+Advise the widget to control the scale range internally. 
+.PP
+Autoscaling is on by default. 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBsetScale()\fP, \fBautoScale()\fP
+.RE
+.PP
+
+.PP
+Definition at line 147 of file qwt_abstract_scale.cpp.
+.PP
+References scaleChange().
+.SS "void QwtAbstractScale::setScale (const \fBQwtScaleDiv\fP & scaleDiv)"
+.PP
+Specify a scale. 
+.PP
+Disable autoscaling and define a scale by a scale division
+.PP
+\fBParameters:\fP
+.RS 4
+\fIscaleDiv\fP Scale division 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBsetAutoScale()\fP
+.RE
+.PP
+
+.PP
+Definition at line 107 of file qwt_abstract_scale.cpp.
+.PP
+References scaleChange().
+.SS "void QwtAbstractScale::setScale (const \fBQwtDoubleInterval\fP & interval, double stepSize = \fC0.0\fP)"
+.PP
+Specify a scale. 
+.PP
+Disable autoscaling and define a scale by an interval and a step size
+.PP
+\fBParameters:\fP
+.RS 4
+\fIinterval\fP Interval 
+.br
+\fIstepSize\fP major step size 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBsetAutoScale()\fP
+.RE
+.PP
+
+.PP
+Definition at line 92 of file qwt_abstract_scale.cpp.
+.PP
+References QwtDoubleInterval::maxValue(), QwtDoubleInterval::minValue(), and setScale().
+.SS "void QwtAbstractScale::setScale (double vmin, double vmax, double stepSize = \fC0.0\fP)"
+.PP
+Specify a scale. 
+.PP
+Disable autoscaling and define a scale by an interval and a step size
+.PP
+\fBParameters:\fP
+.RS 4
+\fIvmin\fP lower limit of the scale interval 
+.br
+\fIvmax\fP upper limit of the scale interval 
+.br
+\fIstepSize\fP major step size 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBsetAutoScale()\fP
+.RE
+.PP
+
+.PP
+Definition at line 75 of file qwt_abstract_scale.cpp.
+.PP
+References rescale().
+.PP
+Referenced by setScale().
+.SS "void QwtAbstractScale::setScaleEngine (\fBQwtScaleEngine\fP * scaleEngine)"
+.PP
+Set a scale engine. 
+.PP
+The scale engine is responsible for calculating the scale division, and in case of auto scaling how to align the scale.
+.PP
+scaleEngine has to be created with new and will be deleted in ~QwtAbstractScale or the next call of setScaleEngine.
+.PP
+Definition at line 266 of file qwt_abstract_scale.cpp.
+.PP
+Referenced by QwtThermo::setRange().
+.SS "void QwtAbstractScale::setScaleMaxMajor (int ticks)"
+.PP
+Set the maximum number of major tick intervals. 
+.PP
+The scale's major ticks are calculated automatically such that the number of major intervals does not exceed ticks. The default value is 5. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIticks\fP maximal number of major ticks. 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBQwtAbstractScaleDraw\fP
+.RE
+.PP
+
+.PP
+Definition at line 173 of file qwt_abstract_scale.cpp.
+.SS "void QwtAbstractScale::setScaleMaxMinor (int ticks)"
+.PP
+Set the maximum number of minor tick intervals. 
+.PP
+The scale's minor ticks are calculated automatically such that the number of minor intervals does not exceed ticks. The default value is 3. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIticks\fP 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBQwtAbstractScaleDraw\fP
+.RE
+.PP
+
+.PP
+Definition at line 191 of file qwt_abstract_scale.cpp.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Qwt User's Guide from the source code.

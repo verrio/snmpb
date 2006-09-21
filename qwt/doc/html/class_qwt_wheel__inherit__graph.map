@@ -1,0 +1,3 @@
+base referer
+rect $class_qwt_abstract_slider.html 8,84 136,108
+rect $class_qwt_double_range.html 9,9 134,33

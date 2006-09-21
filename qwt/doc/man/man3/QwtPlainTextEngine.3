@@ -1,0 +1,168 @@
+.TH "QwtPlainTextEngine" 3 "17 Sep 2006" "Version 5.0.0-rc0" "Qwt User's Guide" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+QwtPlainTextEngine \- 
+.SH SYNOPSIS
+.br
+.PP
+Inherits \fBQwtTextEngine\fP.
+.PP
+.SH "Detailed Description"
+.PP 
+A text engine for plain texts. 
+
+QwtPlainTextEngine renders texts using the basic Qt classes QPainter and QFontMetrics.
+.PP
+Definition at line 121 of file qwt_text_engine.h.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBQwtPlainTextEngine\fP ()"
+.br
+.ti -1c
+.RI "virtual \fB~QwtPlainTextEngine\fP ()"
+.br
+.ti -1c
+.RI "virtual int \fBheightForWidth\fP (const QFont &font, int flags, const QString &text, int width) const "
+.br
+.ti -1c
+.RI "virtual QSize \fBtextSize\fP (const QFont &font, int flags, const QString &text) const "
+.br
+.ti -1c
+.RI "virtual void \fBdraw\fP (QPainter *painter, const QRect &rect, int flags, const QString &text) const "
+.br
+.ti -1c
+.RI "virtual bool \fBmightRender\fP (const QString &) const "
+.br
+.ti -1c
+.RI "virtual void \fBtextMargins\fP (const QFont &, const QString &, int &left, int &right, int &top, int &bottom) const "
+.br
+.in -1c
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "QwtPlainTextEngine::QwtPlainTextEngine ()"
+.PP
+Constructor. 
+.PP
+Definition at line 131 of file qwt_text_engine.cpp.
+.SS "QwtPlainTextEngine::~QwtPlainTextEngine ()\fC [virtual]\fP"
+.PP
+Destructor. 
+.PP
+Definition at line 137 of file qwt_text_engine.cpp.
+.SH "Member Function Documentation"
+.PP 
+.SS "void QwtPlainTextEngine::draw (QPainter * painter, const QRect & rect, int flags, const QString & text) const\fC [virtual]\fP"
+.PP
+Draw the text in a clipping rectangle. 
+.PP
+A wrapper for QPainter::drawText.
+.PP
+\fBParameters:\fP
+.RS 4
+\fIpainter\fP Painter 
+.br
+\fIrect\fP Clipping rectangle 
+.br
+\fIflags\fP Bitwise OR of the flags used like in QPainter::drawText 
+.br
+\fItext\fP Text to be rendered
+.RE
+.PP
+
+.PP
+Implements \fBQwtTextEngine\fP.
+.PP
+Definition at line 210 of file qwt_text_engine.cpp.
+.PP
+References QwtPainter::drawText().
+.SS "int QwtPlainTextEngine::heightForWidth (const QFont & font, int flags, const QString & text, int width) const\fC [virtual]\fP"
+.PP
+Find the height for a given width
+.PP
+\fBParameters:\fP
+.RS 4
+\fIfont\fP Font of the text 
+.br
+\fIflags\fP Bitwise OR of the flags used like in QPainter::drawText 
+.br
+\fItext\fP Text to be rendered 
+.br
+\fIwidth\fP Width
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+Calculated height
+.RE
+.PP
+
+.PP
+Implements \fBQwtTextEngine\fP.
+.PP
+Definition at line 152 of file qwt_text_engine.cpp.
+.SS "bool QwtPlainTextEngine::mightRender (const QString &) const\fC [virtual]\fP"
+.PP
+Test if a string can be rendered by this text engine. 
+.PP
+\fBReturns:\fP
+.RS 4
+Always true. All texts can be rendered by QwtPlainTextEngine
+.RE
+.PP
+
+.PP
+Implements \fBQwtTextEngine\fP.
+.PP
+Definition at line 220 of file qwt_text_engine.cpp.
+.SS "void QwtPlainTextEngine::textMargins (const QFont & font, const QString &, int & left, int & right, int & top, int & bottom) const\fC [virtual]\fP"
+.PP
+Return margins around the texts
+.PP
+\fBParameters:\fP
+.RS 4
+\fIfont\fP Font of the text 
+.br
+\fIleft\fP Return 0 
+.br
+\fIright\fP Return 0 
+.br
+\fItop\fP Return value for the top margin 
+.br
+\fIbottom\fP Return value for the bottom margin
+.RE
+.PP
+
+.PP
+Implements \fBQwtTextEngine\fP.
+.PP
+Definition at line 190 of file qwt_text_engine.cpp.
+.SS "QSize QwtPlainTextEngine::textSize (const QFont & font, int flags, const QString & text) const\fC [virtual]\fP"
+.PP
+Returns the size, that is needed to render text
+.PP
+\fBParameters:\fP
+.RS 4
+\fIfont\fP Font of the text 
+.br
+\fIflags\fP Bitwise OR of the flags used like in QPainter::drawText 
+.br
+\fItext\fP Text to be rendered
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+Caluclated size
+.RE
+.PP
+
+.PP
+Implements \fBQwtTextEngine\fP.
+.PP
+Definition at line 171 of file qwt_text_engine.cpp.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Qwt User's Guide from the source code.
