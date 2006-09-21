@@ -48,10 +48,10 @@ FORMS	= mainw.ui
 TEMPLATE	=app
 CONFIG	+= qt warn_on debug
 win32:DEFINES	+= WIN32
-INCLUDEPATH	+= snmp++/include/
+INCLUDEPATH	+= snmp++/include libtomcrypt/src/headers
 win32:INCLUDEPATH	+= C:\smi\include C:\openssl\include
 win32:LIBS	+= -L. C:\smi\lib\smi.lib C:\openssl\lib\vc\libeay32.lib
-unix:LIBS	+= -L. -lsmi -lcrypto -lqwt
+unix:LIBS	+= -L. -Llibtomcrypt -lsmi -ltomcrypt -lqwt
 LANGUAGE	= C++
 #The following line was inserted by qt3to4
 QT +=  qt3support 

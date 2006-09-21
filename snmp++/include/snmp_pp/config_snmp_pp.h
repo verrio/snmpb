@@ -71,12 +71,12 @@
 // (separate package) as default.
 // define _USE_LIBTOMCRYPT if you want to use libtomcrypt instead
 // Note that _USE_OPENSSL will override libtomcrypt for SHA1, MD5, DES and AES.
-// #define _USE_LIBTOMCRYPT
+#define _USE_LIBTOMCRYPT
 
 // If you define _USE_OPENSSL, snmp++ will use OpenSSL for SHA1,
 // MD5, DES and AES. Please note that you will have to change the Makefiles
 // of the examples: Add -lssl to the link command
-#define _USE_OPENSSL
+// #define _USE_OPENSSL
 
 // If you do not use SNMP++ for commercial purposes or if you
 // have licensed IDEA (read README.v3) you may define the following
