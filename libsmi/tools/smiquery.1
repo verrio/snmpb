@@ -1,0 +1,66 @@
+.\"
+.\" $Id: smiquery.1.in 1676 2004-08-10 10:58:12Z strauss $
+.\"
+.TH smiquery 1  "August 10, 2004" "IBR" "SMI Tools"
+.SH NAME
+smiquery \- query single information from SMI MIB modules
+.SH SYNOPSIS
+.B smiquery
+[
+.B "-Vh"
+] [
+.BI "-p " module
+]
+.I command name
+.SH DESCRIPTION
+The \fBsmiquery\fP program is used to query information on a single
+item from an MIB module, e.g. module meta information or a single type
+definition.
+.SH OPTIONS
+.TP
+\fB-V, --version\fP
+Show the smiquery version and exit.
+.TP
+\fB-h, --help\fP
+Show a help text and exit. The help text lists all available \fBcommand\fPs.
+.TP
+\fB-p \fImodule\fB, --preload \fImodule\fP
+Preload the module \fImodule\fP before reading the main module. This may
+be helpful if an incomplete main module misses to import some definitions.
+.TP
+.I command name
+This specifies the kind of information to retrieve (module, imports,
+revisions, node, parent, compliance, index, members, children, type, or
+macro) and the item to retrieve.
+.PP
+The module in question is searched along a path, which is initialized by
+the \fBSMIPATH\fP environment variable or by /usr/local/share/mibs if
+\fBSMIPATH\fP is not set. Files with a \fB.sming\fP extension are
+expected to be (old-style!) SMIng module files. Files
+with a \fB.my\fP or without
+any extension are expected to be SMIv1/v2 module files.
+.SH "EXAMPLE"
+This example queries for information on the node ifNumber defined
+in the module IF-MIB.
+.nf
+
+  $ smiquery node IF-MIB::ifNumber
+       MibNode: IF-MIB::ifNumber
+	   OID: 1.3.6.1.2.1.2.1
+	  Type: Integer32
+   Declaration: OBJECT-TYPE
+      NodeKind: scalar
+	Access: read-only
+	Status: current
+   Description: The number of network interfaces (regardless of their
+		current state) present on this system.
+
+.fi
+.SH "SEE ALSO"
+The
+.BR libsmi (3)
+project is documented at
+.BR "http://www.ibr.cs.tu-bs.de/projects/libsmi/" "."
+.SH "AUTHOR"
+(C) 1999-2004 F. Strauss, TU Braunschweig, Germany <strauss@ibr.cs.tu-bs.de>
+.br

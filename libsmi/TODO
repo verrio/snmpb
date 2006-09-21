@@ -1,0 +1,152 @@
+o libsmi crashes on LIBSMI-TEST-010-MIB because it mixes up range, size
+  and named number restrictions internally so that later these data
+  structures are casted to the wrong type. A real fix to this problem
+  may require to redesign internal data structures to get rid of the
+  opaque list.
+
+o libsmi crashes on LIBSMI-TEST-011-MIB which contains a nice set of
+  nasty forward references.
+
+
+o error detection: detect IMPORTs of SMIv1 specific and SMIv2 specific
+  items in the same module, e.g. old OBJECT-TYPE macro and (new)
+  NOTIFICATION-TYPE macro.
+
+o error detection: does table node have exactly one row sub node
+  with oid == 1? (2578.7.10)
+
+o warning detection: non continuous sub oids in column node list?
+
+o warning detection: not reversible DISPLAY-HINT definitions
+
+o remove SMI_DECL_IMPL_SEQUENCEOF from smi.h: the smiv1/smiv2 parser 
+  should keep internal data structures for sequence types so that it 
+  can set the correct nodekinds and that it can check the SEQUENCE 
+  contents (see previous item). these internal data structures can
+  be released at the end of a MIB module.
+
+o warning detection: enumerations SHOULD NOT contain signedNumber's.
+  SHOULD start at 1. SHOULD be numbered contiguously.
+  e.g. DISMAN-SCHEDULE-MIB.SnmpPduErrorStatus
+
+o warning detection: subtyping not allowed for counter or timeticks
+
+o warning detection: defvals not allowed for counter
+
+
+
+o parser-smi.y: handle forbidden WS at some places
+  ( Module . label, ...)
+
+o dump-sming.c: ensure an order without forward references in typedef's.
+
+o dump-sming.c: support all(!) kinds of index clauses
+
+o smi.c: smiGetNames() is not yet implemented. do we really need it?
+
+o thread safety (global vars? static vars? strtok() and other funcs?)
+  different views
+
+o need a handle to distinguish different views.
+
+o clearly separate language dependent information at the API: SMI_STATUS_*
+  map STATUS to a non-language-dependent type
+
+o OID/Name Lookup Service (continue work on smid?)
+
+o how to convert SMIng types derived from other defined types correctly
+  to SMIv2?
+
+o various dump modules don't print identifiers fully qualified where
+  appropriate
+
+o Web online conversion to SMIng?
+
+o special handling for well-known traps (reversibility?)
+
+o smidump -f smiv1 now prints read AUGMENTS clauses as index lists correctly
+  but these index objects might not be imported.
+
+o smidump might print defvals for OIDs by label without importing it.
+
+o line breaks in long bits defaults values (dump-*.c)
+
+o Add smiGetFirstChildType(SmiType *smiType) and 
+  smiGetNextChildType(SmiType *smiType) to the API.
+
+o Make sure we always get the newest definition when looking up things
+  that are not unique.
+
+o The SMIv1/SMIv2/SMIng dump modules should build proper IMPORTS for
+  OIDs that show up in DEFVAL or default clauses.
+
+o The default value conversion functions (e.g. getValueString()) should
+  return malloced memory to avoid potential memory overwrite problems.
+
+o Suppress the following types: SNMPv2-SMI::ExtUTCTime,
+  SNMPv2-SMI::ObjectName, SNMPv2-SMI::NotificationName.
+
+o Check format specifier text in SMIng spec and add a `u' format specifier
+  for unsigned numbers.
+
+o smidump -f tree -u IF-MIB SNA-SDLC-MIB vs.
+  smidump -f tree -u SNA-SDLC-MIB IF-MIB : e.g. ifEntry differences.
+
+o rename test modules: TUBS-IBR prefix.
+
+o make libsmi aware of annotations (when SMIng supports annotations).
+
+o sming: in rule `refinedBaseType -> EnumerationKeyword optsep namedNumberSpec'
+  the `optsep' has to be inserted.
+
+o sming: in rule `refinedBaseType -> BitsKeyword optsep namedNumberSpec'
+  the `optsep' has to be inserted.
+
+o sming: ensure enum namedNumbers can be signed and bits namedNumbers cannot.
+
+o split the library into wo layers: (a) a lower layer that is very
+  restrictive on allowed input, does not care about memory management, etc.
+  and (b) a higher layer of utility functions, like display-hint based value
+  formatting, oid-to-instance-element parsing, constant-to-string mappings,
+  etc.
+
+o extend smicache so that MIB authors can use it to submit URLs for their
+  MIBs to a central MIB http/ftp service? Ask Aiko, whether the SimpleWeb
+  should offer such a MIB service?
+
+o Allow the MIB server to support lookup by OID.
+
+o Is there any value in MIB-by-OID lookup through DNS? ;-)
+
+o Include documents (draft on xml, etc.) with the distribution.
+
+o X.208, section 28 allows different forms of OID values. Some of them are
+  not accepted by the parser. Note also that the SMIv1 ENTERPRISE construct
+  contains an OID value, although it's common practice to specify its value
+  in a plain identifier name form, which is not matched by the ASN.1 OID
+  syntax.
+
+o Check the code for OID allocations of a constant length (128). Avoid
+  wasting memory. Avoid problems with OIDs that are (illegally) too long.
+
+o Check, whether all necessary occurences of &amp;, &lt;, &gt;, &apos;, and
+  &qout; are handled correctly in dump-xml and dump-xsd.
+
+o smidiff does not yet support the -i option, like smilint does.
+
+o error detection: different types in SEQUENCE and OBJECT-TYPE macros
+  (recognized for a MIB where the SEQUENCE contains "INTEGER" for a column
+  for which the OBJECT-TYPE's type is SNMPv2-TC::TruthValue. Notify Bert
+  when fixed.
+
+o error detection: integer DEFVAL for an enumeration typed OBJECT-TYPE.
+  Notify Bert when fixed.
+
+o API: several applications need a mechanism to iterate through the 
+  index components of a row definition, e.g. many of the dump-* drivers.
+  For example, see dump-scli.oc: foreachIndexDo(). Maybe something like
+  smiGetFirstIndex()/smiGetNextIndex() would be a good idea.
+
+o API/Utility Functions: getMinSize()/getMaxSize() is needed by multiple
+  smidump drivers. See dump-scli.c for a good implementation.
+

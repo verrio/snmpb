@@ -1,0 +1,27 @@
+../../mibs/ietf/INET-ADDRESS-MIB:7 warning: contact of `INET-ADDRESS-MIB' changed
+../../mibs/ietf/INET-ADDRESS-MIB:7 warning: description of module identity definition `INET-ADDRESS-MIB' changed
+../../mibs/ietf/INET-ADDRESS-MIB:33 warning: revision `2005-02-04 00:00' added
+../../mibs/ietf/INET-ADDRESS-MIB:38 warning: revision `2002-05-09 00:00' added
+./INET-ADDRESS-MIB.old:9 info: previous definition of `INET-ADDRESS-MIB'
+../../mibs/ietf/INET-ADDRESS-MIB:54 warning: named number `ipv4z' added to type `InetAddressType'
+../../mibs/ietf/INET-ADDRESS-MIB:54 warning: named number `ipv6z' added to type `InetAddressType'
+../../mibs/ietf/INET-ADDRESS-MIB:54 warning: description of textual convention definition `InetAddressType' changed
+./INET-ADDRESS-MIB.old:61 info: previous definition of `InetAddressType'
+../../mibs/ietf/INET-ADDRESS-MIB:113 warning: description of textual convention definition `InetAddress' changed
+./INET-ADDRESS-MIB.old:101 info: previous definition of `InetAddress'
+../../mibs/ietf/INET-ADDRESS-MIB:143 warning: description of textual convention definition `InetAddressIPv4' changed
+./INET-ADDRESS-MIB.old:123 info: previous definition of `InetAddressIPv4'
+../../mibs/ietf/INET-ADDRESS-MIB:163 size of type `InetAddressIPv6' changed from `(16|20)' to `(16)'
+../../mibs/ietf/INET-ADDRESS-MIB:163 warning: format of `InetAddressIPv6' changed
+../../mibs/ietf/INET-ADDRESS-MIB:163 warning: description of textual convention definition `InetAddressIPv6' changed
+./INET-ADDRESS-MIB.old:135 info: previous definition of `InetAddressIPv6'
+../../mibs/ietf/INET-ADDRESS-MIB:233 warning: description of textual convention definition `InetAddressDNS' changed
+./INET-ADDRESS-MIB.old:173 info: previous definition of `InetAddressDNS'
+../../mibs/ietf/INET-ADDRESS-MIB:180 warning: type `InetAddressIPv4z' has been added
+../../mibs/ietf/INET-ADDRESS-MIB:208 warning: type `InetAddressIPv6z' has been added
+../../mibs/ietf/INET-ADDRESS-MIB:260 warning: type `InetAddressPrefixLength' has been added
+../../mibs/ietf/INET-ADDRESS-MIB:297 warning: type `InetPortNumber' has been added
+../../mibs/ietf/INET-ADDRESS-MIB:317 warning: type `InetAutonomousSystemNumber' has been added
+../../mibs/ietf/INET-ADDRESS-MIB:338 warning: type `InetScopeType' has been added
+../../mibs/ietf/INET-ADDRESS-MIB:374 warning: type `InetZoneIndex' has been added
+../../mibs/ietf/INET-ADDRESS-MIB:397 warning: type `InetVersion' has been added

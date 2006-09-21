@@ -1,0 +1,42 @@
+LIBSMI-TEST-001-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY
+        FROM SNMPv2-SMI
+    testMib
+        FROM LIBSMI-TEST-MIB;
+
+libsmiTest001Mib MODULE-IDENTITY
+    LAST-UPDATED    "199906101500Z"
+    ORGANIZATION    
+            "TU Braunschweig"
+    CONTACT-INFO    
+            "        Frank Strauss
+             
+             Postal: TU Braunschweig
+                     Bueltenweg 74/75
+                     38106 Braunschweig
+                     Germany
+             
+              Phone: +49 531 391-3283
+              EMail: strauss@ibr.cs.tu-bs.de
+               http://www.ibr.cs.tu-bs.de/~strauss/"
+    DESCRIPTION     
+            "This MIB module contains one or more intentional errors,
+             and/or unusual contents. Its only purpose is to check
+             the abilities of MIB parsersto  detect these circumstances.
+             
+             This MIB module is orginally written in SMIv2 format.
+             
+             A MIB parser might complain about the fact, that this
+             module contains no definitions besides this MODULE-IDENTITY
+             construct.
+
+	     The libsmi parser is expected to report:
+	     "
+    REVISION        "199906101500Z"
+    DESCRIPTION     
+            "Initial Revision."
+    ::= { testMib 1 }
+
+END

@@ -1,0 +1,156 @@
+SMIDIFF-TEST-003-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE
+        FROM SNMPv2-SMI
+    DisplayString
+	FROM SNMPv2-TC
+    smidiffTestMib
+        FROM SMIDIFF-TEST-MIB;
+
+libsmiTest003Mib MODULE-IDENTITY
+    LAST-UPDATED    "200109280000Z"
+    ORGANIZATION    
+            "TU Braunschweig"
+    CONTACT-INFO    
+            "        Frank Strauss
+             
+             Postal: TU Braunschweig
+                     Muehlenpfordtstrasse 23
+                     38106 Braunschweig
+                     Germany
+             
+              Phone: +49 531 391-3283
+              EMail: strauss@ibr.cs.tu-bs.de
+               http://www.ibr.cs.tu-bs.de/~strauss/"
+    DESCRIPTION     
+            "This MIB module is used for smidiff, a tool to compare
+             two versions of the same MIB module and to check for
+             illegal modifications in the new version."
+    REVISION        "200109280000Z"
+    DESCRIPTION     
+            "Initial Revision."
+    ::= { smidiffTestMib 3 }
+
+scalar1 OBJECT-TYPE
+    SYNTAX     BITS { red(0), green(1), blue(2) } 
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+	"BITS. Default value added." 
+    ::= { libsmiTest003Mib 1 }
+
+scalar2 OBJECT-TYPE
+    SYNTAX     BITS { red(0), green(1), blue(2) } 
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+	"BITS. Last bit removed." 
+    ::= { libsmiTest003Mib 2 }
+
+scalar3 OBJECT-TYPE
+    SYNTAX     BITS { red(0), green(1), blue(2) } 
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+	"BITS. Added a bit (in the same byte)." 
+    ::= { libsmiTest003Mib 3 }
+
+scalar4 OBJECT-TYPE
+    SYNTAX     BITS { red(0), green(1), blue(2) } 
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+	"BITS. Added a bit (in a new byte)." 
+    ::= { libsmiTest003Mib 4 }
+
+scalar5 OBJECT-TYPE
+    SYNTAX     INTEGER { red(-1), green(1), blue(2) } 
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+	"ENUM. No changes." 
+    ::= { libsmiTest003Mib 5 }
+
+scalar6 OBJECT-TYPE
+    SYNTAX     INTEGER { red(-1), green(1), blue(2) } 
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+	"ENUM. Last number removed." 
+    ::= { libsmiTest003Mib 6 }
+
+scalar7 OBJECT-TYPE
+    SYNTAX     INTEGER { red(-1), green(1), blue(2) } 
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+	"ENUM. Changed a number in the middle." 
+    ::= { libsmiTest003Mib 7 }
+
+scalar8 OBJECT-TYPE
+    SYNTAX     INTEGER { red(-1), green(1), blue(2) } 
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+	"ENUM. Changed a number in the middle." 
+    ::= { libsmiTest003Mib 8 }
+
+scalar9 OBJECT-TYPE
+    SYNTAX     INTEGER { red(-1), green(1), blue(2) } 
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+	"ENUM. Added a number at start." 
+    ::= { libsmiTest003Mib 9 }
+
+scalar10 OBJECT-TYPE
+    SYNTAX     INTEGER { red(-1), green(1), blue(2) } 
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+	"ENUM. Added a number in the middle." 
+    ::= { libsmiTest003Mib 10 }
+
+scalar11 OBJECT-TYPE
+    SYNTAX     INTEGER { red(-1), green(1), blue(2) } 
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+	"ENUM. Added a number." 
+    ::= { libsmiTest003Mib 11 }
+
+scalar12 OBJECT-TYPE
+    SYNTAX     INTEGER { red(0), green(1), blue(2) } 
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+	"ENUM. Added a negative number." 
+    ::= { libsmiTest003Mib 12 }
+
+scalar13 OBJECT-TYPE
+    SYNTAX     INTEGER { yellow(-2), red(0), green(1), blue(2) } 
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+	"ENUM. Added a negative number in the middle." 
+    ::= { libsmiTest003Mib 13 }
+
+scalar14 OBJECT-TYPE
+    SYNTAX     INTEGER { yellow(-2), pink(-1), red(0), green(1), blue(2) } 
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+	"ENUM. Removed a negative number from the middle." 
+    ::= { libsmiTest003Mib 14 }
+
+scalar15 OBJECT-TYPE
+    SYNTAX     INTEGER { red(0), yellow(-2), pink(-1), blue(2), green(1)  } 
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+	"ENUM. Changed order of definition. Should not produce error msg." 
+    ::= { libsmiTest003Mib 15 }
+
+
+END

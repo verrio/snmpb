@@ -1,0 +1,73 @@
+.\"
+.\" $Id: smistrip.1.in 1676 2004-08-10 10:58:12Z strauss $
+.\"
+.TH smistrip 1  "August 10, 2004" "IBR" "SMI Tools"
+.SH NAME
+smistrip \- extract MIB or PIB modules from text files, like RFCs or I-Ds
+.SH SYNOPSIS
+.B smistrip
+[
+.B "-Vhn"
+] [
+.BI "-d " dir
+] [
+.BI "-m " module
+]
+[
+.I file(s)
+]
+.SH DESCRIPTION
+The \fBsmistrip\fP program is used to extract MIB and PIB module
+files from ASCII documents like RFCs or Internet Drafts. Modules are
+identified by a starting ASN.1 DEFINITIONS clause and the matching
+END clause. The output is written to files named by the modules' names.
+.SH OPTIONS
+.TP
+.B "-V"
+Show the smistrip version and exit.
+.TP
+.B "-h"
+Show a help text and exit.
+.TP
+.B "-n"
+Print only what would be extracted, but do not write any output file.
+.TP
+.BI "-d " dir
+Write module file(s) to directory \fIdir\fP instead of the current
+working directory.
+.TP
+.BI "-m " module
+Extract only the module \fImodule\fP instead of all modules found in
+the input file(s).
+.TP
+.I file(s)
+The input text file(s) from which modules will be extracted. If no file
+is given, input is read from stdin.
+.PP
+Note that \fBsmistrip\fP tries to be smart about locating module start
+and end, detecting page breaks and blank lines near page breaks. It
+also tries to cut off blank prefixing columns from all lines of a
+modules. However, there might by documents that cannot be parsed
+correctly by \fBsmistrip\fP and probably produce incorrect output.
+You might consider to use \fBsmilint\fP on every extracted module file
+to check its syntactical correctness.
+.SH "EXAMPLE"
+This example extracts only the module IPV6-MIB from the file rfc2465 and
+writes it to the directory /usr/local/tmp.
+.nf
+  $ smistrip -d /usr/local/tmp -m IPV6-MIB rfc2465
+.fi
+.SH "SEE ALSO"
+The
+.BR libsmi (3)
+project is documented at
+.BR "http://www.ibr.cs.tu-bs.de/projects/libsmi/" "."
+.PP
+.BR smilint "(1)"
+.SH "AUTHOR"
+(C) 1999-2004 F. Strauss, TU Braunschweig, Germany <strauss@ibr.cs.tu-bs.de>
+.br
+(C) 2002 M. Bunkus, TU Braunschweig, Germany <bunkus@ibr.cs.tu-bs.de>
+.br
+and contributions by many other people.
+.br

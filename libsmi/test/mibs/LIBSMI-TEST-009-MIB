@@ -1,0 +1,134 @@
+LIBSMI-TEST-009-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY
+	FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION
+	FROM SNMPv2-TC
+    testMib
+        FROM LIBSMI-TEST-MIB;
+
+libsmiTest009Mib MODULE-IDENTITY
+    LAST-UPDATED    "200005300900Z"
+    ORGANIZATION    
+            "TU Braunschweig"
+    CONTACT-INFO    
+            "        Frank Strauss
+             
+             Postal: TU Braunschweig
+                     Bueltenweg 74/75
+                     38106 Braunschweig
+                     Germany
+             
+              Phone: +49 531 391-3283
+              EMail: strauss@ibr.cs.tu-bs.de
+               http://www.ibr.cs.tu-bs.de/~strauss/"
+    DESCRIPTION     
+            "This MIB module contains one or more intentional errors,
+             and/or unusual contents. Its only purpose is to check
+             the abilities of MIB parsers to detect these circumstances.
+             
+             This MIB module is orginally written in SMIv2 format.
+             
+             The MIB parser should complain about improper number and
+	     bits enumerations.
+
+	     The libsmi parser is expected to report:
+LIBSMI-TEST-009-MIB:92: warning: named numbers not in ascending order
+LIBSMI-TEST-009-MIB:102: warning: first bit (bit zero) has no name assigned
+LIBSMI-TEST-009-MIB:114: warning: first bit (bit zero) has no name assigned
+LIBSMI-TEST-009-MIB:120: warning: first bit (bit zero) has no name assigned
+LIBSMI-TEST-009-MIB:120: warning: named numbers not in ascending order
+LIBSMI-TEST-009-MIB:126: warning: named bit `yellow(128)' may cause interoperability or implementation problems
+LIBSMI-TEST-009-MIB:126: warning: first bit (bit zero) has no name assigned
+LIBSMI-TEST-009-MIB:132: named bit `yellow(524280)' exceeds maximum bit position
+LIBSMI-TEST-009-MIB:132: warning: first bit (bit zero) has no name assigned
+LIBSMI-TEST-009-MIB:70: warning: current type `EnumTcTest1' is not referenced in this module
+LIBSMI-TEST-009-MIB:76: warning: current type `EnumTcTest2' is not referenced in this module
+LIBSMI-TEST-009-MIB:82: warning: current type `EnumTcTest3' is not referenced in this module
+LIBSMI-TEST-009-MIB:82: redefinition of name `red' in number enumeration
+LIBSMI-TEST-009-MIB:88: warning: current type `EnumTcTest4' is not referenced in this module
+LIBSMI-TEST-009-MIB:88: redefinition of number `3' in number enumeration
+LIBSMI-TEST-009-MIB:98: warning: current type `BitsTcTest1' is not referenced in this module
+LIBSMI-TEST-009-MIB:104: warning: current type `BitsTcTest2' is not referenced in this module
+LIBSMI-TEST-009-MIB:110: warning: current type `BitsTcTest3' is not referenced in this module
+LIBSMI-TEST-009-MIB:110: redefinition of name `red' in named bits list
+LIBSMI-TEST-009-MIB:116: warning: current type `BitsTcTest4' is not referenced in this module
+LIBSMI-TEST-009-MIB:116: redefinition of number `3' in named bits list
+LIBSMI-TEST-009-MIB:122: warning: current type `BitsTcTest5' is not referenced in this module
+LIBSMI-TEST-009-MIB:128: warning: current type `BitsTcTest6' is not referenced in this module
+	    "
+    REVISION        "200005300900Z"
+    DESCRIPTION     
+            "Initial Revision."
+    ::= { testMib 9 }
+
+--
+-- Test cases for number enumerations:
+--
+
+EnumTcTest1 ::= TEXTUAL-CONVENTION
+    STATUS	current
+    DESCRIPTION
+	"Valid enumeration."
+    SYNTAX INTEGER { red(1), green(2), blue(3) }
+
+EnumTcTest2 ::= TEXTUAL-CONVENTION
+    STATUS	current
+    DESCRIPTION
+	"Valid enumeration."
+    SYNTAX INTEGER { none(-1), red(1), green(2), blue(3) }
+
+EnumTcTest3 ::= TEXTUAL-CONVENTION
+    STATUS	current
+    DESCRIPTION
+	"Invalid enumeration: redefinition of a name."
+    SYNTAX INTEGER { none(-1), red(1), green(2), blue(3), red(4) }
+
+EnumTcTest4 ::= TEXTUAL-CONVENTION
+    STATUS	current
+    DESCRIPTION
+	"Invalid enumeration: redefinition of a number."
+    SYNTAX INTEGER { none(-1), red(1), green(2), blue(3), yellow(3) }
+
+--
+-- Test cases for named bits lists:
+--
+
+BitsTcTest1 ::= TEXTUAL-CONVENTION
+    STATUS	current
+    DESCRIPTION
+	"Valid bits enumeration."
+    SYNTAX BITS { red(1), green(2), blue(3) }
+
+BitsTcTest2 ::= TEXTUAL-CONVENTION
+    STATUS	current
+    DESCRIPTION
+	"Valid bits enumeration."
+    SYNTAX BITS { none(0), red(1), green(2), blue(3) }
+
+BitsTcTest3 ::= TEXTUAL-CONVENTION
+    STATUS	current
+    DESCRIPTION
+	"Invalid bits enumeration: redefinition of a name."
+    SYNTAX BITS { red(1), green(2), blue(3), red(4) }
+
+BitsTcTest4 ::= TEXTUAL-CONVENTION
+    STATUS	current
+    DESCRIPTION
+	"Invalid bits enumeration: redefinition of a number."
+    SYNTAX BITS { red(1), green(2), blue(3), yellow(3) }
+
+BitsTcTest5 ::= TEXTUAL-CONVENTION
+    STATUS	current
+    DESCRIPTION
+	"Invalid bits enumeration: number may cause interoperability problems."
+    SYNTAX BITS { red(1), green(2), blue(3), yellow(128) }
+
+BitsTcTest6 ::= TEXTUAL-CONVENTION
+    STATUS	current
+    DESCRIPTION
+	"Invalid bits enumeration: number too large to represent."
+    SYNTAX BITS { red(1), green(2), blue(3), yellow(524280) }
+
+END

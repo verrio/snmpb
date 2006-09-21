@@ -1,0 +1,40 @@
+LIBSMI-TEST-006-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    testMib
+        FROM LIBSMI-TEST-MIB;
+
+libsmiTest006Mib MODULE-IDENTITY
+    LAST-UPDATED    "199906171500Z"
+    ORGANIZATION    
+            "TU Braunschweig"
+    CONTACT-INFO    
+            "        Frank Strauss
+             
+             Postal: TU Braunschweig
+                     Bueltenweg 74/75
+                     38106 Braunschweig
+                     Germany
+             
+              Phone: +49 531 391-3283
+              EMail: strauss@ibr.cs.tu-bs.de
+               http://www.ibr.cs.tu-bs.de/~strauss/"
+    DESCRIPTION     
+            "This MIB module contains one or more intentional errors,
+             and/or unusual contents. Its only purpose is to check
+             the abilities of MIB parsers to detect these circumstances.
+             
+             This MIB module is orginally written in SMIv2 format.
+             
+             A MIB parser should complain about the fact, that the
+             MODULE-IDENTITY macro is not imported though it's used.
+
+	     The libsmi parser is expected to report:
+LIBSMI-TEST-006-MIB:7: macro `MODULE-IDENTITY' has not been imported from module `SNMPv2-SMI'
+	     "
+    REVISION        "199906171500Z"
+    DESCRIPTION     
+            "Initial Revision."
+    ::= { testMib 6 }
+
+END

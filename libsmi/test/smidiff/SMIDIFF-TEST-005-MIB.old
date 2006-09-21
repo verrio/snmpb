@@ -1,0 +1,270 @@
+SMIDIFF-TEST-005-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, Integer32
+        FROM SNMPv2-SMI
+    DisplayString
+	FROM SNMPv2-TC
+    smidiffTestMib
+        FROM SMIDIFF-TEST-MIB;
+
+libsmiTest005Mib MODULE-IDENTITY
+    LAST-UPDATED    "200110120000Z"
+    ORGANIZATION    
+            "TU Braunschweig"
+    CONTACT-INFO    
+            "        Frank Strauss
+             
+             Postal: TU Braunschweig
+                     Muehlenpfordtstrasse 23
+                     38106 Braunschweig
+                     Germany
+             
+              Phone: +49 531 391-3283
+              EMail: strauss@ibr.cs.tu-bs.de
+               http://www.ibr.cs.tu-bs.de/~strauss/"
+    DESCRIPTION     
+            "This MIB module is used for smidiff, a tool to compare
+             two versions of the same MIB module and to check for
+             illegal modifications in the new version."
+    REVISION        "200110120000Z"
+    DESCRIPTION     
+            "Initial Revision."
+    ::= { smidiffTestMib 5 }
+
+table1 OBJECT-TYPE
+    SYNTAX     SEQUENCE OF Table1Entry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION 
+	""
+    ::= { libsmiTest005Mib 1 }
+
+table1Entry OBJECT-TYPE
+    SYNTAX     Table1Entry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+	""
+    INDEX { t1c1 }
+    ::= { table1 1 }
+
+Table1Entry ::= SEQUENCE {
+    t1c1 Integer32,
+    t1c2 Integer32,
+    t1c3 Integer32
+}
+
+t1c1 OBJECT-TYPE
+    SYNTAX Integer32 (0..9)
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+	""
+    ::= { table1Entry 1 }
+
+t1c2 OBJECT-TYPE
+    SYNTAX Integer32
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+	""
+    ::= { table1Entry 2 }
+
+t1c3 OBJECT-TYPE
+    SYNTAX Integer32
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+	""
+    ::= { table1Entry 3 }
+
+table2 OBJECT-TYPE
+    SYNTAX SEQUENCE OF Table2Entry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION 
+	""
+    ::= { libsmiTest005Mib 2 }
+
+table2Entry OBJECT-TYPE
+    SYNTAX     Table2Entry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+	"Changed INDEX to AUGMENTS."
+    INDEX { t1c1, t2c1 }
+    ::= { table2 1 }
+
+Table2Entry ::= SEQUENCE {
+    t2c1 Integer32,
+    t2c2 Integer32,
+    t2c3 Integer32
+}
+
+t2c1 OBJECT-TYPE
+    SYNTAX Integer32 (0..12)
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+	""
+    ::= { table2Entry 1 }
+
+t2c2 OBJECT-TYPE
+    SYNTAX Integer32
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+	""
+    ::= { table2Entry 2 }
+
+t2c3 OBJECT-TYPE
+    SYNTAX Integer32
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+	""
+    ::= { table2Entry 3 }
+
+table3 OBJECT-TYPE
+    SYNTAX     SEQUENCE OF Table3Entry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION 
+	"A table. No changes."
+    ::= { libsmiTest005Mib 3 }
+
+table3Entry OBJECT-TYPE
+    SYNTAX     Table3Entry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+	""
+    INDEX { t3c1 }
+    ::= { table3 1 }
+
+Table3Entry ::= SEQUENCE {
+    t3c1 Integer32,
+    t3c2 Integer32,
+    t3c3 Integer32
+}
+
+t3c1 OBJECT-TYPE
+    SYNTAX Integer32 (0..9)
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+	""
+    ::= { table3Entry 1 }
+
+t3c2 OBJECT-TYPE
+    SYNTAX Integer32
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+	""
+    ::= { table3Entry 2 }
+
+t3c3 OBJECT-TYPE
+    SYNTAX Integer32
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+	""
+    ::= { table3Entry 3 }
+
+table4 OBJECT-TYPE
+    SYNTAX     SEQUENCE OF Table4Entry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION 
+	"A table."
+    ::= { libsmiTest005Mib 4 }
+
+table4Entry OBJECT-TYPE
+    SYNTAX     Table4Entry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+	"The index will change."
+    INDEX { t4c1 }
+    ::= { table4 1 }
+
+Table4Entry ::= SEQUENCE {
+    t4c1 Integer32,
+    t4c2 Integer32,
+    t4c3 Integer32
+}
+
+t4c1 OBJECT-TYPE
+    SYNTAX Integer32 (0..9)
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+	""
+    ::= { table4Entry 1 }
+
+t4c2 OBJECT-TYPE
+    SYNTAX Integer32
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+	""
+    ::= { table4Entry 2 }
+
+t4c3 OBJECT-TYPE
+    SYNTAX Integer32
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+	""
+    ::= { table4Entry 3 }
+
+table5 OBJECT-TYPE
+    SYNTAX SEQUENCE OF Table5Entry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION 
+	""
+    ::= { libsmiTest005Mib 5 }
+
+table5Entry OBJECT-TYPE
+    SYNTAX     Table5Entry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+	"Changed index."
+    AUGMENTS { table1Entry }
+    ::= { table5 1 }
+
+Table5Entry ::= SEQUENCE {
+    t5c1 Integer32,
+    t5c2 Integer32,
+    t5c3 Integer32
+}
+
+t5c1 OBJECT-TYPE
+    SYNTAX Integer32 (0..12)
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+	""
+    ::= { table5Entry 1 }
+
+t5c2 OBJECT-TYPE
+    SYNTAX Integer32
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+	""
+    ::= { table5Entry 2 }
+
+t5c3 OBJECT-TYPE
+    SYNTAX Integer32
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+	""
+    ::= { table5Entry 3 }
+
+END

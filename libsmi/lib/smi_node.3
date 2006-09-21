@@ -1,0 +1,229 @@
+.\"
+.\" $Id: smi_node.3.in 4432 2006-05-29 16:21:11Z strauss $
+.\"
+.TH smi_node 3  "March 30, 2004" "IBR" "SMI Management Information Library"
+.SH NAME
+.\" START OF MAN PAGE COPIES
+smiGetNode,
+smiGetNodeByOID,
+smiGetFirstNode,
+smiGetNextNode,
+smiGetParentNode,
+smiGetRelatedNode,
+smiGetFirstChildNode,
+smiGetNextChildNode,
+smiGetNodeModule,
+smiGetNodeType,
+smiGetNodeLine,
+smiGetFirstElement,
+smiGetNextElement,
+smiGetElementNode,
+smiGetFirstOption,
+smiGetNextOption,
+smiGetOptionNode,
+smiGetFirstRefinement,
+smiGetNextRefinement,
+smiGetRefinementModule,
+smiGetRefinementNode,
+smiGetRefinementType,
+smiGetRefinementWriteType
+.\" END OF MAN PAGE COPIES
+\- SMI type
+information routines
+.SH SYNOPSIS
+.nf
+.B #include <smi.h>
+.RS
+.RE
+.sp
+.BI "SmiNode *smiGetNode(SmiModule *" smiModulePtr ", char *" node );
+.RE
+.sp
+.BI "SmiNode *smiGetNodeByOID(unsigned int " oidlen ", Subid " oid[] );
+.RE
+.sp
+.BI "SmiNode *smiGetFirstNode(SmiModule *" smiModulePtr ", SmiNodekind " kinds );
+.RE
+.sp
+.BI "SmiNode *smiGetNextNode(SmiNode *" smiNodePtr ", SmiNodekind " kinds );
+.RE
+.sp
+.BI "SmiNode *smiGetParentNode(SmiNode *" smiNodePtr );
+.RE
+.sp
+.BI "SmiNode *smiGetRelatedNode(SmiNode *" smiNodePtr );
+.RE
+.sp
+.BI "SmiNode *smiGetFirstChildNode(SmiNode *" smiNodePtr );
+.RE
+.sp
+.BI "SmiNode *smiGetNextChildNode(SmiNode *" smiNodePtr );
+.RE
+.sp
+.BI "SmiModule *smiGetNodeModule(SmiNode *" smiNodePtr );
+.RE
+.sp
+.BI "SmiType *smiGetNodeType(SmiNode *" smiNodePtr );
+.RE
+.sp
+.BI "int smiGetNodeLine(SmiNode *" smiNodePtr );
+.RE
+.sp
+.BI "SmiElement *smiGetFirstElement(SmiNode *" smiNodePtr );
+.RE
+.sp
+.BI "SmiElement *smiGetNextElement(SmiElement *" smiElementPtr );
+.RE
+.sp
+.BI "SmiNode *smiGetElementNode(SmiElement *" smiElementPtr );
+.RE
+.sp
+.BI "SmiOption *smiGetFirstOption(SmiNode *" smiComplianceNodePtr );
+.RE
+.sp
+.BI "SmiOption *smiGetNextOption(SmiOption *" smiOptionPtr );
+.RE
+.sp
+.BI "SmiNode *smiGetOptionNode(SmiOption *" smiOptionPtr );
+.RE
+.sp
+.BI "SmiRefinement *smiGetFirstRefinement(SmiNode *" smiComplianceNodePtr );
+.RE
+.sp
+.BI "SmiRefinement *smiGetNextRefinement(SmiRefinement *" smiRefinementPtr );
+.RE
+.sp
+.BI "SmiNode *smiGetRefinementNode(SmiRefinement *" smiRefinementPtr );
+.RE
+.sp
+.BI "SmiType *smiGetRefinementType(SmiRefinement *" smiRefinementPtr );
+.RE
+.sp
+.BI "SmiType *smiGetRefinementWriteType(SmiRefinement *" smiRefinementPtr );
+.RE
+
+typedef struct SmiNode {
+    SmiIdentifier       name;
+    int                 oidlen;
+    SmiSubid            *oid;         /* array of length oidlen */
+    SmiDecl             decl;
+    SmiAccess           access;
+    SmiStatus           status;
+    char                *format;
+    SmiValue            value;
+    char                *units;
+    char                *description;
+    char                *reference;
+    SmiIndexkind        indexkind;
+    int                 implied;
+    int                 create;
+    SmiNodekind         nodekind;
+} SmiNode;
+
+typedef struct SmiElement {
+    /* no visible attributes */
+} SmiElement;
+
+typedef struct SmiOption {
+    char                *description;
+} SmiOption;
+
+typedef struct SmiRefinement {
+    SmiAccess           access;
+    char                *description;
+} SmiRefinement;
+
+.fi
+.SH DESCRIPTION
+These functions retrieve information on any SMI node definition in the
+object identifier tree, these are ASN.1 object identifier assignments,
+MODULE-IDENTITYs, OBJECT-IDENTITYs, OBJECT-TYPEs, NOTIFICATION-TYPEs,
+TRAP-TYPEs, OBJECT-GROUPs, NOTIFICATION-GROUPs, MODULE-COMPLIANCEs,
+and AGENT-CAPABILITYs in SMIv1/v2 and node, scalar, table,
+row, column, notification, group, and compliance statements in SMIng.
+.PP
+The \fBsmiGetNode()\fP function retrieves a \fBstruct SmiNode\fP that
+represents a node of any kind. \fINode\fP may be either a
+fully qualified descriptor, a simple node name, or a numerical OID.
+Nodes are also found, if \fInode\fP contains an instance identifier
+suffix.
+If \fIsmiModulePtr\fP is not NULL it used to limit the search to the
+given module. If the node is not found, \fBsmiGetNode()\fP returns NULL.
+.PP
+The \fBsmiGetNodeByOID()\fP function retrieves a \fBstruct SmiNode\fP that
+matches the longest prefix of the node that is specified by the
+object identifier \fIoid[]\fP with the length \fIoidlen\fP.
+If no such node is not found, \fBsmiGetNodeByOID()\fP returns NULL.
+.PP
+The \fBsmiGetFirstNode()\fP and \fBsmiGetNextNode()\fP functions are
+used to iteratively retrieve \fBstruct SmiNode\fPs in tree pre-order.
+\fBsmiGetFirstNode()\fP returns the first node defined in the module
+specified by \fIsmiModulePtr\fP that is of any kind specified in
+the \fIkinds\fP bitset.
+Subsequent calls to \fBsmiGetNextNode()\fP return the next node of
+any kind specified in the \fIkinds\fP bitset. If there are no
+more node definitions in the module, NULL is returned.
+.PP
+The \fBsmiGetFirstChildNode()\fP and \fBsmiGetNextChildNode()\fP
+functions are used to iteratively retrieve \fBstruct SmiNode\fPs that
+represent the immediate child nodes of the node specified
+by \fIsmiNodePtr\fP passed to the \fBsmiGetFirstChildNode()\fP call.
+.PP
+The \fBsmiGetParentNode()\fP function is used to retrieve
+a \fBstruct SmiNode\fPs that represents the parent node of the node
+specified by \fIsmiNodePtr\fP.
+.PP
+The \fBsmiGetRelatedNode()\fP function is used to retrieve
+a \fBstruct SmiNode\fPs that is related to the node specified
+by \fIsmiNodePtr\fP. Actually, this is used for SMIv2 table augmentation
+entries and similar SMIng constructs.
+.PP
+The \fBsmiGetNodeModule()\fP function returns the module that defines
+the node given by \fIstruct SmiNodePtr\fP.
+.PP
+The \fBsmiGetNodeType()\fP function returns the type of
+the (scalar or columnar) node given by \fIstruct SmiNodePtr\fP.
+If \fIstruct SmiNodePtr\fP does not specify a scalar or columnar
+node, NULL is returned.
+.PP
+The \fBsmiGetFirstElement()\fP and \fBsmiGetNextElement()\fP functions are
+used to iteratively retrieve \fBstruct SmiElement\fPs that represent
+elements of index clauses or notification object lists, groups of object
+types or notification types, and mandatory groups of module compliance
+statements. The node to which the list belongs has to be specified
+by \fIsmiNodePtr\fP. To retrieve the node that is represented by
+a \fBstruct SmiElement\fP, the \fBsmiGetElementNode()\fP function has
+to be called.
+.PP
+The \fBsmiGetFirstOption()\fP and \fBsmiGetNextOption()\fP functions are
+used to iteratively retrieve \fBstruct SmiOption\fPs that represent
+statements on optional (object or notification) groups within the compliance
+statement specified by \fIsmiComplianceNodePtr\fP. The group node which is
+subject of such a statement can be retrieved by the \fBsmiGetOptionNode()\fP
+function.
+.PP
+Similarly, the \fBsmiGetFirstRefinement()\fP and \fBsmiGetNextRefinement()\fP
+functions are used to iteratively retrieve \fBstruct SmiRefinement\fPs that
+represent statements on optional object refinements within the compliance
+statement specified by \fIsmiComplianceNodePtr\fP. The node which is
+subject of such a refinement can be retrieved by
+the \fBsmiGetRefinementNode()\fP function. The optional refined type and
+write-type of a refinement can be retrieved by
+the \fBsmiGetRefinementType()\fP and \fBsmiGetRefinementWriteType()\fP
+functions. If they are not present, NULL is returned.
+.PP
+The \fBsmiGetNodeLine()\fP function returns the line number within the
+module where the node specified by \fIsmiNodePtr\fP is defined.
+.SH "FILES"
+.nf
+${prefix}/include/smi.h    SMI library header file
+.fi
+.SH "SEE ALSO"
+.BR libsmi "(3), "
+.BR smi_config "(3), "
+.BR smi_type "(3), "
+.BR smi_module "(3), "
+.BR smi.h
+.SH "AUTHOR"
+(C) 1999-2004 Frank Strauss, TU Braunschweig, Germany <strauss@ibr.cs.tu-bs.de>
+.br

@@ -1,0 +1,67 @@
+LIBSMI-TEST-018-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, Counter64  FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION			     FROM SNMPv2-TC
+    OBJECT-GROUP, MODULE-COMPLIANCE	     FROM SNMPv2-CONF
+    testMib				     FROM LIBSMI-TEST-MIB;
+
+libsmiTest018Mib MODULE-IDENTITY
+    LAST-UPDATED    "200605040000Z"
+    ORGANIZATION 
+            "International University Bremen"
+    CONTACT-INFO 
+            "      Juergen Schoenwaelder
+
+             Postal: International University Bremen
+                     Campus Ring 1
+                     28759 Bremen
+                     Germany
+
+              Phone: +49 421 200-3587
+              EMail: j.schoenwaelder@iu-bremen.de"
+    DESCRIPTION  
+            "This MIB module contains one or more intentional errors,
+             and/or unusual contents. Its only purpose is to check
+             the abilities of MIB parsers to detect these circumstances.
+
+             This MIB module is orginally written in SMIv2 format.
+
+             This module checks for rules concerning Unsigned64 which
+             is a base type in SPPI but not in SMIv2.
+
+             The libsmi parser is expected to report:
+LIBSMI-TEST-018-MIB:41: warning: definition of identifier `Unsigned64' which is already a SMI or SPPI basetype
+	    "
+    REVISION        "200605040000Z"
+    DESCRIPTION  
+            "Initial Revision"
+    ::= { testMib 18 }
+
+Unsigned64 ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d"
+    STATUS current
+    DESCRIPTION "A fake unsigned 64 bit integer."
+    SYNTAX Counter64
+
+t1 OBJECT-TYPE
+    SYNTAX	Unsigned64
+    MAX-ACCESS  read-only
+    STATUS	current
+    DESCRIPTION "junk"
+    ::= { libsmiTest018Mib 1 }
+
+libsmiTest018Group OBJECT-GROUP
+    OBJECTS     { t1 }
+    STATUS      current
+    DESCRIPTION "junk"
+    ::= { libsmiTest018Mib 2 }
+
+libsmiTest018Compliance MODULE-COMPLIANCE
+    STATUS      current
+    DESCRIPTION "All object types."
+    MODULE      -- this module
+    MANDATORY-GROUPS { libsmiTest018Group }
+    ::= { libsmiTest018Mib 3 }
+
+END

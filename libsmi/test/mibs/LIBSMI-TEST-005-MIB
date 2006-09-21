@@ -1,0 +1,43 @@
+LIBSMI-TEST-005-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE
+        FROM SNMPv2-SMI
+    testMib
+        FROM LIBSMI-TEST-MIB;
+
+libsmiTest005Mib MODULE-IDENTITY
+    LAST-UPDATED    "199906221500Z"
+    ORGANIZATION    
+            "TU Braunschweig"
+    CONTACT-INFO    
+            "        Frank Strauss
+             
+             Postal: TU Braunschweig
+                     Bueltenweg 74/75
+                     38106 Braunschweig
+                     Germany
+             
+              Phone: +49 531 391-3283
+              EMail: strauss@ibr.cs.tu-bs.de
+               http://www.ibr.cs.tu-bs.de/~strauss/"
+    DESCRIPTION     
+            "This MIB module contains one or more intentional errors,
+             and/or unusual contents. Its only purpose is to check
+             the abilities of MIB parsers to detect these circumstances.
+             
+             This MIB module is orginally written in SMIv2 format.
+             
+             A MIB parser might complain about the fact, that the
+             OBJECT-TYPE macro is imported though it's not used.
+
+	     The libsmi parser is expected to report:
+
+LIBSMI-TEST-005-MIB:4: warning: identifier `OBJECT-TYPE' imported from module `SNMPv2-SMI' is never used
+	     "
+    REVISION        "199906221500Z"
+    DESCRIPTION     
+            "Initial Revision."
+    ::= { testMib 5 }
+
+END

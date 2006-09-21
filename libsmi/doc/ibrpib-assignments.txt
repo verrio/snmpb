@@ -1,0 +1,35 @@
+Assignments for ibrpib
+----------------------
+
+As long as Standard PIBs are being developed and temporarily published
+in Internet-Drafts, we have assigned them to OIDs under TUBS-SMI::ibrpib.
+Once, when the documents are published officially as RFCs and get IANA
+assigned OID registrations (or when they are dropped), they will be
+deprecated from this list.
+
+  +--- TUBS-SMI::ibrpib child sub-id.
+  | +- PIB MODULE-IDENTITY name.
+  | |
+  1 INET-ADDRESS-TC-PIB::inetAddressTcPib
+  2 ACCESSBIND-PIB::accessBindPib
+  3 UMTS-PIB::uMTSPib
+  4 QOS-POLICY-IP-PIB::qosPolicyIpPib
+  5 QOS-POLICY-802-PIB::qosPolicy802Pib
+  6 IPSEC-POLICY-PIB::ipSecPolicyPib
+  7 FEEDBACK-FRAMEWORK-PIB::feedbackPolFrameworkPib
+  8 DIFFSERV-PIB::qosPolicyPib
+  9 ACCOUNTING-FRAMEWORK-PIB::acctPolFrameworkPib
+ 10 FRAMEWORD-TC-PIB::frwkTcPib
+ 11 SLS-NEGOTIATION-PIB::slsPolicyPib
+ 12 RSVP-PCC-PIB::rsvpPccPib
+ 13 FRAMEWORK-PIB::frameworkPib
+ 14 RADIUS-PIB::radiusModelPib
+ 15 POLICY-FRAMEWORK-PIB::policyFrameworkPib
+ 16 DIFFSERV-DSCP-TC::diffServDSCPTC
+ 17 DIFFSERV-MIB::diffServMib
+ 18 PPVPN-PIB::ppvpn2547PolicyPib
+ 19 PARTITION-PIB::switchPartitionPib
+ 20 MPLS-SETUP-PIB::mplsSetupPib
+ 21 META-POLICY-PIB::metaPolicyPib
+ 22 LOAD-BALANCING-PIB::lbPolicyPib
+ 23 IP-TE-PIB::ipTePib

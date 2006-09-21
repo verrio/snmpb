@@ -1,0 +1,59 @@
+SMIDIFF-TEST-006-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, Integer32
+        FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION
+	FROM SNMPv2-TC
+    smidiffTestMib, MyDisplayString
+        FROM SMIDIFF-TEST-MIB;
+
+libsmiTest007Mib MODULE-IDENTITY
+    LAST-UPDATED    "200110120000Z"
+    ORGANIZATION    
+            "TU Braunschweig"
+    CONTACT-INFO    
+            "        Frank Strauss
+             
+             Postal: TU Braunschweig
+                     Muehlenpfordtstrasse 23
+                     38106 Braunschweig
+                     Germany
+             
+              Phone: +49 531 391-3283
+              EMail: strauss@ibr.cs.tu-bs.de
+               http://www.ibr.cs.tu-bs.de/~strauss/"
+    DESCRIPTION     
+            "This MIB module is used for smidiff, a tool to compare
+             two versions of the same MIB module and to check for
+             illegal modifications in the new version."
+    REVISION        "200110120000Z"
+    DESCRIPTION     
+            "Initial Revision."
+    ::= { smidiffTestMib 7 }
+
+scalar1 OBJECT-TYPE
+    SYNTAX     INTEGER { foo(1) }
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+	""
+    ::= { libsmiTest007Mib 1 }
+
+scalar2 OBJECT-TYPE
+    SYNTAX     INTEGER { foo(1) }
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+	""
+    ::= { libsmiTest007Mib 2 }
+
+scalar3 OBJECT-TYPE
+    SYNTAX     INTEGER { foo(1), bar(2) }
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+	""
+    ::= { libsmiTest007Mib 3 }
+
+END

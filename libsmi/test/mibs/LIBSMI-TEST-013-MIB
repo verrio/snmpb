@@ -1,0 +1,93 @@
+LIBSMI-TEST-013-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, Integer32
+	FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION
+	FROM SNMPv2-TC
+    testMib
+        FROM LIBSMI-TEST-MIB;
+
+libsmiTest013Mib MODULE-IDENTITY
+    LAST-UPDATED    "200109270000Z"
+    ORGANIZATION    
+            "TU Braunschweig"
+    CONTACT-INFO    
+            "        Frank Strauss
+             
+             Postal: TU Braunschweig
+                     Muehlenpfordtstrasse 23
+                     38106 Braunschweig
+                     Germany
+             
+              Phone: +49 531 391-3283
+              EMail: strauss@ibr.cs.tu-bs.de
+               http://www.ibr.cs.tu-bs.de/~strauss/"
+    DESCRIPTION     
+            "This MIB module contains one or more intentional errors,
+             and/or unusual contents. Its only purpose is to check
+             the abilities of MIB parsers to detect these circumstances.
+             
+             This MIB module is orginally written in SMIv2 format.
+             
+             This module checks for range normalization, thus there are
+	     no errors expected for this module. However the parser might
+	     complain about ranges not being in ascending order.
+
+	     The libsmi parser is expected to report:
+LIBSMI-TEST-013-MIB:70: warning: ranges not in ascending order
+LIBSMI-TEST-013-MIB:70: warning: ranges not in ascending order
+LIBSMI-TEST-013-MIB:84: warning: ranges not in ascending order
+LIBSMI-TEST-013-MIB:91: warning: ranges not in ascending order
+LIBSMI-TEST-013-MIB:58: warning: current type `RangeType1' is not referenced in this module
+LIBSMI-TEST-013-MIB:58: warning: type `RangeType1' has no format specification
+LIBSMI-TEST-013-MIB:65: warning: current type `RangeType2' is not referenced in this module
+LIBSMI-TEST-013-MIB:65: warning: type `RangeType2' has no format specification
+LIBSMI-TEST-013-MIB:72: warning: current type `RangeType3' is not referenced in this module
+LIBSMI-TEST-013-MIB:72: warning: type `RangeType3' has no format specification
+LIBSMI-TEST-013-MIB:79: warning: current type `RangeType4' is not referenced in this module
+LIBSMI-TEST-013-MIB:79: warning: type `RangeType4' has no format specification
+LIBSMI-TEST-013-MIB:86: warning: current type `RangeType5' is not referenced in this module
+LIBSMI-TEST-013-MIB:86: warning: type `RangeType5' has no format specification
+	    "
+    REVISION        "200109270000Z"
+    DESCRIPTION     
+            "Initial Revision."
+    ::= { testMib 13 }
+
+RangeType1 ::= TEXTUAL-CONVENTION
+    STATUS	current
+    DESCRIPTION
+	"The ranges of this type are expected to be normalized
+	 to (1..3|5..6)."
+    SYNTAX Integer32 (1|2|3|5|6)
+
+RangeType2 ::= TEXTUAL-CONVENTION
+    STATUS	current
+    DESCRIPTION
+	"The ranges of this type are expected to be normalized
+	 to (1..3)."
+    SYNTAX Integer32 (3|2|1)
+
+RangeType3 ::= TEXTUAL-CONVENTION
+    STATUS	current
+    DESCRIPTION
+	"The ranges of this type are expected to be normalized
+	 to (1..5)."
+    SYNTAX Integer32 (1..3|4..5)
+
+RangeType4 ::= TEXTUAL-CONVENTION
+    STATUS	current
+    DESCRIPTION
+	"The ranges of this type are expected to be normalized
+	 to (1..5)."
+    SYNTAX Integer32 (4..5|1..3)
+
+RangeType5 ::= TEXTUAL-CONVENTION
+    STATUS	current
+    DESCRIPTION
+	"The ranges of this type are expected to be normalized
+	 to (1..3|5..6)."
+    SYNTAX Integer32 (5..6|1..3)
+
+END

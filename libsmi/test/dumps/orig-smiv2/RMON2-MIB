@@ -1,0 +1,18 @@
+0a1
+> 
+3462c3463
+< channelEntry
+---
+> channelEntry,
+4756c4757
+< sourceRoutingStatsEntry
+---
+> sourceRoutingStatsEntry,
+4761c4762
+< statistics,
+---
+> statistics
+4800c4801
+< tokenRingPStatsEntry,
+---
+> tokenRingPStatsEntry

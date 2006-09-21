@@ -1,0 +1,120 @@
+../../mibs/ietf/IF-MIB:16 warning: contact of `IF-MIB' changed
+../../mibs/ietf/IF-MIB:35 warning: revision `2000-06-14 00:00' added
+../../mibs/ietf/IF-MIB:39 warning: revision `1996-02-28 21:55' added
+./IF-MIB.old:18 info: previous definition of `IF-MIB'
+../../mibs/ietf/IF-MIB:60 warning: legal status change from `current' to `deprecated' for `OwnerString'
+./IF-MIB.old:52 info: previous definition of `OwnerString'
+../../mibs/ietf/IF-MIB:79 range `(1..2147483647)' added to type `InterfaceIndex'
+../../mibs/ietf/IF-MIB:93 warning: type `InterfaceIndexOrZero' has been added
+../../mibs/ietf/IF-MIB:185 range `(1..2147483647)' added to type used in `ifIndex'
+../../mibs/ietf/IF-MIB:250 warning: description of object definition `ifPhysAddress' changed
+./IF-MIB.old:220 info: previous definition of `ifPhysAddress'
+../../mibs/ietf/IF-MIB:285 warning: named number `notPresent' added to type used in `ifOperStatus'
+../../mibs/ietf/IF-MIB:285 warning: named number `lowerLayerDown' added to type used in `ifOperStatus'
+../../mibs/ietf/IF-MIB:285 warning: description of object definition `ifOperStatus' changed
+./IF-MIB.old:253 info: previous definition of `ifOperStatus'
+../../mibs/ietf/IF-MIB:327 warning: description of object definition `ifInOctets' changed
+./IF-MIB.old:293 info: previous definition of `ifInOctets'
+../../mibs/ietf/IF-MIB:343 warning: description of object definition `ifInUcastPkts' changed
+./IF-MIB.old:302 info: previous definition of `ifInUcastPkts'
+../../mibs/ietf/IF-MIB:358 warning: description of object definition `ifInNUcastPkts' changed
+./IF-MIB.old:312 info: previous definition of `ifInNUcastPkts'
+../../mibs/ietf/IF-MIB:376 warning: description of object definition `ifInDiscards' changed
+./IF-MIB.old:326 info: previous definition of `ifInDiscards'
+../../mibs/ietf/IF-MIB:395 warning: description of object definition `ifInErrors' changed
+./IF-MIB.old:338 info: previous definition of `ifInErrors'
+../../mibs/ietf/IF-MIB:413 warning: description of object definition `ifInUnknownProtos' changed
+./IF-MIB.old:352 info: previous definition of `ifInUnknownProtos'
+../../mibs/ietf/IF-MIB:435 warning: description of object definition `ifOutOctets' changed
+./IF-MIB.old:370 info: previous definition of `ifOutOctets'
+../../mibs/ietf/IF-MIB:449 warning: description of object definition `ifOutUcastPkts' changed
+./IF-MIB.old:379 info: previous definition of `ifOutUcastPkts'
+../../mibs/ietf/IF-MIB:465 warning: description of object definition `ifOutNUcastPkts' changed
+./IF-MIB.old:392 info: previous definition of `ifOutNUcastPkts'
+../../mibs/ietf/IF-MIB:485 warning: description of object definition `ifOutDiscards' changed
+./IF-MIB.old:407 info: previous definition of `ifOutDiscards'
+../../mibs/ietf/IF-MIB:501 warning: description of object definition `ifOutErrors' changed
+./IF-MIB.old:420 info: previous definition of `ifOutErrors'
+../../mibs/ietf/IF-MIB:526 warning: description of object definition `ifSpecific' changed
+./IF-MIB.old:440 info: previous definition of `ifSpecific'
+../../mibs/ietf/IF-MIB:599 warning: description of object definition `ifName' changed
+./IF-MIB.old:509 info: previous definition of `ifName'
+../../mibs/ietf/IF-MIB:621 warning: description of object definition `ifInMulticastPkts' changed
+./IF-MIB.old:530 info: previous definition of `ifInMulticastPkts'
+../../mibs/ietf/IF-MIB:639 warning: description of object definition `ifInBroadcastPkts' changed
+./IF-MIB.old:542 info: previous definition of `ifInBroadcastPkts'
+../../mibs/ietf/IF-MIB:654 warning: description of object definition `ifOutMulticastPkts' changed
+./IF-MIB.old:552 info: previous definition of `ifOutMulticastPkts'
+../../mibs/ietf/IF-MIB:671 warning: description of object definition `ifOutBroadcastPkts' changed
+./IF-MIB.old:565 info: previous definition of `ifOutBroadcastPkts'
+../../mibs/ietf/IF-MIB:697 warning: description of object definition `ifHCInOctets' changed
+./IF-MIB.old:587 info: previous definition of `ifHCInOctets'
+../../mibs/ietf/IF-MIB:712 warning: description of object definition `ifHCInUcastPkts' changed
+./IF-MIB.old:597 info: previous definition of `ifHCInUcastPkts'
+../../mibs/ietf/IF-MIB:728 warning: description of object definition `ifHCInMulticastPkts' changed
+./IF-MIB.old:608 info: previous definition of `ifHCInMulticastPkts'
+../../mibs/ietf/IF-MIB:747 warning: description of object definition `ifHCInBroadcastPkts' changed
+./IF-MIB.old:623 info: previous definition of `ifHCInBroadcastPkts'
+../../mibs/ietf/IF-MIB:763 warning: description of object definition `ifHCOutOctets' changed
+./IF-MIB.old:634 info: previous definition of `ifHCOutOctets'
+../../mibs/ietf/IF-MIB:778 warning: description of object definition `ifHCOutUcastPkts' changed
+./IF-MIB.old:644 info: previous definition of `ifHCOutUcastPkts'
+../../mibs/ietf/IF-MIB:797 warning: description of object definition `ifHCOutMulticastPkts' changed
+./IF-MIB.old:657 info: previous definition of `ifHCOutMulticastPkts'
+../../mibs/ietf/IF-MIB:815 warning: description of object definition `ifHCOutBroadcastPkts' changed
+./IF-MIB.old:673 info: previous definition of `ifHCOutBroadcastPkts'
+../../mibs/ietf/IF-MIB:947 warning: description of object definition `ifStackTable' changed
+./IF-MIB.old:752 info: previous definition of `ifStackTable'
+../../mibs/ietf/IF-MIB:1002 range `(0..2147483647)' added to type used in `ifStackHigherLayer'
+../../mibs/ietf/IF-MIB:1015 range `(0..2147483647)' added to type used in `ifStackLowerLayer'
+../../mibs/ietf/IF-MIB:1440 warning: legal status change from `current' to `deprecated' for `ifTestTable'
+./IF-MIB.old:846 info: previous definition of `ifTestTable'
+../../mibs/ietf/IF-MIB:1572 warning: legal status change from `current' to `deprecated' for `ifTestEntry'
+./IF-MIB.old:984 info: previous definition of `ifTestEntry'
+../../mibs/ietf/IF-MIB:1594 warning: legal status change from `current' to `deprecated' for `ifTestId'
+./IF-MIB.old:1004 info: previous definition of `ifTestId'
+../../mibs/ietf/IF-MIB:1603 warning: legal status change from `current' to `deprecated' for `ifTestStatus'
+./IF-MIB.old:1013 info: previous definition of `ifTestStatus'
+../../mibs/ietf/IF-MIB:1616 warning: legal status change from `current' to `deprecated' for `ifTestType'
+./IF-MIB.old:1029 info: previous definition of `ifTestType'
+../../mibs/ietf/IF-MIB:1644 warning: legal status change from `current' to `deprecated' for `ifTestResult'
+./IF-MIB.old:1058 info: previous definition of `ifTestResult'
+../../mibs/ietf/IF-MIB:1665 warning: legal status change from `current' to `deprecated' for `ifTestCode'
+../../mibs/ietf/IF-MIB:1665 warning: description of object definition `ifTestCode' changed
+./IF-MIB.old:1081 info: previous definition of `ifTestCode'
+../../mibs/ietf/IF-MIB:1685 warning: legal status change from `current' to `deprecated' for `ifTestOwner'
+./IF-MIB.old:1101 info: previous definition of `ifTestOwner'
+../../mibs/ietf/IF-MIB:1070 warning: description of object definition `ifRcvAddressTable' changed
+./IF-MIB.old:1123 info: previous definition of `ifRcvAddressTable'
+../../mibs/ietf/IF-MIB:1112 warning: access of `ifRcvAddressAddress' changed from `read-write' to `not-accessible'
+./IF-MIB.old:1163 info: previous definition of `ifRcvAddressAddress'
+../../mibs/ietf/IF-MIB:892 warning: column `ifAlias' has been added
+../../mibs/ietf/IF-MIB:924 warning: column `ifCounterDiscontinuityTime' has been added
+../../mibs/ietf/IF-MIB:117 warning: scalar `ifTableLastChange' has been added
+../../mibs/ietf/IF-MIB:1045 warning: scalar `ifStackLastChange' has been added
+../../mibs/ietf/IF-MIB:1157 warning: description of notification definition `linkDown' changed
+./IF-MIB.old:1211 info: previous definition of `linkDown'
+../../mibs/ietf/IF-MIB:1169 warning: description of notification definition `linkUp' changed
+./IF-MIB.old:1223 info: previous definition of `linkUp'
+../../mibs/ietf/IF-MIB:1697 warning: legal status change from `current' to `deprecated' for `ifGeneralGroup'
+../../mibs/ietf/IF-MIB:1697 warning: description of object group definition `ifGeneralGroup' changed
+./IF-MIB.old:1326 info: previous definition of `ifGeneralGroup'
+../../mibs/ietf/IF-MIB:1315 warning: description of object group definition `ifFixedLengthGroup' changed
+./IF-MIB.old:1340 info: previous definition of `ifFixedLengthGroup'
+../../mibs/ietf/IF-MIB:1340 warning: description of object group definition `ifPacketGroup' changed
+./IF-MIB.old:1364 info: previous definition of `ifPacketGroup'
+../../mibs/ietf/IF-MIB:1709 warning: legal status change from `current' to `deprecated' for `ifTestGroup'
+./IF-MIB.old:1428 info: previous definition of `ifTestGroup'
+../../mibs/ietf/IF-MIB:1719 warning: legal status change from `current' to `deprecated' for `ifStackGroup'
+../../mibs/ietf/IF-MIB:1719 warning: description of object group definition `ifStackGroup' changed
+./IF-MIB.old:1437 info: previous definition of `ifStackGroup'
+../../mibs/ietf/IF-MIB:1300 warning: group `ifGeneralInformationGroup' has been added
+../../mibs/ietf/IF-MIB:1402 warning: group `ifStackGroup2' has been added
+../../mibs/ietf/IF-MIB:1728 warning: group `ifOldObjectsGroup' has been added
+../../mibs/ietf/IF-MIB:1410 warning: group `ifCounterDiscontinuityGroup' has been added
+../../mibs/ietf/IF-MIB:1418 warning: group `linkUpDownNotificationsGroup' has been added
+../../mibs/ietf/IF-MIB:1741 warning: legal status change from `current' to `deprecated' for `ifCompliance'
+../../mibs/ietf/IF-MIB:1741 warning: description of module compliance definition `ifCompliance' changed
+./IF-MIB.old:1244 info: previous definition of `ifCompliance'
+../../mibs/ietf/IF-MIB:1820 warning: compliance `ifCompliance2' has been added
+../../mibs/ietf/IF-MIB:1193 warning: compliance `ifCompliance3' has been added

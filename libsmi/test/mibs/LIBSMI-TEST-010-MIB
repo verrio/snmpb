@@ -1,0 +1,139 @@
+LIBSMI-TEST-010-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE
+	FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION
+	FROM SNMPv2-TC
+    OBJECT-GROUP, MODULE-COMPLIANCE
+	FROM SNMPv2-CONF
+    testMib
+        FROM LIBSMI-TEST-MIB;
+
+libsmiTest010Mib MODULE-IDENTITY
+    LAST-UPDATED    "200011081000Z"
+    ORGANIZATION    
+            "TU Braunschweig"
+    CONTACT-INFO    
+            "        Frank Strauss
+             
+             Postal: TU Braunschweig
+                     Bueltenweg 74/75
+                     38106 Braunschweig
+                     Germany
+             
+              Phone: +49 531 391-3283
+              EMail: strauss@ibr.cs.tu-bs.de
+               http://www.ibr.cs.tu-bs.de/~strauss/"
+    DESCRIPTION     
+            "This MIB module contains one or more intentional errors,
+             and/or unusual contents. Its only purpose is to check
+             the abilities of MIB parsers to detect these circumstances.
+             
+             This MIB module is orginally written in SMIv2 format.
+             
+             The MIB parser should complain about improper subtyping.
+
+	     The libsmi parser is expected to report:
+LIBSMI-TEST-010-MIB:67: warning: first bit (bit zero) has no name assigned
+LIBSMI-TEST-010-MIB:80: illegal size restriction for non-octet-string parent type `EnumTcTest1'
+LIBSMI-TEST-010-MIB:88: illegal range restriction for non-numerical parent type `EnumTcTest1'
+LIBSMI-TEST-010-MIB:96: illegal size restriction for non-octet-string parent type `BitsTcTest1'
+LIBSMI-TEST-010-MIB:104: illegal range restriction for non-numerical parent type `BitsTcTest1'
+LIBSMI-TEST-010-MIB:112: illegal enumeration or bits restriction for non-enumeration-or-bits parent type `OctetsStringTcTest1'
+LIBSMI-TEST-010-MIB:57: warning: current type `EnumTcTest1' is not referenced in this module
+LIBSMI-TEST-010-MIB:63: warning: current type `BitsTcTest1' is not referenced in this module
+LIBSMI-TEST-010-MIB:69: warning: current type `OctetsStringTcTest1' is not referenced in this module
+	    "
+    REVISION        "200011081000Z"
+    DESCRIPTION     
+            "Initial Revision."
+    ::= { testMib 10 }
+
+--
+-- Some valid TC definitions:
+--
+
+EnumTcTest1 ::= TEXTUAL-CONVENTION
+    STATUS	current
+    DESCRIPTION
+	"Valid enumeration."
+    SYNTAX INTEGER { red(1), green(2), blue(3) }
+
+BitsTcTest1 ::= TEXTUAL-CONVENTION
+    STATUS	current
+    DESCRIPTION
+	"Valid bits enumeration."
+    SYNTAX BITS { red(1), green(2), blue(3) }
+
+OctetsStringTcTest1 ::= TEXTUAL-CONVENTION
+    STATUS	current
+    DESCRIPTION
+	"Valid octet string size restriction."
+    SYNTAX OCTET STRING (SIZE (16))
+
+--
+-- Test cases for improper subtyping of TCs:
+--
+
+test1 OBJECT-TYPE
+    SYNTAX	EnumTcTest1 (SIZE (15))
+    MAX-ACCESS	read-only
+    STATUS	current
+    DESCRIPTION
+	"Invalid size restriction on an enumeration."
+    ::= { libsmiTest010Mib 1 }
+
+test2 OBJECT-TYPE
+    SYNTAX	EnumTcTest1 (0..31)
+    MAX-ACCESS	read-only
+    STATUS	current
+    DESCRIPTION
+	"Invalid size restriction on an enumeration."
+    ::= { libsmiTest010Mib 2 }
+
+test3 OBJECT-TYPE
+    SYNTAX	BitsTcTest1 (SIZE (15))
+    MAX-ACCESS	read-only
+    STATUS	current
+    DESCRIPTION
+	"Invalid size restriction on a bits enumeration."
+    ::= { libsmiTest010Mib 3 }
+
+test4 OBJECT-TYPE
+    SYNTAX	BitsTcTest1 (0..31)
+    MAX-ACCESS	read-only
+    STATUS	current
+    DESCRIPTION
+	"Invalid size restriction on a bits enumeration."
+    ::= { libsmiTest010Mib 4 }
+
+test5 OBJECT-TYPE
+    SYNTAX	OctetsStringTcTest1 { red(1) }
+    MAX-ACCESS	read-only
+    STATUS	current
+    DESCRIPTION
+	"Invalid enumeration restriction on an octet string."
+    ::= { libsmiTest010Mib 5 }
+
+--
+-- Conformance statements.
+--
+
+libsmiTest010Group OBJECT-GROUP
+    OBJECTS
+        { test1, test2, test3, test4, test5 }
+    STATUS      current
+    DESCRIPTION
+        "All object types."
+    ::= { libsmiTest010Mib 6 }
+
+libsmiTest010Compliance MODULE-COMPLIANCE
+    STATUS      current
+    DESCRIPTION
+        "All object types."
+    MODULE      -- this module
+        MANDATORY-GROUPS { libsmiTest010Group }
+    ::= { libsmiTest010Mib 7 }
+
+END

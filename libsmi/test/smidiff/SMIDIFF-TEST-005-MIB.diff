@@ -1,0 +1,10 @@
+SMIDIFF-TEST-005-MIB
+./SMIDIFF-TEST-005-MIB.new:90 changed kind of index from `index' to `augment' in node `table2Entry'
+./SMIDIFF-TEST-005-MIB.old:90 info: previous definition of `table2Entry'
+./SMIDIFF-TEST-005-MIB.new:185 index of `table4Entry' changed from `t4c1' to `t4c2'
+./SMIDIFF-TEST-005-MIB.old:184 info: previous definition of `table4Entry'
+./SMIDIFF-TEST-005-MIB.new:208 implicit type for `t4c2' replaces type `Integer32'
+./SMIDIFF-TEST-005-MIB.old:207 info: previous definition of `t4c2'
+./SMIDIFF-TEST-005-MIB.new:208 range `(0..27)' added to type used in `t4c2'
+./SMIDIFF-TEST-005-MIB.new:232 index of `table5Entry' changed from augmenting `table1Entry' to augmenting `table3Entry'
+./SMIDIFF-TEST-005-MIB.old:231 info: previous definition of `table5Entry'

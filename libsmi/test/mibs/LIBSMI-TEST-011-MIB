@@ -1,0 +1,131 @@
+LIBSMI-TEST-011-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE, 
+    OBJECT-IDENTITY, Integer32
+	FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION
+	FROM SNMPv2-TC
+    OBJECT-GROUP, NOTIFICATION-GROUP
+	FROM SNMPv2-CONF
+    testMib
+        FROM LIBSMI-TEST-MIB;
+
+libsmiTest011Mib MODULE-IDENTITY
+    LAST-UPDATED    "200007051000Z"
+    ORGANIZATION    
+            "TU Braunschweig"
+    CONTACT-INFO    
+            "        Frank Strauss
+             
+             Postal: TU Braunschweig
+                     Bueltenweg 74/75
+                     38106 Braunschweig
+                     Germany
+             
+              Phone: +49 531 391-3283
+              EMail: strauss@ibr.cs.tu-bs.de
+               http://www.ibr.cs.tu-bs.de/~strauss/"
+    DESCRIPTION     
+            "This MIB module contains one or more intentional errors,
+             and/or unusual contents. Its only purpose is to check
+             the abilities of MIB parsers to detect these circumstances.
+             
+             This MIB module is orginally written in SMIv2 format.
+             
+             This module checks the proper handling of forward references.
+
+	     The libsmi parser is expected to report:
+LIBSMI-TEST-011-MIB:91: warning: exactly one index element of row `testEntry' must be accessible
+LIBSMI-TEST-011-MIB:54: warning: current group `group1' is not referenced in this module
+LIBSMI-TEST-011-MIB:61: warning: current group `group2' is not referenced in this module
+	    "
+    REVISION        "200007051000Z"
+    DESCRIPTION     
+            "Initial Revision."
+    ::= { testMib 11 }
+
+--
+-- The following definitions are just written down in reverse order
+-- than usual. The parser should not have any problems to deal with
+-- them.
+--
+
+group1 OBJECT-GROUP
+    OBJECTS	{ testScalar1 }
+    STATUS	current
+    DESCRIPTION
+	"junk"
+    ::= { testGroups 1 }
+
+group2 NOTIFICATION-GROUP
+    NOTIFICATIONS	{ testNotification1 }
+    STATUS	current
+    DESCRIPTION
+	"junk"
+    ::= { testGroups 2 }
+
+testNotification1 NOTIFICATION-TYPE
+    OBJECTS	{ testScalar1 }
+    STATUS	current
+    DESCRIPTION
+	"junk"
+    ::= { testNotifications 1 }
+
+testScalar1 OBJECT-TYPE
+    SYNTAX	TestTc1
+    MAX-ACCESS	read-only
+    STATUS	current
+    DESCRIPTION
+	"Invalid size restriction on an enumeration."
+    ::= { testObjects 1 }
+
+testColumn1 OBJECT-TYPE
+    SYNTAX	Integer32 (0..32)
+    MAX-ACCESS	not-accessible
+    STATUS	current
+    DESCRIPTION
+	"junk"
+    ::= { testEntry 1 }
+
+testEntry OBJECT-TYPE
+    SYNTAX	TestEntry
+    MAX-ACCESS	not-accessible
+    STATUS	current
+    DESCRIPTION
+	"junk"
+    INDEX	{ testColumn1 }
+    ::= { testTable 1 }
+
+testTable OBJECT-TYPE
+    SYNTAX	SEQUENCE OF TestEntry
+    MAX-ACCESS	not-accessible
+    STATUS	current
+    DESCRIPTION
+	"junk"
+    ::= { testObjects 2 }
+
+TestEntry ::= SEQUENCE {
+    testColumn1 Integer32
+}
+
+TestTc1 ::= TEXTUAL-CONVENTION
+    STATUS	current
+    DESCRIPTION
+	"Valid enumeration."
+    SYNTAX INTEGER { red(1), green(2), blue(3) }
+
+textConst1 OBJECT-IDENTITY
+    STATUS	current
+    DESCRIPTION
+	"junk"
+    ::= { testConstants 1 }
+
+testConstants OBJECT IDENTIFIER ::= { testDefinitions 3 }
+testGroups OBJECT IDENTIFIER ::= { testDefinitions 2 }
+testObjects OBJECT IDENTIFIER ::= { testDefinitions 1 }
+testNotifications OBJECT IDENTIFIER ::= { testDefinitions 0 }
+
+testDefinitions OBJECT IDENTIFIER ::= { libsmiTest011Mib 1 }
+
+END

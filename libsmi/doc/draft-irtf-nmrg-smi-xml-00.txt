@@ -1,0 +1,672 @@
+
+
+Network Working Group                                   J. Schoenwaelder
+Internet-Draft                                                F. Strauss
+Expires: December 20, 2000                               TU Braunschweig
+                                                           June 21, 2000
+
+
+                 Using XML to Exchange SMI Definitions
+                     draft-irtf-nmrg-smi-xml-00.txt
+
+Status of this Memo
+
+   This document is an Internet-Draft and is in full conformance with
+   all provisions of Section 10 of RFC2026.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF), its areas, and its working groups. Note that
+   other groups may also distribute working documents as
+   Internet-Drafts.
+
+   Internet-Drafts are draft documents valid for a maximum of six
+   months and may be updated, replaced, or obsoleted by other documents
+   at any time. It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   To view the entire list of Internet-Draft Shadow Directories, see
+   http://www.ietf.org/shadow.html.
+
+   The list of current Internet-Drafts can be accessed at
+   http://www.ietf.org/ietf/iid-abstracts.txt
+
+   This Internet-Draft will expire on December 20, 2000.
+
+Copyright Notice
+
+   Copyright (C) The Internet Society (2000). All Rights Reserved.
+
+Abstract
+
+   This memo describes how the Extensible Markup Language (XML) can be
+   used to exchange SMIv1, SMIv2 and SMIng definitions between XML
+   enabled applications. 
+
+
+
+
+
+
+
+
+
+
+
+Schoenwaelder & Strauss    Expires December 20, 2000            [Page 1]
+
+Internet-Draft          XML SMI Exchange Format                June 2000
+
+
+Table of Contents
+
+   1. Introduction . . . . . . . . . . . . . . . . . . . . . . . . .   3
+   2. SMI XML DTD  . . . . . . . . . . . . . . . . . . . . . . . . .   4
+   3. Examples . . . . . . . . . . . . . . . . . . . . . . . . . . .   9
+   4. Acknowledgments  . . . . . . . . . . . . . . . . . . . . . . .   9
+      References . . . . . . . . . . . . . . . . . . . . . . . . . .  10
+      Authors' Addresses . . . . . . . . . . . . . . . . . . . . . .  10
+      Full Copyright Statement . . . . . . . . . . . . . . . . . . .  12
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Schoenwaelder & Strauss    Expires December 20, 2000            [Page 2]
+
+Internet-Draft          XML SMI Exchange Format                June 2000
+
+
+1. Introduction
+
+   This memo describes how the Extensible Markup Language (XML) [1] can
+   be used to exchange SMIv1 [2][3][4], SMIv2 [5][6][7] and SMIng [8]
+   definitions between XML enabled applications. The acronym SMI is
+   used throughout this document as a version neutral name for SMIv1,
+   SMIv2 or SMIng. 
+
+   The Document Type Definition (DTD) defined in this memo allows
+   applications with embedded generic XML parsers to read (or edit) the
+   original SMI definitions. The XML DTD is optimized for this purpose.
+   Terseness of the XML output was of minimal importance since humans
+   are expected to read the originial SMI definitions. 
+
+   In fact, the XML format of an SMI module is significantly longer
+   compared to the original SMI definition. This is inline with the
+   design goals for XML, which favours computer readability over
+   terseness. 
+
+   There are several scenarios where an XML representation of SMI
+   definitions is useful: 
+   o  The XML format may be used as an intermediate format between a
+      validating SMI compiler/parser and post processing tools such as
+      code or schema generators. (The undocumented mosy format has been
+      used in the past for this purpose. The mosy format does not
+      preserve all information present in a SMI module and is therefore
+      problematic.) 
+   o  The XML format can be used with XSLT post processors to generate
+      documentation in various formats. 
+   o  The XML format makes it possible to access SMI definition from a
+      variety of programming languages. XML parsers are available in
+      Java, C, C++, Tcl, Perl, Python, and GNU Emacs Lisp in both
+      commercial and open source forms. 
+   o  There are generic tools for maintaining large sets of XML
+      definitions. This includes tools to search for definitions with a
+      specific property. Such generic XML tools can be very useful in
+      organizations that are required to maintain large amounts of SMI
+      definitions. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+Schoenwaelder & Strauss    Expires December 20, 2000            [Page 3]
+
+Internet-Draft          XML SMI Exchange Format                June 2000
+
+
+2. SMI XML DTD
+
+
+   <!--**
+       ** XML DTD for SMIv1/SMIv2/SMIng modules.
+       **
+       ** Typical invocation:
+       **    <!DOCTYPE smi PUBLIC
+       **            "-//IETF//DTD RFCxxxx SMI v0.1//EN"
+       **            "/some/path/smi.dtd">
+       **
+       ** Contact: Juergen Schoenwaelder
+       **          TU Braunschweig
+       **          Bueltenweg 74/75
+       **          38106 Braunschweig
+       **          Germany
+       **
+       **          <schoenw@ibr.cs.tu-bs.de>
+       **
+       ** Copyright (c) The Internet Society (2000).
+       ** All Rights Reserved.
+       **
+       ** $ID$
+       **
+       **-->
+
+
+   <!--** Entity Definitions **-->
+
+
+   <!ENTITY        % IDENTIFIER    "CDATA">
+       <!-- an SMI identifier (aka ASN.1 descriptor) -->
+
+   <!ENTITY        % OID           "CDATA">
+       <!-- Object Identifier in dotted notation (e.g. 1.3.6.1.2.1) -->
+
+   <!ENTITY        % TEXT          "#PCDATA">
+       <!-- text as defined in the SMI specification -->
+
+   <!ENTITY        % DATE          "CDATA">
+       <!-- date and time information (ISO date format) -->
+
+   <!ENTITY        % VALUE         "CDATA">
+       <!-- value of one of the SMI basetypes -->
+
+   <!ENTITY        % STATUS        "CDATA">
+       <!-- value of one of the SMI status values es -->
+
+
+
+
+Schoenwaelder & Strauss    Expires December 20, 2000            [Page 4]
+
+Internet-Draft          XML SMI Exchange Format                June 2000
+
+
+   <!--** Fundamental Attribute Definitions **-->
+
+
+   <!ENTITY        % at.module     'module %IDENTIFIER;    #REQUIRED'>
+
+   <!ENTITY        % at.name       'name   %IDENTIFIER;    #REQUIRED'>
+
+   <!ENTITY        % at.optname    'name   %IDENTIFIER;    ""'>
+
+   <!ENTITY        % at.oid        'oid    %OID;           #REQUIRED'>
+
+   <!ENTITY        % at.language   'language (SMIv1
+                                           |SMIv2
+                                           |SMIng)         #REQUIRED'>
+
+   <!ENTITY        % at.status     'status (current
+                                           |deprecated
+                                           |obsolete
+                                           |mandatory
+                                           |optional)      "current"'>
+
+   <!ENTITY        % at.basetype   'basetype %IDENTIFIER;  #REQUIRED'>
+
+   <!ENTITY        % at.date       'date   %DATE;          #REQUIRED'>
+
+   <!ENTITY        % at.number     'number %VALUE;         #REQUIRED'>
+
+   <!ENTITY        % at.min        'min    %VALUE;         #REQUIRED'>
+
+   <!ENTITY        % at.max        'max    %VALUE;         #REQUIRED'>
+
+   <!ENTITY        % at.node       'node   %IDENTIFIER;    #REQUIRED'>
+
+   <!ENTITY        % at.implied    'implied (true|false)   "false"'>
+
+   <!ENTITY        % at.create     'create (true|false)    "false"'>
+
+
+   <!--** Fundamental Element Definitions **-->
+
+
+   <!ELEMENT       description     (%TEXT;)>
+
+   <!ELEMENT       reference       (%TEXT;)>
+
+   <!ELEMENT       format          (%TEXT;)>
+
+   <!ELEMENT       units           (%TEXT;)>
+
+
+
+Schoenwaelder & Strauss    Expires December 20, 2000            [Page 5]
+
+Internet-Draft          XML SMI Exchange Format                June 2000
+
+
+   <!ELEMENT       default         (%TEXT;)>
+
+   <!ELEMENT       access          (%TEXT;)>
+
+   <!ELEMENT       range           EMPTY>
+   <!ATTLIST       range           %at.min;
+                                   %at.max;>
+
+   <!ELEMENT       namednumber     EMPTY>
+   <!ATTLIST       namednumber     %at.name;
+                                   %at.number;>
+
+   <!ELEMENT       parent          EMPTY>
+   <!ATTLIST       parent          %at.module;
+                                   %at.name;>
+
+   <!ELEMENT       type            EMPTY>
+   <!ATTLIST       type            %at.module;
+                                   %at.name;>
+
+   <!ELEMENT       syntax          (type|typedef)>
+   <!ELEMENT       writesyntax     (type|typedef)>
+
+   <!ELEMENT       linkage         (index+|augments|reorders|sparse|expands)>
+   <!ATTLIST       linkage         %at.implied;>
+   <!ELEMENT       index           EMPTY>
+   <!ATTLIST       index           %at.module;
+                                   %at.name;>
+   <!ELEMENT       augments        EMPTY>
+   <!ATTLIST       augments        %at.module;
+                                   %at.name;>
+   <!ELEMENT       reorders        EMPTY>
+   <!ATTLIST       reorders        %at.module;
+                                   %at.name;>
+   <!ELEMENT       sparse          EMPTY>
+   <!ATTLIST       sparse          %at.module;
+                                   %at.name;>
+   <!ELEMENT       expands         EMPTY>
+   <!ATTLIST       expands         %at.module;
+                                   %at.name;>
+
+
+   <!--** Structure Element and Attribute Definitions **-->
+
+
+   <!ELEMENT       smi             (module,
+                                    imports+,
+                                    typedefs*,
+                                    nodes*,
+
+
+Schoenwaelder & Strauss    Expires December 20, 2000            [Page 6]
+
+Internet-Draft          XML SMI Exchange Format                June 2000
+
+
+                                    notifications*,
+                                    groups*,
+                                    compliances*)>
+
+   <!ELEMENT       module          (organization?,
+                                    contact?,
+                                    description?,
+                                    reference?,
+                                    revision*,
+                                    identity?)>
+   <!ATTLIST       module          %at.name;
+                                   %at.language;>
+
+   <!ELEMENT       organization    (%TEXT;)>
+   <!ELEMENT       contact         (%TEXT;)>
+   <!ELEMENT       revision        (description)>
+   <!ATTLIST       revision        %at.date;>
+   <!ELEMENT       identity        EMPTY>
+   <!ATTLIST       identity        %at.node;>
+
+   <!ELEMENT       imports         (import+)>
+   <!ELEMENT       import          EMPTY>
+   <!ATTLIST       import          %at.module;
+                                   %at.name;>
+
+   <!ELEMENT       typedefs        (typedef+)>
+   <!ELEMENT       typedef         (parent?,
+                                    range*,
+                                    namednumber*,
+                                    default?,
+                                    format?,
+                                    units?,
+                                    description?,
+                                    reference?)>
+   <!ATTLIST       typedef         %at.optname;
+                                   %at.basetype;
+                                   %at.status;>
+
+   <!ELEMENT       nodes          (node|scalar|table)+>
+
+   <!ELEMENT       node            (description?)>
+   <!ATTLIST       node            %at.name;
+                                   %at.oid;
+                                   %at.status;>
+
+   <!ELEMENT       scalar          (syntax,
+                                    access,
+                                    default?,
+                                    format?,
+
+
+Schoenwaelder & Strauss    Expires December 20, 2000            [Page 7]
+
+Internet-Draft          XML SMI Exchange Format                June 2000
+
+
+                                    units?,
+                                    description,
+                                    reference?)>
+   <!ATTLIST       scalar          %at.name;
+                                   %at.oid;
+                                   %at.status;>
+
+   <!ELEMENT       table           (description,
+                                    reference?,
+                                    row)>
+   <!ATTLIST       table           %at.name;
+                                   %at.oid;
+                                   %at.status;>
+
+   <!ELEMENT       row            (linkage,
+                                   description,
+                                   reference?,
+                                   column+)>
+   <!ATTLIST       row             %at.name;
+                                   %at.oid;
+                                   %at.create;
+                                   %at.status;>
+
+   <!ELEMENT       column          (syntax,
+                                    access,
+                                    default?,
+                                    format?,
+                                    units?,
+                                    description,
+                                    reference?)>
+   <!ATTLIST       column          %at.name;
+                                   %at.oid;
+                                   %at.status;>
+
+   <!ELEMENT       notifications   (notification+)>
+   <!ELEMENT       notification    (objects,
+                                    description,
+                                    reference?)>
+   <!ATTLIST       notification    %at.name;
+                                   %at.oid;
+                                   %at.status;>
+   <!ELEMENT       objects         (object+)>
+   <!ELEMENT       object          EMPTY>
+   <!ATTLIST       object          %at.module;
+                                   %at.name;>
+
+   <!ELEMENT       groups          (group+)>
+   <!ELEMENT       group           (members,
+                                    description,
+
+
+Schoenwaelder & Strauss    Expires December 20, 2000            [Page 8]
+
+Internet-Draft          XML SMI Exchange Format                June 2000
+
+
+                                    reference?)>
+   <!ATTLIST       group           %at.name;
+                                   %at.oid;
+                                   %at.status;>
+   <!ELEMENT       members         (member+)>
+   <!ELEMENT       member          EMPTY>
+   <!ATTLIST       member          %at.module;
+                                   %at.name;>
+
+   <!ELEMENT       compliances     (compliance+)>
+   <!ELEMENT       compliance      (description,
+                                    requires,
+                                    refinements?)>
+   <!ATTLIST       compliance      %at.name;
+                                   %at.oid;
+                                   %at.status;>
+   <!ELEMENT       requires        (mandatory|option)+>
+   <!ELEMENT       mandatory       EMPTY>
+   <!ATTLIST       mandatory       %at.module;
+                                   %at.name;>
+   <!ELEMENT       option          (description)>
+   <!ATTLIST       option          %at.module;
+                                   %at.name;>
+   <!ELEMENT       refinements     (refinement+)>
+   <!ELEMENT       refinement      (syntax?,
+                                    access?,
+                                    description)>
+   <!ATTLIST       refinement      %at.module;
+                                   %at.name;>
+
+   <!--** End of the XML DTD for SMIv1/SMIv2/SMIng modules. **-->
+
+
+3. Examples
+
+4. Acknowledgments
+
+   This document is the result of discussions within the Network
+   Management Research Group (NMRG) of the Internet Research Task
+   Force[9] (IRTF). 
+
+   Special thanks to Bert Helthuis, Atin Banerjee and Debnarayan Kar
+   for providing useful feedback and access to their private SMI XML
+   DTDs. 
+
+   A prototype implementation of an SMIv1/SMIv2/SMIng converter to XML
+   is freely available as part of the libsmi[10] SMI parser library
+   distribution. 
+
+
+
+Schoenwaelder & Strauss    Expires December 20, 2000            [Page 9]
+
+Internet-Draft          XML SMI Exchange Format                June 2000
+
+
+References
+
+   [1]  World Wide Web Consortium, "Extensible Markup Language (XML)
+        1.0", W3C REC-xml-19980210, February 1998.
+
+   [2]  Rose, M. and K. McCloghrie, "Structure and Identification of
+        Management Information for TCP/IP-based Internets", STD 16, RFC
+        1155, May 1990.
+
+   [3]  Rose, M. and K. McCloghrie, "Concise MIB Definitions", STD 16,
+        RFC 1212, March 1991.
+
+   [4]  Rose, M., "A Convention for Defining Traps for use with the
+        SNMP", RFC 1215, March 1991.
+
+   [5]  McCloghrie, K., Perkins, D., Schoenwaelder, J., Case, J., Rose,
+        M. and S. Waldbusser, "Structure of Management Information
+        Version 2 (SMIv2)", STD 58, RFC 2578, April 1999.
+
+   [6]  McCloghrie, K., Perkins, D., Schoenwaelder, J., Case, J., Rose,
+        M. and S. Waldbusser, "Textual Conventions for SMIv2", STD 58,
+        RFC 2579, April 1999.
+
+   [7]  McCloghrie, K., Perkins, D., Schoenwaelder, J., Case, J., Rose,
+        M. and S. Waldbusser, "Conformance Statements for SMIv2", STD
+        58, RFC 2580, April 1999.
+
+   [8]  Strauss, F., "SMIng - A new Structure of Management
+        Information", Internet Draft draft-irtf-nmrg-sming-02.txt,
+        February 2000.
+
+   [9]  http://www.irtf.org/
+
+   [10]  http://www.ibr.cs.tu-bs.de/projects/libsmi/
+
+Authors' Addresses
+
+   Juergen Schoenwaelder
+   TU Braunschweig
+   Bueltenweg 74/75
+   38106 Braunschweig
+   Germany
+
+   Phone: +49 531 391-3289
+   EMail: schoenw@ibr.cs.tu-bs.de
+
+
+
+
+
+
+Schoenwaelder & Strauss    Expires December 20, 2000           [Page 10]
+
+Internet-Draft          XML SMI Exchange Format                June 2000
+
+
+   Frank Strauss
+   TU Braunschweig
+   Bueltenweg 74/75
+   38106 Braunschweig
+   Germany
+
+   Phone: +49 531 391-3266
+   EMail: strauss@ibr.cs.tu-bs.de
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Schoenwaelder & Strauss    Expires December 20, 2000           [Page 11]
+
+Internet-Draft          XML SMI Exchange Format                June 2000
+
+
+Full Copyright Statement
+
+   Copyright (C) The Internet Society (2000). All Rights Reserved.
+
+   This document and translations of it may be copied and furnished to
+   others, and derivative works that comment on or otherwise explain it
+   or assist in its implementation may be prepared, copied, published
+   and distributed, in whole or in part, without restriction of any
+   kind, provided that the above copyright notice and this paragraph
+   are included on all such copies and derivative works. However, this
+   document itself may not be modified in any way, such as by removing
+   the copyright notice or references to the Internet Society or other
+   Internet organizations, except as needed for the purpose of
+   developing Internet standards in which case the procedures for
+   copyrights defined in the Internet Standards process must be
+   followed, or as required to translate it into languages other than
+   English.
+
+   The limited permissions granted above are perpetual and will not be
+   revoked by the Internet Society or its successors or assigns.
+
+   This document and the information contained herein is provided on an
+   "AS IS" basis and THE INTERNET SOCIETY AND THE INTERNET ENGINEERING
+   TASK FORCE DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING
+   BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION
+   HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+Acknowledgement
+
+   Funding for the RFC editor function is currently provided by the
+   Internet Society.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Schoenwaelder & Strauss    Expires December 20, 2000           [Page 12]
+

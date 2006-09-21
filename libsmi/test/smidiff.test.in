@@ -1,0 +1,44 @@
+#!/bin/sh
+#
+# smidiff.test --
+#
+#       smidiff test suite. For each file smidiff/<MIB>.diff file
+#	an old version smidiff/<MIB>.old and a new version smidiff/<MIB>.new
+#	are compared. If one of the MIB versions is not found in the
+#	smidiff/ subdirectory it is looked up in the ../mibs/ repository.
+#
+
+SMIPATH=.:../../mibs/ietf:../../mibs/iana:../../mibs/irtf:../../mibs/tubs
+export SMIPATH
+
+RC=0
+FAILED=""
+cd smidiff
+for diff in *.diff ; do
+    basename=`echo $diff | sed -e 's/.diff//'`
+    if [ -f $basename.old ] ; then
+	oldmib=./$basename.old
+    else
+	oldmib=$basename
+    fi
+    if [ -f $basename.new ] ; then
+	newmib=./$basename.new
+    else
+	newmib=$basename
+    fi
+    echo "checking smidiff results for $basename."
+    ../../tools/smidiff $oldmib $newmib > $basename.result 2>/dev/null
+    @DIFF@ $diff $basename.result > $basename.diffdiff
+    if [ ! -s $basename.diffdiff ] ; then
+	rm $basename.diffdiff $basename.result
+    else
+	FAILED=1
+    fi
+done
+
+if [ "$FAILED" ] ; then
+    echo "*** smidiff output differs, see smidiff/*.diffdiff"
+    RC=1
+fi
+
+exit ${RC}

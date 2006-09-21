@@ -1,0 +1,71 @@
+LIBSMI-TEST-012-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE
+	FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION
+	FROM SNMPv2-TC
+    OBJECT-GROUP
+	FROM SNMPv2-CONF
+    testMib
+        FROM LIBSMI-TEST-MIB;
+
+libsmiTest012Mib MODULE-IDENTITY
+    LAST-UPDATED    "200011080000Z"
+    ORGANIZATION    
+            "TU Braunschweig"
+    CONTACT-INFO    
+            "        Frank Strauss
+             
+             Postal: TU Braunschweig
+                     Bueltenweg 74/75
+                     38106 Braunschweig
+                     Germany
+             
+              Phone: +49 531 391-3283
+              EMail: strauss@ibr.cs.tu-bs.de
+               http://www.ibr.cs.tu-bs.de/~strauss/"
+    DESCRIPTION     
+            "This MIB module contains one or more intentional errors,
+             and/or unusual contents. Its only purpose is to check
+             the abilities of MIB parsers to detect these circumstances.
+             
+             This MIB module is orginally written in SMIv2 format.
+             
+             This module checks for illegal underscore characters in
+	     identifiers.
+
+	     The libsmi parser is expected to report:
+LIBSMI-TEST-012-MIB:50: identifier `Foo_Bar' must not contain an underscore
+LIBSMI-TEST-012-MIB:56: identifier `bar_foo' must not contain an underscore
+LIBSMI-TEST-012-MIB:65: identifier `bar_foo' must not contain an underscore
+LIBSMI-TEST-012-MIB:64: warning: current group `barFooGroup' is not referenced in this module
+LIBSMI-TEST-012-MIB:50: warning: current type `Foo_Bar' is not referenced in this module
+	    "
+    REVISION        "200011080000Z"
+    DESCRIPTION     
+            "Initial Revision."
+    ::= { testMib 12 }
+
+Foo_Bar ::= TEXTUAL-CONVENTION
+    STATUS	current
+    DESCRIPTION
+	"junk"
+    SYNTAX OBJECT IDENTIFIER
+
+bar_foo OBJECT-TYPE
+    SYNTAX	OBJECT IDENTIFIER
+    MAX-ACCESS	read-only
+    STATUS	current
+    DESCRIPTION
+	"junk"
+    ::= { libsmiTest012Mib 1 }
+
+barFooGroup OBJECT-GROUP
+    OBJECTS	{ bar_foo }
+    STATUS	current
+    DESCRIPTION
+	"junk"
+    ::= { libsmiTest012Mib 2 }
+
+END

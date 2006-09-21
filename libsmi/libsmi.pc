@@ -1,0 +1,12 @@
+prefix=/usr/local
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libsmi
+Description: SMI parser library
+Requires:
+Version: 0.4.5
+Libs: -L${libdir} -lsmi
+Cflags: -I${includedir}/libsmi.h
+

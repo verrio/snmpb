@@ -1,0 +1,221 @@
+LIBSMI-TEST-016-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, Integer32
+	FROM SNMPv2-SMI
+    InetAddress, InetAddressType, InetAddressIPv6z
+	FROM INET-ADDRESS-MIB
+    testMib
+        FROM LIBSMI-TEST-MIB;
+
+libsmiTest016Mib MODULE-IDENTITY
+    LAST-UPDATED    "200211190000Z"
+    ORGANIZATION    
+            "TU Braunschweig"
+    CONTACT-INFO    
+            "        Frank Strauss
+             
+             Postal: TU Braunschweig
+                     Muehlenpfordtstrasse 23
+                     38106 Braunschweig
+                     Germany
+             
+              Phone: +49 531 391-3283
+              EMail: strauss@ibr.cs.tu-bs.de
+               http://www.ibr.cs.tu-bs.de/~strauss/"
+    DESCRIPTION     
+            "This MIB module contains one or more intentional errors,
+             and/or unusual contents. Its only purpose is to check
+             the abilities of MIB parsers to detect these circumstances.
+             
+             This MIB module is orginally written in SMIv2 format.
+             
+             This module checks for rules concerning Internet Address
+	     TC as defined in RFC 3291.
+
+	     The libsmi parser is expected to report:
+LIBSMI-TEST-016-MIB:186: warning: SEQUENCE element #2 `t4AddrType' does not match order of columnar objects under `t4Entry'
+LIBSMI-TEST-016-MIB:90: warning: node `t1Data' must be contained in at least one conformance group
+LIBSMI-TEST-016-MIB:126: warning: node `t2Data' must be contained in at least one conformance group
+LIBSMI-TEST-016-MIB:162: warning: node `t3Data' must be contained in at least one conformance group
+LIBSMI-TEST-016-MIB:207: warning: node `t4AddrType' must be contained in at least one conformance group
+LIBSMI-TEST-016-MIB:200: warning: node `t4Addr' must be contained in at least one conformance group
+LIBSMI-TEST-016-MIB:214: warning: node `t4AddrIPv6z' must be contained in at least one conformance group
+LIBSMI-TEST-016-MIB:207: warning: `InetAddressType' should not be subtyped
+LIBSMI-TEST-016-MIB:200: warning: `InetAddress' object should have an accompanied preceding `InetAdressType' object
+LIBSMI-TEST-016-MIB:214: warning: `InetAddress' should be used instead of `InetAddressIPv6z'
+	    "
+    REVISION        "200211190000Z"
+    DESCRIPTION     
+            "Initial Revision."
+    ::= { testMib 16 }
+
+-- test case 1
+
+t1Table OBJECT-TYPE
+    SYNTAX	SEQUENCE OF T1Entry
+    MAX-ACCESS	not-accessible
+    STATUS	current
+    DESCRIPTION	"..."
+    ::= { libsmiTest016Mib 1 }
+
+t1Entry OBJECT-TYPE
+    SYNTAX	T1Entry
+    MAX-ACCESS	not-accessible
+    STATUS	current
+    DESCRIPTION "..."
+    INDEX	{ t1AddrType }
+    ::= { t1Table 1 }
+
+T1Entry ::= SEQUENCE {
+    t1AddrType	InetAddressType,
+    t1Addr	InetAddress,
+    t1Data	Integer32
+}
+
+t1AddrType OBJECT-TYPE
+    SYNTAX	InetAddressType
+    MAX-ACCESS  not-accessible
+    STATUS	current
+    DESCRIPTION	"..."
+    ::= { t1Entry 1 }
+
+t1Addr OBJECT-TYPE
+    SYNTAX	InetAddress (SIZE (0..32))
+    MAX-ACCESS  not-accessible
+    STATUS	current
+    DESCRIPTION "..."
+    ::= { t1Entry 2 }
+
+t1Data OBJECT-TYPE
+    SYNTAX	Integer32
+    MAX-ACCESS  read-only
+    STATUS	current
+    DESCRIPTION "..."
+    ::= { t1Entry 3 }
+
+-- test case 2
+
+t2Table OBJECT-TYPE
+    SYNTAX	SEQUENCE OF T2Entry
+    MAX-ACCESS	not-accessible
+    STATUS	current
+    DESCRIPTION	"..."
+    ::= { libsmiTest016Mib 2 }
+
+t2Entry OBJECT-TYPE
+    SYNTAX	T2Entry
+    MAX-ACCESS	not-accessible
+    STATUS	current
+    DESCRIPTION "..."
+    INDEX	{ t1AddrType, t2Addr }
+    ::= { t2Table 1 }
+
+T2Entry ::= SEQUENCE {
+    t2Addr	InetAddress,
+    t2Data	Integer32
+}
+
+t2Addr OBJECT-TYPE
+    SYNTAX	InetAddress (SIZE (0..32))
+    MAX-ACCESS  not-accessible
+    STATUS	current
+    DESCRIPTION "..."
+    ::= { t2Entry 2 }
+
+t2Data OBJECT-TYPE
+    SYNTAX	Integer32
+    MAX-ACCESS  read-only
+    STATUS	current
+    DESCRIPTION "..."
+    ::= { t2Entry 3 }
+
+-- test case 3
+
+t3Table OBJECT-TYPE
+    SYNTAX	SEQUENCE OF T3Entry
+    MAX-ACCESS	not-accessible
+    STATUS	current
+    DESCRIPTION	"..."
+    ::= { libsmiTest016Mib 3 }
+
+t3Entry OBJECT-TYPE
+    SYNTAX	T3Entry
+    MAX-ACCESS	not-accessible
+    STATUS	current
+    DESCRIPTION "..."
+    AUGMENTS	{ t1Entry }
+    ::= { t3Table 1 }
+
+T3Entry ::= SEQUENCE {
+    t3Addr	InetAddress,
+    t3Data	Integer32
+}
+
+t3Addr OBJECT-TYPE
+    SYNTAX	InetAddress (SIZE (0..32))
+    MAX-ACCESS  not-accessible
+    STATUS	current
+    DESCRIPTION "..."
+    ::= { t3Entry 2 }
+
+t3Data OBJECT-TYPE
+    SYNTAX	Integer32
+    MAX-ACCESS  read-only
+    STATUS	current
+    DESCRIPTION "..."
+    ::= { t3Entry 3 }
+
+-- test case 4
+
+t4Table OBJECT-TYPE
+    SYNTAX	SEQUENCE OF T4Entry
+    MAX-ACCESS	not-accessible
+    STATUS	current
+    DESCRIPTION	"..."
+    ::= { libsmiTest016Mib 4 }
+
+t4Entry OBJECT-TYPE
+    SYNTAX	T4Entry
+    MAX-ACCESS	not-accessible
+    STATUS	current
+    DESCRIPTION "..."
+    INDEX	{ t4Index }
+    ::= { t4Table 1 }
+
+T4Entry ::= SEQUENCE {
+    t4Index	Integer32,
+    t4AddrType	InetAddressType,
+    t4Addr	InetAddress,
+    t4AddrIPv6z InetAddressIPv6z
+}
+
+t4Index OBJECT-TYPE
+    SYNTAX	Integer32 (0..2147483647)
+    MAX-ACCESS  not-accessible
+    STATUS	current
+    DESCRIPTION "..."
+    ::= { t4Entry 1 }
+
+t4Addr OBJECT-TYPE
+    SYNTAX	InetAddress
+    MAX-ACCESS  read-only
+    STATUS	current
+    DESCRIPTION "..."
+    ::= { t4Entry 2 }
+
+t4AddrType OBJECT-TYPE
+    SYNTAX	InetAddressType { ipv4(1) }
+    MAX-ACCESS  read-only
+    STATUS	current
+    DESCRIPTION	"..."
+    ::= { t4Entry 3 }
+
+t4AddrIPv6z OBJECT-TYPE
+    SYNTAX	InetAddressIPv6z
+    MAX-ACCESS  read-only
+    STATUS	current
+    DESCRIPTION	"..."
+    ::= { t4Entry 4 }
+
+END

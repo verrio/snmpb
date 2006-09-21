@@ -1,0 +1,275 @@
+<!--**
+    ** XML DTD for SMIv1/SMIv2/SMIng modules.
+    **
+    ** Typical invocation:
+    **    <!DOCTYPE smi PUBLIC
+    **            "-//IETF//DTD RFCxxxx SMI v0.1//EN"
+    **            "/some/path/smi.dtd">
+    **
+    ** Contact: Juergen Schoenwaelder
+    **          TU Braunschweig
+    **          Bueltenweg 74/75
+    **          38106 Braunschweig
+    **          Germany
+    **
+    **          <schoenw@ibr.cs.tu-bs.de>
+    **
+    ** Copyright (c) The Internet Society (2000).
+    ** All Rights Reserved.
+    **
+    ** $ID$
+    **
+    **-->
+
+
+<!--** Entity Definitions **-->
+
+
+<!ENTITY        % IDENTIFIER    "CDATA">
+    <!-- an SMI identifier (aka ASN.1 descriptor) -->
+
+<!ENTITY        % OID           "CDATA">
+    <!-- Object Identifier in dotted notation (e.g. 1.3.6.1.2.1) -->
+
+<!ENTITY        % TEXT          "#PCDATA">
+    <!-- text as defined in the SMI specification -->
+
+<!ENTITY        % DATE          "CDATA">
+    <!-- date and time information (ISO date format) -->
+
+<!ENTITY        % VALUE         "CDATA">
+    <!-- value of one of the SMI basetypes -->
+
+<!ENTITY        % STATUS        "CDATA">
+    <!-- value of one of the SMI status values -->
+
+
+<!--** Fundamental Attribute Definitions **-->
+
+
+<!ENTITY        % at.module     'module %IDENTIFIER;    #REQUIRED'>
+
+<!ENTITY        % at.name       'name   %IDENTIFIER;    #REQUIRED'>
+
+<!ENTITY        % at.optname    'name   %IDENTIFIER;    ""'>
+
+<!ENTITY        % at.oid        'oid    %OID;           #REQUIRED'>
+
+<!ENTITY        % at.language   'language (SMIv1
+                                        |SMIv2
+                                        |SMIng)         #REQUIRED'>
+
+<!ENTITY        % at.status     'status (current
+                                        |deprecated
+                                        |obsolete
+                                        |mandatory
+                                        |optional)      "current"'>
+
+<!ENTITY        % at.basetype   'basetype %IDENTIFIER;  #REQUIRED'>
+
+<!ENTITY        % at.date       'date   %DATE;          #REQUIRED'>
+
+<!ENTITY        % at.number     'number %VALUE;         #REQUIRED'>
+
+<!ENTITY        % at.min        'min    %VALUE;         #REQUIRED'>
+
+<!ENTITY        % at.max        'max    %VALUE;         #REQUIRED'>
+
+<!ENTITY        % at.node       'node   %IDENTIFIER;    #REQUIRED'>
+
+<!ENTITY        % at.implied    'implied (true|false)   "false"'>
+
+<!ENTITY        % at.create     'create (true|false)    "false"'>
+
+
+<!--** Fundamental Element Definitions **-->
+
+
+<!ELEMENT       description     (%TEXT;)>
+
+<!ELEMENT       reference       (%TEXT;)>
+
+<!ELEMENT       format          (%TEXT;)>
+
+<!ELEMENT       units           (%TEXT;)>
+
+<!ELEMENT       default         (%TEXT;)>
+
+<!ELEMENT       access          (%TEXT;)>
+
+<!ELEMENT       range           EMPTY>
+<!ATTLIST       range           %at.min;
+                                %at.max;>
+
+<!ELEMENT       namednumber     EMPTY>
+<!ATTLIST       namednumber     %at.name;
+                                %at.number;>
+
+<!ELEMENT       parent          EMPTY>
+<!ATTLIST       parent          %at.module;
+                                %at.name;>
+
+<!ELEMENT       type            EMPTY>
+<!ATTLIST       type            %at.module;
+                                %at.name;>
+
+<!ELEMENT       syntax          (type|typedef)>
+<!ELEMENT       writesyntax     (type|typedef)>
+
+<!ELEMENT       linkage         (index+|augments|reorders|sparse|expands)>
+<!ATTLIST       linkage         %at.implied;>
+<!ELEMENT       index           EMPTY>
+<!ATTLIST       index           %at.module;
+                                %at.name;>
+<!ELEMENT       augments        EMPTY>
+<!ATTLIST       augments        %at.module;
+                                %at.name;>
+<!ELEMENT       reorders        EMPTY>
+<!ATTLIST       reorders        %at.module;
+                                %at.name;>
+<!ELEMENT       sparse          EMPTY>
+<!ATTLIST       sparse          %at.module;
+                                %at.name;>
+<!ELEMENT       expands         EMPTY>
+<!ATTLIST       expands         %at.module;
+                                %at.name;>
+
+
+<!--** Structure Element and Attribute Definitions **-->
+
+
+<!ELEMENT       smi             (module, 
+                                 imports*,
+                                 typedefs*,
+                                 nodes*,
+                                 notifications*,
+                                 groups*,
+                                 compliances*)>
+
+<!ELEMENT       module          (organization?,
+                                 contact?,
+                                 description?,
+                                 reference?,
+                                 revision*,
+                                 identity?)>
+<!ATTLIST       module          %at.name;
+                                %at.language;>
+
+<!ELEMENT       organization    (%TEXT;)>
+<!ELEMENT       contact         (%TEXT;)>
+<!ELEMENT       revision        (description)>
+<!ATTLIST       revision        %at.date;>
+<!ELEMENT       identity        EMPTY>
+<!ATTLIST       identity        %at.node;>
+
+<!ELEMENT       imports         (import+)>
+<!ELEMENT       import          EMPTY>
+<!ATTLIST       import          %at.module;
+                                %at.name;>
+
+<!ELEMENT       typedefs        (typedef+)>
+<!ELEMENT       typedef         (parent?,
+                                 range*,
+                                 namednumber*,
+                                 default?,
+                                 format?,
+                                 units?,
+                                 description?,
+                                 reference?)>
+<!ATTLIST       typedef         %at.optname;
+                                %at.basetype;
+                                %at.status;>
+
+<!ELEMENT       nodes          (node|scalar|table)+>
+
+<!ELEMENT       node            (description?,
+                                 reference?)>
+<!ATTLIST       node            %at.name;
+                                %at.oid;
+                                %at.status;>
+
+<!ELEMENT       scalar          (syntax,
+                                 access,
+                                 default?,
+                                 format?,
+                                 units?,
+                                 description,
+                                 reference?)>
+<!ATTLIST       scalar          %at.name;
+                                %at.oid;
+                                %at.status;>
+
+<!ELEMENT       table           (description,
+                                 reference?,
+                                 row)>
+<!ATTLIST       table           %at.name;
+                                %at.oid;
+                                %at.status;>
+
+<!ELEMENT       row            (linkage,
+                                description,
+                                reference?,
+                                column+)>
+<!ATTLIST       row             %at.name;
+                                %at.oid;
+                                %at.create;
+                                %at.status;>
+
+<!ELEMENT       column          (syntax,
+                                 access,
+                                 default?,
+                                 format?,
+                                 units?,
+                                 description,
+                                 reference?)>
+<!ATTLIST       column          %at.name;
+                                %at.oid;
+                                %at.status;>
+
+<!ELEMENT       notifications   (notification+)>
+<!ELEMENT       notification    (objects,
+                                 description,
+                                 reference?)>
+<!ATTLIST       notification    %at.name;
+                                %at.oid;
+                                %at.status;>
+<!ELEMENT       objects         (object*)>
+<!ELEMENT       object          EMPTY>
+<!ATTLIST       object          %at.module;
+                                %at.name;>
+
+<!ELEMENT       groups          (group+)>
+<!ELEMENT       group           (members,
+                                 description,
+                                 reference?)>
+<!ATTLIST       group           %at.name;
+                                %at.oid;
+                                %at.status;>
+<!ELEMENT       members         (member+)>
+<!ELEMENT       member          EMPTY>
+<!ATTLIST       member          %at.module;
+                                %at.name;>
+
+<!ELEMENT       compliances     (compliance+)>
+<!ELEMENT       compliance      (description,
+                                 requires,
+                                 refinements?)>
+<!ATTLIST       compliance      %at.name;
+                                %at.oid;
+                                %at.status;>
+<!ELEMENT       requires        (mandatory|option)+>
+<!ELEMENT       mandatory       EMPTY>
+<!ATTLIST       mandatory       %at.module;
+                                %at.name;>
+<!ELEMENT       option          (description)>
+<!ATTLIST       option          %at.module;
+                                %at.name;>
+<!ELEMENT       refinements     (refinement+)>
+<!ELEMENT       refinement      (syntax?,
+                                 writesyntax?,
+                                 access?,
+                                 description)>
+<!ATTLIST       refinement      %at.module;
+                                %at.name;>
+
+<!--** End of the XML DTD for SMIv1/SMIv2/SMIng modules. **-->

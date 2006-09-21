@@ -1,0 +1,1008 @@
+
+
+Network Working Group                                   J. Schoenwaelder
+Internet-Draft                                                F. Strauss
+Expires: July 10, 2002                                   TU Braunschweig
+                                                         January 9, 2002
+
+
+                 Using XML to Exchange SMI Definitions
+                       draft-irtf-nmrg-smi-xml-01
+
+Status of this Memo
+
+   This document is an Internet-Draft and is in full conformance with
+   all provisions of Section 10 of RFC2026.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF), its areas, and its working groups.  Note that
+   other groups may also distribute working documents as Internet-
+   Drafts.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   The list of current Internet-Drafts can be accessed at
+   http://www.ietf.org/ietf/1id-abstracts.txt.
+
+   The list of Internet-Draft Shadow Directories can be accessed at
+   http://www.ietf.org/shadow.html.
+
+   This Internet-Draft will expire on July 10, 2002.
+
+Copyright Notice
+
+   Copyright (C) The Internet Society (2002).  All Rights Reserved.
+
+Abstract
+
+   This memo describes how the Extensible Markup Language (XML) can be
+   used to exchange SMIv1 and SMIv2 definitions between XML enabled
+   applications.
+
+
+
+
+
+
+
+
+
+
+
+Schoenwaelder & Strauss    Expires July 10, 2002                [Page 1]
+
+Internet-Draft           XML SMI Exchange Format            January 2002
+
+
+Table of Contents
+
+   1. Introduction . . . . . . . . . . . . . . . . . . . . . . . . .   3
+   2. SMI XML Schema . . . . . . . . . . . . . . . . . . . . . . . .   4
+   3. Examples . . . . . . . . . . . . . . . . . . . . . . . . . . .  16
+   4. Open Issues  . . . . . . . . . . . . . . . . . . . . . . . . .  16
+   5. Acknowledgments  . . . . . . . . . . . . . . . . . . . . . . .  16
+      References . . . . . . . . . . . . . . . . . . . . . . . . . .  16
+      Authors' Addresses . . . . . . . . . . . . . . . . . . . . . .  17
+      Full Copyright Statement . . . . . . . . . . . . . . . . . . .  18
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Schoenwaelder & Strauss    Expires July 10, 2002                [Page 2]
+
+Internet-Draft           XML SMI Exchange Format            January 2002
+
+
+1. Introduction
+
+   This memo describes how the Extensible Markup Language (XML) [1] can
+   be used to exchange SMIv1 [2][3][4] and SMIv2 [5][6][7] definitions
+   between XML enabled applications.  The acronym SMI is used throughout
+   this document as a version neutral name for SMIv1 or SMIv2.
+
+   The XML Schema defined in this memo allows applications with embedded
+   generic XML parsers to read (or edit) the original SMI definitions.
+   The XML Schema is optimized for this purpose.  Terseness of the XML
+   output was of minimal importance since humans are expected to read
+   the originial SMI definitions.
+
+   In fact, the XML format of an SMI module is significantly longer
+   compared to the original SMI definition.  This is in line with the
+   design goals for XML, which favours computer readability over
+   terseness.
+
+   There are several scenarios where an XML representation of SMI
+   definitions is useful:
+
+   o  The XML format may be used as an intermediate format between a
+      validating SMI compiler/parser and post processing tools such as
+      code or schema generators.  (The undocumented mosy format has been
+      used in the past for this purpose.  The mosy format does not
+      preserve all information present in a SMI module and is therefore
+      problematic.)
+
+   o  The XML format can be used with XSLT post processors to generate
+      documentation in various formats.
+
+   o  The XML format makes it possible to access SMI definitions from a
+      variety of programming languages.  E.g., XML parsers are available
+      in Java, C, C++, Tcl, Perl, Python, and GNU Emacs Lisp in both
+      commercial and open source forms.
+
+   o  There are generic tools for maintaining large sets of XML
+      definitions.  This includes tools to search for definitions with a
+      specific property.  Such generic XML tools can be very useful in
+      organizations that must maintain large amounts of SMI definitions.
+
+
+
+
+
+
+
+
+
+
+
+Schoenwaelder & Strauss    Expires July 10, 2002                [Page 3]
+
+Internet-Draft           XML SMI Exchange Format            January 2002
+
+
+2. SMI XML Schema
+
+   <?xml version="1.0" encoding="UTF-8"?>
+   <!DOCTYPE schema SYSTEM "http://www.w3.org/2001/XMLSchema.dtd">
+
+   <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+   <!--
+      - The top-level element.
+      -
+     -->
+
+    <xsd:element name="smi">
+     <xsd:complexType>
+      <xsd:sequence>
+       <xsd:element ref="module"/>
+       <xsd:element ref="imports"       minOccurs="0" maxOccurs="unbounded"/>
+       <xsd:element ref="typedefs"      minOccurs="0" maxOccurs="unbounded"/>
+       <xsd:element ref="nodes"         minOccurs="0" maxOccurs="unbounded"/>
+       <xsd:element ref="notifications" minOccurs="0" maxOccurs="unbounded"/>
+       <xsd:element ref="groups"        minOccurs="0" maxOccurs="unbounded"/>
+       <xsd:element ref="compliances"   minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+     </xsd:complexType>
+    </xsd:element>
+
+   <!--
+      - Terminal Elements.
+      -
+     -->
+
+    <xsd:element name="description">
+     <xsd:simpleType>
+      <xsd:restriction base="xsd:string"/>
+     </xsd:simpleType>
+    </xsd:element>
+
+    <xsd:element name="reference">
+     <xsd:simpleType>
+      <xsd:restriction base="xsd:string"/>
+     </xsd:simpleType>
+    </xsd:element>
+
+    <xsd:element name="format">
+     <xsd:simpleType>
+      <xsd:restriction base="xsd:string"/>
+     </xsd:simpleType>
+    </xsd:element>
+
+
+
+Schoenwaelder & Strauss    Expires July 10, 2002                [Page 4]
+
+Internet-Draft           XML SMI Exchange Format            January 2002
+
+
+    <xsd:element name="units">
+     <xsd:simpleType>
+      <xsd:restriction base="xsd:string"/>
+     </xsd:simpleType>
+    </xsd:element>
+
+    <xsd:element name="default">
+     <xsd:simpleType>
+      <xsd:restriction base="xsd:string"/>
+     </xsd:simpleType>
+    </xsd:element>
+
+    <xsd:element name="access">
+     <xsd:simpleType>
+      <xsd:restriction base="xsd:string">
+       <xsd:enumeration value="noaccess"/>
+       <xsd:enumeration value="notifyonly"/>
+       <xsd:enumeration value="readonly"/>
+       <xsd:enumeration value="readwrite"/>
+      </xsd:restriction>
+     </xsd:simpleType>
+    </xsd:element>
+
+    <xsd:element name="range">
+     <xsd:complexType>
+      <xsd:attribute name="min" type="xsd:integer" use="required"/>
+      <xsd:attribute name="max" type="xsd:integer" use="required"/>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="namednumber">
+     <xsd:complexType>
+      <xsd:attribute name="name"   type="xsd:string"  use="required"/>
+      <xsd:attribute name="number" type="xsd:integer" use="required"/>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="parent">
+     <xsd:complexType>
+      <xsd:attribute name="module" type="xsd:string" use="required"/>
+      <xsd:attribute name="name"   type="xsd:string" use="required"/>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="type">
+     <xsd:complexType>
+      <xsd:attribute name="module" type="xsd:string" use="required"/>
+      <xsd:attribute name="name"   type="xsd:string" use="required"/>
+
+
+
+Schoenwaelder & Strauss    Expires July 10, 2002                [Page 5]
+
+Internet-Draft           XML SMI Exchange Format            January 2002
+
+
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="syntax">
+     <xsd:complexType>
+      <xsd:choice>
+       <xsd:element ref="type"/>
+       <xsd:element ref="typedef"/>
+      </xsd:choice>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="writesyntax">
+     <xsd:complexType>
+      <xsd:choice>
+       <xsd:element ref="type"/>
+       <xsd:element ref="typedef"/>
+      </xsd:choice>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="linkage">
+     <xsd:complexType>
+      <xsd:choice>
+       <xsd:element ref="index" minOccurs="1" maxOccurs="unbounded"/>
+       <xsd:element ref="augments"/>
+       <xsd:element ref="reorders"/>
+       <xsd:element ref="sparse"/>
+       <xsd:element ref="expands"/>
+      </xsd:choice>
+      <xsd:attribute name="implied" default="false">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:string">
+         <xsd:enumeration value="true"/>
+         <xsd:enumeration value="false"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="index">
+     <xsd:complexType>
+      <xsd:attribute name="module" type="xsd:string" use="required"/>
+      <xsd:attribute name="name"   type="xsd:string" use="required"/>
+     </xsd:complexType>
+    </xsd:element>
+
+
+
+
+Schoenwaelder & Strauss    Expires July 10, 2002                [Page 6]
+
+Internet-Draft           XML SMI Exchange Format            January 2002
+
+
+    <xsd:element name="augments">
+     <xsd:complexType>
+      <xsd:attribute name="module" type="xsd:string" use="required"/>
+      <xsd:attribute name="name"   type="xsd:string" use="required"/>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="reorders">
+     <xsd:complexType>
+      <xsd:attribute name="module" type="xsd:string" use="required"/>
+      <xsd:attribute name="name"   type="xsd:string" use="required"/>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="sparse">
+     <xsd:complexType>
+      <xsd:attribute name="module" type="xsd:string" use="required"/>
+      <xsd:attribute name="name"   type="xsd:string" use="required"/>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="expands">
+     <xsd:complexType>
+      <xsd:attribute name="module" type="xsd:string" use="required"/>
+      <xsd:attribute name="name"   type="xsd:string" use="required"/>
+     </xsd:complexType>
+    </xsd:element>
+
+
+
+    <xsd:element name="module">
+     <xsd:complexType>
+      <xsd:sequence>
+       <xsd:element ref="organization" minOccurs="0" maxOccurs="1"/>
+       <xsd:element ref="contact"      minOccurs="0" maxOccurs="1"/>
+       <xsd:element ref="description"  minOccurs="0" maxOccurs="1"/>
+       <xsd:element ref="reference"    minOccurs="0" maxOccurs="1"/>
+       <xsd:element ref="revision"     minOccurs="0" maxOccurs="unbounded"/>
+       <xsd:element ref="identity"     minOccurs="0" maxOccurs="1"/>
+      </xsd:sequence>
+      <xsd:attribute name="name"     type="xsd:string" use="required"/>
+      <xsd:attribute name="language"                   use="required">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:string">
+         <xsd:enumeration value="SMIv1"/>
+         <xsd:enumeration value="SMIv2"/>
+         <xsd:enumeration value="SMIng"/>
+        </xsd:restriction>
+
+
+
+Schoenwaelder & Strauss    Expires July 10, 2002                [Page 7]
+
+Internet-Draft           XML SMI Exchange Format            January 2002
+
+
+       </xsd:simpleType>
+      </xsd:attribute>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="organization">
+     <xsd:simpleType>
+      <xsd:restriction base="xsd:string"/>
+     </xsd:simpleType>
+    </xsd:element>
+
+    <xsd:element name="contact">
+     <xsd:simpleType>
+      <xsd:restriction base="xsd:string"/>
+     </xsd:simpleType>
+    </xsd:element>
+
+    <xsd:element name="revision">
+     <xsd:complexType>
+      <xsd:sequence>
+       <xsd:element ref="description"/>
+      </xsd:sequence>
+      <xsd:attribute name="date" type="xsd:string" use="required"/>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="identity">
+     <xsd:complexType>
+      <xsd:attribute name="node" type="xsd:string" use="required"/>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="imports">
+     <xsd:complexType>
+      <xsd:sequence>
+       <xsd:element ref="import" maxOccurs="unbounded"/>
+      </xsd:sequence>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="import">
+     <xsd:complexType>
+      <xsd:attribute name="module" type="xsd:string" use="required"/>
+      <xsd:attribute name="name"   type="xsd:string" use="required"/>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="typedefs">
+
+
+
+Schoenwaelder & Strauss    Expires July 10, 2002                [Page 8]
+
+Internet-Draft           XML SMI Exchange Format            January 2002
+
+
+     <xsd:complexType>
+      <xsd:sequence>
+       <xsd:element ref="typedef" maxOccurs="unbounded"/>
+      </xsd:sequence>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="typedef">
+     <xsd:complexType>
+      <xsd:sequence>
+       <xsd:element ref="parent"      minOccurs="0" maxOccurs="1"/>
+       <xsd:element ref="range"       minOccurs="0" maxOccurs="unbounded"/>
+       <xsd:element ref="namednumber" minOccurs="0" maxOccurs="unbounded"/>
+       <xsd:element ref="default"     minOccurs="0" maxOccurs="1"/>
+       <xsd:element ref="format"      minOccurs="0" maxOccurs="1"/>
+       <xsd:element ref="units"       minOccurs="0" maxOccurs="1"/>
+       <xsd:element ref="description" minOccurs="0" maxOccurs="1"/>
+       <xsd:element ref="reference"   minOccurs="0" maxOccurs="1"/>
+      </xsd:sequence>
+      <xsd:attribute name="name"     type="xsd:string" default=""/>
+      <xsd:attribute name="basetype" type="xsd:string" use="required"/>
+      <xsd:attribute name="status"                     default="current">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:string">
+         <xsd:enumeration value="current"/>
+         <xsd:enumeration value="deprecated"/>
+         <xsd:enumeration value="obsolete"/>
+         <xsd:enumeration value="mandatory"/>
+         <xsd:enumeration value="optional"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="nodes">
+     <xsd:complexType>
+      <xsd:choice maxOccurs="unbounded">
+       <xsd:element ref="node"/>
+       <xsd:element ref="scalar"/>
+       <xsd:element ref="table"/>
+      </xsd:choice>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="node">
+     <xsd:complexType>
+      <xsd:sequence>
+
+
+
+Schoenwaelder & Strauss    Expires July 10, 2002                [Page 9]
+
+Internet-Draft           XML SMI Exchange Format            January 2002
+
+
+       <xsd:element ref="description" minOccurs="0" maxOccurs="1"/>
+      </xsd:sequence>
+      <xsd:attribute name="name"   type="xsd:string" use="required"/>
+      <xsd:attribute name="oid"    type="xsd:string" use="required"/>
+      <xsd:attribute name="status" default="current">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:string">
+         <xsd:enumeration value="current"/>
+         <xsd:enumeration value="deprecated"/>
+         <xsd:enumeration value="obsolete"/>
+         <xsd:enumeration value="mandatory"/>
+         <xsd:enumeration value="optional"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="scalar">
+     <xsd:complexType>
+      <xsd:sequence>
+       <xsd:element ref="syntax"/>
+       <xsd:element ref="access"/>
+       <xsd:element ref="default"    minOccurs="0" maxOccurs="1"/>
+       <xsd:element ref="format"     minOccurs="0" maxOccurs="1"/>
+       <xsd:element ref="units"      minOccurs="0" maxOccurs="1"/>
+       <xsd:element ref="description"/>
+       <xsd:element ref="reference"  minOccurs="0" maxOccurs="1"/>
+      </xsd:sequence>
+      <xsd:attribute name="name"   type="xsd:string" use="required"/>
+      <xsd:attribute name="oid"    type="xsd:string" use="required"/>
+      <xsd:attribute name="status" default="current">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:string">
+         <xsd:enumeration value="current"/>
+         <xsd:enumeration value="deprecated"/>
+         <xsd:enumeration value="obsolete"/>
+         <xsd:enumeration value="mandatory"/>
+         <xsd:enumeration value="optional"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="table">
+     <xsd:complexType>
+      <xsd:sequence>
+
+
+
+Schoenwaelder & Strauss    Expires July 10, 2002               [Page 10]
+
+Internet-Draft           XML SMI Exchange Format            January 2002
+
+
+       <xsd:element ref="description"/>
+       <xsd:element ref="reference" minOccurs="0" maxOccurs="1"/>
+       <xsd:element ref="row"/>
+      </xsd:sequence>
+      <xsd:attribute name="name"   type="xsd:string" use="required"/>
+      <xsd:attribute name="oid"    type="xsd:string" use="required"/>
+      <xsd:attribute name="status" default="current">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:string">
+         <xsd:enumeration value="current"/>
+         <xsd:enumeration value="deprecated"/>
+         <xsd:enumeration value="obsolete"/>
+         <xsd:enumeration value="mandatory"/>
+         <xsd:enumeration value="optional"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="row">
+     <xsd:complexType>
+      <xsd:sequence>
+       <xsd:element ref="linkage"/>
+       <xsd:element ref="description"/>
+       <xsd:element ref="reference" minOccurs="0" maxOccurs="1"/>
+       <xsd:element ref="column"    maxOccurs="unbounded"/>
+      </xsd:sequence>
+      <xsd:attribute name="name"   type="xsd:string" use="required"/>
+      <xsd:attribute name="oid"    type="xsd:string" use="required"/>
+      <xsd:attribute name="create" default="false">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:string">
+         <xsd:enumeration value="true"/>
+         <xsd:enumeration value="false"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+      <xsd:attribute name="status" default="current">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:string">
+         <xsd:enumeration value="current"/>
+         <xsd:enumeration value="deprecated"/>
+         <xsd:enumeration value="obsolete"/>
+         <xsd:enumeration value="mandatory"/>
+         <xsd:enumeration value="optional"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+
+
+
+Schoenwaelder & Strauss    Expires July 10, 2002               [Page 11]
+
+Internet-Draft           XML SMI Exchange Format            January 2002
+
+
+      </xsd:attribute>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="column">
+     <xsd:complexType>
+      <xsd:sequence>
+       <xsd:element ref="syntax"/>
+       <xsd:element ref="access"/>
+       <xsd:element ref="default"   minOccurs="0" maxOccurs="1"/>
+       <xsd:element ref="format"    minOccurs="0" maxOccurs="1"/>
+       <xsd:element ref="units"     minOccurs="0" maxOccurs="1"/>
+       <xsd:element ref="description"/>
+       <xsd:element ref="reference" minOccurs="0" maxOccurs="1"/>
+      </xsd:sequence>
+      <xsd:attribute name="name" type="xsd:string" use="required"/>
+      <xsd:attribute name="oid"  type="xsd:string" use="required"/>
+      <xsd:attribute name="status" default="current">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:string">
+         <xsd:enumeration value="current"/>
+         <xsd:enumeration value="deprecated"/>
+         <xsd:enumeration value="obsolete"/>
+         <xsd:enumeration value="mandatory"/>
+         <xsd:enumeration value="optional"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="notifications">
+     <xsd:complexType>
+      <xsd:sequence>
+       <xsd:element ref="notification" maxOccurs="unbounded"/>
+      </xsd:sequence>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="notification">
+     <xsd:complexType>
+      <xsd:sequence>
+       <xsd:element ref="objects"/>
+       <xsd:element ref="description"/>
+       <xsd:element ref="reference" minOccurs="0" maxOccurs="1"/>
+      </xsd:sequence>
+      <xsd:attribute name="name" type="xsd:string" use="required"/>
+      <xsd:attribute name="oid" type="xsd:string" use="required"/>
+
+
+
+Schoenwaelder & Strauss    Expires July 10, 2002               [Page 12]
+
+Internet-Draft           XML SMI Exchange Format            January 2002
+
+
+      <xsd:attribute name="status" default="current">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:string">
+         <xsd:enumeration value="current"/>
+         <xsd:enumeration value="deprecated"/>
+         <xsd:enumeration value="obsolete"/>
+         <xsd:enumeration value="mandatory"/>
+         <xsd:enumeration value="optional"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="objects">
+     <xsd:complexType>
+      <xsd:sequence>
+       <xsd:element ref="object" maxOccurs="unbounded"/>
+      </xsd:sequence>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="object">
+     <xsd:complexType>
+      <xsd:attribute name="module" type="xsd:string" use="required"/>
+      <xsd:attribute name="name" type="xsd:string" use="required"/>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="groups">
+     <xsd:complexType>
+      <xsd:sequence>
+       <xsd:element ref="group" maxOccurs="unbounded"/>
+      </xsd:sequence>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="group">
+     <xsd:complexType>
+      <xsd:sequence>
+       <xsd:element ref="members"/>
+       <xsd:element ref="description"/>
+       <xsd:element ref="reference" minOccurs="0" maxOccurs="1"/>
+      </xsd:sequence>
+      <xsd:attribute name="name" type="xsd:string" use="required"/>
+      <xsd:attribute name="oid" type="xsd:string" use="required"/>
+      <xsd:attribute name="status" default="current">
+       <xsd:simpleType>
+
+
+
+Schoenwaelder & Strauss    Expires July 10, 2002               [Page 13]
+
+Internet-Draft           XML SMI Exchange Format            January 2002
+
+
+        <xsd:restriction base="xsd:string">
+         <xsd:enumeration value="current"/>
+         <xsd:enumeration value="deprecated"/>
+         <xsd:enumeration value="obsolete"/>
+         <xsd:enumeration value="mandatory"/>
+         <xsd:enumeration value="optional"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="members">
+     <xsd:complexType>
+      <xsd:sequence>
+       <xsd:element ref="member" maxOccurs="unbounded"/>
+      </xsd:sequence>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="member">
+     <xsd:complexType>
+      <xsd:attribute name="module" type="xsd:string" use="required"/>
+      <xsd:attribute name="name" type="xsd:string" use="required"/>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="compliances">
+     <xsd:complexType>
+      <xsd:sequence>
+       <xsd:element ref="compliance" maxOccurs="unbounded"/>
+      </xsd:sequence>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="compliance">
+     <xsd:complexType>
+      <xsd:sequence>
+       <xsd:element ref="description"/>
+       <xsd:element ref="requires"/>
+       <xsd:element ref="refinements" minOccurs="0" maxOccurs="1"/>
+      </xsd:sequence>
+      <xsd:attribute name="name" type="xsd:string" use="required"/>
+      <xsd:attribute name="oid" type="xsd:string" use="required"/>
+      <xsd:attribute name="status" default="current">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:string">
+         <xsd:enumeration value="current"/>
+
+
+
+Schoenwaelder & Strauss    Expires July 10, 2002               [Page 14]
+
+Internet-Draft           XML SMI Exchange Format            January 2002
+
+
+         <xsd:enumeration value="deprecated"/>
+         <xsd:enumeration value="obsolete"/>
+         <xsd:enumeration value="mandatory"/>
+         <xsd:enumeration value="optional"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="requires">
+     <xsd:complexType>
+      <xsd:choice maxOccurs="unbounded">
+       <xsd:element ref="mandatory"/>
+       <xsd:element ref="option"/>
+      </xsd:choice>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="mandatory">
+     <xsd:complexType>
+      <xsd:attribute name="module" type="xsd:string" use="required"/>
+      <xsd:attribute name="name" type="xsd:string" use="required"/>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="option">
+     <xsd:complexType>
+      <xsd:sequence>
+       <xsd:element ref="description"/>
+      </xsd:sequence>
+      <xsd:attribute name="module" type="xsd:string" use="required"/>
+      <xsd:attribute name="name" type="xsd:string" use="required"/>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="refinements">
+     <xsd:complexType>
+      <xsd:sequence>
+       <xsd:element ref="refinement" maxOccurs="unbounded"/>
+      </xsd:sequence>
+     </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="refinement">
+     <xsd:complexType>
+      <xsd:sequence>
+       <xsd:element ref="syntax" minOccurs="0" maxOccurs="1"/>
+
+
+
+Schoenwaelder & Strauss    Expires July 10, 2002               [Page 15]
+
+Internet-Draft           XML SMI Exchange Format            January 2002
+
+
+       <xsd:element ref="access" minOccurs="0" maxOccurs="1"/>
+       <xsd:element ref="description"/>
+      </xsd:sequence>
+      <xsd:attribute name="module" type="xsd:string" use="required"/>
+      <xsd:attribute name="name" type="xsd:string" use="required"/>
+     </xsd:complexType>
+    </xsd:element>
+
+   </xsd:schema>
+
+
+3. Examples
+
+4. Open Issues
+
+      Shall we get rid of the identity element by making it an optional
+      attribute of the module element?
+
+
+5. Acknowledgments
+
+   This document is the result of discussions within the Network
+   Management Research Group (NMRG) of the Internet Research Task
+   Force[8] (IRTF).
+
+   Special thanks to Bert Helthuis, Atin Banerjee and Debnarayan Kar for
+   providing useful feedback and access to their private SMI XML DTDs.
+
+   A prototype implementation of an SMIv1/v2 converter to XML is freely
+   available as part of the libsmi[9] SMI parser library distribution.
+
+References
+
+   [1]  World Wide Web Consortium, "Extensible Markup Language (XML) 1.0
+        (Second Edition)", W3C REC-xml-20001006, October 2000.
+
+   [2]  Rose, M. and K. McCloghrie, "Structure and identification of
+        management information for TCP/IP-based internets", STD 16, RFC
+        1155, May 1990.
+
+   [3]  Rose, M. and K. McCloghrie, "Concise MIB definitions", STD 16,
+        RFC 1212, March 1991.
+
+   [4]  Rose, M., "Convention for defining traps for use with the SNMP",
+        RFC 1215, March 1991.
+
+   [5]  McCloghrie, K., Perkins, D., Schoenwaelder, J., Case, J.,
+        McCloghrie, K., Rose, M. and S. Waldbusser, "Structure of
+
+
+
+Schoenwaelder & Strauss    Expires July 10, 2002               [Page 16]
+
+Internet-Draft           XML SMI Exchange Format            January 2002
+
+
+        Management Information Version 2 (SMIv2)", STD 58, RFC 2578,
+        April 1999.
+
+   [6]  McCloghrie, K., Perkins, D., Schoenwaelder, J., Case, J.,
+        McCloghrie, K., Rose, M. and S. Waldbusser, "Textual Conventions
+        for SMIv2", STD 58, RFC 2579, April 1999.
+
+   [7]  McCloghrie, K., Perkins, D. and J. Schoenwaelder, "Conformance
+        Statements for SMIv2", STD 58, RFC 2580, April 1999.
+
+   [8]  <http://www.irtf.org/>
+
+   [9]  <http://www.ibr.cs.tu-bs.de/projects/libsmi/>
+
+
+Authors' Addresses
+
+   Juergen Schoenwaelder
+   TU Braunschweig
+   Muehlenpfordtstrasse 23
+   38106 Braunschweig
+   Germany
+
+   Phone: +49 531 391-3289
+   EMail: schoenw@ibr.cs.tu-bs.de
+
+
+   Frank Strauss
+   TU Braunschweig
+   Muehlenpfordtstrasse 23
+   38106 Braunschweig
+   Germany
+
+   Phone: +49 531 391-3266
+   EMail: strauss@ibr.cs.tu-bs.de
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Schoenwaelder & Strauss    Expires July 10, 2002               [Page 17]
+
+Internet-Draft           XML SMI Exchange Format            January 2002
+
+
+Full Copyright Statement
+
+   Copyright (C) The Internet Society (2002).  All Rights Reserved.
+
+   This document and translations of it may be copied and furnished to
+   others, and derivative works that comment on or otherwise explain it
+   or assist in its implementation may be prepared, copied, published
+   and distributed, in whole or in part, without restriction of any
+   kind, provided that the above copyright notice and this paragraph are
+   included on all such copies and derivative works.  However, this
+   document itself may not be modified in any way, such as by removing
+   the copyright notice or references to the Internet Society or other
+   Internet organizations, except as needed for the purpose of
+   developing Internet standards in which case the procedures for
+   copyrights defined in the Internet Standards process must be
+   followed, or as required to translate it into languages other than
+   English.
+
+   The limited permissions granted above are perpetual and will not be
+   revoked by the Internet Society or its successors or assigns.
+
+   This document and the information contained herein is provided on an
+   "AS IS" basis and THE INTERNET SOCIETY AND THE INTERNET ENGINEERING
+   TASK FORCE DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING
+   BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION
+   HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+Acknowledgement
+
+   Funding for the RFC Editor function is currently provided by the
+   Internet Society.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Schoenwaelder & Strauss    Expires July 10, 2002               [Page 18]
+

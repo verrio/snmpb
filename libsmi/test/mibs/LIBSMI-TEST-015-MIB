@@ -1,0 +1,91 @@
+LIBSMI-TEST-015-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY
+        FROM SNMPv2-SMI
+    AGENT-CAPABILITIES
+        FROM SNMPv2-CONF
+    testMib
+        FROM LIBSMI-TEST-MIB;
+
+libsmiTest015Mib MODULE-IDENTITY
+    LAST-UPDATED    "200206210000Z"
+    ORGANIZATION    
+            "TU Braunschweig"
+    CONTACT-INFO    
+            "        Frank Strauss
+             
+             Postal: TU Braunschweig
+                     Muehlenpfordtstrasse 23
+                     38106 Braunschweig
+                     Germany
+             
+              Phone: +49 531 391-3283
+              EMail: strauss@ibr.cs.tu-bs.de
+               http://www.ibr.cs.tu-bs.de/~strauss/"
+    DESCRIPTION
+            "This MIB module contains one or more intentional errors,
+             and/or unusual contents. Its only purpose is to check
+             the abilities of MIB parsers to detect these circumstances.
+             
+             This MIB module is orginally written in SMIv2 format.
+             
+             This module checks for basic agent capabilities statement
+             support. There are no errors expected for this module.
+
+             The libsmi parser is expected to report:
+            "
+    REVISION        "200206210000Z"
+    DESCRIPTION     
+            "Initial Revision."
+    ::= { testMib 15 }
+
+
+agentcaps AGENT-CAPABILITIES
+    PRODUCT-RELEASE
+            "1.0"
+    STATUS  current
+    DESCRIPTION
+            "This fictional system was deployed with these conditions."
+
+    SUPPORTS
+            IF-MIB
+    INCLUDES {
+            ifGeneralInformationGroup,
+            ifFixedLengthGroup,
+            ifPacketGroup,
+            ifGeneralGroup,
+            ifStackGroup,
+            ifRcvAddressGroup,
+            linkUpDownNotificationsGroup
+    }
+
+    VARIATION ifAdminStatus
+    SYNTAX       
+            INTEGER { up(1), down(2) }
+    WRITE-SYNTAX
+            INTEGER { up(1), down(2) }
+    DESCRIPTION
+            "No ifAdminStatus support for testing(3)."
+
+    VARIATION ifPromiscuousMode
+    ACCESS  read-only
+    DESCRIPTION
+            "No support to set ifPromiscuousMode."
+
+    VARIATION ifRcvAddressEntry
+    CREATION-REQUIRES
+            { ifRcvAddressType }
+    DESCRIPTION
+            "ifRcvAddressType is required in row creation operations.
+             We don't support the default value `volatile'."
+
+    VARIATION ifRcvAddressType
+    DEFVAL  { other }
+    DESCRIPTION
+            "Although in contradiction with the previous variation, this
+	     sets the default value of ifRcvAddressType to `other'."
+
+    ::= { libsmiTest015Mib 1 }
+
+END

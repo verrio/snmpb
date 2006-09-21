@@ -1,0 +1,57 @@
+SMIDIFF-TEST-004-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE
+        FROM SNMPv2-SMI
+    DisplayString
+	FROM SNMPv2-TC
+    smidiffTestMib
+        FROM SMIDIFF-TEST-MIB;
+
+libsmiTest004Mib MODULE-IDENTITY
+    LAST-UPDATED    "200110080000Z"
+    ORGANIZATION    
+            "TU Braunschweig"
+    CONTACT-INFO    
+            "        Frank Strauss
+             
+             Postal: TU Braunschweig
+                     Muehlenpfordtstrasse 23
+                     38106 Braunschweig
+                     Germany
+             
+              Phone: +49 531 391-3283
+              EMail: strauss@ibr.cs.tu-bs.de
+               http://www.ibr.cs.tu-bs.de/~strauss/"
+    DESCRIPTION     
+            "This MIB module is used for smidiff, a tool to compare
+             two versions of the same MIB module and to check for
+             illegal modifications in the new version."
+
+    ::= { smidiffTestMib 4 }
+
+scalar1 OBJECT-TYPE
+    SYNTAX     BITS { red(0), green(1), blue(2) } 
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+	"BITS. Default value added." 
+    ::= { libsmiTest004Mib 1 }
+
+scalar2 OBJECT-TYPE
+    SYNTAX     BITS { red(0), green(1), blue(2) } 
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+	"BITS. Legal status change from current to deprecated."
+    ::= { libsmiTest004Mib 2 }
+
+scalar3 OBJECT-TYPE
+    SYNTAX     BITS { red(0), green(1), blue(2) } 
+    MAX-ACCESS read-only
+    STATUS     deprecated
+    DESCRIPTION
+	"BITS. Illegal status change from deprecated to current."
+    ::= { libsmiTest004Mib 3 }
+
+END

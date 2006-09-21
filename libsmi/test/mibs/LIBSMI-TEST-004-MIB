@@ -1,0 +1,45 @@
+LIBSMI-TEST-004-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    OBJECT-IDENTITY
+        FROM SNMPv2-SMI
+    testMib
+        FROM LIBSMI-TEST-MIB;
+
+libsmiTest004Mib OBJECT-IDENTITY
+--  LAST-UPDATED    "199906101500Z"
+--  ORGANIZATION    
+--          "TU Braunschweig"
+--  CONTACT-INFO    
+--          "        Frank Strauss
+--           
+--           Postal: TU Braunschweig
+--                   Bueltenweg 74/75
+--                   38106 Braunschweig
+--                   Germany
+--           
+--            Phone: +49 531 391-3283
+--            EMail: strauss@ibr.cs.tu-bs.de
+--             http://www.ibr.cs.tu-bs.de/~strauss/"
+    STATUS          current
+    DESCRIPTION     
+            "This MIB module contains one or more intentional errors,
+             and/or unusual contents. Its only purpose is to check
+             the abilities of MIB parsersto  detect these circumstances.
+             
+             This MIB module is orginally written in SMIv2 format.
+             
+             A MIB parser should complain about the fact, that this
+             module contains no MODULE-IDENTITY construct. Note, that
+	     this information is therefore stored in an OBJECT-IDENTITY
+	     DESCRIPTION clause.
+
+	     The libsmi parser is expected to report:
+LIBSMI-TEST-004-MIB:45: missing MODULE-IDENTITY clause in SMIv2 MIB
+	     "
+--  REVISION        "199906101500Z"
+--  DESCRIPTION     
+--          "Initial Revision."
+    ::= { testMib 4 }
+
+END

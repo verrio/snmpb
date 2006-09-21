@@ -1,0 +1,204 @@
+LIBSMI-TEST-008-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE
+	FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION
+	FROM SNMPv2-TC
+    OBJECT-GROUP, MODULE-COMPLIANCE
+	FROM SNMPv2-CONF
+    testMib
+        FROM LIBSMI-TEST-MIB;
+
+libsmiTest008Mib MODULE-IDENTITY
+    LAST-UPDATED    "200005291500Z"
+    ORGANIZATION    
+            "TU Braunschweig"
+    CONTACT-INFO    
+            "        Frank Strauss
+             
+             Postal: TU Braunschweig
+                     Bueltenweg 74/75
+                     38106 Braunschweig
+                     Germany
+             
+              Phone: +49 531 391-3283
+              EMail: strauss@ibr.cs.tu-bs.de
+               http://www.ibr.cs.tu-bs.de/~strauss/"
+    DESCRIPTION     
+            "This MIB module contains one or more intentional errors,
+             and/or unusual contents. Its only purpose is to check
+             the abilities of MIB parsers to detect these circumstances.
+             
+             This MIB module is orginally written in SMIv2 format.
+             
+             The MIB parser should complain about improper sub-typing by
+	     checking the rules in RFC 2578 Appendix A and 'oral rules'
+	     that are not specified in the SMIv2.
+
+	     The libsmi parser is expected to report:
+LIBSMI-TEST-008-MIB:86: warning: named numbers not in ascending order
+LIBSMI-TEST-008-MIB:94: warning: named numbers not in ascending order
+LIBSMI-TEST-008-MIB:133: warning: first bit (bit zero) has no name assigned
+LIBSMI-TEST-008-MIB:139: warning: first bit (bit zero) has no name assigned
+LIBSMI-TEST-008-MIB:144: warning: first bit (bit zero) has no name assigned
+LIBSMI-TEST-008-MIB:144: warning: named numbers not in ascending order
+LIBSMI-TEST-008-MIB:152: warning: first bit (bit zero) has no name assigned
+LIBSMI-TEST-008-MIB:152: warning: named numbers not in ascending order
+LIBSMI-TEST-008-MIB:160: warning: first bit (bit zero) has no name assigned
+LIBSMI-TEST-008-MIB:168: warning: first bit (bit zero) has no name assigned
+LIBSMI-TEST-008-MIB:176: warning: first bit (bit zero) has no name assigned
+LIBSMI-TEST-008-MIB:77: warning: current type `Red' is not referenced in this module
+LIBSMI-TEST-008-MIB:77: textual convention `Red' can not be derived from the textual convention `Color'
+LIBSMI-TEST-008-MIB:102: named number `yellow(4)' illegal in sub-type of `Color'
+LIBSMI-TEST-008-MIB:110: named number `red(2)' illegal in sub-type of `Color'
+LIBSMI-TEST-008-MIB:118: named number `rot(1)' illegal in sub-type of `Color'
+LIBSMI-TEST-008-MIB:135: warning: current type `FileAccess' is not referenced in this module
+LIBSMI-TEST-008-MIB:135: textual convention `FileAccess' can not be derived from the textual convention `Access'
+LIBSMI-TEST-008-MIB:160: named number `create' illegal in sub-type of `Access'
+LIBSMI-TEST-008-MIB:168: named number `read' illegal in sub-type of `Access'
+LIBSMI-TEST-008-MIB:176: named number `lesen' illegal in sub-type of `Access'
+            "
+    REVISION        "200005291500Z"
+    DESCRIPTION     
+            "Initial Revision."
+    ::= { testMib 8 }
+
+--
+-- Test cases for enumeration sub-typing:
+--
+
+Color ::= TEXTUAL-CONVENTION
+    STATUS	current
+    DESCRIPTION
+	"."
+    SYNTAX INTEGER { red(1), green(2), blue(3) }
+
+Red ::= TEXTUAL-CONVENTION
+    STATUS	current
+    DESCRIPTION
+	"."
+    SYNTAX Color { red(1) }
+
+enumTests OBJECT IDENTIFIER ::= { libsmiTest008Mib 1 }
+
+enumTest1 OBJECT-TYPE
+    SYNTAX	Color { blue(3), red(1) }
+    MAX-ACCESS	read-only
+    STATUS	current
+    DESCRIPTION
+	"Valid sub-typing with different order."
+    ::= { enumTests 1 }
+
+enumTest2 OBJECT-TYPE
+    SYNTAX      Color { red(1), blue(3), green(2) }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Valid, although equivalent to the original type."
+    ::= { enumTests 2 }
+
+enumTest3 OBJECT-TYPE
+    SYNTAX	Color { red(1), yellow(4) }
+    MAX-ACCESS	read-only
+    STATUS	current
+    DESCRIPTION
+	"Invalid, since yellow(4) is not defined in the base type."
+    ::= { enumTests 3 }
+
+enumTest4 OBJECT-TYPE
+    SYNTAX	Color { red(2) }
+    MAX-ACCESS	read-only
+    STATUS	current
+    DESCRIPTION
+	"Invalid, since red is defined as 1 and not 2."
+    ::= { enumTests 4 }
+
+enumTest5 OBJECT-TYPE
+    SYNTAX	Color { rot(1) }
+    MAX-ACCESS	read-only
+    STATUS	current
+    DESCRIPTION
+	"Invalid, since rot is defined as red(1)."
+    ::= { enumTests 5 }
+
+--
+-- Test cases for bits sub-typing:
+--
+
+Access ::= TEXTUAL-CONVENTION
+    STATUS	current
+    DESCRIPTION
+	"junk"
+    SYNTAX BITS { read(1), write(2), execute(3) }
+
+FileAccess ::= TEXTUAL-CONVENTION
+    STATUS	current
+    DESCRIPTION
+	"junk"
+    SYNTAX Access { read(1), write(2) }
+
+bitsTests OBJECT IDENTIFIER ::= { libsmiTest008Mib 2 }
+
+bitsTest1 OBJECT-TYPE
+    SYNTAX	Access { write(2), read(1) }
+    MAX-ACCESS	read-only
+    STATUS	current
+    DESCRIPTION
+	"Valid sub-typing with different order."
+    ::= { bitsTests 1 }
+
+bitsTest2 OBJECT-TYPE
+    SYNTAX      Access { write(2), execute(3), read(1) }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Valid, although equivalent to the original type."
+    ::= { bitsTests 2 }
+
+bitsTest3 OBJECT-TYPE
+    SYNTAX	Access { read(1), create(4) }
+    MAX-ACCESS	read-only
+    STATUS	current
+    DESCRIPTION
+	"Invalid, since create(4) is not defined in the base type."
+    ::= { bitsTests 3 }
+
+bitsTest4 OBJECT-TYPE
+    SYNTAX	Access { read(2) }
+    MAX-ACCESS	read-only
+    STATUS	current
+    DESCRIPTION
+	"Invalid, since read is defined as 1 and not 2."
+    ::= { bitsTests 4 }
+
+bitsTest5 OBJECT-TYPE
+    SYNTAX	Access { lesen(1) }
+    MAX-ACCESS	read-only
+    STATUS	current
+    DESCRIPTION
+	"Invalid, since lesen is defined as red(1)."
+    ::= { bitsTests 5 }
+
+--
+-- Conformance statements.
+--
+
+libsmiTest008Group OBJECT-GROUP
+    OBJECTS
+        { enumTest1, enumTest2, enumTest3, enumTest4, enumTest5,
+	  bitsTest1, bitsTest2, bitsTest3, bitsTest4, bitsTest5 }
+    STATUS      current
+    DESCRIPTION
+        "All object types."
+    ::= { libsmiTest008Mib 3 }
+
+libsmiTest008Compliance MODULE-COMPLIANCE
+    STATUS      current
+    DESCRIPTION
+        "All object types."
+    MODULE      -- this module
+        MANDATORY-GROUPS { libsmiTest008Group }
+    ::= { libsmiTest008Mib 4 }
+
+END

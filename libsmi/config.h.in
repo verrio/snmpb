@@ -1,0 +1,101 @@
+/* config.h.in.  Generated automatically from configure.in by autoheader 2.13.  */
+
+/* Define if you have the asnprintf function.  */
+#undef HAVE_ASNPRINTF
+
+/* Define if you have the asprintf function.  */
+#undef HAVE_ASPRINTF
+
+/* Define if you have the snprintf function.  */
+#undef HAVE_SNPRINTF
+
+/* Define if you have the strtoll function.  */
+#undef HAVE_STRTOLL
+
+/* Define if you have the strtoq function.  */
+#undef HAVE_STRTOQ
+
+/* Define if you have the strtoull function.  */
+#undef HAVE_STRTOULL
+
+/* Define if you have the strtouq function.  */
+#undef HAVE_STRTOUQ
+
+/* Define if you have the timegm function.  */
+#undef HAVE_TIMEGM
+
+/* Define if you have the vasnprintf function.  */
+#undef HAVE_VASNPRINTF
+
+/* Define if you have the vasprintf function.  */
+#undef HAVE_VASPRINTF
+
+/* Define if you have the vsnprintf function.  */
+#undef HAVE_VSNPRINTF
+
+/* Define if you have the <dlfcn.h> header file.  */
+#undef HAVE_DLFCN_H
+
+/* Define if you have the <pwd.h> header file.  */
+#undef HAVE_PWD_H
+
+/* Define if you have the <regex.h> header file.  */
+#undef HAVE_REGEX_H
+
+/* Define if you have the <unistd.h> header file.  */
+#undef HAVE_UNISTD_H
+
+/* Name of package */
+#undef PACKAGE
+
+/* Version number of package */
+#undef VERSION
+
+/* The maximum module import recursion depth. */
+#undef MAX_LEX_DEPTH
+
+/* The default error level at libsmi initialization. */
+#undef DEFAULT_ERRORLEVEL
+
+/* The default search path to lookup SMI module files. */
+#undef DEFAULT_SMIPATH
+
+/* The default path separator character. */
+#undef PATH_SEPARATOR
+
+/* The default path separator character. */
+#undef DIR_SEPARATOR
+
+/* The unsigned 64 bit integer format conversion specification string. */
+#undef UINT64_FORMAT
+
+/* The signed 64 bit integer format conversion specification string. */
+#undef INT64_FORMAT
+
+/* The unsigned 64 bit integer maximum value. */
+#undef LIBSMI_UINT64_MAX
+
+/* The unsigned 64 bit integer minimum value. */
+#undef LIBSMI_INT64_MIN
+
+/* The signed 64 bit integer maximum value. */
+#undef LIBSMI_INT64_MAX
+
+/*  */
+#undef HAVE_DMALLOC_H
+
+/*  */
+#undef BACKEND_SMI
+
+/*  */
+#undef BACKEND_SMI
+
+/*  */
+#undef BACKEND_SMING
+
+/* The full pathname of the global configuration file. */
+#undef DEFAULT_GLOBALCONFIG
+
+/* The basename of the per-user configuration file searched in /home/strauss. */
+#undef DEFAULT_USERCONFIG
+

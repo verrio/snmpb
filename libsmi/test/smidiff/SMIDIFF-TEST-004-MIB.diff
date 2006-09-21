@@ -1,0 +1,7 @@
+./SMIDIFF-TEST-004-MIB.new:11 warning: contact of `SMIDIFF-TEST-004-MIB' changed
+./SMIDIFF-TEST-004-MIB.new:11 warning: description of module identity definition `SMIDIFF-TEST-004-MIB' changed
+./SMIDIFF-TEST-004-MIB.old:11 info: previous definition of `SMIDIFF-TEST-004-MIB'
+./SMIDIFF-TEST-004-MIB.new:43 warning: legal status change from `current' to `deprecated' for `scalar2'
+./SMIDIFF-TEST-004-MIB.old:41 info: previous definition of `scalar2'
+./SMIDIFF-TEST-004-MIB.new:51 status change from `deprecated' to `current' for `scalar3'
+./SMIDIFF-TEST-004-MIB.old:49 info: previous definition of `scalar3'

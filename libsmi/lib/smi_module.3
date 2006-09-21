@@ -1,0 +1,127 @@
+.\"
+.\" $Id: smi_module.3.in 4432 2006-05-29 16:21:11Z strauss $
+.\"
+.TH smi_module 3  "August 16, 2001" "IBR" "SMI Management Information Library"
+.SH NAME
+.\" START OF MAN PAGE COPIES
+smiGetModule,
+smiGetFirstModule,
+smiGetNextModule,
+smiGetModuleIdentityNode,
+smiGetFirstImport,
+smiGetNextImport,
+smiIsImported,
+smiGetFirstRevision,
+smiGetNextRevision
+.\" END OF MAN PAGE COPIES
+\- SMI module information routines
+.SH SYNOPSIS
+.nf
+.B #include <time.h>
+.B #include <smi.h>
+.RS
+.RE
+.sp
+.BI "SmiModule *smiGetModule(char *" module );
+.RE
+.sp
+.BI "SmiModule *smiGetFirstModule();
+.RE
+.sp
+.BI "SmiModule *smiGetNextModule(SmiModule *" smiModulePtr );
+.RE
+.sp
+.BI "SmiNode *smiGetModuleIdentityNode(SmiModule *" smiModulePtr );
+.RE
+.sp
+.BI "SmiImport *smiGetFirstImport(SmiModule *" smiModulePtr );
+.RE
+.sp
+.BI "SmiImport *smiGetNextImport(SmiImport *" smiImportPtr );
+.RE
+.sp
+.BI "int smiIsImported(SmiModule *" smiModulePtr ", SmiModule *" importedModulePtr ", char *" importedName );
+.RE
+.sp
+.BI "SmiRevision *smiGetFirstRevision(SmiModule *" smiModulePtr );
+.RE
+.sp
+.BI "SmiRevision *smiGetNextRevision(SmiRevision *" smiRevisionPtr );
+.RE
+
+typedef struct SmiModule {
+    SmiIdentifier       name;
+    char                *path;
+    char                *organization;
+    char                *contactinfo;
+    char                *description;
+    char                *reference;
+    SmiLanguage         language;
+    int                 conformance;
+} SmiModule;
+
+typedef struct SmiRevision {
+    time_t              date;
+    char                *description;
+} SmiRevision;
+
+typedef struct SmiImport {
+    SmiIdentifier       module;
+    SmiIdentifier       name;
+} SmiImport;
+
+.fi
+.SH DESCRIPTION
+These functions retrieve various meta information on MIB
+modules. Other functions to retrieve the definitions within a module are
+documented in \fBsmi_type\fP(3), \fBsmi_node\fP(3), and \fBsmi_macro\fP(3).
+.PP
+The \fBsmiGetModule()\fP function retrieves a \fBstruct SmiModule\fP
+that represents the SMI module named \fBmodule\fP. Elements not available
+or not present for this module contain NULL. If the module is not found,
+\fBsmiGetModule()\fP returns NULL.
+.PP
+The \fBsmiGetFirstModule()\fP and \fBsmiGetNextModule()\fP functions are
+used to iteratively retrieve \fBstruct SmiModule\fPs of all known modules.
+\fBsmiGetFirstModule()\fP returns the first known module.
+Subsequent calls to \fBsmiGetNextModule()\fP return the following ones. 
+If there are no more modules NULL is returned.
+.PP
+The \fBsmiGetModuleIdentityNode()\fP function retrieves
+a \fBstruct SmiNode\fP that represents the node that is used to
+identify the containing MIB module specified by \fIsmiModulePtr\fP.
+If there is no such identity node, i.e. if this is not an SMIv2 or
+SMIng module converted from SMIv2, \fBsmiGetModuleIdentityNode()\fP
+returns NULL.
+.PP
+The \fBsmiGetFirstImport()\fP and \fBsmiGetNextImport()\fP functions are
+used to iteratively retrieve \fBstruct SmiImport\fPs of a given module.
+\fBsmiGetFirstImport()\fP returns the first identifier imported by
+the module specified by \fIsmiModulePtr\fP.
+Subsequent calls to \fBsmiGetNextImport()\fP return the following ones.
+If there are no more imported identifiers NULL is returned.
+.PP
+The \fBsmiIsImported()\fP function returns a positive value if the
+identifier \fIimportedName\fP defined in the module specified by
+\fIimportedModulePtr\fP is imported in the module specified by
+\fIsmiModulePtr\fP, or zero otherwise.
+.PP
+The \fBsmiGetFirstRevision()\fP and \fBsmiGetNextRevision()\fP
+functions are used to iteratively retrieve \fBstruct SmiRevision\fPs of
+a given module. \fBsmiGetFirstRevision()\fP returns the first (that is
+most recent) revision information of the module specified by
+\fIsmiModulePtr\fP. Subsequent calls to \fBsmiGetNextRevision()\fP
+return the revision after (timely before) that one. If there are no
+more revisions NULL is returned.
+.SH "FILES"
+.nf
+${prefix}/include/smi.h    SMI library header file
+.fi
+.SH "SEE ALSO"
+.BR libsmi "(3), "
+.BR smi_config "(3), "
+.BR smi_node "(3), "
+.BR smi.h
+.SH "AUTHOR"
+(C) 1999-2001 Frank Strauss, TU Braunschweig, Germany <strauss@ibr.cs.tu-bs.de>
+.br

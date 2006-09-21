@@ -1,0 +1,586 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xsd:schema SYSTEM "http://www.w3.org/2001/XMLSchema.dtd">
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+<!--
+   - The top-level element.
+   -
+  -->
+
+ <xsd:element name="smi">
+  <xsd:complexType>
+   <xsd:sequence>
+    <xsd:element ref="module"/>
+    <xsd:element ref="imports"       minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element ref="typedefs"      minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element ref="nodes"         minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element ref="notifications" minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element ref="groups"        minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element ref="compliances"   minOccurs="0" maxOccurs="unbounded"/>
+   </xsd:sequence>
+  </xsd:complexType>
+ </xsd:element>
+
+<!--
+   - Terminal Elements.
+   -
+  -->
+
+ <xsd:element name="description">
+  <xsd:simpleType>
+   <xsd:restriction base="xsd:string"/>
+  </xsd:simpleType>
+ </xsd:element>
+
+ <xsd:element name="reference">
+  <xsd:simpleType>
+   <xsd:restriction base="xsd:string"/>
+  </xsd:simpleType>
+ </xsd:element>
+
+ <xsd:element name="format">
+  <xsd:simpleType>
+   <xsd:restriction base="xsd:string"/>
+  </xsd:simpleType>
+ </xsd:element>
+
+ <xsd:element name="units">
+  <xsd:simpleType>
+   <xsd:restriction base="xsd:string"/>
+  </xsd:simpleType>
+ </xsd:element>
+
+ <xsd:element name="default">
+  <xsd:simpleType>
+   <xsd:restriction base="xsd:string"/>
+  </xsd:simpleType>
+ </xsd:element>
+
+ <xsd:element name="access">
+  <xsd:simpleType>
+   <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="noaccess"/>
+    <xsd:enumeration value="notifyonly"/>
+    <xsd:enumeration value="readonly"/>
+    <xsd:enumeration value="readwrite"/>
+   </xsd:restriction>
+  </xsd:simpleType>
+ </xsd:element>
+
+ <xsd:element name="range">
+  <xsd:complexType>
+   <xsd:attribute name="min" type="xsd:integer" use="required"/>
+   <xsd:attribute name="max" type="xsd:integer" use="required"/>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="namednumber">
+  <xsd:complexType>
+   <xsd:attribute name="name"   type="xsd:string"  use="required"/>
+   <xsd:attribute name="number" type="xsd:integer" use="required"/>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="parent">
+  <xsd:complexType>
+   <xsd:attribute name="module" type="xsd:string" use="required"/>
+   <xsd:attribute name="name"   type="xsd:string" use="required"/>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="type">
+  <xsd:complexType>
+   <xsd:attribute name="module" type="xsd:string" use="required"/>
+   <xsd:attribute name="name"   type="xsd:string" use="required"/>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="syntax">
+  <xsd:complexType>
+   <xsd:choice>
+    <xsd:element ref="type"/>
+    <xsd:element ref="typedef"/>
+   </xsd:choice>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="writesyntax">
+  <xsd:complexType>
+   <xsd:choice>
+    <xsd:element ref="type"/>
+    <xsd:element ref="typedef"/>
+   </xsd:choice>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="linkage">
+  <xsd:complexType>
+   <xsd:choice>
+    <xsd:element ref="index" minOccurs="1" maxOccurs="unbounded"/>
+    <xsd:element ref="augments"/>
+    <xsd:element ref="reorders"/>
+    <xsd:element ref="sparse"/>
+    <xsd:element ref="expands"/>
+   </xsd:choice>
+   <xsd:attribute name="implied" default="false">
+    <xsd:simpleType>
+     <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="true"/>
+      <xsd:enumeration value="false"/>
+     </xsd:restriction>
+    </xsd:simpleType>
+   </xsd:attribute>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="index">
+  <xsd:complexType>
+   <xsd:attribute name="module" type="xsd:string" use="required"/>
+   <xsd:attribute name="name"   type="xsd:string" use="required"/>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="augments">
+  <xsd:complexType>
+   <xsd:attribute name="module" type="xsd:string" use="required"/>
+   <xsd:attribute name="name"   type="xsd:string" use="required"/>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="reorders">
+  <xsd:complexType>
+   <xsd:attribute name="module" type="xsd:string" use="required"/>
+   <xsd:attribute name="name"   type="xsd:string" use="required"/>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="sparse">
+  <xsd:complexType>
+   <xsd:attribute name="module" type="xsd:string" use="required"/>
+   <xsd:attribute name="name"   type="xsd:string" use="required"/>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="expands">
+  <xsd:complexType>
+   <xsd:attribute name="module" type="xsd:string" use="required"/>
+   <xsd:attribute name="name"   type="xsd:string" use="required"/>
+  </xsd:complexType>
+ </xsd:element>
+
+
+
+ <xsd:element name="module">
+  <xsd:complexType>
+   <xsd:sequence>
+    <xsd:element ref="organization" minOccurs="0" maxOccurs="1"/>
+    <xsd:element ref="contact"      minOccurs="0" maxOccurs="1"/>
+    <xsd:element ref="description"  minOccurs="0" maxOccurs="1"/>
+    <xsd:element ref="reference"    minOccurs="0" maxOccurs="1"/>
+    <xsd:element ref="revision"     minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element ref="identity"     minOccurs="0" maxOccurs="1"/>
+   </xsd:sequence>
+   <xsd:attribute name="name"     type="xsd:string" use="required"/>
+   <xsd:attribute name="language"                   use="required">
+    <xsd:simpleType>
+     <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="SMIv1"/>
+      <xsd:enumeration value="SMIv2"/>
+      <xsd:enumeration value="SMIng"/>
+     </xsd:restriction>
+    </xsd:simpleType>
+   </xsd:attribute>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="organization">
+  <xsd:simpleType>
+   <xsd:restriction base="xsd:string"/>
+  </xsd:simpleType>
+ </xsd:element>
+
+ <xsd:element name="contact">
+  <xsd:simpleType>
+   <xsd:restriction base="xsd:string"/>
+  </xsd:simpleType>
+ </xsd:element>
+
+ <xsd:element name="revision">
+  <xsd:complexType>
+   <xsd:sequence>
+    <xsd:element ref="description"/>
+   </xsd:sequence>
+   <xsd:attribute name="date" type="xsd:string" use="required"/>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="identity">
+  <xsd:complexType>
+   <xsd:attribute name="node" type="xsd:string" use="required"/>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="imports">
+  <xsd:complexType>
+   <xsd:sequence>
+    <xsd:element ref="import" maxOccurs="unbounded"/>
+   </xsd:sequence>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="import">
+  <xsd:complexType>
+   <xsd:attribute name="module" type="xsd:string" use="required"/>
+   <xsd:attribute name="name"   type="xsd:string" use="required"/>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="typedefs">
+  <xsd:complexType>
+   <xsd:sequence>
+    <xsd:element ref="typedef" maxOccurs="unbounded"/>
+   </xsd:sequence>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="typedef">
+  <xsd:complexType>
+   <xsd:sequence>
+    <xsd:element ref="parent"      minOccurs="0" maxOccurs="1"/>
+    <xsd:element ref="range"       minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element ref="namednumber" minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element ref="default"     minOccurs="0" maxOccurs="1"/>
+    <xsd:element ref="format"      minOccurs="0" maxOccurs="1"/>
+    <xsd:element ref="units"       minOccurs="0" maxOccurs="1"/>
+    <xsd:element ref="description" minOccurs="0" maxOccurs="1"/>
+    <xsd:element ref="reference"   minOccurs="0" maxOccurs="1"/>
+   </xsd:sequence>
+   <xsd:attribute name="name"     type="xsd:string" default=""/>
+   <xsd:attribute name="basetype" type="xsd:string" use="required"/>
+   <xsd:attribute name="status"                     default="current">
+    <xsd:simpleType>
+     <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="current"/>
+      <xsd:enumeration value="deprecated"/>
+      <xsd:enumeration value="obsolete"/>
+      <xsd:enumeration value="mandatory"/>
+      <xsd:enumeration value="optional"/>
+     </xsd:restriction>
+    </xsd:simpleType>
+   </xsd:attribute>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="nodes">
+  <xsd:complexType>
+   <xsd:choice maxOccurs="unbounded">
+    <xsd:element ref="node"/>
+    <xsd:element ref="scalar"/>
+    <xsd:element ref="table"/>
+   </xsd:choice>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="node">
+  <xsd:complexType>
+   <xsd:sequence>
+    <xsd:element ref="description" minOccurs="0" maxOccurs="1"/>
+    <xsd:element ref="reference"   minOccurs="0" maxOccurs="1"/>
+   </xsd:sequence>
+   <xsd:attribute name="name"   type="xsd:string" use="required"/>
+   <xsd:attribute name="oid"    type="xsd:string" use="required"/>
+   <xsd:attribute name="status" default="current">
+    <xsd:simpleType>
+     <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="current"/>
+      <xsd:enumeration value="deprecated"/>
+      <xsd:enumeration value="obsolete"/>
+      <xsd:enumeration value="mandatory"/>
+      <xsd:enumeration value="optional"/>
+     </xsd:restriction>
+    </xsd:simpleType>
+   </xsd:attribute>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="scalar">
+  <xsd:complexType>
+   <xsd:sequence>
+    <xsd:element ref="syntax"/>
+    <xsd:element ref="access"/>
+    <xsd:element ref="default"    minOccurs="0" maxOccurs="1"/>
+    <xsd:element ref="format"     minOccurs="0" maxOccurs="1"/>
+    <xsd:element ref="units"      minOccurs="0" maxOccurs="1"/>
+    <xsd:element ref="description"/>
+    <xsd:element ref="reference"  minOccurs="0" maxOccurs="1"/>
+   </xsd:sequence>
+   <xsd:attribute name="name"   type="xsd:string" use="required"/>
+   <xsd:attribute name="oid"    type="xsd:string" use="required"/>
+   <xsd:attribute name="status" default="current">
+    <xsd:simpleType>
+     <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="current"/>
+      <xsd:enumeration value="deprecated"/>
+      <xsd:enumeration value="obsolete"/>
+      <xsd:enumeration value="mandatory"/>
+      <xsd:enumeration value="optional"/>
+     </xsd:restriction>
+    </xsd:simpleType>
+   </xsd:attribute>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="table">
+  <xsd:complexType>
+   <xsd:sequence>
+    <xsd:element ref="description"/>
+    <xsd:element ref="reference" minOccurs="0" maxOccurs="1"/>
+    <xsd:element ref="row"/>
+   </xsd:sequence>
+   <xsd:attribute name="name"   type="xsd:string" use="required"/>
+   <xsd:attribute name="oid"    type="xsd:string" use="required"/>
+   <xsd:attribute name="status" default="current">
+    <xsd:simpleType>
+     <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="current"/>
+      <xsd:enumeration value="deprecated"/>
+      <xsd:enumeration value="obsolete"/>
+      <xsd:enumeration value="mandatory"/>
+      <xsd:enumeration value="optional"/>
+     </xsd:restriction>
+    </xsd:simpleType>
+   </xsd:attribute>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="row">
+  <xsd:complexType>
+   <xsd:sequence>
+    <xsd:element ref="linkage"/>
+    <xsd:element ref="description"/>
+    <xsd:element ref="reference" minOccurs="0" maxOccurs="1"/>
+    <xsd:element ref="column"    maxOccurs="unbounded"/>
+   </xsd:sequence>
+   <xsd:attribute name="name"   type="xsd:string" use="required"/>
+   <xsd:attribute name="oid"    type="xsd:string" use="required"/>
+   <xsd:attribute name="create" default="false">
+    <xsd:simpleType>
+     <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="true"/>
+      <xsd:enumeration value="false"/>
+     </xsd:restriction>
+    </xsd:simpleType>
+   </xsd:attribute>
+   <xsd:attribute name="status" default="current">
+    <xsd:simpleType>
+     <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="current"/>
+      <xsd:enumeration value="deprecated"/>
+      <xsd:enumeration value="obsolete"/>
+      <xsd:enumeration value="mandatory"/>
+      <xsd:enumeration value="optional"/>
+     </xsd:restriction>
+    </xsd:simpleType>
+   </xsd:attribute>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="column">
+  <xsd:complexType>
+   <xsd:sequence>
+    <xsd:element ref="syntax"/>
+    <xsd:element ref="access"/>
+    <xsd:element ref="default"   minOccurs="0" maxOccurs="1"/>
+    <xsd:element ref="format"    minOccurs="0" maxOccurs="1"/>
+    <xsd:element ref="units"     minOccurs="0" maxOccurs="1"/>
+    <xsd:element ref="description"/>
+    <xsd:element ref="reference" minOccurs="0" maxOccurs="1"/>
+   </xsd:sequence>
+   <xsd:attribute name="name" type="xsd:string" use="required"/>
+   <xsd:attribute name="oid"  type="xsd:string" use="required"/>
+   <xsd:attribute name="status" default="current">
+    <xsd:simpleType>
+     <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="current"/>
+      <xsd:enumeration value="deprecated"/>
+      <xsd:enumeration value="obsolete"/>
+      <xsd:enumeration value="mandatory"/>
+      <xsd:enumeration value="optional"/>
+     </xsd:restriction>
+    </xsd:simpleType>
+   </xsd:attribute>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="notifications">
+  <xsd:complexType>
+   <xsd:sequence>
+    <xsd:element ref="notification" maxOccurs="unbounded"/>
+   </xsd:sequence>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="notification">
+  <xsd:complexType>
+   <xsd:sequence>
+    <xsd:element ref="objects"/>
+    <xsd:element ref="description"/>
+    <xsd:element ref="reference" minOccurs="0" maxOccurs="1"/>
+   </xsd:sequence>
+   <xsd:attribute name="name" type="xsd:string" use="required"/>
+   <xsd:attribute name="oid" type="xsd:string" use="required"/>
+   <xsd:attribute name="status" default="current">
+    <xsd:simpleType>
+     <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="current"/>
+      <xsd:enumeration value="deprecated"/>
+      <xsd:enumeration value="obsolete"/>
+      <xsd:enumeration value="mandatory"/>
+      <xsd:enumeration value="optional"/>
+     </xsd:restriction>
+    </xsd:simpleType>
+   </xsd:attribute>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="objects">
+  <xsd:complexType>
+   <xsd:sequence>
+    <xsd:element ref="object" minOccurs="0" maxOccurs="unbounded"/>
+   </xsd:sequence>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="object">
+  <xsd:complexType>
+   <xsd:attribute name="module" type="xsd:string" use="required"/>
+   <xsd:attribute name="name" type="xsd:string" use="required"/>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="groups">
+  <xsd:complexType>
+   <xsd:sequence>
+    <xsd:element ref="group" maxOccurs="unbounded"/>
+   </xsd:sequence>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="group">
+  <xsd:complexType>
+   <xsd:sequence>
+    <xsd:element ref="members"/>
+    <xsd:element ref="description"/>
+    <xsd:element ref="reference" minOccurs="0" maxOccurs="1"/>
+   </xsd:sequence>
+   <xsd:attribute name="name" type="xsd:string" use="required"/>
+   <xsd:attribute name="oid" type="xsd:string" use="required"/>
+   <xsd:attribute name="status" default="current">
+    <xsd:simpleType>
+     <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="current"/>
+      <xsd:enumeration value="deprecated"/>
+      <xsd:enumeration value="obsolete"/>
+      <xsd:enumeration value="mandatory"/>
+      <xsd:enumeration value="optional"/>
+     </xsd:restriction>
+    </xsd:simpleType>
+   </xsd:attribute>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="members">
+  <xsd:complexType>
+   <xsd:sequence>
+    <xsd:element ref="member" maxOccurs="unbounded"/>
+   </xsd:sequence>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="member">
+  <xsd:complexType>
+   <xsd:attribute name="module" type="xsd:string" use="required"/>
+   <xsd:attribute name="name" type="xsd:string" use="required"/>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="compliances">
+  <xsd:complexType>
+   <xsd:sequence>
+    <xsd:element ref="compliance" maxOccurs="unbounded"/>
+   </xsd:sequence>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="compliance">
+  <xsd:complexType>
+   <xsd:sequence>
+    <xsd:element ref="description"/>
+    <xsd:element ref="requires"/>
+    <xsd:element ref="refinements" minOccurs="0" maxOccurs="1"/>
+   </xsd:sequence>
+   <xsd:attribute name="name" type="xsd:string" use="required"/>
+   <xsd:attribute name="oid" type="xsd:string" use="required"/>
+   <xsd:attribute name="status" default="current">
+    <xsd:simpleType>
+     <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="current"/>
+      <xsd:enumeration value="deprecated"/>
+      <xsd:enumeration value="obsolete"/>
+      <xsd:enumeration value="mandatory"/>
+      <xsd:enumeration value="optional"/>
+     </xsd:restriction>
+    </xsd:simpleType>
+   </xsd:attribute>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="requires">
+  <xsd:complexType>
+   <xsd:choice maxOccurs="unbounded">
+    <xsd:element ref="mandatory"/>
+    <xsd:element ref="option"/>
+   </xsd:choice>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="mandatory">
+  <xsd:complexType>
+   <xsd:attribute name="module" type="xsd:string" use="required"/>
+   <xsd:attribute name="name" type="xsd:string" use="required"/>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="option">
+  <xsd:complexType>
+   <xsd:sequence>
+    <xsd:element ref="description"/>
+   </xsd:sequence>
+   <xsd:attribute name="module" type="xsd:string" use="required"/>
+   <xsd:attribute name="name" type="xsd:string" use="required"/>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="refinements">
+  <xsd:complexType>
+   <xsd:sequence>
+    <xsd:element ref="refinement" maxOccurs="unbounded"/>
+   </xsd:sequence>
+  </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="refinement">
+  <xsd:complexType>
+   <xsd:sequence>
+    <xsd:element ref="syntax" minOccurs="0" maxOccurs="1"/>
+    <xsd:element ref="writesyntax" minOccurs="0" maxOccurs="1"/>
+    <xsd:element ref="access" minOccurs="0" maxOccurs="1"/>
+    <xsd:element ref="description"/>
+   </xsd:sequence>
+   <xsd:attribute name="module" type="xsd:string" use="required"/>
+   <xsd:attribute name="name" type="xsd:string" use="required"/>
+  </xsd:complexType>
+ </xsd:element>
+
+</xsd:schema>

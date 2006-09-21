@@ -1,0 +1,70 @@
+From: Frank Strauss <strauss@ibr.cs.tu-bs.de>
+Newsgroups: comp.protocols.snmp,comp.dcom.net-management
+To: mibs@ops.ietf.org, snmpv3@lists.tislabs.com, libsmi@ibr.cs.tu-bs.de
+Date: 21 Jun 2002 16:45:00 +0200
+Subject: libsmi-0.4 announcement
+Message-ID: <libsmi-0.4-ANNOUNCE@ibr.cs.tu-bs.de>
+
+Libsmi 0.4 is available for download.
+
+Copyright (c) 1999-2002 Frank Strauss, Technical University of Braunschweig.
+
+Libsmi is a C library that allows network management applications and
+MIB and PIB authoring tools to access SMI MIB module information and
+SPPI PIB module information through a well defined API that hides the
+nasty details of locating and parsing MIB or PIB modules.  Libsmi
+supports exact and iterative retrieval functions for all major SMIv1/v2
+and SPPI constructs.
+
+There are five tools on top of the library and a sh/awk-script:
+
+  - Smiquery allows simple queries for single MIB/PIB module items.
+
+  - Smilint allows to increase the verbosity of the parser(s), so that
+    module files can be checked for syntax and semantic errors.
+
+  - Smidump can be used to dump MIB and PIBmodules in various
+    formats. The current output backends allow to dump trees of OIDs,
+    type definitions and recursive imports, to convert modules between
+    SMIv1 and SMIv2, to dump SPPI PIBs, to produce JIDM compliant
+    CORBA-IDL files, UCD-SNMP code stubs, MOSY style output, JAX Java
+    AgentX sub-agent templates, XML and XML-Schema MIB
+    representations, Perl and Python representations, graphical
+    conceptual models, and SCLI code stubs.
+
+  - Smidiff allows MIB authors, MIB reviewers and implementors to
+    compare two revisions of the same MIB for legal and illegal
+    changes.
+
+  - Finally, smistrip allows to strip SMIv1/v2 and SPPI modules from
+    documents like RFCs and Internet-Drafts.
+
+Enclosed with the libsmi package, there are all (bug fixed) current
+IETF standard MIB modules as of 2002-06-21, as well as some other
+modules, some SPPI PIBs that are taken from Internet Drafts, man pages
+for all library functions and tools, and a small libsmi test suite.
+
+The software comes with automake/autoconf and libtool support. Hence
+it should compile and build with or without shared libraries on most
+UNIX style platforms, as well as on W32/cygwin, though it's just
+developed on Sun Solaris 2.5.x and Linux. However, questions about all
+platforms can be discussed on the libsmi mailinglist.
+
+For those familiar with recent libsmi development: The most
+significant changes since the previous 0.3.x releases is the addition
+of the SPPI parser (which is integrated into the SMI parser), the
+addition of an SPPI dump driver (both supplied by Moritz Bunkus), and
+major enhancements of the XML Schema dump driver (supplied by Torsten
+Klie).  Furthermore, a number of bugs have been fixed and many
+Standard MIB modules and PIB modules have been updated and added.
+
+Online information on libsmi together with download and CVS access
+information, the (free) license terms, manual pages, and the mailing
+list is available at:
+
+	http://www.ibr.cs.tu-bs.de/projects/libsmi/
+
+
+Enjoy!
+
+	Frank Strauss <strauss@ibr.cs.tu-bs.de>

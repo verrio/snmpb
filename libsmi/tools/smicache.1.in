@@ -1,0 +1,64 @@
+.\"
+.\" $Id: smicache.1.in 1677 2004-08-10 11:10:27Z strauss $
+.\"
+.TH smicache 1  "August 10, 2004" "IBR" "SMI Tools"
+.SH NAME
+smicache \- caching method for use with libsmi
+.SH SYNOPSIS
+.B smicache
+[
+.B "-Vh"
+] [
+.BI "-d " dir
+] [
+.BI "-p " prefix
+]
+[
+.I mib
+]
+.SH DESCRIPTION
+The \fBsmicache\fP program can be used by libsmi to fetch MIB modules that
+cannot be found in regular local MIB directories. 
+.SH OPTIONS
+.TP
+.B "-V"
+Show the smicache version and exit.
+.TP
+.B "-h"
+Show a help text and exit.
+.TP
+.BI "-d " dir
+Write fetched module file(s) to directory \fIdir\fP.
+.TP
+.BI "-p " prefix
+Use the URL prefix \fIprefix\fP for fetching modules. 
+.TP
+.I mib
+The MIB module to be fetched. 
+.PP
+Note that \fBsmicache\fP is just a very simple script that builds on
+the wget program to retrieve files from URLs. It does not handle
+the file attributes of retrieved modules in any special way, so that
+you have to care about permissions in multi-user environments.
+.SH "EXAMPLE"
+\fBSmicache\fP can be used by putting the following line into the
+global configuration file:
+.nf
+
+  cache /usr/local/share/mibs/cache \\
+    /usr/local/bin/smicache \\
+    -d /usr/local/share/mibs/cache \\
+    -p http://www.ibr.cs.tu-bs.de/projects/libsmi/smicache/
+
+.fi
+You might want to chmod 1777 /usr/local/share/mibs/cache.
+.SH "SEE ALSO"
+The
+.BR libsmi (3)
+project is documented at
+.BR "http://www.ibr.cs.tu-bs.de/projects/libsmi/" "."
+.PP
+.BR smilint "(1)"
+.SH "AUTHOR"
+(C) 2001-2004 Frank Strauss, TU Braunschweig, Germany <strauss@ibr.cs.tu-bs.de>
+.br

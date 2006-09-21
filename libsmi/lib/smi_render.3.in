@@ -1,0 +1,94 @@
+.\"
+.\" $Id: smi_render.3.in 1432 2002-07-24 11:54:18Z strauss $
+.\"
+.TH smi_render 3  "July 24, 2002" "IBR" "SMI Management Information Library"
+.SH NAME
+.\" START OF MAN PAGE COPIES
+smiRenderOID,
+smiRenderValue,
+smiRenderNode,
+smiRenderType
+.\" END OF MAN PAGE COPIES
+\- SMI data and MIB data rendering routines
+.SH SYNOPSIS
+.nf
+.B #include <smi.h>
+.RS
+.RE
+.sp
+.BI 
+.RE
+.sp
+.BI "char *smiRenderOID(unsigned int " oidlen ", SmiSubid *" oid ", int " flags );
+.RE
+.sp
+.BI "char *smiRenderValue(SmiValue *" smiValuePtr ", SmiType *" smiTypePtr ", int " flags );
+.RE
+.sp
+.BI "char *smiRenderNode(SmiNode *" smiNodePtr ", int " flags );
+.RE
+.sp
+.BI "char *smiRenderType(SmiType *" smiTypePtr ", int " flags );
+.RE
+.SH DESCRIPTION
+These functions provide can be used to render OIDs, values of MIB data,
+or names of MIB nodes or types.
+.PP
+The \fBsmiRenderOID()\fP function renders an OID given by its
+length \fIoidlen\fP and its array of sub-identifiers \fIoid*\fP. 
+The \fIflags\fP can be used to control the resulting format, see FORMATS below.
+.PP
+The \fBsmiRenderValue()\fP function renders a MIB data value given by 
+\fIsmiValuePtr\fP. An underlying type \fIsmiTypePtr\fP may be supplied
+to support a more human friendly rendering.
+The \fIflags\fP can be used to control the resulting format, see FORMATS below.
+.PP
+The \fBsmiRenderNode()\fP function renders the name of a node given
+by \fIsmiNodePtr\fP.
+The \fIflags\fP can be used to control the resulting format, see FORMATS below.
+.PP
+The \fBsmiRenderType()\fP function renders the name of a type given
+by \fIsmiTypePtr\fP.
+The \fIflags\fP can be used to control the resulting format, see FORMATS below.
+.SH "FORMATS"
+Each of these functions gets a last argument named \fIflags\fP. This is
+a logcially or-ed set of flags that can be used to control the format
+of the rendered items:
+.TP
+\fBSMI_RENDER_NUMERIC
+Allow numeric representation (default).
+.TP
+\fBSMI_RENDER_NAME
+Allow a representation by name(s) if possible.
+.TP
+\fBSMI_RENDER_QUALIFIED
+In case of a name representation, force a module prefix, e.g. IF-MIB::ifIndex
+instead of just ifIndex.
+.TP
+\fBSMI_RENDER_FORMAT
+In case of \fIsmiRenderValue()\fP, force the application of a format
+specification (e.g. an SMIv2 DISPLAY-HINT) of an underlying type if
+the \fIsmiTypePtr\fP argument is not NULL and this type contains such a
+format specification.
+.TP
+\fBSMI_RENDER_PRINTABLE
+In case of octet string value rendering, force a printable representation
+if all octets of the octet string are printable.
+.TP
+\fBSMI_RENDER_UNKNOWN
+Force the return of a string containing SMI_LABEL_UNKNOWN ("<unknown>"),
+if the rendering would fail. This way, the only condition where NULL can
+be returned is the lack of memory.
+.TP
+\fBSMI_RENDER_ALL
+Apply a combination of all these flags. This supports the (hopefully) most
+human friendly representations.
+.SH "RETURN VALUE"
+All of these functions return a string, if successful, or NULL in case
+of a rendering failure. See also the \fBSMI_RENDER_UNKNOWN\fP flag above.
+.SH "SEE ALSO"
+.BR libsmi "(3), "
+.BR smi.h
+.SH "AUTHOR"
+(C) 2002 Frank Strauss, TU Braunschweig, Germany <strauss@ibr.cs.tu-bs.de>
+.br

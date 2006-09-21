@@ -1,0 +1,128 @@
+.\"
+.\" $Id: smi_type.3.in 4432 2006-05-29 16:21:11Z strauss $
+.\"
+.TH smi_type 3  "August 16, 2001" "IBR" "SMI Management Information Library"
+.SH NAME
+.\" START OF MAN PAGE COPIES
+smiGetType,
+smiGetFirstType,
+smiGetNextType,
+smiGetParentType,
+smiGetTypeLine,
+smiGetFirstRange,
+smiGetNextRange,
+smiGetFirstNamedNumber,
+smiGetNextNamedNumber,
+smiGetTypeModule
+.\" END OF MAN PAGE COPIES
+\- SMI type
+information routines
+.SH SYNOPSIS
+.nf
+.B #include <smi.h>
+.RS
+.RE
+.sp
+.BI "SmiType *smiGetType(SmiModule *" smiModulePtr ", char *" type );
+.RE
+.sp
+.BI "SmiType *smiGetFirstType(SmiModule *" smiModulePtr );
+.RE
+.sp
+.BI "SmiType *smiGetNextType(SmiType *" smiTypePtr );
+.RE
+.sp
+.BI "SmiType *smiGetParentType(SmiType *" smiTypePtr );
+.RE
+.sp
+.BI "int smiGetTypeLine(SmiType *" smiTypePtr );
+.RE
+.sp
+.BI "SmiRange *smiGetFirstRange(SmiType *" smiTypePtr );
+.RE
+.sp
+.BI "SmiRange *smiGetNextRange(SmiRange *" smiRangePtr );
+.RE
+.sp
+.BI "SmiNamedNumber *smiGetFirstNamedNumber(SmiType *" smiTypePtr );
+.RE
+.sp
+.BI "SmiNamedNumber *smiGetNextNamedNumber(SmiNamedNumber *" smiNamedNumberPtr );
+.RE
+.sp
+.BI "SmiModule *smiGetTypeModule(SmiType *" smiTypePtr );
+.RE
+
+typedef struct SmiType {
+    SmiIdentifier       name;
+    SmiBasetype         basetype;
+    SmiDecl             decl;
+    char                *format;
+    SmiValue            value;
+    char                *units;
+    SmiStatus           status;
+    char                *description;
+    char                *reference;
+} SmiType;
+
+typedef struct SmiNamedNumber {
+    SmiIdentifier       name;
+    SmiValue            value;
+} SmiNamedNumber;
+
+typedef struct SmiRange {
+    SmiValue            minValue;
+    SmiValue            maxValue;
+} SmiRange;
+
+.fi
+.SH DESCRIPTION
+These functions retrieve information on a type definition (SMIng) or
+a simple ASN.1 type definition (SMIv1/v2) or a TEXTUAL-CONVENTION
+definition (SMIv2). Base types may also be retrieved by these functions.
+.PP
+The \fBsmiGetType()\fP function retrieves a \fBstruct SmiType\fP that
+represents a type. \fIType\fP may be either a
+fully qualified descriptor or a simple type name.
+If \fIsmiModulePtr\fP is not NULL it used to limit the search to the
+given module. If the type is not found, \fBsmiGetType()\fP returns NULL.
+.PP
+The \fBsmiGetFirstType()\fP and \fBsmiGetNextType()\fP functions are
+used to iteratively retrieve \fBstruct SmiType\fPs. \fBsmiGetFirstType()\fP
+returns the first one defined in the module
+specified by \fIsmiModulePtr\fP. Subsequent calls to
+\fBsmiGetNextType()\fP return the following ones.  If there are no
+more type definitions in the module NULL is returned.
+.PP
+The \fBsmiGetParentType()\fP function retrieves a \fBstruct SmiType\fP
+of the type from which the type specified by \fIsmiTypePtr\fP is
+derived. If there is no parent type (i.e. the type specified
+by \fIsmiTypePtr\fP is a base type), \fBsmiGetParentType()\fP returns NULL.
+.PP
+Similarly, the \fBsmiGetFirstRange()\fP and \fBsmiGetNextRange()\fP
+functions are used to iteratively retrieve \fBstruct SmiRange\fPs
+that represent range restrictions of the type specified by \fIsmiTypePtr\fP,
+either size ranges of an octet string type or value
+ranges in case of a numeric type.
+.PP
+Similarly, the \fBsmiGetFirstNamedNumber()\fP and \fBsmiGetNextNamedNumber()\fP
+functions are used to iteratively retrieve \fBstruct SmiNamedNumber\fPs
+that represent named numbers of the type specified by \fIsmiTypePtr\fP, which
+has to be either a bit set or an enumeration type.
+.PP
+The \fBsmiGetTypeModule()\fP function returns the module that defines
+the type given by \fIstruct SmiTypePtr\fP.
+.PP
+The \fBsmiGetTypeLine()\fP function returns the line number within the
+module where the type specified by \fIsmiTypePtr\fP is defined.
+.SH "FILES"
+.nf
+@includedir@/smi.h    SMI library header file
+.fi
+.SH "SEE ALSO"
+.BR libsmi "(3), "
+.BR smi_module "(3), "
+.BR smi.h
+.SH "AUTHOR"
+(C) 1999-2001 Frank Strauss, TU Braunschweig, Germany <strauss@ibr.cs.tu-bs.de>
+.br

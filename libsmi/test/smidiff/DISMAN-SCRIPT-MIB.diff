@@ -1,0 +1,79 @@
+../../mibs/ietf/DISMAN-SCRIPT-MIB:17 warning: contact of `DISMAN-SCRIPT-MIB' changed
+../../mibs/ietf/DISMAN-SCRIPT-MIB:53 warning: revision `2001-08-21 00:00' added
+./DISMAN-SCRIPT-MIB.old:17 info: previous definition of `DISMAN-SCRIPT-MIB'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:125 warning: description of object definition `smLangIndex' changed
+./DISMAN-SCRIPT-MIB.old:87 info: previous definition of `smLangIndex'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:165 warning: description of object definition `smLangVendor' changed
+./DISMAN-SCRIPT-MIB.old:126 info: previous definition of `smLangVendor'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:264 warning: description of object definition `smExtsnVendor' changed
+./DISMAN-SCRIPT-MIB.old:226 info: previous definition of `smExtsnVendor'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:353 implicit type for `smScriptName' replaces type `SnmpAdminString'
+./DISMAN-SCRIPT-MIB.old:311 info: previous definition of `smScriptName'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:354 size of type used in `smScriptName' changed from `(0..255)' to `(1..32)'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:381 warning: description of object definition `smScriptLanguage' changed
+./DISMAN-SCRIPT-MIB.old:338 info: previous definition of `smScriptLanguage'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:400 warning: description of object definition `smScriptSource' changed
+./DISMAN-SCRIPT-MIB.old:353 info: previous definition of `smScriptSource'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:542 warning: description of object definition `smScriptStorageType' changed
+./DISMAN-SCRIPT-MIB.old:492 info: previous definition of `smScriptStorageType'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:585 warning: description of object definition `smScriptRowStatus' changed
+./DISMAN-SCRIPT-MIB.old:530 info: previous definition of `smScriptRowStatus'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:700 warning: description of object definition `smCodeRowStatus' changed
+./DISMAN-SCRIPT-MIB.old:613 info: previous definition of `smCodeRowStatus'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:808 default value added to `smLaunchScriptName'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:808 warning: description of object definition `smLaunchScriptName' changed
+./DISMAN-SCRIPT-MIB.old:716 info: previous definition of `smLaunchScriptName'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:898 warning: description of object definition `smLaunchStart' changed
+./DISMAN-SCRIPT-MIB.old:802 info: previous definition of `smLaunchStart'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:982 warning: description of object definition `smLaunchControl' changed
+./DISMAN-SCRIPT-MIB.old:885 info: previous definition of `smLaunchControl'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:1014 warning: named number `autostart' added to type used in `smLaunchAdminStatus'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:1014 warning: description of object definition `smLaunchAdminStatus' changed
+./DISMAN-SCRIPT-MIB.old:911 info: previous definition of `smLaunchAdminStatus'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:1040 warning: named number `expired' added to type used in `smLaunchOperStatus'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:1040 warning: description of object definition `smLaunchOperStatus' changed
+./DISMAN-SCRIPT-MIB.old:926 info: previous definition of `smLaunchOperStatus'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:1071 warning: description of object definition `smLaunchRunIndexNext' changed
+./DISMAN-SCRIPT-MIB.old:945 info: previous definition of `smLaunchRunIndexNext'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:1114 warning: description of object definition `smLaunchRowStatus' changed
+./DISMAN-SCRIPT-MIB.old:988 info: previous definition of `smLaunchRowStatus'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:1242 warning: description of object definition `smRunIndex' changed
+./DISMAN-SCRIPT-MIB.old:1042 info: previous definition of `smRunIndex'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:1289 warning: description of object definition `smRunLifeTime' changed
+./DISMAN-SCRIPT-MIB.old:1090 info: previous definition of `smRunLifeTime'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:1328 warning: description of object definition `smRunExpireTime' changed
+./DISMAN-SCRIPT-MIB.old:1121 info: previous definition of `smRunExpireTime'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:1412 warning: description of object definition `smRunControl' changed
+./DISMAN-SCRIPT-MIB.old:1205 info: previous definition of `smRunControl'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:1453 warning: description of object definition `smRunState' changed
+./DISMAN-SCRIPT-MIB.old:1241 info: previous definition of `smRunState'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:1494 warning: description of object definition `smRunError' changed
+./DISMAN-SCRIPT-MIB.old:1271 info: previous definition of `smRunError'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:620 warning: column `smScriptError' has been added
+../../mibs/ietf/DISMAN-SCRIPT-MIB:635 warning: column `smScriptLastChange' has been added
+../../mibs/ietf/DISMAN-SCRIPT-MIB:1137 warning: column `smLaunchError' has been added
+../../mibs/ietf/DISMAN-SCRIPT-MIB:1149 warning: column `smLaunchLastChange' has been added
+../../mibs/ietf/DISMAN-SCRIPT-MIB:1165 warning: column `smLaunchRowExpireTime' has been added
+../../mibs/ietf/DISMAN-SCRIPT-MIB:1507 warning: column `smRunResultTime' has been added
+../../mibs/ietf/DISMAN-SCRIPT-MIB:1519 warning: column `smRunErrorTime' has been added
+../../mibs/ietf/DISMAN-SCRIPT-MIB:1548 warning: description of notification definition `smScriptResult' changed
+./DISMAN-SCRIPT-MIB.old:1301 info: previous definition of `smScriptResult'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:1562 warning: notification `smScriptException' has been added
+../../mibs/ietf/DISMAN-SCRIPT-MIB:1765 warning: legal status change from `current' to `deprecated' for `smScriptGroup'
+./DISMAN-SCRIPT-MIB.old:1384 info: previous definition of `smScriptGroup'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:1780 warning: legal status change from `current' to `deprecated' for `smLaunchGroup'
+./DISMAN-SCRIPT-MIB.old:1411 info: previous definition of `smLaunchGroup'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:1796 warning: legal status change from `current' to `deprecated' for `smRunGroup'
+./DISMAN-SCRIPT-MIB.old:1436 info: previous definition of `smRunGroup'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:1810 warning: legal status change from `current' to `deprecated' for `smNotificationsGroup'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:1810 warning: description of notification group definition `smNotificationsGroup' changed
+./DISMAN-SCRIPT-MIB.old:1455 info: previous definition of `smNotificationsGroup'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:1644 warning: group `smScriptGroup2' has been added
+../../mibs/ietf/DISMAN-SCRIPT-MIB:1668 warning: group `smLaunchGroup2' has been added
+../../mibs/ietf/DISMAN-SCRIPT-MIB:1688 warning: group `smRunGroup2' has been added
+../../mibs/ietf/DISMAN-SCRIPT-MIB:1703 warning: group `smNotificationsGroup2' has been added
+../../mibs/ietf/DISMAN-SCRIPT-MIB:1719 warning: legal status change from `current' to `deprecated' for `smCompliance'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:1719 warning: description of module compliance definition `smCompliance' changed
+./DISMAN-SCRIPT-MIB.old:1323 info: previous definition of `smCompliance'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:1739 warning: object refinement for `smCodeText' added to `smCompliance'
+../../mibs/ietf/DISMAN-SCRIPT-MIB:1583 warning: compliance `smCompliance2' has been added

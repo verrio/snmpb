@@ -1,0 +1,41 @@
+LIBSMI-TEST-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY
+        FROM SNMPv2-SMI
+    ibr
+        FROM TUBS-SMI;
+
+testMib MODULE-IDENTITY
+    LAST-UPDATED    "200002090000Z"
+    ORGANIZATION    
+            "TU Braunschweig"
+    CONTACT-INFO    
+            "        Frank Strauss
+             
+             Postal: TU Braunschweig
+                     Bueltenweg 74/75
+                     38106 Braunschweig
+                     Germany
+             
+              Phone: +49 531 391-3283
+              EMail: strauss@ibr.cs.tu-bs.de
+               http://www.ibr.cs.tu-bs.de/~strauss/"
+    DESCRIPTION     
+            "This MIB module represents the toplevel module of
+             a collection of MIB modules to check the capabilities
+             of MIB parsers.
+
+	     Each test module is named LIBSMI-TEST-???-MIB, where ???
+	     is the test number. Each module's MODULE-IDENTITY
+	     DESCRIPTION describes the expected or suggested behaviour
+	     of MIB parsers when reading that module."
+    REVISION        "200002090000Z"
+    DESCRIPTION
+            "Changed the module registration to resolve a conflict."
+    REVISION        "199906101500Z"
+    DESCRIPTION     
+            "Initial Revision."
+    ::= { ibr 9 }
+
+END

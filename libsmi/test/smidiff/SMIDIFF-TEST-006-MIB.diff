@@ -1,0 +1,5 @@
+./SMIDIFF-TEST-006-MIB.new:39 implicit type for `scalar1' replaces type `MyNewDisplayString'
+./SMIDIFF-TEST-006-MIB.old:41 info: previous definition of `scalar1'
+./SMIDIFF-TEST-006-MIB.new:40 size of type used in `scalar1' changed from `(0..255)' to `(1..255)'
+./SMIDIFF-TEST-006-MIB.new:39 description removed from `scalar1'
+./SMIDIFF-TEST-006-MIB.old:41 info: previous definition of `scalar1'

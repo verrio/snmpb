@@ -1,0 +1,70 @@
+.\"
+.\" $Id: smi_macro.3.in 4432 2006-05-29 16:21:11Z strauss $
+.\"
+.TH smi_macro 3  "August 16, 2001" "IBR" "SMI Management Information Library"
+.SH NAME
+.\" START OF MAN PAGE COPIES
+smiGetMacro,
+smiGetFirstMacro,
+smiGetNextMacro,
+smiGetMacroModule
+\- SMI macro and extension information routines
+.\" END OF MAN PAGE COPIES
+.SH SYNOPSIS
+.nf
+.B #include <smi.h>
+.RS
+.RE
+.sp
+.BI "SmiMacro *smiGetMacro(SmiModule *" smiModulePtr ", char *" macro );
+.RE
+.sp
+.BI "SmiMacro *smiGetFirstMacro(SmiModule *" smiModulePtr );
+.RE
+.sp
+.BI "SmiMacro *smiGetNextMacro(SmiMacro *" smiMacroPtr );
+.RE
+.sp
+.BI "SmiModule *smiGetMacroModule(SmiMacro *" smiMacroPtr );
+.RE
+
+typedef struct SmiMacro {
+    SmiIdentifier       name;
+    SmiDecl             decl;
+    SmiStatus           status;
+    char                *description;
+    char                *reference;
+} SmiMacro;
+
+.fi
+.SH DESCRIPTION
+These functions retrieve information on an extension statement
+definition (SMIng) or a macro (SMIv1/v2).
+.PP
+The \fBsmiGetMacro()\fP function retrieves a \fBstruct SmiMacro\fP that
+represents an extension or macro definition. \fIMacro\fP may be either a
+fully qualified descriptor or a simple macro or extension name.
+If \fIsmiModulePtr\fP is not NULL it used to limit the search to the
+given module. If the macro is not found, \fBsmiGetMacro()\fP returns NULL.
+.PP
+The \fBsmiGetFirstMacro()\fP and \fBsmiGetNextMacro()\fP functions are
+used to iteratively retrieve \fBstruct SmiMacro\fPs.
+\fBsmiGetFirstMacro()\fP returns the first one defined in the module
+specified by \fIsmiModulePtr\fP.
+Subsequent calls to \fBsmiGetNextMacro()\fP return the following ones.
+If there are no
+more extension or macro definitions in the module, NULL is returned.
+.PP
+The \fBsmiGetMacroModule()\fP function returns the module that defines
+the macro or extension given by \fIstruct SmiMacroPtr\fP.
+.SH "FILES"
+.nf
+@includedir@/smi.h    SMI library header file
+.fi
+.SH "SEE ALSO"
+.BR libsmi "(3), "
+.BR smi_module "(3), "
+.BR smi.h
+.SH "AUTHOR"
+(C) 1999-2001 Frank Strauss, TU Braunschweig, Germany <strauss@ibr.cs.tu-bs.de>
+.br

@@ -1,0 +1,29 @@
+#!@BASH@
+
+rm -rf parser.out
+mkdir parser.out
+
+abssrcdir=`cd @srcdir@; pwd`
+
+RC=0
+SMIPATH=$SMIPATH:$abssrcdir/../mibs/ietf:$abssrcdir/mibs
+export SMIPATH
+
+for n in $abssrcdir/mibs/LIBSMI-TEST-???-MIB ; do
+    mib=`basename $n`
+    echo -n "Checking $mib. "
+    cd parser.out
+    ../../tools/smilint -c/dev/null -l9 $n 2>&1 | sed -e "s/^.*\/$mib\(.*\)/$mib\1/" > $mib.err
+    cd ..
+    cat $abssrcdir/mibs/$mib | grep "^$mib:[0-9]*: " > parser.out/$mib.expect
+    cmp -s parser.out/$mib.err parser.out/$mib.expect
+    if [ $? -ne 0 ] ; then
+        RC=1
+        echo "unexpected output. see parser.out directory."
+    else
+        WC=`cat parser.out/$mib.err | wc -l`
+	echo $WC " errors/warnings, ok."
+    fi
+done
+
+exit ${RC}
