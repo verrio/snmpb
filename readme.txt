@@ -16,4 +16,9 @@ Version: 0.4.5
 Modified file(s):
 NONE
 
+QWT is taken from http://qwt.sourceforge.net
+Version: 5.0.0rc0 (Release Candidate 0)
+
+Modified file(s):
+qwt.pro
 
