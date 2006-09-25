@@ -16,7 +16,7 @@ libsmi/lib/.libs/libsmi.a: libsmi/Makefile
 	make -C libsmi
 
 libsmi/Makefile:
-	cd libsmi; ./configure --disable-shared --with-pathseparator=';' --with-dirseparator='/'
+	cd libsmi; automake-1.4; automake-1.4 lib/Makefile; ./configure --disable-shared --with-pathseparator=';' --with-dirseparator='/'
 
 qwt/lib/libqwt.a: qwt/Makefile
 	make -C qwt
