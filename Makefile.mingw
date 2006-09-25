@@ -16,7 +16,7 @@ libsmi/lib/.libs/libsmi.a: libsmi/Makefile
 	make -C libsmi
 
 libsmi/Makefile:
-	cd libsmi; automake-1.4; automake-1.4 lib/Makefile; ./configure --disable-shared --with-pathseparator=';' --with-dirseparator='/'
+	cd libsmi; automake-1.4; ./configure --disable-shared --with-pathseparator=';' --with-dirseparator='/'
 
 qwt/lib/libqwt.a: qwt/Makefile
 	make -C qwt
@@ -25,7 +25,7 @@ qwt/Makefile:
 	cd qwt; export MINGW_IN_SHELL=1; qmake qwt.pro
 
 makefile.snmpb:
-	export MINGW_IN_SHELL=1; qmake -makefile -o makefile.temp snmpb.pro; cat makefile.temp| sed -e 's/.*qtmain.prl/qtmain.prl/g' >> makefile.snmpb; rm makefile.temp
+	export MINGW_IN_SHELL=1; qmake -makefile -o makefile.snmpb snmpb.pro; cat makefile.snmpb| sed -e 's/.*qtmain.prl/qtmain.prl/g' >> makefile.temp; rm makefile.snmpb; mv makefile.temp makefile.snmpb
 
 clean:
 	-make -C libtomcrypt clean
