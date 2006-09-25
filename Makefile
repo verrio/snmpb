@@ -8,7 +8,7 @@ libsmi/lib/.libs/libsmi.a: libsmi/Makefile
 	make -C libsmi
 
 libsmi/Makefile:
-	cd libsmi; ./configure --disable-shared
+	cd libsmi; ./configure --disable-shared --with-pathseparator=';' --with-dirseparator='/'
 
 qwt/lib/libqwt.a: qwt/Makefile
 	make -C qwt

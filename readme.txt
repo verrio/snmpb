@@ -8,7 +8,7 @@ Libtomcrypt is taken from http://libtomcrypt.com
 Version: 1.14
 
 Modified file(s):
-NONE
+libtomcrypt/makefile
 
 Libsmi is taken from http://www.ibr.cs.tu-bs.de/projects/libsmi
 Version: 0.4.5
