@@ -107,7 +107,9 @@
 // We have inet_aton() function if not compiling with VC++ or Borland C++
 #ifndef _MSC_VER
 #ifndef __BCPLUSPLUS__
+#if !(defined(__GNUC__) && defined(WIN32)) 
 #define HAVE_INET_ATON
+#endif
 #endif
 #endif
 
@@ -123,9 +125,15 @@
 // can we use the reentrant version of these functions or
 // are the standard functions thread safe
 #ifdef __GNUC__
+#ifndef WIN32
 #define HAVE_GETHOSTBYNAME_R
 #define HAVE_LOCALTIME_R
 #define HAVE_GETHOSTBYADDR_R
+#else
+#define HAVE_REENTRANT_GETHOSTBYNAME
+#define HAVE_REENTRANT_LOCALTIME
+#define HAVE_REENTRANT_GETHOSTBYADDR
+#endif
 #elif __DECCXX
 #define HAVE_REENTRANT_GETHOSTBYNAME
 #define HAVE_LOCALTIME_R
