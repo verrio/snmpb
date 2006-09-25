@@ -7,6 +7,8 @@
 
 #include "mibmodule.h"
 
+#define PATH_SEPARATOR ';'
+
 LoadedMibModule::LoadedMibModule(SmiModule* mod)
 {
     name = mod->name;
@@ -94,7 +96,7 @@ MibModule::MibModule(Q3TextEdit *MI, Q3ListView *AM, Q3ListView *LM)
     LoadedM->addColumn("Language");
     LoadedM->addColumn("Path");
     
-    InitLib();
+    InitLib(0);
     RebuildTotalList();
     
     // Connect some signals
@@ -107,15 +109,10 @@ MibModule::MibModule(Q3TextEdit *MI, Q3ListView *AM, Q3ListView *LM)
     connect( this, SIGNAL(ModuleProperties(const QString&)),
              (QObject*)ModuleInfo, SLOT(setText(const QString&)) );
     
-    // Read configuration file for libsmi and add modules to wanted list
-    QString snmpbrc = QDir::homeDirPath() + "/.snmpbrc";
-    if(!smiReadConfig(snmpbrc, NULL))
-    {
-        for(SmiModule *mod = smiGetFirstModule(); 
-            mod; mod = smiGetNextModule(mod))
-            Wanted.append(mod->name);
-        Refresh();
-    }
+    for(SmiModule *mod = smiGetFirstModule(); 
+        mod; mod = smiGetNextModule(mod))
+        Wanted.append(mod->name);
+    Refresh();
 }
 
 void MibModule::ShowModuleInfo(void)
@@ -143,11 +140,7 @@ void MibModule::ShowModuleInfo(void)
 void MibModule::RebuildTotalList(void)
 {
     char    *dir, *smipath, *str;
-#ifdef WIN32
-    char    sep[2] = {';', 0};
-#else
-    char    sep[2] = {':', 0};
-#endif
+    char    sep[2] = {PATH_SEPARATOR, 0};
  
     smipath = strdup(smiGetPath());
    
@@ -268,20 +261,42 @@ void MibModule::RemoveModule(void)
 
 void MibModule::Refresh(void)
 {
-    smiExit();
-    InitLib();
+    InitLib(1);
     MibLoader.Load(Wanted);
     RebuildLoadedList();
     RebuildUnloadedList();
 }
 
-void MibModule::InitLib(void)
+void MibModule::InitLib(int restart)
 {
     int smiflags;
-    
+    char *smipath;
+
+	if (restart)
+	{
+		smipath = strdup(smiGetPath());
+	    smiExit();
+        smiflags = smiGetFlags();
+	}
+
     smiInit(NULL);
-    smiflags = smiGetFlags();
-    smiflags |= SMI_FLAG_ERRORS;
+
+	if (restart)
+	{
+        smiSetPath(smipath);
+		free(smipath);
+	}
+	else
+	{
+        smiflags = smiGetFlags();
+        smiflags |= SMI_FLAG_ERRORS;
+	    smiSetPath(QDir::currentPath() + "/mibs" + PATH_SEPARATOR + 
+			       QDir::currentPath() + "/pibs");
+		// Read configuration file
+        QString snmpbrc = QDir::homeDirPath() + "/.snmpbrc";
+        smiReadConfig(snmpbrc, NULL);
+	}
+
     smiSetFlags(smiflags);
     smiSetErrorLevel(0);
 }

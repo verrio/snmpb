@@ -50,7 +50,7 @@ signals:
     void ModuleProperties(const QString& text);
 
 private:
-    void InitLib(void);
+    void InitLib(int restart);
     void RebuildTotalList(void);
     void RebuildLoadedList(void);
     void RebuildUnloadedList(void);
