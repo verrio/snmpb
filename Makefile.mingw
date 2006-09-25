@@ -1,5 +1,10 @@
-set PATH=c:/mingw/bin/;${PATH}
-
+#
+# Dont forget to adjust the PATH env. variable to put the mingw32 toolchain
+# in front of the cygwin toolchain ....
+#
+# export PATH=/cygdrive/c/mingw/bin:${PATH}
+#
+#
 
 snmpb: libtomcrypt/libtomcrypt.a libsmi/lib/.libs/libsmi.a qwt/lib/libqwt.a makefile.snmpb
 	make -f makefile.snmpb
@@ -20,7 +25,7 @@ qwt/Makefile:
 	cd qwt; export MINGW_IN_SHELL=1; qmake qwt.pro
 
 makefile.snmpb:
-	qmake -makefile -o makefile.snmpb snmpb.pro
+	export MINGW_IN_SHELL=1; qmake -makefile -o makefile.temp snmpb.pro; cat makefile.temp| sed -e 's/.*qtmain.prl/qtmain.prl/g' >> makefile.snmpb; rm makefile.temp
 
 clean:
 	-make -C libtomcrypt clean
