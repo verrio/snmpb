@@ -7,8 +7,10 @@
 
 os:=$(shell uname -o)
 
-snmpb: libtomcrypt/libtomcrypt.a libsmi/lib/.libs/libsmi.a qwt/lib/libqwt.a makefile.snmpb
-	make -f makefile.snmpb
+snmpb: libtomcrypt/libtomcrypt.a \
+       libsmi/lib/.libs/libsmi.a \
+       qwt/lib/libqwt.a \
+       app/snmpb
 
 libtomcrypt/libtomcrypt.a:
 	make -C libtomcrypt
@@ -30,18 +32,11 @@ else
 	cd qwt; qmake-qt4 qwt.pro
 endif
 
-makefile.snmpb:
-ifeq (${os}, Cygwin)
-	export MINGW_IN_SHELL=1; qmake -makefile -o makefile.snmpb snmpb.pro; cat makefile.snmpb| sed -e 's/.*qtmain.prl/Makefile/g' >> makefile.temp; mv makefile.temp makefile.snmpb
-else
-	qmake-qt4 -makefile -o makefile.snmpb snmpb.pro
-endif
+app/snmpb:
+	make -C app
 
 clean:
 	-make -C libtomcrypt clean
 	-make -C libsmi clean
 	-make -C qwt clean
-	-make -f makefile.snmpb clean
-	-rm -rf .moc .obj .ui
-	-rm -f makefile.snmpb
-	-rm snmpb
+	-make -C app clean

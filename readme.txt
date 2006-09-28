@@ -1,3 +1,12 @@
+To compile:
+
+# make
+
+Tested & compiles on Cygwin & Linux (FC5)
+
+External packages
+------------------
+
 Snmp++ is taken from http://www.agentpp.com
 Version: 3.2.21
 
@@ -22,3 +31,6 @@ Version: 5.0.0rc0 (Release Candidate 0)
 Modified file(s):
 qwt.pro
 
+--------------------------------
+
+Martin Jolicoeur, September 2006
