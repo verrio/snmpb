@@ -2,6 +2,8 @@
 # Makefile for snmpb app
 #
 
+os:=$(shell uname -o)
+
 snmpb: makefile.snmpb
 	make -f makefile.snmpb
 
