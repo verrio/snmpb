@@ -2,6 +2,9 @@
 # Makefile for snmpb app
 #
 
+snmpb: makefile.snmpb
+	make -f makefile.snmpb
+
 makefile.snmpb:
 ifeq (${os}, Cygwin)
 	export MINGW_IN_SHELL=1; qmake -makefile -o makefile.snmpb snmpb.pro
