@@ -1,10 +1,6 @@
 #
-# WIN32: Dont forget to adjust the PATH env. variable to put the mingw32 
-# toolchain in front of the cygwin toolchain ....
+# snmpb project top-level makefile. Supports Linux & Windows(cygwin/mingwin)
 #
-# export PATH=/cygdrive/c/mingw/bin:${PATH}
-#
-
 os:=$(shell uname -o)
 
 snmpb: libtomcrypt/libtomcrypt.a \
@@ -13,13 +9,18 @@ snmpb: libtomcrypt/libtomcrypt.a \
        app/snmpb
 
 libtomcrypt/libtomcrypt.a:
-	make -C libtomcrypt
+	export CFLAGS="-mno-cygwin"; make -C libtomcrypt
 
 libsmi/lib/.libs/libsmi.a: libsmi/Makefile
 	make -C libsmi
 
 libsmi/Makefile:
+ifeq (${os}, Cygwin)
+	cd libsmi; export CPPFLAGS="-mno-cygwin"; automake-1.4; ./configure --disable-shared --with-pathseparator=';' --with-dirseparator='/'
+else
+	# Linux FC5
 	cd libsmi; automake-1.4; ./configure --disable-shared --with-pathseparator=';' --with-dirseparator='/'
+endif
 
 qwt/lib/libqwt.a: qwt/Makefile
 	make -C qwt

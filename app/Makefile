@@ -22,3 +22,5 @@ clean:
 	-rm -rf .moc .obj .ui
 	-rm -f makefile.snmpb
 	-rm snmpb
+	-rm -rf release
+	-rm -rf debug

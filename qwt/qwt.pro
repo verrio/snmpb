@@ -36,6 +36,7 @@ CONFIG           += staticlib
 
 # DEFINES          += QT_NO_CAST_ASCII
 # DEFINES          += QT_NO_CAST_TO_ASCII
+win32:QMAKE_CXXFLAGS += -mno-cygwin
 
 MOC_DIR           = src/moc
 OBJECTS_DIR       = src/obj
