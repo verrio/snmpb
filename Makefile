@@ -9,7 +9,11 @@ snmpb: libtomcrypt/libtomcrypt.a \
        app/snmpb
 
 libtomcrypt/libtomcrypt.a:
+ifeq (${os}, Cygwin)
 	export CFLAGS="-mno-cygwin"; make -C libtomcrypt
+else
+	make -C libtomcrypt
+endif
 
 libsmi/lib/.libs/libsmi.a: libsmi/Makefile
 	make -C libsmi
