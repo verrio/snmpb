@@ -1,12 +1,19 @@
 #
-# snmpb project top-level makefile. Supports Linux & Windows(cygwin/mingwin)
+# snmpb project top-level makefile. Supports Linux & Windows(mingwin)
 #
 os:=$(shell uname -o)
 
+ifeq (${os}, Cygwin)
+snmpb: libtomcrypt/libtomcrypt.a \
+       libsmi/win/libsmi.a \
+       qwt/lib/libqwt.a \
+       app/snmpb
+else
 snmpb: libtomcrypt/libtomcrypt.a \
        libsmi/lib/.libs/libsmi.a \
        qwt/lib/libqwt.a \
        app/snmpb
+endif
 
 libtomcrypt/libtomcrypt.a:
 ifeq (${os}, Cygwin)
@@ -15,16 +22,17 @@ else
 	make -C libtomcrypt
 endif
 
+ifeq (${os}, Cygwin)
+libsmi/win/libsmi.a:
+	make -C libsmi/win -f Makefile.mingw
+else
 libsmi/lib/.libs/libsmi.a: libsmi/Makefile
 	make -C libsmi
+endif
 
 libsmi/Makefile:
-ifeq (${os}, Cygwin)
-	cd libsmi; export CPPFLAGS="-mno-cygwin"; automake-1.4; ./configure --disable-shared --with-pathseparator=';' --with-dirseparator='/'
-else
 	# Linux FC5
 	cd libsmi; automake-1.4; ./configure --disable-shared --with-pathseparator=';' --with-dirseparator='/'
-endif
 
 qwt/lib/libqwt.a: qwt/Makefile
 	make -C qwt
@@ -42,6 +50,10 @@ app/snmpb:
 
 clean:
 	-make -C libtomcrypt clean
+ifeq (${os}, Cygwin)
+	-make -C libsmi/win -f Makefile.mingw clean
+else
 	-make -C libsmi clean
+endif
 	-make -C qwt clean
 	-make -C app clean
