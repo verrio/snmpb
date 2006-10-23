@@ -41,11 +41,13 @@ LIBDIR = $(INSTROOT)/lib
 ##
 ## Debian Linux mingw cross-compiler version:
 ##
-CC	= i586-mingw32msvc-gcc
+CC	= gcc -mno-cygwin
 CP	= cp
 RM	= rm -f
-AR	= i586-mingw32msvc-ar
+AR	= ar
 MKDIR	= -mkdir
+FLEX    = flex
+BISON   = bison
 
 ##
 ## Definitions:
@@ -140,10 +142,25 @@ smidump.exe:	$(TOOLSOBJS) $(SMILIB)
 smidiff.exe:	$(TOOLSOBJS) $(SMILIB)
 	$(CC) $(CFLAGS) -o smidiff.exe smidiff.o shhopt.o $(SMILIB)
 
+parser-smi.c parser-smi.tab.h: ../lib/parser-smi.y ../lib/scanner-smi.h ../lib/parser-smi.h
+	$(BISON) --defines=parser-smi.tab.h -t -psmi -o parser-smi.c ../lib/parser-smi.y
+
+parser-sming.c: ../lib/parser-sming.y ../lib/scanner-sming.h ../lib/parser-sming.h
+	$(BISON) --defines=parser-sming.tab.h -t -psming -o parser-sming.c ../lib/parser-sming.y
+
+scanner-smi.c: ../lib/scanner-smi.l ../lib/scanner-smi.h parser-smi.tab.h
+	$(FLEX) -Cfe -Psmi -t ../lib/scanner-smi.l > scanner-smi.c
+
+scanner-sming.c: ../lib/scanner-sming.l ../lib/scanner-sming.h parser-sming.tab.h
+	$(FLEX) -Cfe -Psming -t ../lib/scanner-sming.l > scanner-sming.c
+
 clean:
 	$(RM) *.o
 	$(RM) *.a
 	$(RM) *.exe
+	$(RM) parser-sming.c
+	$(RM) scanner-smi.c
+	$(RM) scanner-sming.c
 
 install:	all install-doc install-bin install-mibs install-pibs
 
