@@ -23,7 +23,7 @@ Libsmi is taken from http://www.ibr.cs.tu-bs.de/projects/libsmi
 Version: 0.4.5
 
 Modified file(s):
-NONE
+win/Makefile.mingw
 
 QWT is taken from http://qwt.sourceforge.net
 Version: 5.0.0rc0 (Release Candidate 0)
