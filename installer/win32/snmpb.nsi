@@ -14,9 +14,17 @@
   ;Name and file
   Name "SnmpB"
   OutFile "snmpb-v${NOW}.exe"
+  Icon "..\..\app\images\snmpb.ico"
 
   ;Default installation folder
   InstallDir "$PROGRAMFILES\SnmpB"
+
+;--------------------------------
+;Variables
+
+  Var MUI_TEMP
+  Var STARTMENU_FOLDER
+  Var INI_VALUE
 
 ;--------------------------------
 ;Interface Settings
@@ -30,7 +38,18 @@
   !insertmacro MUI_PAGE_LICENSE "..\..\license.txt"
   !insertmacro MUI_PAGE_COMPONENTS
   !insertmacro MUI_PAGE_DIRECTORY
+
+  ;Start Menu Folder Page Configuration
+  !define MUI_STARTMENUPAGE_REGISTRY_ROOT "HKCU" 
+  !define MUI_STARTMENUPAGE_REGISTRY_KEY "Software\SnmpB" 
+  !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "Start Menu Folder"
+  
+  !insertmacro MUI_PAGE_STARTMENU Application $STARTMENU_FOLDER
+
   !insertmacro MUI_PAGE_INSTFILES
+
+  Page custom MiscOpt
+
   !insertmacro MUI_PAGE_FINISH
 
   !insertmacro MUI_UNPAGE_WELCOME
@@ -44,6 +63,11 @@
   !insertmacro MUI_LANGUAGE "English"
 
 ;--------------------------------
+;Reserve Files  
+  ReserveFile "snmpb.ini"
+  !insertmacro MUI_RESERVEFILE_INSTALLOPTIONS
+
+;--------------------------------
 ;Installer Sections
 
 Section "SnmpB application" SecApp
@@ -52,6 +76,7 @@ Section "SnmpB application" SecApp
   SectionIn RO
 
   File ..\..\app\release\snmpb.exe
+  File ..\..\app\snmpbrc_default
   File $%QTDIR%\bin\Qt3Support*
   File $%QTDIR%\bin\QtCore*
   File $%QTDIR%\bin\QtGui*
@@ -61,8 +86,20 @@ Section "SnmpB application" SecApp
   File $%QTDIR%\bin\mingw*
   File /r /x .svn ..\..\app\images
 
+  ;Store installation folder
+  WriteRegStr HKCU "Software\SnmpB" "" $INSTDIR
+
   ;Create uninstaller
   WriteUninstaller "$INSTDIR\Uninstall.exe"
+
+  !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
+    
+    ;Create shortcuts
+    CreateDirectory "$SMPROGRAMS\$STARTMENU_FOLDER"
+    CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\SnmpB.lnk" "$INSTDIR\snmpb.exe"
+    CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Uninstall.lnk" "$INSTDIR\Uninstall.exe"
+  
+  !insertmacro MUI_STARTMENU_WRITE_END
 
 SectionEnd
 
@@ -93,6 +130,32 @@ Function del_dir
 	Push $0
 FunctionEnd
 
+Function .onInit
+
+  !insertmacro MUI_INSTALLOPTIONS_EXTRACT "snmpb.ini"
+  
+FunctionEnd
+
+LangString TEXT_IO_TITLE ${LANG_ENGLISH} "Miscellaneous installation options"
+LangString TEXT_IO_SUBTITLE ${LANG_ENGLISH} "Installs configuration file, desktop shortcut, ..."
+
+Function MiscOpt
+
+  !insertmacro MUI_HEADER_TEXT "$(TEXT_IO_TITLE)" "$(TEXT_IO_SUBTITLE)"
+  !insertmacro MUI_INSTALLOPTIONS_DISPLAY "snmpb.ini"
+
+  !insertmacro MUI_INSTALLOPTIONS_READ $INI_VALUE "snmpb.ini" "Field 1" "State"
+  
+  StrCmp $INI_VALUE "1" "" +2
+     CreateShortCut "$DESKTOP\SnmpB.lnk" "$INSTDIR\SnmpB.exe"
+
+  !insertmacro MUI_INSTALLOPTIONS_READ $INI_VALUE "snmpb.ini" "Field 2" "State"
+  
+  StrCmp $INI_VALUE "1" "" +2
+     CopyFiles "$INSTDIR\snmpbrc_default" "$PROFILE\.snmpbrc"
+
+FunctionEnd
+
 ;--------------------------------
 ;Descriptions
 
@@ -113,5 +176,26 @@ Section "Uninstall"
 
   ; Quick and dirty ...
   RMDir /r "$INSTDIR"
+
+  !insertmacro MUI_STARTMENU_GETFOLDER Application $MUI_TEMP
+    
+  Delete "$DESKTOP\SnmpB.lnk"
+  Delete "$SMPROGRAMS\$MUI_TEMP\SnmpB.lnk"
+  Delete "$SMPROGRAMS\$MUI_TEMP\Uninstall.lnk"
+  
+  ;Delete empty start menu parent diretories
+  StrCpy $MUI_TEMP "$SMPROGRAMS\$MUI_TEMP"
+ 
+  startMenuDeleteLoop:
+    ClearErrors
+    RMDir $MUI_TEMP
+    GetFullPathName $MUI_TEMP "$MUI_TEMP\.."
+    
+    IfErrors startMenuDeleteLoopDone
+  
+    StrCmp $MUI_TEMP $SMPROGRAMS startMenuDeleteLoopDone startMenuDeleteLoop
+  startMenuDeleteLoopDone:
+
+  DeleteRegKey /ifempty HKCU "Software\SnmpB"
 
 SectionEnd

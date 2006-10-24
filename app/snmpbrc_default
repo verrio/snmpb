@@ -1,0 +1,14 @@
+# don't show any errors by default
+level 0
+
+# preload some basic modules
+load IF-MIB
+load RFC1213-MIB
+load SNMP-FRAMEWORK-MIB
+load SNMP-NOTIFICATION-MIB
+load SNMPv2-CONF
+load SNMPv2-SMI
+load SNMPv2-TC
+load SNMPv2-TM
+load SNMP-VIEW-BASED-ACM-MIB
+
