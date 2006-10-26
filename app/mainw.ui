@@ -24,7 +24,7 @@
    <string>SnmpB</string>
   </property>
   <property name="windowIcon" >
-   <iconset>images/snmpb.png</iconset>
+   <iconset>:/images/snmpb.png</iconset>
   </property>
   <property name="windowIconText" >
    <string>SnmpB - SNMP MIB Browser</string>
@@ -1480,7 +1480,7 @@
   </widget>
   <action name="fileNewAction" >
    <property name="icon" >
-    <iconset>images/filenew.png</iconset>
+    <iconset>:/images/filenew.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;New</string>
@@ -1494,7 +1494,7 @@
   </action>
   <action name="fileOpenAction" >
    <property name="icon" >
-    <iconset>images/fileopen.png</iconset>
+    <iconset>:/images/fileopen.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Open...</string>
@@ -1508,7 +1508,7 @@
   </action>
   <action name="fileSaveAction" >
    <property name="icon" >
-    <iconset>images/filesave.png</iconset>
+    <iconset>:/images/filesave.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Save</string>
@@ -1522,7 +1522,7 @@
   </action>
   <action name="fileSaveAsAction" >
    <property name="icon" >
-    <iconset>images/filesave.png</iconset>
+    <iconset>:/images/filesave.png</iconset>
    </property>
    <property name="text" >
     <string>Save &amp;As...</string>
@@ -1536,7 +1536,7 @@
   </action>
   <action name="filePrintAction" >
    <property name="icon" >
-    <iconset>images/print.png</iconset>
+    <iconset>:/images/print.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Print...</string>
