@@ -47,6 +47,7 @@ unix {
 FORMS	= mainw.ui
 TEMPLATE	=app
 CONFIG	+= qt warn_on
+win32:CONFIG += release
 win32:DEFINES	+= WIN32
 win32:QMAKE_CXXFLAGS += -mno-cygwin
 win32:QMAKE_LFLAGS += -mno-cygwin
