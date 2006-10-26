@@ -84,6 +84,7 @@ Section "SnmpB application" SecApp
   File $%QTDIR%\bin\QtSql*
   File $%QTDIR%\bin\QtXml*
   File $%QTDIR%\bin\mingw*
+  File /r /x .svn ..\..\app\images
 
   ;Store installation folder
   WriteRegStr HKCU "Software\SnmpB" "" $INSTDIR

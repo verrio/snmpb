@@ -22,41 +22,41 @@ void MibNode::SetPixmap(bool isOpened)
     switch(Type)
     {
     case MIBNODE_SCALAR:
-        setPixmap( 0,  qPixmapFromMimeSource( ":/images/scalar.png" ));
+        setPixmap( 0,  qPixmapFromMimeSource( "images/scalar.png" ));
         break;
     case MIBNODE_COLUMN:
-        setPixmap( 0,  qPixmapFromMimeSource( ":/images/column_item.png" ));
+        setPixmap( 0,  qPixmapFromMimeSource( "images/column_item.png" ));
         break;
     case MIBNODE_ROW:
        if (isOpened)		
-            setPixmap( 0,  qPixmapFromMimeSource( ":/images/folder_red_open.png" ));
+            setPixmap( 0,  qPixmapFromMimeSource( "images/folder_red_open.png" ));
         else
-            setPixmap( 0,  qPixmapFromMimeSource( ":/images/folder_red.png" ));
+            setPixmap( 0,  qPixmapFromMimeSource( "images/folder_red.png" ));
         break;
     case MIBNODE_TABLE:	    
        if (isOpened)		
-            setPixmap( 0,  qPixmapFromMimeSource( ":/images/folder_blue_open.png" ));
+            setPixmap( 0,  qPixmapFromMimeSource( "images/folder_blue_open.png" ));
         else
-            setPixmap( 0,  qPixmapFromMimeSource( ":/images/folder_blue.png" ));
+            setPixmap( 0,  qPixmapFromMimeSource( "images/folder_blue.png" ));
         break;
     case MIBNODE_NOTIFICATION:
-        setPixmap( 0,  qPixmapFromMimeSource( ":/images/notification.png" ));
+        setPixmap( 0,  qPixmapFromMimeSource( "images/notification.png" ));
         break;
     case MIBNODE_GROUP:
-        setPixmap( 0,  qPixmapFromMimeSource( ":/images/group.png" ));
+        setPixmap( 0,  qPixmapFromMimeSource( "images/group.png" ));
         break;
     case MIBNODE_COMPLIANCE:
-        setPixmap( 0,  qPixmapFromMimeSource( ":/images/compliance.png" ));
+        setPixmap( 0,  qPixmapFromMimeSource( "images/compliance.png" ));
         break;
     case MIBNODE_CAPABILITIES:
-        setPixmap( 0,  qPixmapFromMimeSource( ":/images/agentcap.png" ));
+        setPixmap( 0,  qPixmapFromMimeSource( "images/agentcap.png" ));
         break;
     case MIBNODE_NODE:
     default:
         if (isOpened)		
-            setPixmap( 0,  qPixmapFromMimeSource( ":/images/folder_yellow_open.png" ));
+            setPixmap( 0,  qPixmapFromMimeSource( "images/folder_yellow_open.png" ));
         else
-            setPixmap( 0,  qPixmapFromMimeSource( ":/images/folder_yellow.png" ));
+            setPixmap( 0,  qPixmapFromMimeSource( "images/folder_yellow.png" ));
     }
 }
 

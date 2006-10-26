@@ -51,7 +51,6 @@ win32:DEFINES	+= WIN32
 win32:QMAKE_CXXFLAGS += -mno-cygwin
 win32:QMAKE_LFLAGS += -mno-cygwin
 win32:RC_FILE = snmpb.rc
-RESOURCES     = snmpb.qrc
 INCLUDEPATH	+= ../snmp++/include ../libtomcrypt/src/headers ../libsmi/lib ../qwt/include
 LIBS	+= -L. -L../libtomcrypt -L../libsmi/lib/.libs -L../qwt/lib -lsmi -ltomcrypt -lqwt
 win32:LIBS	+= -lws2_32 -L../libsmi/win
