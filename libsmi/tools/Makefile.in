@@ -113,14 +113,18 @@ srcdir = @srcdir@
 
 INCLUDES = -I../lib
 
-EXTRA_DIST = smidump.h shhopt.h 			  $(man_MANS) 			  dump-fig.c 			  dump-svg-script.js
+EXTRA_DIST = smidump.h shhopt.h \
+			  $(man_MANS) \
+			  dump-fig.c \
+			  dump-svg-script.js
 
 
 bin_PROGRAMS = smiquery smilint smidump smidiff
 
 bin_SCRIPTS = smistrip smicache
 
-man_MANS = smiquery.1 smilint.1 smidump.1 smidiff.1 			  smistrip.1 smicache.1
+man_MANS = smiquery.1 smilint.1 smidump.1 smidiff.1 \
+			  smistrip.1 smicache.1
 
 
 smiquery_SOURCES = smiquery.c shhopt.c
@@ -129,7 +133,15 @@ smiquery_LDADD = ../lib/libsmi.la
 smilint_SOURCES = smilint.c shhopt.c
 smilint_LDADD = ../lib/libsmi.la
 
-smidump_SOURCES = smidump.c smidump.h shhopt.c 			  dump-sming.c dump-smi.c 			  dump-imports.c dump-types.c dump-tree.c 			  dump-mosy.c dump-corba.c dump-netsnmp.c 			  dump-jax.c dump-xml.c dump-identifiers.c 			  dump-metrics.c dump-cm.c dump-python.c 			  dump-perl.c dump-scli.c dump-xsd.c dump-sppi.c 			  dump-sizes.c dump-svg-script.h dump-svg.c 			  rea.h rea.c dump-compliance.c
+smidump_SOURCES = smidump.c smidump.h shhopt.c \
+			  dump-sming.c dump-smi.c \
+			  dump-imports.c dump-types.c dump-tree.c \
+			  dump-mosy.c dump-corba.c dump-netsnmp.c \
+			  dump-jax.c dump-xml.c dump-identifiers.c \
+			  dump-metrics.c dump-cm.c dump-python.c \
+			  dump-perl.c dump-scli.c dump-xsd.c dump-sppi.c \
+			  dump-sizes.c dump-svg-script.h dump-svg.c \
+			  rea.h rea.c dump-compliance.c
 
 smidump_LDADD = ../lib/libsmi.la -lm
 
@@ -187,8 +199,16 @@ smistrip.1.in smistrip.in
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
-TAR = tar
+TAR = gtar
 GZIP_ENV = --best
+DEP_FILES =  .deps/dump-cm.P .deps/dump-compliance.P .deps/dump-corba.P \
+.deps/dump-identifiers.P .deps/dump-imports.P .deps/dump-jax.P \
+.deps/dump-metrics.P .deps/dump-mosy.P .deps/dump-netsnmp.P \
+.deps/dump-perl.P .deps/dump-python.P .deps/dump-scli.P \
+.deps/dump-sizes.P .deps/dump-smi.P .deps/dump-sming.P \
+.deps/dump-sppi.P .deps/dump-svg.P .deps/dump-tree.P .deps/dump-types.P \
+.deps/dump-xml.P .deps/dump-xsd.P .deps/rea.P .deps/shhopt.P \
+.deps/smidiff.P .deps/smidump.P .deps/smilint.P .deps/smiquery.P
 SOURCES = $(smiquery_SOURCES) $(smilint_SOURCES) $(smidump_SOURCES) $(smidiff_SOURCES)
 OBJECTS = $(smiquery_OBJECTS) $(smilint_OBJECTS) $(smidump_OBJECTS) $(smidiff_OBJECTS)
 
@@ -196,9 +216,9 @@ all: all-redirect
 .SUFFIXES:
 .SUFFIXES: .S .c .lo .o .obj .s
 $(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
-	cd $(top_srcdir) && $(AUTOMAKE) --gnu --include-deps tools/Makefile
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu tools/Makefile
 
-Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
+Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
 	cd $(top_builddir) \
 	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
@@ -246,9 +266,6 @@ uninstall-binPROGRAMS:
 	  rm -f $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
 	done
 
-.c.o:
-	$(COMPILE) -c $<
-
 # FIXME: We should only use cygpath when building on Windows,
 # and only if it is available.
 .c.obj:
@@ -270,9 +287,6 @@ distclean-compile:
 	-rm -f *.tab.c
 
 maintainer-clean-compile:
-
-.c.lo:
-	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
 
 .s.lo:
 	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
@@ -382,7 +396,7 @@ TAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) $(LISP)
 	  awk '    { files[$$0] = 1; } \
 	       END { for (i in files) print i; }'`; \
 	test -z "$(ETAGS_ARGS)$$unique$(LISP)$$tags" \
-	  || (cd $(srcdir) && etags -o $$here/TAGS $(ETAGS_ARGS) $$tags  $$unique $(LISP))
+	  || (cd $(srcdir) && etags $(ETAGS_ARGS) $$tags  $$unique $(LISP) -o $$here/TAGS)
 
 mostlyclean-tags:
 
@@ -398,6 +412,11 @@ distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
 subdir = tools
 
 distdir: $(DISTFILES)
+	here=`cd $(top_builddir) && pwd`; \
+	top_distdir=`cd $(top_distdir) && pwd`; \
+	distdir=`cd $(distdir) && pwd`; \
+	cd $(top_srcdir) \
+	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu tools/Makefile
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
@@ -408,40 +427,38 @@ distdir: $(DISTFILES)
 	    || cp -p $$d/$$file $(distdir)/$$file || :; \
 	  fi; \
 	done
-dump-cm.o: dump-cm.c ../config.h ../lib/smi.h smidump.h shhopt.h rea.h
-dump-compliance.o: dump-compliance.c ../config.h ../lib/smi.h smidump.h \
-	shhopt.h
-dump-corba.o: dump-corba.c ../config.h ../lib/smi.h smidump.h shhopt.h
-dump-identifiers.o: dump-identifiers.c ../config.h ../lib/smi.h \
-	smidump.h shhopt.h
-dump-imports.o: dump-imports.c ../config.h ../lib/smi.h smidump.h \
-	shhopt.h
-dump-jax.o: dump-jax.c ../config.h ../lib/smi.h smidump.h shhopt.h
-dump-metrics.o: dump-metrics.c ../config.h ../lib/smi.h smidump.h \
-	shhopt.h
-dump-mosy.o: dump-mosy.c ../config.h ../lib/smi.h smidump.h shhopt.h
-dump-netsnmp.o: dump-netsnmp.c ../config.h ../lib/smi.h smidump.h \
-	shhopt.h
-dump-perl.o: dump-perl.c ../config.h ../lib/smi.h smidump.h shhopt.h
-dump-python.o: dump-python.c ../config.h ../lib/smi.h smidump.h shhopt.h
-dump-scli.o: dump-scli.c ../config.h ../lib/smi.h smidump.h shhopt.h
-dump-sizes.o: dump-sizes.c ../config.h ../lib/smi.h smidump.h shhopt.h
-dump-smi.o: dump-smi.c ../config.h ../lib/smi.h smidump.h shhopt.h
-dump-sming.o: dump-sming.c ../config.h ../lib/smi.h smidump.h shhopt.h
-dump-sppi.o: dump-sppi.c ../config.h ../lib/smi.h smidump.h shhopt.h
-dump-svg.o: dump-svg.c ../config.h ../lib/smi.h smidump.h shhopt.h rea.h \
-	dump-svg-script.h
-dump-tree.o: dump-tree.c ../config.h ../lib/smi.h smidump.h shhopt.h
-dump-types.o: dump-types.c ../config.h ../lib/smi.h smidump.h shhopt.h
-dump-xml.o: dump-xml.c ../config.h ../lib/smi.h smidump.h shhopt.h
-dump-xsd.o: dump-xsd.c ../config.h ../lib/smi.h smidump.h shhopt.h
-rea.o: rea.c ../config.h ../lib/smi.h smidump.h shhopt.h rea.h
-shhopt.o: shhopt.c shhopt.h
-smidiff.o: smidiff.c ../config.h ../lib/smi.h shhopt.h
-smidump.o: smidump.c ../config.h ../lib/smi.h shhopt.h smidump.h
-smilint.o: smilint.c ../config.h ../lib/smi.h shhopt.h
-smiquery.o: smiquery.c ../config.h ../lib/smi.h shhopt.h
 
+DEPS_MAGIC := $(shell mkdir .deps > /dev/null 2>&1 || :)
+
+-include $(DEP_FILES)
+
+mostlyclean-depend:
+
+clean-depend:
+
+distclean-depend:
+	-rm -rf .deps
+
+maintainer-clean-depend:
+
+%.o: %.c
+	@echo '$(COMPILE) -c $<'; \
+	$(COMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-cp .deps/$(*F).pp .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm .deps/$(*F).pp
+
+%.lo: %.c
+	@echo '$(LTCOMPILE) -c $<'; \
+	$(LTCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-sed -e 's/^\([^:]*\)\.o[ 	]*:/\1.lo \1.o :/' \
+	  < .deps/$(*F).pp > .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm -f .deps/$(*F).pp
 info-am:
 info: info-am
 dvi-am:
@@ -481,26 +498,27 @@ distclean-generic:
 
 maintainer-clean-generic:
 mostlyclean-am:  mostlyclean-binPROGRAMS mostlyclean-compile \
-		mostlyclean-libtool mostlyclean-tags \
+		mostlyclean-libtool mostlyclean-tags mostlyclean-depend \
 		mostlyclean-generic
 
 mostlyclean: mostlyclean-am
 
 clean-am:  clean-binPROGRAMS clean-compile clean-libtool clean-tags \
-		clean-generic mostlyclean-am
+		clean-depend clean-generic mostlyclean-am
 
 clean: clean-am
 
 distclean-am:  distclean-binPROGRAMS distclean-compile distclean-libtool \
-		distclean-tags distclean-generic clean-am
+		distclean-tags distclean-depend distclean-generic \
+		clean-am
 	-rm -f libtool
 
 distclean: distclean-am
 
 maintainer-clean-am:  maintainer-clean-binPROGRAMS \
 		maintainer-clean-compile maintainer-clean-libtool \
-		maintainer-clean-tags maintainer-clean-generic \
-		distclean-am
+		maintainer-clean-tags maintainer-clean-depend \
+		maintainer-clean-generic distclean-am
 	@echo "This command is intended for maintainers to use;"
 	@echo "it deletes files that may require special tools to rebuild."
 
@@ -513,8 +531,9 @@ maintainer-clean-compile mostlyclean-libtool distclean-libtool \
 clean-libtool maintainer-clean-libtool uninstall-binSCRIPTS \
 install-binSCRIPTS install-man1 uninstall-man1 install-man \
 uninstall-man tags mostlyclean-tags distclean-tags clean-tags \
-maintainer-clean-tags distdir info-am info dvi-am dvi check check-am \
-installcheck-am installcheck install-exec-am install-exec \
+maintainer-clean-tags distdir mostlyclean-depend distclean-depend \
+clean-depend maintainer-clean-depend info-am info dvi-am dvi check \
+check-am installcheck-am installcheck install-exec-am install-exec \
 install-data-am install-data install-am install uninstall-am uninstall \
 all-redirect all-am all installdirs mostlyclean-generic \
 distclean-generic clean-generic maintainer-clean-generic clean \

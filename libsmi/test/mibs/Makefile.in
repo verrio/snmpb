@@ -111,7 +111,16 @@ pibdir = @pibdir@
 smipath = @smipath@
 srcdir = @srcdir@
 
-EXTRA_DIST = LIBSMI-TEST-MIB 			  LIBSMI-TEST-001-MIB LIBSMI-TEST-002-MIB 			  LIBSMI-TEST-003-MIB LIBSMI-TEST-004-MIB 			  LIBSMI-TEST-005-MIB LIBSMI-TEST-006-MIB 			  LIBSMI-TEST-007-MIB LIBSMI-TEST-008-MIB 			  LIBSMI-TEST-009-MIB LIBSMI-TEST-010-MIB 			  LIBSMI-TEST-011-MIB LIBSMI-TEST-012-MIB 			  LIBSMI-TEST-013-MIB LIBSMI-TEST-014-MIB 			  LIBSMI-TEST-015-MIB LIBSMI-TEST-016-MIB 			  LIBSMI-TEST-017-MIB LIBSMI-TEST-018-MIB
+EXTRA_DIST = LIBSMI-TEST-MIB \
+			  LIBSMI-TEST-001-MIB LIBSMI-TEST-002-MIB \
+			  LIBSMI-TEST-003-MIB LIBSMI-TEST-004-MIB \
+			  LIBSMI-TEST-005-MIB LIBSMI-TEST-006-MIB \
+			  LIBSMI-TEST-007-MIB LIBSMI-TEST-008-MIB \
+			  LIBSMI-TEST-009-MIB LIBSMI-TEST-010-MIB \
+			  LIBSMI-TEST-011-MIB LIBSMI-TEST-012-MIB \
+			  LIBSMI-TEST-013-MIB LIBSMI-TEST-014-MIB \
+			  LIBSMI-TEST-015-MIB LIBSMI-TEST-016-MIB \
+			  LIBSMI-TEST-017-MIB LIBSMI-TEST-018-MIB
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../../config.h
@@ -121,14 +130,14 @@ DIST_COMMON =  Makefile.am Makefile.in
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
-TAR = tar
+TAR = gtar
 GZIP_ENV = --best
 all: all-redirect
 .SUFFIXES:
 $(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
-	cd $(top_srcdir) && $(AUTOMAKE) --gnu --include-deps test/mibs/Makefile
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu test/mibs/Makefile
 
-Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
+Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
 	cd $(top_builddir) \
 	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
@@ -141,6 +150,11 @@ distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
 subdir = test/mibs
 
 distdir: $(DISTFILES)
+	here=`cd $(top_builddir) && pwd`; \
+	top_distdir=`cd $(top_distdir) && pwd`; \
+	distdir=`cd $(distdir) && pwd`; \
+	cd $(top_srcdir) \
+	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu test/mibs/Makefile
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
