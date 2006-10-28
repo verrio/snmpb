@@ -1,3 +1,6 @@
+# Path
+path mibs;pibs
+
 # don't show any errors by default
 level 0
 

@@ -272,30 +272,28 @@ void MibModule::InitLib(int restart)
     int smiflags;
     char *smipath;
 
-	if (restart)
-	{
-		smipath = strdup(smiGetPath());
-	    smiExit();
+    if (restart)
+    {
+        smipath = strdup(smiGetPath());
+        smiExit();
         smiflags = smiGetFlags();
-	}
-
-    smiInit(NULL);
-
-	if (restart)
-	{
+        smiInit(NULL);
         smiSetPath(smipath);
-		free(smipath);
-	}
-	else
-	{
+        free(smipath);
+    }
+    else
+    {
+        smiInit(NULL);
         smiflags = smiGetFlags();
         smiflags |= SMI_FLAG_ERRORS;
-	    smiSetPath(QDir::currentPath() + "/mibs" + PATH_SEPARATOR + 
-			       QDir::currentPath() + "/pibs");
-		// Read configuration file
+#if 0 
+        smiSetPath(QDir::currentPath() + "/mibs" + PATH_SEPARATOR + 
+                   QDir::currentPath() + "/pibs");
+#endif
+        // Read configuration file
         QString snmpbrc = QDir::homeDirPath() + "/.snmpbrc";
         smiReadConfig(snmpbrc, NULL);
-	}
+    }
 
     smiSetFlags(smiflags);
     smiSetErrorLevel(0);
