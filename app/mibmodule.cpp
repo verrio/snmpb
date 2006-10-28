@@ -286,10 +286,6 @@ void MibModule::InitLib(int restart)
         smiInit(NULL);
         smiflags = smiGetFlags();
         smiflags |= SMI_FLAG_ERRORS;
-#if 0 
-        smiSetPath(QDir::currentPath() + "/mibs" + PATH_SEPARATOR + 
-                   QDir::currentPath() + "/pibs");
-#endif
         // Read configuration file
         QString snmpbrc = QDir::homeDirPath() + "/.snmpbrc";
         smiReadConfig(snmpbrc, NULL);

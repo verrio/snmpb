@@ -19,7 +19,7 @@
 #define DEFAULT_USERCONFIG ".smirc"
 
 /* The default search path to lookup SMI module files. */
-#define DEFAULT_SMIPATH "c:/smi/mibs/ietf;c:/smi/mibs/iana;c:/smi/mibs/irtf;c:/smi/mibs/site;c:/smi/mibs/tubs"
+#define DEFAULT_SMIPATH "mibs;pibs"
 
 /* The default path separator character. */
 #define PATH_SEPARATOR ';'
