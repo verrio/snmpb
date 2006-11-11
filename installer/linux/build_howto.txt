@@ -11,3 +11,5 @@ file in the local RPMS/i386 directory.
 This will install the package by default in /usr.
 Change the _prefix value in the spec file to change this.
 
+Note: to install the package, cd RPMS/i386 then, as root, 
+issue the command: rpm -i snmpb-x.x.x.i386.rpm
