@@ -23,7 +23,7 @@ agents. It also supports agent discovery and graph plotting.
 %prep
 
 %build
-make INSTALL_PREFIX=$RPM_BUILD_ROOT/%{_prefix}
+make INSTALL_PREFIX=%{_prefix}
 
 %install
 make INSTALL_PREFIX=$RPM_BUILD_ROOT/%{_prefix} install
