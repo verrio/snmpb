@@ -4,7 +4,7 @@
 %define name      snmpb
 %define _prefix   /usr
 
-Summary: SnmpB is a cross-platform graphical SNMP MIB browser written in QT.
+Summary: Graphical SNMP MIB browser written in QT.
 Name: %{name}
 Version: 0.0.1
 Release:  1
@@ -23,7 +23,7 @@ agents. It also supports agent discovery and graph plotting.
 %prep
 
 %build
-make 
+make INSTALL_PREFIX=$RPM_BUILD_ROOT/%{_prefix}
 
 %install
 make INSTALL_PREFIX=$RPM_BUILD_ROOT/%{_prefix} install
