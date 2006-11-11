@@ -1,5 +1,8 @@
-%define name snmpb
-%define _prefix /usr
+%define packager  Martin Jolicoeur
+%define vendor    SnmpB
+%define _topdir   ../ 
+%define name      snmpb
+%define _prefix   /usr
 
 Summary: SnmpB is a cross-platform graphical SNMP MIB browser written in QT.
 Name: %{name}
