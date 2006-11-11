@@ -1,4 +1,13 @@
-~/.rpmmacros
+How to build a binary rpm for snmpb
+------------------------------------
 
-rpmbuild -ba snmpb.spec
+1- log in a root
+2- cd SPECS
+3- rpmbuild -bb snmpb.spec
+
+This will build the package and create a .rpm 
+file in the local RPMS/i386 directory.
+
+This will install the package by default in /usr.
+Change the _prefix value in the spec file to change this.
 
