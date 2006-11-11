@@ -4,7 +4,7 @@
 
 os:=$(shell uname -o)
 
-snmpb: makefile.snmpb
+snmpb_app: makefile.snmpb
 	make -f makefile.snmpb
 
 makefile.snmpb:
