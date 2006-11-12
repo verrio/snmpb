@@ -21,7 +21,7 @@
    <string>SnmpB</string>
   </property>
   <property name="windowIcon" >
-   <iconset>../../../../../../:/images/snmpb.png</iconset>
+   <iconset resource="snmpb.qrc" >:/images/snmpb.png</iconset>
   </property>
   <property name="windowIconText" >
    <string>SnmpB - SNMP MIB Browser</string>
@@ -1403,6 +1403,21 @@
      <height>29</height>
     </rect>
    </property>
+   <widget class="QMenu" name="helpMenu" >
+    <property name="title" >
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="helpContentsAction" />
+    <addaction name="helpIndexAction" />
+    <addaction name="separator" />
+    <addaction name="helpAboutAction" />
+   </widget>
+   <widget class="QMenu" name="PopupMenuEditor" >
+    <property name="title" >
+     <string>&amp;Options</string>
+    </property>
+    <addaction name="optionsHorizontal_splitAction" />
+   </widget>
    <widget class="QMenu" name="fileMenu" >
     <property name="title" >
      <string>&amp;File</string>
@@ -1416,28 +1431,13 @@
     <addaction name="separator" />
     <addaction name="fileExitAction" />
    </widget>
-   <widget class="QMenu" name="PopupMenuEditor" >
-    <property name="title" >
-     <string>&amp;Options</string>
-    </property>
-    <addaction name="optionsHorizontal_splitAction" />
-   </widget>
-   <widget class="QMenu" name="helpMenu" >
-    <property name="title" >
-     <string>&amp;Help</string>
-    </property>
-    <addaction name="helpContentsAction" />
-    <addaction name="helpIndexAction" />
-    <addaction name="separator" />
-    <addaction name="helpAboutAction" />
-   </widget>
    <addaction name="fileMenu" />
    <addaction name="PopupMenuEditor" />
    <addaction name="helpMenu" />
   </widget>
   <action name="fileNewAction" >
    <property name="icon" >
-    <iconset>../../../../../../:/images/filenew.png</iconset>
+    <iconset resource="snmpb.qrc" >:/images/filenew.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;New</string>
@@ -1451,7 +1451,7 @@
   </action>
   <action name="fileOpenAction" >
    <property name="icon" >
-    <iconset>../../../../../../:/images/fileopen.png</iconset>
+    <iconset resource="snmpb.qrc" >:/images/fileopen.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Open...</string>
@@ -1465,7 +1465,7 @@
   </action>
   <action name="fileSaveAction" >
    <property name="icon" >
-    <iconset>../../../../../../:/images/filesave.png</iconset>
+    <iconset resource="snmpb.qrc" >:/images/filesave.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Save</string>
@@ -1479,7 +1479,7 @@
   </action>
   <action name="fileSaveAsAction" >
    <property name="icon" >
-    <iconset>../../../../../../:/images/filesave.png</iconset>
+    <iconset resource="snmpb.qrc" >:/images/filesave.png</iconset>
    </property>
    <property name="text" >
     <string>Save &amp;As...</string>
@@ -1493,7 +1493,7 @@
   </action>
   <action name="filePrintAction" >
    <property name="icon" >
-    <iconset>../../../../../../:/images/print.png</iconset>
+    <iconset resource="snmpb.qrc" >:/images/print.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Print...</string>
@@ -1576,7 +1576,9 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="snmpb.qrc" />
+ </resources>
  <connections>
   <connection>
    <sender>fileExitAction</sender>
