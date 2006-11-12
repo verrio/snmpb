@@ -47,7 +47,7 @@ class Trap: public QObject
     Q_OBJECT
     
 public:
-    Trap(Q3ListView* TL, Q3ListView* TC, Q3TextEdit* TI);
+    Trap(Q3ListView* TL, Q3ListView* TC, QTextEdit* TI);
     TrapItem* Add(Oid &id, QString &no, QString &date, 
                   QString &time, QString &timestamp, 
                   QString &nottype, QString &msgtype, QString &version, 
@@ -64,7 +64,7 @@ signals:
 private:
     Q3ListView* TrapLog;
     Q3ListView* TrapContent;
-    Q3TextEdit* TrapInfo;
+    QTextEdit* TrapInfo;
 };
 
 #endif /* TRAP_H */

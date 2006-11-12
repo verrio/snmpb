@@ -38,7 +38,7 @@ class MibModule: public QObject
     Q_OBJECT
     
 public:
-    MibModule(Q3TextEdit *MI, Q3ListView *AM, Q3ListView *LM);
+    MibModule(QTextEdit *MI, Q3ListView *AM, Q3ListView *LM);
     void Refresh(void);
 
 public slots:
@@ -61,7 +61,7 @@ private:
     Q3StrList Total;
     Q3StrList Wanted;
     
-    Q3TextEdit *ModuleInfo;
+    QTextEdit *ModuleInfo;
     Q3ListView *UnloadedM;
     Q3ListView *LoadedM;
 };

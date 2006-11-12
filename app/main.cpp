@@ -10,7 +10,7 @@ int main( int argc, char ** argv )
 {
     QApplication a( argc, argv );
     Ui_MainW w;
-    Q3MainWindow mw;
+    QMainWindow mw;
     w.setupUi(&mw);
 
     CheckForConfigFiles();

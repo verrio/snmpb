@@ -27,12 +27,12 @@ void LoadedMibModule::PrintProperties(QString& text)
     // Add last revision
     SmiRevision * rev = smiGetFirstRevision(module);
     if(rev)
-        text += QString("<tr><td><b>Last revision:</b></td><td>%1</td>>/tr>").arg(asctime(gmtime(&rev->date)));
+        text += QString("<tr><td><b>Last revision:</b></td><td>%1</td></tr>").arg(asctime(gmtime(&rev->date)));
     
     // Add the description
     text += QString("<tr><td><b>Description:</b></td><td><font face=fixed size=-1 color=blue>");
     text += Q3StyleSheet::convertFromPlainText (module->description);
-    text += QString("</font></td>>/tr>");
+    text += QString("</font></td></tr>");
     
     // Add root node name
     SmiNode *node = smiGetModuleIdentityNode(module);
@@ -55,17 +55,17 @@ void LoadedMibModule::PrintProperties(QString& text)
         ipprev = ip;
         ip = smiGetNextImport(ip);
     }
-    text += QString("</font></td>>/tr>");
+    text += QString("</font></td></tr>");
     
     // Add organization
     text += QString("<tr><td><b>Organization:</b></td><td>");
     text += Q3StyleSheet::convertFromPlainText (module->organization);
-    text += QString("</td>>/tr>");
+    text += QString("</td></tr>");
     
     // Add contact info
     text += QString("<tr><td><b>Contact Info:</b></td><td><font face=fixed size=-1>");
     text += Q3StyleSheet::convertFromPlainText (module->contactinfo);
-    text += QString("</font></td>>/tr>");
+    text += QString("</font></td></tr>");
              
     text += QString("</table>");
 }
@@ -87,7 +87,7 @@ char* LoadedMibModule::GetMibLanguage(void)
     }
 }
 
-MibModule::MibModule(Q3TextEdit *MI, Q3ListView *AM, Q3ListView *LM)
+MibModule::MibModule(QTextEdit *MI, Q3ListView *AM, Q3ListView *LM)
 {
     ModuleInfo = MI;
     UnloadedM = AM;

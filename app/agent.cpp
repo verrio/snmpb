@@ -48,7 +48,7 @@ Agent::Agent(QComboBox* UN, QComboBox* SL, QLineEdit* CN,
              QRadioButton* v1, QRadioButton* v2, QRadioButton* v3,
              QLineEdit* RC, QLineEdit* WC, 
              QPushButton* DU, QPushButton* AU, QPushButton* SU,
-             MibView* MV, Q3TextEdit* Q, Trap* TR)
+             MibView* MV, QTextEdit* Q, Trap* TR)
 {
     // Save all widget pointers in this class ... (ugly, I know ...)
     UserName = UN;
