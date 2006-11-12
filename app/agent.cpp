@@ -3,6 +3,7 @@
 
 #include "mibview.h"
 #include "agent.h"
+#include "configfiles.h"
 #include "snmp_pp/notifyqueue.h"
 
 #define BULK_MAX 10
@@ -99,10 +100,9 @@ Agent::Agent(QComboBox* UN, QComboBox* SL, QLineEdit* CN,
     
     // get the Boot counter (you may use any own method for this)
     char *engineId = "not_needed";
-    char *filename = "snmpv3_boot_counter";
     unsigned int snmpEngineBoots = 0;
-    
-    status = getBootCounter(filename, engineId, snmpEngineBoots);
+
+    status = getBootCounter(GetBootCounterConfigFile(), engineId, snmpEngineBoots);
     if ((status != SNMPv3_OK) && (status < SNMPv3_FILEOPEN_ERROR))
     {
         QString err = QString("Error loading snmpEngineBoots counter: %1\n")
@@ -115,7 +115,7 @@ Agent::Agent(QComboBox* UN, QComboBox* SL, QLineEdit* CN,
     snmpEngineBoots++;
     
     // save the boot counter
-    status = saveBootCounter(filename, engineId, snmpEngineBoots);
+    status = saveBootCounter(GetBootCounterConfigFile(), engineId, snmpEngineBoots);
     if (status != SNMPv3_OK)
     {
         QString err = QString("Error saving snmpEngineBoots counter: %1\n")
@@ -147,13 +147,8 @@ Agent::Agent(QComboBox* UN, QComboBox* SL, QLineEdit* CN,
     // The v3MP creates a USM object, get the pointer to it
     USM *usm = v3mp->get_usm();
     
-    // Load the USM users from a file
-    if (SNMPv3_USM_OK != usm->load_users("usm_users.bin"))
-    {
-        QString err = QString("Could not load users from file.");
-        QMessageBox::warning ( NULL, "SnmpB", err, 
-                               QMessageBox::Ok, Qt::NoButton);
-    }
+    // Load the USM users from a file, if any
+    usm->load_users(GetUsmUsersConfigFile());
     
     // Bind on the SNMP trap port
     snmp->notify_set_listen_port(TRAP_PORT);

@@ -5,6 +5,7 @@
 #include <q3listview.h>
 #include <q3ptrlist.h>
 
+#include "configfiles.h"
 #include "mibmodule.h"
 
 #define PATH_SEPARATOR ';'
@@ -287,8 +288,7 @@ void MibModule::InitLib(int restart)
         smiflags = smiGetFlags();
         smiflags |= SMI_FLAG_ERRORS;
         // Read configuration file
-        QString snmpbrc = QDir::homeDirPath() + "/.snmpbrc";
-        smiReadConfig(snmpbrc, NULL);
+        smiReadConfig(GetMibConfigFile(), NULL);
     }
 
     smiSetFlags(smiflags);

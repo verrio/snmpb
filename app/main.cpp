@@ -4,6 +4,7 @@
 #include "agent.h"
 #include "trap.h"
 #include "graph.h"
+#include "configfiles.h"
 
 int main( int argc, char ** argv )
 {
@@ -11,6 +12,8 @@ int main( int argc, char ** argv )
     Ui_MainW w;
     Q3MainWindow mw;
     w.setupUi(&mw);
+
+    CheckForConfigFiles();
 
     MibModule modules(w.ModuleInfo,
                       w.UnloadedModules, w.LoadedModules);

@@ -32,13 +32,15 @@ SOURCES	+= ../snmp++/src/address.cpp \
 	mibmodule.cpp \
 	agent.cpp \
 	trap.cpp \
-	graph.cpp
+	graph.cpp \
+	configfiles.cpp
 HEADERS	+= mibnode.h \
 	mibview.h \
 	mibmodule.h \
 	agent.h \
 	trap.h \
-	graph.h
+	graph.h \
+	configfiles.h
 unix {
   UI_DIR = .ui
   MOC_DIR = .moc
