@@ -5,7 +5,6 @@
 #include "mibview.h"
 #include "smi.h"
 //Added by qt3to4:
-#include <Q3StrList>
 #include <Q3PtrList>
 
 class LoadedMibModule
@@ -56,10 +55,10 @@ private:
     void RebuildUnloadedList(void);
     
 private:
-    Q3StrList Unloaded;
+    QStringList Unloaded;
     LoadedModule Loaded;
-    Q3StrList Total;
-    Q3StrList Wanted;
+    QStringList Total;
+    QStringList Wanted;
     
     QTextEdit *ModuleInfo;
     QTreeWidget *UnloadedM;

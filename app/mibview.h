@@ -10,7 +10,6 @@
 #include <qpixmap.h>
 #include <q3header.h> 
 //Added by qt3to4:
-#include <Q3StrList>
 #include <QContextMenuEvent>
 #include <Q3PtrList>
 #include <qtreewidget.h>
@@ -78,7 +77,7 @@ class MibViewLoader
 {
 public:
     MibViewLoader();
-    void Load (Q3StrList &);
+    void Load (QStringList &);
     MibNode *PopulateSubTree (SmiNode *smiNode, MibNode *parent, MibNode *sibling);    
     void RegisterView(BasicMibView* view);
     

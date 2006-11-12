@@ -284,7 +284,7 @@ MibViewLoader::MibViewLoader ()
     ignoreleafs = 0;
 }
 
-void MibViewLoader::Load(Q3StrList &modules)
+void MibViewLoader::Load(QStringList &modules)
 {
     char *modulename;
     SmiModule *smiModule;
@@ -307,8 +307,9 @@ void MibViewLoader::Load(Q3StrList &modules)
             ++it;
         }
         
-        do
+        for (int i=0; i < modules.count(); i++) 
         {
+            module = modules[i];
             modulename = smiLoadModule(module);
             smiModule = modulename ? smiGetModule(modulename) : NULL;
             
@@ -316,7 +317,7 @@ void MibViewLoader::Load(Q3StrList &modules)
                 modv[modc++] = smiModule;
             else
                 fprintf(stderr, "SnmpB: cannot locate module `%s'\n", module);
-        } while ( (module = modules.next()) != 0);
+        }
     }
     
     pmodc = modc;

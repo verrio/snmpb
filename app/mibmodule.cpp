@@ -186,10 +186,10 @@ void MibModule::RebuildLoadedList(void)
         lmodule = new LoadedMibModule(mod);
         Loaded.append(lmodule);
         
-        if (Wanted.find(lmodule->name) == -1)
-            required = "yes";
-        else
+        if (Wanted.contains(lmodule->name))
             required = "no";
+        else
+            required = "yes";
     
         QStringList values;
         values << lmodule->name.latin1() << required
@@ -205,24 +205,24 @@ void MibModule::RebuildLoadedList(void)
 
 void MibModule::RebuildUnloadedList(void)
 {
-    const char * current = Total.first();
+    const char *current;
     
     Unloaded.clear();
     UnloadedM->clear();
     
-    if (current != 0) {
-        do {
-            LoadedMibModule *lmodule = Loaded.first();
-            if ( lmodule != NULL) {
-                do {
-                    if (lmodule->name == current) break;
-                } while ( (lmodule = Loaded.next()) != 0);
-            }
-            if (!lmodule) {
-                Unloaded.append(current);
-                new QTreeWidgetItem(UnloadedM, QStringList(current));
-            }
-        } while ( (current = Total.next()) != 0);
+    for(int i=0; i < Total.count(); i++)
+    {
+        current = Total[i];
+        LoadedMibModule *lmodule = Loaded.first();
+        if ( lmodule != NULL) {
+            do {
+                if (lmodule->name == current) break;
+            } while ( (lmodule = Loaded.next()) != 0);
+        }
+        if (!lmodule) {
+            Unloaded.append(current);
+            new QTreeWidgetItem(UnloadedM, QStringList(current));
+        }
     }
 }
 
