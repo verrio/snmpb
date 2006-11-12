@@ -13,26 +13,27 @@
 #include <Q3StrList>
 #include <QContextMenuEvent>
 #include <Q3PtrList>
-
+#include <qtreewidget.h>
+#include <qheaderview.h>
 #include "mibnode.h"
 #include "smi.h"
 
-class BasicMibView : public Q3ListView
+class BasicMibView : public QTreeWidget
 {
     Q_OBJECT
     
 public:
-    BasicMibView ( QWidget * parent = 0, const char * name = 0, Qt::WFlags f = 0 );
+    BasicMibView ( QWidget * parent = 0 );
     void Populate (void);
     void SetDirty(void);
     void TreeTabSelected(int index);
     
 protected slots:
-    void ExpandNode( Q3ListViewItem * item);
-    void CollapseNode( Q3ListViewItem * item);
+    void ExpandNode( QTreeWidgetItem * item);
+    void CollapseNode( QTreeWidgetItem * item);
     void ExpandFromNode(void);
     void CollapseFromNode(void);
-    virtual void SelectedNode( Q3ListViewItem * item);
+    virtual void SelectedNode( QTreeWidgetItem * item, QTreeWidgetItem * old);
 
 signals:
     void SelectedOid(const QString& oid);
@@ -49,10 +50,10 @@ class MibView : public BasicMibView
     Q_OBJECT
     
 public:
-    MibView ( QWidget * parent = 0, const char * name = 0, Qt::WFlags f = 0 );
+    MibView ( QWidget * parent = 0 );
     
 protected slots:
-    void SelectedNode( Q3ListViewItem * item);
+    void SelectedNode( QTreeWidgetItem * item, QTreeWidgetItem * old);
     void WalkFromNode(void);
     void GetFromNode(void);
     void GetNextFromNode(void);

@@ -10,6 +10,9 @@
 #include <q3mimefactory.h>
 #include <Q3StrList>
 
+#include <qtreewidget.h>
+#include <QTreeWidgetItemIterator>
+
 #include "mibview.h"
 
 MibViewLoader MibLoader;
@@ -19,29 +22,28 @@ MibViewLoader MibLoader;
 //
 //
 
-BasicMibView::BasicMibView (QWidget * parent, const char * name, Qt::WFlags f) : Q3ListView(parent, name, f)
+BasicMibView::BasicMibView (QWidget * parent) : QTreeWidget(parent)
 {
-    // Set some properties for the ListView
+    // Set some properties for the TreeView
     header()->hide();
-    setSorting(-1, false);
+    setSortingEnabled( FALSE );
+    setHorizontalScrollBarPolicy ( Qt::ScrollBarAlwaysOn );
+    header()->setSortIndicatorShown( FALSE );
     setLineWidth( 2 );
-    addColumn( tr( "MibName" ) );
-    setHScrollBarMode(Q3ScrollView::AlwaysOn);
     setFrameShadow( MibView::Plain );
-    setResizePolicy( Q3ScrollView::Manual );
     setAllColumnsShowFocus( FALSE );
-    setShowSortIndicator( FALSE );
+
     setRootIsDecorated( TRUE );
     
     MibLoader.RegisterView(this);
     
     // Connect some signals
-    connect( this, SIGNAL( expanded( Q3ListViewItem * ) ),
-             this, SLOT( ExpandNode( Q3ListViewItem * ) ) );
-    connect( this, SIGNAL( collapsed( Q3ListViewItem * ) ),
-             this, SLOT( CollapseNode( Q3ListViewItem * ) ) );
-    connect( this, SIGNAL( currentChanged( Q3ListViewItem * ) ),
-             this, SLOT( SelectedNode( Q3ListViewItem * ) ) );
+    connect( this, SIGNAL( itemExpanded( QTreeWidgetItem * ) ),
+             this, SLOT( ExpandNode( QTreeWidgetItem * ) ) );
+    connect( this, SIGNAL( itemCollapsed( QTreeWidgetItem * ) ),
+             this, SLOT( CollapseNode( QTreeWidgetItem * ) ) );
+    connect( this, SIGNAL( currentItemChanged( QTreeWidgetItem *, QTreeWidgetItem * ) ),
+             this, SLOT( SelectedNode( QTreeWidgetItem *, QTreeWidgetItem * ) ) );
 }
 
 void BasicMibView::SetDirty(void)
@@ -73,63 +75,65 @@ void BasicMibView::Populate(void)
 
 void BasicMibView::ExpandFromNode(void)
 {
-    Q3ListViewItem *start = NULL, *end = NULL;
+    QTreeWidgetItem *start = NULL, *end = NULL;
     
     // Could it be null ?
     if ((start = currentItem()) == NULL)
         return;
-    
+
     // Go back in the tree till we find a sibling to mark the end
     // If end is NULL, we expanded from the root
-    Q3ListViewItem *ptr = start;
-    while (ptr && !(end = ptr->nextSibling()))
+    QTreeWidgetItem *ptr = start;
+    while (ptr && ptr->parent() && 
+           !(end = ptr->parent()->child(ptr->parent()->indexOfChild(ptr) + 1)))
         ptr = ptr->parent();
-    
+ 
     // Now go thru all nodes till the end marker
-    Q3ListViewItemIterator it( start );
-    while ( it.current() && (it.current() != end)) {
-        Q3ListViewItem *item = it.current();
-        item->setOpen(TRUE);
+    QTreeWidgetItemIterator it( start );
+    while ( *it && (*it != end)) {
+        QTreeWidgetItem *item = *it;
+        item->setExpanded(TRUE);
         ++it;
     }
 }
 
 void BasicMibView::CollapseFromNode(void)
 {
-    Q3ListViewItem *start = NULL, *end = NULL;
+    QTreeWidgetItem *start = NULL, *end = NULL;
     
     // Could it be null ?
     if ((start = currentItem()) == NULL)
         return;
-    
+
     // Go back in the tree till we find a sibling to mark the end
     // If end is NULL, we collapsed from the root
-    Q3ListViewItem *ptr = start;
-    while (ptr && !(end = ptr->nextSibling()))
+    QTreeWidgetItem *ptr = start;
+    while (ptr && ptr->parent() && 
+           !(end = ptr->parent()->child(ptr->parent()->indexOfChild(ptr) + 1)))
         ptr = ptr->parent();
     
     // Now go thru all nodes till the end marker
-    Q3ListViewItemIterator it( start );
-    while ( it.current() && (it.current() != end)) {
-        Q3ListViewItem *item = it.current();
-        item->setOpen(FALSE);
+    QTreeWidgetItemIterator it( start );
+    while ( *it && (*it != end)) {
+        QTreeWidgetItem *item = *it;
+        item->setExpanded(FALSE);
         ++it;
     }
 }
 
-void BasicMibView::ExpandNode( Q3ListViewItem * item)
+void BasicMibView::ExpandNode( QTreeWidgetItem * item)
 {
     MibNode *node = (MibNode*)item;
     node->SetPixmap(TRUE);
 }
 
-void BasicMibView::CollapseNode( Q3ListViewItem * item)
+void BasicMibView::CollapseNode( QTreeWidgetItem * item)
 {
     MibNode *node = (MibNode*)item;
     node->SetPixmap(FALSE);
 }
 
-void BasicMibView::SelectedNode( Q3ListViewItem * item)
+void BasicMibView::SelectedNode( QTreeWidgetItem * item, QTreeWidgetItem * old)
 {
     MibNode *node = (MibNode*)item;
     
@@ -160,13 +164,13 @@ void BasicMibView::contextMenuEvent ( QContextMenuEvent *)
 //
 //
 
-MibView::MibView (QWidget * parent, const char * name, Qt::WFlags f) : BasicMibView(parent, name, f)
+MibView::MibView (QWidget * parent) : BasicMibView(parent)
 {
 }
 
 void MibView::WalkFromNode(void)
 {
-    Q3ListViewItem *start = NULL;
+    QTreeWidgetItem *start = NULL;
     
     // Could it be null ?
     if ((start = currentItem()) == NULL)
@@ -177,7 +181,7 @@ void MibView::WalkFromNode(void)
 
 void MibView::GetFromNode(void)
 {
-    Q3ListViewItem *start = NULL;
+    QTreeWidgetItem *start = NULL;
     
     // Could it be null ?
     if ((start = currentItem()) == NULL)
@@ -190,7 +194,7 @@ void MibView::GetFromNode(void)
 
 void MibView::GetNextFromNode(void)
 {
-    Q3ListViewItem *start = NULL;
+    QTreeWidgetItem *start = NULL;
     
     // Could it be null ?
     if ((start = currentItem()) == NULL)
@@ -203,7 +207,7 @@ void MibView::GetNextFromNode(void)
 
 void MibView::SetFromNode(void)
 {
-    Q3ListViewItem *start = NULL;
+    QTreeWidgetItem *start = NULL;
     
     // Could it be null ?
     if ((start = currentItem()) == NULL)
@@ -214,7 +218,7 @@ void MibView::SetFromNode(void)
 
 void MibView::StopFromNode(void)
 {
-    Q3ListViewItem *start = NULL;
+    QTreeWidgetItem *start = NULL;
     
     // Could it be null ?
     if ((start = currentItem()) == NULL)
@@ -225,7 +229,7 @@ void MibView::StopFromNode(void)
 
 void MibView::TableViewFromNode(void)
 {
-    Q3ListViewItem *start = NULL;
+    QTreeWidgetItem *start = NULL;
     
     // Could it be null ?
     if ((start = currentItem()) == NULL)
@@ -234,7 +238,7 @@ void MibView::TableViewFromNode(void)
     emit TableViewFromOid(((MibNode*)start)->GetOid());
 }
 
-void MibView::SelectedNode( Q3ListViewItem * item)
+void MibView::SelectedNode( QTreeWidgetItem * item, QTreeWidgetItem * old)
 {
     MibNode *node = (MibNode*)item;
     QString text;

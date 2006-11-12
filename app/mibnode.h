@@ -8,10 +8,11 @@
 #include <qfileinfo.h>
 #include <qtimer.h>
 #include <qpixmap.h>
+#include <qtreewidget.h>
 
 #include "smi.h"
 
-class MibNode : public Q3ListViewItem
+class MibNode : public QTreeWidgetItem
 {
 public:
     enum MibType 
@@ -28,7 +29,7 @@ public:
     };
     
     MibNode(enum MibType mibtype, SmiNode* node, MibNode* parent, MibNode * sibling = NULL);
-    MibNode(QString label, Q3ListView * parent);
+    MibNode(QString label, QTreeWidget * parent);
 
     void SetPixmap(bool isOpened);
     void PrintProperties(QString& text);

@@ -2,7 +2,7 @@
 //Added by qt3to4:
 #include <q3mimefactory.h>
 
-MibNode::MibNode(enum MibType mibtype, SmiNode *node, MibNode * parent, MibNode * sibling) : Q3ListViewItem(parent, sibling)
+MibNode::MibNode(enum MibType mibtype, SmiNode *node, MibNode * parent, MibNode * sibling) : QTreeWidgetItem(parent, sibling)
 {    
     Type = mibtype;
     Node = node;
@@ -10,8 +10,9 @@ MibNode::MibNode(enum MibType mibtype, SmiNode *node, MibNode * parent, MibNode 
     SetPixmap(FALSE);
 }
 
-MibNode::MibNode(QString label, Q3ListView* parent) : Q3ListViewItem(parent, label)
+MibNode::MibNode(QString label, QTreeWidget* parent) : QTreeWidgetItem(parent)
 {
+    setText (0, label);
     Type = MIBNODE_NODE;
     Node = NULL;
     SetPixmap(FALSE);    
@@ -22,41 +23,41 @@ void MibNode::SetPixmap(bool isOpened)
     switch(Type)
     {
     case MIBNODE_SCALAR:
-        setPixmap( 0,  qPixmapFromMimeSource( ":/images/scalar.png" ));
+        setIcon( 0,  qPixmapFromMimeSource( ":/images/scalar.png" ));
         break;
     case MIBNODE_COLUMN:
-        setPixmap( 0,  qPixmapFromMimeSource( ":/images/column_item.png" ));
+        setIcon( 0,  qPixmapFromMimeSource( ":/images/column_item.png" ));
         break;
     case MIBNODE_ROW:
        if (isOpened)		
-            setPixmap( 0,  qPixmapFromMimeSource( ":/images/folder_red_open.png" ));
+            setIcon( 0,  qPixmapFromMimeSource( ":/images/folder_red_open.png" ));
         else
-            setPixmap( 0,  qPixmapFromMimeSource( ":/images/folder_red.png" ));
+            setIcon( 0,  qPixmapFromMimeSource( ":/images/folder_red.png" ));
         break;
     case MIBNODE_TABLE:	    
        if (isOpened)		
-            setPixmap( 0,  qPixmapFromMimeSource( ":/images/folder_blue_open.png" ));
+            setIcon( 0,  qPixmapFromMimeSource( ":/images/folder_blue_open.png" ));
         else
-            setPixmap( 0,  qPixmapFromMimeSource( ":/images/folder_blue.png" ));
+            setIcon( 0,  qPixmapFromMimeSource( ":/images/folder_blue.png" ));
         break;
     case MIBNODE_NOTIFICATION:
-        setPixmap( 0,  qPixmapFromMimeSource( ":/images/notification.png" ));
+        setIcon( 0,  qPixmapFromMimeSource( ":/images/notification.png" ));
         break;
     case MIBNODE_GROUP:
-        setPixmap( 0,  qPixmapFromMimeSource( ":/images/group.png" ));
+        setIcon( 0,  qPixmapFromMimeSource( ":/images/group.png" ));
         break;
     case MIBNODE_COMPLIANCE:
-        setPixmap( 0,  qPixmapFromMimeSource( ":/images/compliance.png" ));
+        setIcon( 0,  qPixmapFromMimeSource( ":/images/compliance.png" ));
         break;
     case MIBNODE_CAPABILITIES:
-        setPixmap( 0,  qPixmapFromMimeSource( ":/images/agentcap.png" ));
+        setIcon( 0,  qPixmapFromMimeSource( ":/images/agentcap.png" ));
         break;
     case MIBNODE_NODE:
     default:
         if (isOpened)		
-            setPixmap( 0,  qPixmapFromMimeSource( ":/images/folder_yellow_open.png" ));
+            setIcon( 0,  qPixmapFromMimeSource( ":/images/folder_yellow_open.png" ));
         else
-            setPixmap( 0,  qPixmapFromMimeSource( ":/images/folder_yellow.png" ));
+            setIcon( 0,  qPixmapFromMimeSource( ":/images/folder_yellow.png" ));
     }
 }
 
@@ -232,7 +233,7 @@ void MibNode::PrintProperties(QString& text)
 {
        if (!Node)
 	   return;
-       
+
        // Create a table and add elements ...
        text = QString("<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\" align=\"left\">");  
        
