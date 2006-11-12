@@ -389,15 +389,12 @@
            <number>6</number>
           </property>
           <item rowspan="3" row="1" column="1" >
-           <widget class="Q3GroupBox" name="V3Options" >
+           <widget class="QGroupBox" name="V3Options" >
             <property name="enabled" >
              <bool>true</bool>
             </property>
             <property name="title" >
              <string>SNMPv3 options</string>
-            </property>
-            <property name="orientation" >
-             <enum>Qt::Vertical</enum>
             </property>
             <layout class="QGridLayout" >
              <property name="margin" >
@@ -591,20 +588,9 @@
            </widget>
           </item>
           <item row="0" column="0" colspan="2" >
-           <widget class="Q3ButtonGroup" name="TargetAgent" >
-            <property name="sizePolicy" >
-             <sizepolicy>
-              <hsizetype>5</hsizetype>
-              <vsizetype>5</vsizetype>
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
+           <widget class="QGroupBox" name="TargetAgent" >
             <property name="title" >
              <string>Target SNMP Agent</string>
-            </property>
-            <property name="orientation" >
-             <enum>Qt::Vertical</enum>
             </property>
             <layout class="QHBoxLayout" >
              <property name="margin" >
@@ -689,12 +675,9 @@
            </widget>
           </item>
           <item row="3" column="0" >
-           <widget class="Q3GroupBox" name="GeneralOptions" >
+           <widget class="QGroupBox" name="GeneralOptions" >
             <property name="title" >
              <string>General Options</string>
-            </property>
-            <property name="orientation" >
-             <enum>Qt::Vertical</enum>
             </property>
             <layout class="QGridLayout" >
              <property name="margin" >
@@ -744,7 +727,7 @@
            </widget>
           </item>
           <item row="1" column="0" >
-           <widget class="Q3ButtonGroup" name="Version" >
+           <widget class="QGroupBox" name="Version" >
             <property name="toolTip" >
              <string>Select the SNMP version to use</string>
             </property>
@@ -759,9 +742,6 @@
             </property>
             <property name="checked" >
              <bool>false</bool>
-            </property>
-            <property name="orientation" >
-             <enum>Qt::Vertical</enum>
             </property>
             <layout class="QVBoxLayout" >
              <property name="margin" >
@@ -798,15 +778,12 @@
            </widget>
           </item>
           <item row="2" column="0" >
-           <widget class="Q3GroupBox" name="V1V2cOptions" >
+           <widget class="QGroupBox" name="V1V2cOptions" >
             <property name="toolTip" >
              <string>Here options specific to SNMPv1/v2c can be entered</string>
             </property>
             <property name="title" >
              <string>SNMPv1 / v2c options</string>
-            </property>
-            <property name="orientation" >
-             <enum>Qt::Vertical</enum>
             </property>
             <layout class="QGridLayout" >
              <property name="margin" >
@@ -1193,12 +1170,9 @@
                <number>6</number>
               </property>
               <item>
-               <widget class="Q3ButtonGroup" name="Graph" >
+               <widget class="QGroupBox" name="Graph" >
                 <property name="title" >
                  <string>Graph</string>
-                </property>
-                <property name="orientation" >
-                 <enum>Qt::Vertical</enum>
                 </property>
                 <layout class="QGridLayout" >
                  <property name="margin" >
@@ -1255,12 +1229,9 @@
                </widget>
               </item>
               <item>
-               <widget class="Q3ButtonGroup" name="Plot" >
+               <widget class="QGroupBox" name="Plot" >
                 <property name="title" >
                  <string>Plot</string>
-                </property>
-                <property name="orientation" >
-                 <enum>Qt::Vertical</enum>
                 </property>
                 <layout class="QGridLayout" >
                  <property name="margin" >
@@ -1612,18 +1583,6 @@
    <class>MibView</class>
    <extends>QWidget</extends>
    <header>mibview.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>Q3GroupBox</class>
-   <extends>QGroupBox</extends>
-   <header>Qt3Support/Q3GroupBox</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>Q3ButtonGroup</class>
-   <extends>Q3GroupBox</extends>
-   <header>Qt3Support/Q3ButtonGroup</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
