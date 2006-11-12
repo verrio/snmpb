@@ -31,7 +31,7 @@ void LoadedMibModule::PrintProperties(QString& text)
     
     // Add the description
     text += QString("<tr><td><b>Description:</b></td><td><font face=fixed size=-1 color=blue>");
-    text += Q3StyleSheet::convertFromPlainText (module->description);
+    text += Qt::convertFromPlainText (module->description);
     text += QString("</font></td></tr>");
     
     // Add root node name
@@ -59,12 +59,12 @@ void LoadedMibModule::PrintProperties(QString& text)
     
     // Add organization
     text += QString("<tr><td><b>Organization:</b></td><td>");
-    text += Q3StyleSheet::convertFromPlainText (module->organization);
+    text += Qt::convertFromPlainText (module->organization);
     text += QString("</td></tr>");
     
     // Add contact info
     text += QString("<tr><td><b>Contact Info:</b></td><td><font face=fixed size=-1>");
-    text += Q3StyleSheet::convertFromPlainText (module->contactinfo);
+    text += Qt::convertFromPlainText (module->contactinfo);
     text += QString("</font></td></tr>");
              
     text += QString("</table>");

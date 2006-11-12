@@ -1,6 +1,7 @@
 #include "mibnode.h"
 //Added by qt3to4:
 #include <q3mimefactory.h>
+#include <qtextedit.h>
 
 MibNode::MibNode(enum MibType mibtype, SmiNode *node, MibNode * parent, MibNode * sibling) : QTreeWidgetItem(parent, sibling)
 {    
@@ -258,12 +259,12 @@ void MibNode::PrintProperties(QString& text)
 
        // Add the reference
        text += QString("<tr><td><b>Reference:</b></td><td><font face=fixed size=-1 color=blue>");
-       text += Q3StyleSheet::convertFromPlainText (Node->reference);
+       text += Qt::convertFromPlainText (Node->reference);
        text += QString("</font></td></tr>");
        
        // Add the description
        text += QString("<tr><td><b>Description:</b></td><td><font face=fixed size=-1 color=blue>");
-       text += Q3StyleSheet::convertFromPlainText (Node->description);
+       text += Qt::convertFromPlainText (Node->description);
        text += QString("</font></td></tr>");
 	   
        text += QString("</table>");
