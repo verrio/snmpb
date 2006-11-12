@@ -16,8 +16,6 @@ TrapItem::TrapItem(Oid &id, QTreeWidget* parent, const QStringList &values,
     _ctxname = ctxname;
     _ctxid = ctxid;
     _msgid = msgid;
-                   
-    content.setAutoDelete(TRUE);
 }
 
 void TrapItem::PrintProperties(QString& text)
@@ -61,14 +59,13 @@ void TrapItem::PrintContent(QTreeWidget* TrapContent)
     QString bd_title = QString("Bindings (%1)").arg(content.count());
     QTreeWidgetItem *bd = new QTreeWidgetItem(TrapContent, QStringList(bd_title));
      
-    Q3PtrListIterator<Vb> it( content );
     Vb *vb;
     Oid id;
     QString bd_val;
-    int i = 0;
-    
-    while ( (vb = it.current()) != 0 )
+   
+    for (int i = 0; i < content.count(); i++) 
     {    
+        vb = content[i];
         bd_val = QString("");
         vb->get_oid(id);
         unsigned long* moid = &(id[0]);
@@ -98,8 +95,6 @@ void TrapItem::PrintContent(QTreeWidget* TrapContent)
         }
         
         new QTreeWidgetItem(bd, QStringList(bd_val));
-        ++it;
-        i++;
     }
 
     QString com_title = QString("Community: %1").arg(_community);
@@ -123,7 +118,7 @@ Trap::Trap(QTreeWidget* TL, QTreeWidget* TC, QTextEdit* TI)
     connect( TrapLog, SIGNAL( currentItemChanged( QTreeWidgetItem *, QTreeWidgetItem * ) ),
              this, SLOT( SelectedTrap( QTreeWidgetItem *, QTreeWidgetItem * ) ) );
     connect( this, SIGNAL(TrapProperties(const QString&)),
-             (QObject*)TrapInfo, SLOT(setText(const QString&)) );
+             (QObject*)TrapInfo, SLOT(setHtml(const QString&)) );
 }
 
 TrapItem* Trap::Add(Oid &id, const QStringList &values,

@@ -8,7 +8,6 @@
 //Added by qt3to4:
 #include <QContextMenuEvent>
 #include <q3mimefactory.h>
-#include <Q3StrList>
 
 #include <qtreewidget.h>
 #include <QTreeWidgetItemIterator>
@@ -137,11 +136,8 @@ void BasicMibView::SelectedNode( QTreeWidgetItem * item, QTreeWidgetItem * old)
 {
     MibNode *node = (MibNode*)item;
     
-    // Could it be null ?
-    if (node == NULL)
-        return;
-    
-    emit SelectedOid(node->GetOid());
+    if (node)
+        emit SelectedOid(node->GetOid());
 }
 
 void BasicMibView::contextMenuEvent ( QContextMenuEvent *)
@@ -242,9 +238,12 @@ void MibView::SelectedNode( QTreeWidgetItem * item, QTreeWidgetItem * old)
 {
     MibNode *node = (MibNode*)item;
     QString text;
-    
-    node->PrintProperties(text);
-    emit NodeProperties(text);
+
+    if (node)
+    {
+        node->PrintProperties(text);
+        emit NodeProperties(text);
+    }
 }
 
 void MibView::contextMenuEvent ( QContextMenuEvent *)
@@ -298,13 +297,10 @@ void MibViewLoader::Load(QStringList &modules)
     
     if ( (module = modules.first()) != 0)
     {
-        BasicMibView *mv;
-        Q3PtrListIterator<BasicMibView> it( views );
-        while ( (mv = it.current()) != 0 )
+        for (int j=0; j < views.count(); j++)
         {
-            mv->SetDirty();
-            mv->clear();
-            ++it;
+            views[j]->SetDirty();
+            views[j]->clear();
         }
         
         for (int i=0; i < modules.count(); i++) 

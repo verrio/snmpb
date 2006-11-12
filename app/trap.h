@@ -2,8 +2,6 @@
 #define TRAP_H
 
 #include <q3listview.h>
-//Added by qt3to4:
-#include <Q3PtrList>
 
 #include "ui_mainw.h"
 #include "snmp_pp/snmp_pp.h"
@@ -27,7 +25,7 @@ private:
     QString _ctxid;
     QString _msgid;
 
-    Q3PtrList<Vb> content;
+    QList<Vb*> content;
 };
 
 class Trap: public QObject

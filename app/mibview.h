@@ -11,7 +11,6 @@
 #include <q3header.h> 
 //Added by qt3to4:
 #include <QContextMenuEvent>
-#include <Q3PtrList>
 #include <qtreewidget.h>
 #include <qheaderview.h>
 #include "mibnode.h"
@@ -91,7 +90,7 @@ private:
     int ignoreconformance;
     int ignoreleafs;
     
-    Q3PtrList<BasicMibView> views;
+    QList<BasicMibView*> views;
 };
 
 extern MibViewLoader MibLoader;

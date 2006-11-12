@@ -108,7 +108,7 @@ MibModule::MibModule(QTextEdit *MI, QTreeWidget *AM, QTreeWidget *LM)
     connect( LoadedM, SIGNAL(itemSelectionChanged ()),
              this, SLOT( ShowModuleInfo() ) );
     connect( this, SIGNAL(ModuleProperties(const QString&)),
-             (QObject*)ModuleInfo, SLOT(setText(const QString&)) );
+             (QObject*)ModuleInfo, SLOT(setHtml(const QString&)) );
     
     for(SmiModule *mod = smiGetFirstModule(); 
         mod; mod = smiGetNextModule(mod))
