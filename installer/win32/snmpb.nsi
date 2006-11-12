@@ -76,7 +76,6 @@ Section "SnmpB application" SecApp
   SectionIn RO
 
   File ..\..\app\release\snmpb.exe
-  File ..\..\app\snmpbrc_default
   File $%QTDIR%\bin\Qt3Support*
   File $%QTDIR%\bin\QtCore*
   File $%QTDIR%\bin\QtGui*
@@ -147,11 +146,6 @@ Function MiscOpt
   
   StrCmp $INI_VALUE "1" "" +2
      CreateShortCut "$DESKTOP\SnmpB.lnk" "$INSTDIR\SnmpB.exe"
-
-  !insertmacro MUI_INSTALLOPTIONS_READ $INI_VALUE "snmpb.ini" "Field 2" "State"
-  
-  StrCmp $INI_VALUE "1" "" +2
-     CopyFiles "$INSTDIR\snmpbrc_default" "$PROFILE\.snmpbrc"
 
 FunctionEnd
 
