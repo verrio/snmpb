@@ -456,12 +456,14 @@ void Agent::AsyncCallbackTrap(int reason, Pdu &pdu, SnmpTarget &target)
                 seclevel = "Unknown";
         }
     }
-        
+
     // Add the trap ...
-    TrapItem *ti = Tr->Add(id, no, date, time, timestamp, nottype, 
-                           msgtype, version, agtaddr, agtport,
-                           community, seclevel, ctxname, ctxid, msgid);
-    
+    QStringList values;
+    values << no << date << time << timestamp << nottype 
+           << msgtype << version << agtaddr << agtport;
+    TrapItem *ti = Tr->Add(id, values, community, seclevel, 
+                           ctxname, ctxid, msgid);
+ 
     // Now, loop thru all varbinds and extract info ...
     for (int i=0; i < pdu.get_vb_count(); i++)
     {

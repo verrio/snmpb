@@ -4,29 +4,13 @@
 #include "trap.h"
 #include "agent.h"
 
-TrapItem::TrapItem(Oid &id, QTreeWidget* parent, QString no, QString date,
-                   QString time, QString timestamp,
-                   QString nottype, QString msgtype, QString version, 
-                   QString agtaddr, QString agtport,
+TrapItem::TrapItem(Oid &id, QTreeWidget* parent, const QStringList &values,
                    QString community, QString seclevel, 
-                   QString ctxname, QString ctxid, QString msgid)
+                   QString ctxname, QString ctxid, QString msgid):
+                   QTreeWidgetItem(parent, values)
 {
-    QStringList values;
-    values << no << date << time << timestamp << nottype 
-           << msgtype << version << agtaddr << agtport;
-    QTreeWidgetItem(parent, values);
-
     oid = id;
     
-    _no = no;
-    _date = date;
-    _time = time;
-    _timestamp = timestamp;
-    _nottype = nottype;
-    _msgtype = msgtype;
-    _version = version;
-    _agtaddr = agtaddr;
-    _agtport = agtport;
     _community = community;
     _seclevel = seclevel;
     _ctxname = ctxname;
@@ -73,10 +57,10 @@ void TrapItem::PrintProperties(QString& text)
 void TrapItem::PrintContent(QTreeWidget* TrapContent)
 {
     TrapContent->clear();
-        
+     
     QString bd_title = QString("Bindings (%1)").arg(content.count());
     QTreeWidgetItem *bd = new QTreeWidgetItem(TrapContent, QStringList(bd_title));
-    
+     
     Q3PtrListIterator<Vb> it( content );
     Vb *vb;
     Oid id;
@@ -142,17 +126,13 @@ Trap::Trap(QTreeWidget* TL, QTreeWidget* TC, QTextEdit* TI)
              (QObject*)TrapInfo, SLOT(setText(const QString&)) );
 }
 
-TrapItem* Trap::Add(Oid &id, QString &no, QString &date, 
-                    QString &time, QString &timestamp, 
-                    QString &nottype, QString &msgtype, QString &version, 
-                    QString &agtaddr, QString &agtport,
+TrapItem* Trap::Add(Oid &id, const QStringList &values,
                     QString &community, QString &seclevel,
                     QString &ctxname, QString &ctxid, QString &msgid)
 {
     // Create the trap item
-    TrapItem *ti = new TrapItem(id, TrapLog, no, date, time, timestamp,
-                                nottype, msgtype, version, agtaddr, agtport,
-                                community, seclevel, ctxname, ctxid, msgid);
+    TrapItem *ti = new TrapItem(id, TrapLog, values, community, seclevel, 
+                                ctxname, ctxid, msgid);
     
     return (ti);
 }

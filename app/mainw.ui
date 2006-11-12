@@ -259,6 +259,9 @@
                <property name="frameShadow" >
                 <enum>QFrame::Plain</enum>
                </property>
+               <property name="rootIsDecorated" >
+                <bool>false</bool>
+               </property>
                <column>
                 <property name="text" >
                  <string>Module</string>
@@ -290,6 +293,9 @@
                </property>
                <property name="frameShadow" >
                 <enum>QFrame::Plain</enum>
+               </property>
+               <property name="rootIsDecorated" >
+                <bool>false</bool>
                </property>
               </widget>
              </item>
@@ -918,6 +924,9 @@
               </property>
               <property name="frameShadow" >
                <enum>QFrame::Plain</enum>
+              </property>
+              <property name="rootIsDecorated" >
+               <bool>false</bool>
               </property>
               <property name="allColumnsShowFocus" >
                <bool>true</bool>

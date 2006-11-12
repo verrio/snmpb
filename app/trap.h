@@ -11,10 +11,7 @@
 class TrapItem : public QTreeWidgetItem
 {
 public:
-    TrapItem(Oid &id, QTreeWidget* parent, QString no, QString date,
-             QString time, QString timestamp,
-             QString nottype, QString msgtype, QString version, 
-             QString agtaddr, QString agtport,
+    TrapItem(Oid &id, QTreeWidget* parent, const QStringList &values,
              QString community, QString seclevel,
              QString ctxname, QString ctxid, QString msgid);
 
@@ -24,15 +21,6 @@ public:
     
 private:
     Oid oid;
-    QString _no;
-    QString _date;
-    QString _time;
-    QString _timestamp;
-    QString _nottype;
-    QString _msgtype;
-    QString _version;
-    QString _agtaddr;
-    QString _agtport;
     QString _community;
     QString _seclevel;
     QString _ctxname;
@@ -48,10 +36,7 @@ class Trap: public QObject
     
 public:
     Trap(QTreeWidget* TL, QTreeWidget* TC, QTextEdit* TI);
-    TrapItem* Add(Oid &id, QString &no, QString &date, 
-                  QString &time, QString &timestamp, 
-                  QString &nottype, QString &msgtype, QString &version, 
-                  QString &agtaddr, QString &agtport,
+    TrapItem* Add(Oid &id, const QStringList &values, 
                   QString &community, QString &seclevel,
                   QString &ctxname, QString &ctxid, QString &msgid);
     
