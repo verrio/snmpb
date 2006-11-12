@@ -124,18 +124,17 @@ void MibModule::ShowModuleInfo(void)
     if ((item_list.count() == 1) && ((item = item_list.first()) != 0))
     {
         QString text;
-        LoadedMibModule *lmodule = Loaded.first();
-        
-        if ( lmodule != NULL) {
-            do {
-                if (lmodule->name == item->text(0))
-                {
-                    lmodule->PrintProperties(text);
-                    emit ModuleProperties(text);
-                    break;
-                }
-            } while ( (lmodule = Loaded.next()) != 0);
-        }	
+        LoadedMibModule *lmodule;
+        for(int i = 0; i < Loaded.count(); i++)
+        { 
+            lmodule = Loaded[i];
+            if (lmodule->name == item->text(0))
+            {
+                lmodule->PrintProperties(text);
+                emit ModuleProperties(text);
+                break;
+            }
+        }
     }    
 }
 
@@ -169,6 +168,12 @@ void MibModule::RebuildTotalList(void)
     free(smipath);
 }
 
+bool lessThanLoadedMibModule(const LoadedMibModule *lm1, 
+                             const LoadedMibModule *lm2)
+{
+    return lm1->name < lm2->name;
+}
+
 void MibModule::RebuildLoadedList(void)
 {
     SmiModule *mod;
@@ -200,26 +205,29 @@ void MibModule::RebuildLoadedList(void)
         mod = smiGetNextModule(mod);
     }
     
-    Loaded.sort();
+    qSort(Loaded.begin(), Loaded.end(), lessThanLoadedMibModule);
 }
 
 void MibModule::RebuildUnloadedList(void)
 {
     const char *current;
-    
+    int j;
+ 
     Unloaded.clear();
     UnloadedM->clear();
     
     for(int i=0; i < Total.count(); i++)
     {
         current = Total[i];
-        LoadedMibModule *lmodule = Loaded.first();
-        if ( lmodule != NULL) {
-            do {
-                if (lmodule->name == current) break;
-            } while ( (lmodule = Loaded.next()) != 0);
+        LoadedMibModule *lmodule = NULL;
+
+        for(j = 0; j < Loaded.count(); j++)
+        { 
+            lmodule = Loaded[j];
+            if (lmodule->name == current) break;
         }
-        if (!lmodule) {
+
+        if (!lmodule || (j >= Loaded.count())) {
             Unloaded.append(current);
             new QTreeWidgetItem(UnloadedM, QStringList(current));
         }

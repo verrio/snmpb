@@ -289,10 +289,11 @@ void Graph::CreateGraph(void)
 {
     if (!GraphName->currentText().isEmpty())
     {        
-        Q3PtrListIterator<GraphItem> it( Items );
         GraphItem *GI;
-        while ( (GI = it.current()) != 0 ) {
-            if (GI->title() == GraphName->currentText())
+        for (int i = 0; i < Items.count(); i++)
+        {
+            GI = Items[i];
+            if (GI->title().text() == GraphName->currentText())
             {
                 QString err = QString("Graph \"%1\" already exist !")
                       .arg(GraphName->currentText());
@@ -300,7 +301,6 @@ void Graph::CreateGraph(void)
                              QMessageBox::Ok, Qt::NoButton);
                 return;
             }
-            ++it;
         }
                 
         GI = new GraphItem(GraphName->currentText(), GraphTab);
@@ -312,16 +312,16 @@ void Graph::DeleteGraph(void)
 {
     if (!GraphName->currentText().isEmpty())
     {
-        Q3PtrListIterator<GraphItem> it( Items );
         GraphItem *GI;
-        while ( (GI = it.current()) != 0 ) {
-            if (GI->title() == GraphName->currentText())
+        for (int i = 0; i < Items.count(); i++)
+        {
+            GI = Items[i];
+            if (GI->title().text() == GraphName->currentText())
             {
-                // setAutoDelete is turned ON, the object will be freed ...
                 Items.remove(GI);
+                delete GI;
                 return;
             }
-            ++it;
         }
     }
 }
@@ -370,15 +370,15 @@ void Graph::CreatePlot(void)
         
         if (!GraphName->currentText().isEmpty())
         {
-            Q3PtrListIterator<GraphItem> it( Items );
-            GraphItem *GI;
-            while ( (GI = it.current()) != 0 ) {
-                if (GI->title() == GraphName->currentText())
+            GraphItem *GI = NULL;
+            for (int i = 0; i < Items.count(); i++)
+            {
+                GI = Items[i];
+                if (GI->title().text() == GraphName->currentText())
                     break;
-                ++it;
             }
-        
-            GI->AddCurve(PlotObject->currentText(), p);
+            if (GI)
+                GI->AddCurve(PlotObject->currentText(), p);
         }
     }
 }
@@ -391,15 +391,15 @@ void Graph::DeletePlot(void)
         
         if (!GraphName->currentText().isEmpty())
         {
-            Q3PtrListIterator<GraphItem> it( Items );
-            GraphItem *GI;
-            while ( (GI = it.current()) != 0 ) {
-                if (GI->title() == GraphName->currentText())
+            GraphItem *GI = NULL;
+            for (int i = 0; i < Items.count(); i++)
+            {
+                GI = Items[i];
+                if (GI->title().text() == GraphName->currentText())
                     break;
-                ++it;
             }
-        
-            GI->RemoveCurve(PlotObject->currentText());
+            if (GI) 
+                GI->RemoveCurve(PlotObject->currentText());
         }
     }
 }
