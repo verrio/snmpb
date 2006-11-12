@@ -87,25 +87,25 @@ char* LoadedMibModule::GetMibLanguage(void)
     }
 }
 
-MibModule::MibModule(QTextEdit *MI, Q3ListView *AM, Q3ListView *LM)
+MibModule::MibModule(QTextEdit *MI, QTreeWidget *AM, QTreeWidget *LM)
 {
     ModuleInfo = MI;
     UnloadedM = AM;
     LoadedM = LM;
-    
-    LoadedM->addColumn("Required");
-    LoadedM->addColumn("Language");
-    LoadedM->addColumn("Path");
-    
+
+    QStringList columns;
+    columns << "Module" << "Required" << "Language" << "Path"; 
+    LoadedM->setHeaderLabels(columns);
+
     InitLib(0);
     RebuildTotalList();
-    
+
     // Connect some signals
-    connect( UnloadedM, SIGNAL(doubleClicked ( Q3ListViewItem *, const QPoint &, int )),
+    connect( UnloadedM, SIGNAL(itemDoubleClicked ( QTreeWidgetItem *, int )),
              this, SLOT( AddModule() ) );
-    connect( LoadedM, SIGNAL(doubleClicked ( Q3ListViewItem *, const QPoint &, int )),
+    connect( LoadedM, SIGNAL(itemDoubleClicked ( QTreeWidgetItem *, int )),
              this, SLOT( RemoveModule() ) );
-    connect( LoadedM, SIGNAL(selectionChanged ()),
+    connect( LoadedM, SIGNAL(itemSelectionChanged ()),
              this, SLOT( ShowModuleInfo() ) );
     connect( this, SIGNAL(ModuleProperties(const QString&)),
              (QObject*)ModuleInfo, SLOT(setText(const QString&)) );
@@ -118,10 +118,11 @@ MibModule::MibModule(QTextEdit *MI, Q3ListView *AM, Q3ListView *LM)
 
 void MibModule::ShowModuleInfo(void)
 {
-    Q3ListViewItem *item;
-    
-    if ((item = LoadedM->selectedItem()) != 0)
-    {	
+    QTreeWidgetItem *item;
+    QList<QTreeWidgetItem *> item_list = LoadedM->selectedItems();
+
+    if ((item_list.count() == 1) && ((item = item_list.first()) != 0))
+    {
         QString text;
         LoadedMibModule *lmodule = Loaded.first();
         
@@ -189,12 +190,12 @@ void MibModule::RebuildLoadedList(void)
             required = "yes";
         else
             required = "no";
-        
-        new Q3ListViewItem(LoadedM, 
-                          lmodule->name.latin1(), 
-                          required, 
-                          lmodule->GetMibLanguage(),
-                          lmodule->module->path);
+    
+        QStringList values;
+        values << lmodule->name.latin1() << required
+               << lmodule->GetMibLanguage() << lmodule->module->path; 
+        new QTreeWidgetItem(LoadedM, values);
+
         i++;
         mod = smiGetNextModule(mod);
     }
@@ -219,7 +220,7 @@ void MibModule::RebuildUnloadedList(void)
             }
             if (!lmodule) {
                 Unloaded.append(current);
-                new Q3ListViewItem(UnloadedM, current);
+                new QTreeWidgetItem(UnloadedM, QStringList(current));
             }
         } while ( (current = Total.next()) != 0);
     }
@@ -227,11 +228,12 @@ void MibModule::RebuildUnloadedList(void)
 
 void MibModule::AddModule(void)
 {
-    Q3ListViewItem *item;//, *nextitem  = NULL;
+    QTreeWidgetItem *item;//, *nextitem  = NULL;
     //    char buf[200];
-    
-    if ((item = UnloadedM->selectedItem()) != 0)
-    { 
+    QList<QTreeWidgetItem *> item_list = UnloadedM->selectedItems();
+
+    if ((item_list.count() == 1) && ((item = item_list.first()) != 0))
+    {
         // Save string of next item to restore selection ...
         //        nextitem = item->itemBelow() ? item->itemBelow():item->itemAbove();
         //        if (nextitem)
@@ -251,9 +253,10 @@ void MibModule::AddModule(void)
 
 void MibModule::RemoveModule(void)
 {
-    Q3ListViewItem *item;
-    
-    if ((item = LoadedM->selectedItem()) != 0)
+    QTreeWidgetItem *item;
+    QList<QTreeWidgetItem *> item_list = LoadedM->selectedItems();
+
+    if ((item_list.count() == 1) && ((item = item_list.first()) != 0))
     {
         Wanted.remove(item->text(0).latin1());
         Refresh();

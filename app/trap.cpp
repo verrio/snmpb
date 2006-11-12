@@ -4,16 +4,18 @@
 #include "trap.h"
 #include "agent.h"
 
-TrapItem::TrapItem(Oid &id, Q3ListView* parent, QString no, QString date,
+TrapItem::TrapItem(Oid &id, QTreeWidget* parent, QString no, QString date,
                    QString time, QString timestamp,
                    QString nottype, QString msgtype, QString version, 
                    QString agtaddr, QString agtport,
                    QString community, QString seclevel, 
-                   QString ctxname, QString ctxid, QString msgid) : 
-                   Q3ListViewItem(parent, no, date, time, timestamp,
-                                 nottype, msgtype, version, agtaddr)
+                   QString ctxname, QString ctxid, QString msgid)
 {
-    setText(8, agtport);
+    QStringList values;
+    values << no << date << time << timestamp << nottype 
+           << msgtype << version << agtaddr << agtport;
+    QTreeWidgetItem(parent, values);
+
     oid = id;
     
     _no = no;
@@ -68,12 +70,12 @@ void TrapItem::PrintProperties(QString& text)
     text += QString("</table>");
 }
 
-void TrapItem::PrintContent(Q3ListView* TrapContent)
+void TrapItem::PrintContent(QTreeWidget* TrapContent)
 {
     TrapContent->clear();
         
     QString bd_title = QString("Bindings (%1)").arg(content.count());
-    Q3ListViewItem *bd = new Q3ListViewItem(TrapContent, bd_title);
+    QTreeWidgetItem *bd = new QTreeWidgetItem(TrapContent, QStringList(bd_title));
     
     Q3PtrListIterator<Vb> it( content );
     Vb *vb;
@@ -111,13 +113,13 @@ void TrapItem::PrintContent(Q3ListView* TrapContent)
                                            .arg(vb->get_printable_value());
         }
         
-        new Q3ListViewItem(bd, bd_val);
+        new QTreeWidgetItem(bd, QStringList(bd_val));
         ++it;
         i++;
     }
-    
+
     QString com_title = QString("Community: %1").arg(_community);
-    new Q3ListViewItem(TrapContent, com_title);
+    new QTreeWidgetItem(TrapContent, QStringList(com_title));
 }
 
 void TrapItem::AddVarBind(Vb& vb)
@@ -125,17 +127,17 @@ void TrapItem::AddVarBind(Vb& vb)
     content.append(new Vb(vb));
 }
    
-Trap::Trap(Q3ListView* TL, Q3ListView* TC, QTextEdit* TI)
+Trap::Trap(QTreeWidget* TL, QTreeWidget* TC, QTextEdit* TI)
 {
     TrapLog = TL;
     TrapContent = TC;
     TrapInfo = TI;
     
     TrapContent->header()->hide();
-    TrapContent->setSortColumn(-1);
+    TrapContent->setSortingEnabled( FALSE );
 
-    connect( TrapLog, SIGNAL( currentChanged( Q3ListViewItem * ) ),
-             this, SLOT( SelectedTrap( Q3ListViewItem * ) ) );
+    connect( TrapLog, SIGNAL( currentItemChanged( QTreeWidgetItem *, QTreeWidgetItem * ) ),
+             this, SLOT( SelectedTrap( QTreeWidgetItem *, QTreeWidgetItem * ) ) );
     connect( this, SIGNAL(TrapProperties(const QString&)),
              (QObject*)TrapInfo, SLOT(setText(const QString&)) );
 }
@@ -155,7 +157,7 @@ TrapItem* Trap::Add(Oid &id, QString &no, QString &date,
     return (ti);
 }
 
-void Trap::SelectedTrap(Q3ListViewItem * item)
+void Trap::SelectedTrap(QTreeWidgetItem * item, QTreeWidgetItem * old)
 {
     TrapItem *trap = (TrapItem*)item;
     QString text;

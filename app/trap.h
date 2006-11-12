@@ -8,10 +8,10 @@
 #include "ui_mainw.h"
 #include "snmp_pp/snmp_pp.h"
 
-class TrapItem : public Q3ListViewItem
+class TrapItem : public QTreeWidgetItem
 {
 public:
-    TrapItem(Oid &id, Q3ListView* parent, QString no, QString date,
+    TrapItem(Oid &id, QTreeWidget* parent, QString no, QString date,
              QString time, QString timestamp,
              QString nottype, QString msgtype, QString version, 
              QString agtaddr, QString agtport,
@@ -19,7 +19,7 @@ public:
              QString ctxname, QString ctxid, QString msgid);
 
     void PrintProperties(QString& text);
-    void PrintContent(Q3ListView* TrapContent);
+    void PrintContent(QTreeWidget* TrapContent);
     void AddVarBind(Vb& vb);
     
 private:
@@ -47,7 +47,7 @@ class Trap: public QObject
     Q_OBJECT
     
 public:
-    Trap(Q3ListView* TL, Q3ListView* TC, QTextEdit* TI);
+    Trap(QTreeWidget* TL, QTreeWidget* TC, QTextEdit* TI);
     TrapItem* Add(Oid &id, QString &no, QString &date, 
                   QString &time, QString &timestamp, 
                   QString &nottype, QString &msgtype, QString &version, 
@@ -56,14 +56,14 @@ public:
                   QString &ctxname, QString &ctxid, QString &msgid);
     
 protected slots:
-    void SelectedTrap( Q3ListViewItem * item);
+    void SelectedTrap( QTreeWidgetItem * item, QTreeWidgetItem * old);
     
 signals:
     void TrapProperties(const QString& text);
     
 private:
-    Q3ListView* TrapLog;
-    Q3ListView* TrapContent;
+    QTreeWidget* TrapLog;
+    QTreeWidget* TrapContent;
     QTextEdit* TrapInfo;
 };
 

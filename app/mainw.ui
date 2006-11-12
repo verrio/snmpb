@@ -252,7 +252,7 @@
               </widget>
              </item>
              <item>
-              <widget class="Q3ListView" name="UnloadedModules" >
+              <widget class="QTreeWidget" name="UnloadedModules" >
                <property name="frameShape" >
                 <enum>QFrame::WinPanel</enum>
                </property>
@@ -284,24 +284,13 @@
               </widget>
              </item>
              <item>
-              <widget class="Q3ListView" name="LoadedModules" >
+              <widget class="QTreeWidget" name="LoadedModules" >
                <property name="frameShape" >
                 <enum>QFrame::WinPanel</enum>
                </property>
                <property name="frameShadow" >
                 <enum>QFrame::Plain</enum>
                </property>
-               <property name="resizePolicy" >
-                <enum>Q3ScrollView::Manual</enum>
-               </property>
-               <property name="itemMargin" >
-                <number>1</number>
-               </property>
-               <column>
-                <property name="text" >
-                 <string>Module</string>
-                </property>
-               </column>
               </widget>
              </item>
             </layout>
@@ -923,7 +912,7 @@
              </widget>
             </item>
             <item>
-             <widget class="Q3ListView" name="TrapLog" >
+             <widget class="QTreeWidget" name="TrapLog" >
               <property name="frameShape" >
                <enum>QFrame::WinPanel</enum>
               </property>
@@ -932,9 +921,6 @@
               </property>
               <property name="allColumnsShowFocus" >
                <bool>true</bool>
-              </property>
-              <property name="itemMargin" >
-               <number>1</number>
               </property>
               <column>
                <property name="text" >
@@ -1005,7 +991,7 @@
               </widget>
              </item>
              <item>
-              <widget class="Q3ListView" name="TrapContent" >
+              <widget class="QTreeWidget" name="TrapContent" >
                <property name="enabled" >
                 <bool>true</bool>
                </property>
@@ -1568,11 +1554,6 @@
  </widget>
  <layoutdefault spacing="6" margin="11" />
  <customwidgets>
-  <customwidget>
-   <class>Q3ListView</class>
-   <extends>Q3Frame</extends>
-   <header>q3listview.h</header>
-  </customwidget>
   <customwidget>
    <class>BasicMibView</class>
    <extends>QWidget</extends>
