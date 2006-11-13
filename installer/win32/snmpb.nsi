@@ -76,7 +76,6 @@ Section "SnmpB application" SecApp
   SectionIn RO
 
   File ..\..\app\release\snmpb.exe
-  File $%QTDIR%\bin\Qt3Support*
   File $%QTDIR%\bin\QtCore*
   File $%QTDIR%\bin\QtGui*
   File $%QTDIR%\bin\QtNetwork*
