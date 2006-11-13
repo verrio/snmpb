@@ -1,22 +1,20 @@
-#include <q3ptrlist.h>
 #include <qmessagebox.h>
-#include <q3listbox.h>
 #include <qpainter.h>
 #include <qstyle.h>
 #include <qcolor.h>
 #include <qnamespace.h>
-//Added by qt3to4:
 #include <QTimerEvent>
-#include <q3combobox.h>
+#include <qlistwidget.h>
 
 #include "graph.h"
 #include "agent.h"
 
-class ColorListBoxItem : public Q3ListBoxItem
+#if 0
+class ColorListBoxItem : public QListWidgetItem
 {
 public:
     ColorListBoxItem(QColor col)
-        : Q3ListBoxItem()
+        : QListWidgetItem()
     {
         color = col;
         setCustomHighlighting( TRUE );
@@ -24,18 +22,18 @@ public:
 
 protected:
     virtual void paint( QPainter * );
-    virtual int width( const Q3ListBox* ) const { return 65; }
-    virtual int height( const Q3ListBox* ) const { return 18; }
+    virtual int width( const QListWidget* ) const { return 65; }
+    virtual int height( const QListWidget* ) const { return 18; }
     
 private:
     QColor color;
 };
 
-class PenWidthListBoxItem : public Q3ListBoxItem
+class PenWidthListBoxItem : public QListWidgetItem
 {
 public:
     PenWidthListBoxItem(uint w)
-        : Q3ListBoxItem()
+        : QListWidgetItem()
     {
         thewidth = w;
         setCustomHighlighting( TRUE );
@@ -43,18 +41,18 @@ public:
 
 protected:
     virtual void paint( QPainter * );
-    virtual int width( const Q3ListBox* ) const { return 65; }
-    virtual int height( const Q3ListBox* ) const { return 18; }
+    virtual int width( const QListWidget* ) const { return 65; }
+    virtual int height( const QListWidget* ) const { return 18; }
     
 private:
     uint thewidth;
 };
 
-class PenStyleListBoxItem : public Q3ListBoxItem
+class PenStyleListBoxItem : public QListWidgetItem
 {
 public:
     PenStyleListBoxItem(enum Qt::PenStyle s)
-        : Q3ListBoxItem()
+        : QListWidgetItem()
     {
         style = s;
         setCustomHighlighting( TRUE );
@@ -62,8 +60,8 @@ public:
 
 protected:
     virtual void paint( QPainter * );
-    virtual int width( const Q3ListBox* ) const { return 65; }
-    virtual int height( const Q3ListBox* ) const { return 18; }
+    virtual int width( const QListWidget* ) const { return 65; }
+    virtual int height( const QListWidget* ) const { return 18; }
     
 private:
     enum Qt::PenStyle style;
@@ -111,6 +109,7 @@ void PenStyleListBoxItem::paint( QPainter *painter )
     if ( in_list_box && isCurrent() )
         listBox()->style()->drawPrimitive( QStyle::PE_FrameFocusRect, &f, painter);
 }
+#endif
 
 GraphItem::GraphItem(QString name, QTabWidget* tab):QwtPlot(name)
 {
@@ -134,7 +133,8 @@ GraphItem::GraphItem(QString name, QTabWidget* tab):QwtPlot(name)
 
 GraphItem::~GraphItem()
 {
-    Tab->removePage(this);
+    if (Tab && (Tab->indexOf(this) != -1))
+        Tab->removeTab(Tab->indexOf(this));
 }
 
 void GraphItem::AddCurve(QString name, QPen& pen)
@@ -249,9 +249,10 @@ Graph::Graph(QTabWidget* GT, QPushButton* GC, QPushButton* GD,
     connect( PD, SIGNAL( clicked() ), this, SLOT( DeletePlot() ));    
     connect( PM, SIGNAL( SelectedOid(const QString&) ), 
              this, SLOT( SetObjectString(const QString&) ));    
-   #if 0 // TODO  
+
     // Fill the color combobox ...
-    PlotColor->listBox()->insertItem( new ColorListBoxItem(Qt::black) );
+   #if 0 // TODO  
+    PlotColor->addItem( "Black", new QVariant(Qt::black) );
     PlotColor->listBox()->insertItem( new ColorListBoxItem(Qt::white) );
     PlotColor->listBox()->insertItem( new ColorListBoxItem(Qt::darkGray) );
     PlotColor->listBox()->insertItem( new ColorListBoxItem(Qt::gray) );
@@ -318,7 +319,7 @@ void Graph::DeleteGraph(void)
             GI = Items[i];
             if (GI->title().text() == GraphName->currentText())
             {
-                Items.remove(GI);
+                Items.removeAll(GI);
                 delete GI;
                 return;
             }
@@ -332,7 +333,7 @@ void Graph::CreatePlot(void)
     {
         QPen p;
      
-        switch (PlotColor->currentItem())
+        switch (PlotColor->currentIndex())
         {
         case 0: p.setColor(Qt::black); break;
         case 1: p.setColor(Qt::white); break;
@@ -354,9 +355,9 @@ void Graph::CreatePlot(void)
         default: break;
         }
         
-        p.setWidth(PlotWidth->currentItem()+1);
+        p.setWidth(PlotWidth->currentIndex()+1);
         
-        switch (PlotShape->currentItem())
+        switch (PlotShape->currentIndex())
         {
         case 0: p.setStyle(Qt::SolidLine); break;
         case 1: p.setStyle(Qt::DashLine); break;
@@ -366,7 +367,7 @@ void Graph::CreatePlot(void)
         default: break;
         }
         
-        printf("Creating plot %s\n", PlotObject->currentText().latin1());
+        printf("Creating plot %s\n", PlotObject->currentText().toLatin1().data());
         
         if (!GraphName->currentText().isEmpty())
         {
@@ -387,7 +388,7 @@ void Graph::DeletePlot(void)
 {
     if (!PlotObject->currentText().isEmpty())
     {
-        printf("Deleting plot %s\n", PlotObject->currentText().latin1());
+        printf("Deleting plot %s\n", PlotObject->currentText().toLatin1().data());
         
         if (!GraphName->currentText().isEmpty())
         {
@@ -406,5 +407,5 @@ void Graph::DeletePlot(void)
 
 void Graph::SetObjectString(const QString& oid)
 {
-    PlotObject->setCurrentText(oid);
+    PlotObject->setItemText(PlotObject->currentIndex(), oid);
 }

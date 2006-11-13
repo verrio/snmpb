@@ -1,8 +1,6 @@
 #ifndef MIBNODE_H
 #define MIBNODE_H
 
-#include <q3listview.h>
-#include <q3stylesheet.h>
 #include <qstring.h>
 #include <qfile.h>
 #include <qfileinfo.h>

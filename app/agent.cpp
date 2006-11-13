@@ -102,7 +102,8 @@ Agent::Agent(QComboBox* UN, QComboBox* SL, QLineEdit* CN,
     char *engineId = "not_needed";
     unsigned int snmpEngineBoots = 0;
 
-    status = getBootCounter(GetBootCounterConfigFile(), engineId, snmpEngineBoots);
+    status = getBootCounter(GetBootCounterConfigFile().toLatin1().data(), 
+                            engineId, snmpEngineBoots);
     if ((status != SNMPv3_OK) && (status < SNMPv3_FILEOPEN_ERROR))
     {
         QString err = QString("Error loading snmpEngineBoots counter: %1\n")
@@ -115,7 +116,8 @@ Agent::Agent(QComboBox* UN, QComboBox* SL, QLineEdit* CN,
     snmpEngineBoots++;
     
     // save the boot counter
-    status = saveBootCounter(GetBootCounterConfigFile(), engineId, snmpEngineBoots);
+    status = saveBootCounter(GetBootCounterConfigFile().toLatin1().data(), 
+                             engineId, snmpEngineBoots);
     if (status != SNMPv3_OK)
     {
         QString err = QString("Error saving snmpEngineBoots counter: %1\n")
@@ -148,7 +150,7 @@ Agent::Agent(QComboBox* UN, QComboBox* SL, QLineEdit* CN,
     USM *usm = v3mp->get_usm();
     
     // Load the USM users from a file, if any
-    usm->load_users(GetUsmUsersConfigFile());
+    usm->load_users(GetUsmUsersConfigFile().toLatin1().data());
     
     // Bind on the SNMP trap port
     snmp->notify_set_listen_port(TRAP_PORT);
@@ -178,12 +180,13 @@ int Agent::Setup(const QString& oid, SnmpTarget **t, Pdu **p)
     Pdu *pdu = new Pdu();
     Vb vb;
     // Set the Oid part of the Vb & add it to pdu
-    theoid = Oid(oid.latin1());    
+    theoid = Oid(oid.toLatin1().data());    
     vb.set_oid(theoid);    
     *pdu += vb;
     
     // Create an address object from the entered values
-    UdpAddress address(Address->currentText() + "/" + Port->currentText());
+    QString address_str(Address->currentText() + "/" + Port->currentText());
+    UdpAddress address(address_str.toLatin1().data());
     
     // check if the address is valid
     // One problem here: if a hostname is entered, a blocking DNS lookup
@@ -211,7 +214,7 @@ int Agent::Setup(const QString& oid, SnmpTarget **t, Pdu **p)
         utarget->set_version(version3);
         
         utarget->set_security_model(SNMP_SECURITY_MODEL_USM);
-        utarget->set_security_name(UserName->currentText());
+        utarget->set_security_name(UserName->currentText().toLatin1().data());
         
         target = utarget;
         
@@ -224,8 +227,8 @@ int Agent::Setup(const QString& oid, SnmpTarget **t, Pdu **p)
             pdu->set_security_level(SNMP_SECURITY_LEVEL_AUTH_PRIV);
         
         // Not needed, as snmp++ will set it, if the user does not set it
-        pdu->set_context_name(ContextName->text());
-        pdu->set_context_engine_id(EngineID->text());
+        pdu->set_context_name(ContextName->text().toLatin1().data());
+        pdu->set_context_engine_id(EngineID->text().toLatin1().data());
     }
     else
     {
@@ -238,8 +241,8 @@ int Agent::Setup(const QString& oid, SnmpTarget **t, Pdu **p)
             ctarget->set_version(version1);
         
         // set the community
-        ctarget->set_readcommunity( ReadComm->text());
-        ctarget->set_writecommunity( WriteComm->text());
+        ctarget->set_readcommunity( ReadComm->text().toLatin1().data());
+        ctarget->set_writecommunity( WriteComm->text().toLatin1().data());
         
         target = ctarget;
     }
@@ -744,12 +747,12 @@ void Agent::GetNextFrom(const QString& oid)
 
 void Agent::SetFrom(const QString& oid)
 {
-    printf("Set %s!\n", oid.latin1());
+    printf("Set %s!\n", oid.toLatin1().data());
 }
 
 void Agent::StopFrom(const QString& oid)
 {
-    printf("Stop %s!\n", oid.latin1());
+    printf("Stop %s!\n", oid.toLatin1().data());
 }
 
 /* TODO: make it async */
@@ -777,7 +780,7 @@ void Agent::TableViewFrom(const QString& oid)
     Query->append("Collecting table objects, please wait ...<br>");
     
     /* Set the parent oid & parent node */
-    Oid poid(oid.latin1());
+    Oid poid(oid.toLatin1().data());
     SmiNode *pnode = smiGetNodeByOID(poid.len(), (SmiSubid*)&(poid[0]));
     
     /* Make sure the parent is a row entry ... */

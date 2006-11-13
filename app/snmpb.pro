@@ -59,6 +59,4 @@ INCLUDEPATH	+= ../snmp++/include ../libtomcrypt/src/headers ../libsmi/lib ../qwt
 LIBS	+= -L. -L../libtomcrypt -L../libsmi/lib/.libs -L../qwt/lib -lsmi -ltomcrypt -lqwt
 win32:LIBS	+= -lws2_32 -L../libsmi/win
 LANGUAGE	= C++
-#The following line was inserted by qt3to4
-QT +=  qt3support 
 

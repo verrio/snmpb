@@ -1,15 +1,11 @@
 #ifndef MIBVIEW_H
 #define MIBVIEW_H
 
-#include <q3listview.h>
-#include <q3scrollview.h>
 #include <qstring.h>
 #include <qfile.h>
 #include <qfileinfo.h>
 #include <qtimer.h>
 #include <qpixmap.h>
-#include <q3header.h> 
-//Added by qt3to4:
 #include <QContextMenuEvent>
 #include <qtreewidget.h>
 #include <qheaderview.h>

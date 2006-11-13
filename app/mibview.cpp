@@ -2,13 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <q3popupmenu.h>
 #include <qlabel.h>
+#include <qmenu.h>
 #include <qcursor.h>
-//Added by qt3to4:
 #include <QContextMenuEvent>
-#include <q3mimefactory.h>
-
 #include <qtreewidget.h>
 #include <QTreeWidgetItemIterator>
 
@@ -304,7 +301,7 @@ void MibViewLoader::Load(QStringList &modules)
     modv = (SmiModule **)malloc(modules.count() * sizeof(SmiModule *));
     modc = 0;
     
-    const char * module = NULL;
+    QString module;
     
     if ( (module = modules.first()) != 0)
     {
@@ -317,13 +314,14 @@ void MibViewLoader::Load(QStringList &modules)
         for (int i=0; i < modules.count(); i++) 
         {
             module = modules[i];
-            modulename = smiLoadModule(module);
+            modulename = smiLoadModule(module.toLatin1().data());
             smiModule = modulename ? smiGetModule(modulename) : NULL;
             
             if (smiModule)
                 modv[modc++] = smiModule;
             else
-                fprintf(stderr, "SnmpB: cannot locate module `%s'\n", module);
+                fprintf(stderr, "SnmpB: cannot locate module `%s'\n", 
+                                module.toLatin1().data());
         }
     }
     

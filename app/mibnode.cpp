@@ -1,6 +1,4 @@
 #include "mibnode.h"
-//Added by qt3to4:
-#include <q3mimefactory.h>
 #include <qtextedit.h>
 
 MibNode::MibNode(enum MibType mibtype, SmiNode *node, MibNode * parent, MibNode * sibling) : QTreeWidgetItem(parent, sibling)
@@ -24,41 +22,41 @@ void MibNode::SetPixmap(bool isOpened)
     switch(Type)
     {
     case MIBNODE_SCALAR:
-        setIcon( 0,  qPixmapFromMimeSource( ":/images/scalar.png" ));
+        setIcon( 0,  QIcon( ":/images/scalar.png" ));
         break;
     case MIBNODE_COLUMN:
-        setIcon( 0,  qPixmapFromMimeSource( ":/images/column_item.png" ));
+        setIcon( 0,  QIcon( ":/images/column_item.png" ));
         break;
     case MIBNODE_ROW:
        if (isOpened)		
-            setIcon( 0,  qPixmapFromMimeSource( ":/images/folder_red_open.png" ));
+            setIcon( 0,  QIcon( ":/images/folder_red_open.png" ));
         else
-            setIcon( 0,  qPixmapFromMimeSource( ":/images/folder_red.png" ));
+            setIcon( 0,  QIcon( ":/images/folder_red.png" ));
         break;
     case MIBNODE_TABLE:	    
        if (isOpened)		
-            setIcon( 0,  qPixmapFromMimeSource( ":/images/folder_blue_open.png" ));
+            setIcon( 0,  QIcon( ":/images/folder_blue_open.png" ));
         else
-            setIcon( 0,  qPixmapFromMimeSource( ":/images/folder_blue.png" ));
+            setIcon( 0,  QIcon( ":/images/folder_blue.png" ));
         break;
     case MIBNODE_NOTIFICATION:
-        setIcon( 0,  qPixmapFromMimeSource( ":/images/notification.png" ));
+        setIcon( 0,  QIcon( ":/images/notification.png" ));
         break;
     case MIBNODE_GROUP:
-        setIcon( 0,  qPixmapFromMimeSource( ":/images/group.png" ));
+        setIcon( 0,  QIcon( ":/images/group.png" ));
         break;
     case MIBNODE_COMPLIANCE:
-        setIcon( 0,  qPixmapFromMimeSource( ":/images/compliance.png" ));
+        setIcon( 0,  QIcon( ":/images/compliance.png" ));
         break;
     case MIBNODE_CAPABILITIES:
-        setIcon( 0,  qPixmapFromMimeSource( ":/images/agentcap.png" ));
+        setIcon( 0,  QIcon( ":/images/agentcap.png" ));
         break;
     case MIBNODE_NODE:
     default:
         if (isOpened)		
-            setIcon( 0,  qPixmapFromMimeSource( ":/images/folder_yellow_open.png" ));
+            setIcon( 0,  QIcon( ":/images/folder_yellow_open.png" ));
         else
-            setIcon( 0,  qPixmapFromMimeSource( ":/images/folder_yellow.png" ));
+            setIcon( 0,  QIcon( ":/images/folder_yellow.png" ));
     }
 }
 

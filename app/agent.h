@@ -7,7 +7,6 @@
 #include <qtextedit.h>
 #include <qcombobox.h>
 #include <qlineedit.h>
-#include <q3buttongroup.h>
 #include <qspinbox.h>
 #include <qradiobutton.h>
 #include <qtimer.h>

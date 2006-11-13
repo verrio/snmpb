@@ -2,8 +2,6 @@
 #include <string.h>
 #include <qfileinfo.h>
 #include <qdir.h>
-#include <q3listview.h>
-#include <q3ptrlist.h>
 
 #include "configfiles.h"
 #include "mibmodule.h"
@@ -197,7 +195,7 @@ void MibModule::RebuildLoadedList(void)
             required = "yes";
     
         QStringList values;
-        values << lmodule->name.latin1() << required
+        values << lmodule->name.toLatin1().data() << required
                << lmodule->GetMibLanguage() << lmodule->module->path; 
         new QTreeWidgetItem(LoadedM, values);
 
@@ -210,7 +208,7 @@ void MibModule::RebuildLoadedList(void)
 
 void MibModule::RebuildUnloadedList(void)
 {
-    const char *current;
+    QString current;
     int j;
  
     Unloaded.clear();
@@ -245,9 +243,9 @@ void MibModule::AddModule(void)
         // Save string of next item to restore selection ...
         //        nextitem = item->itemBelow() ? item->itemBelow():item->itemAbove();
         //        if (nextitem)
-        //            strcpy(buf, nextitem->text(0).latin1());
+        //            strcpy(buf, nextitem->text(0).toLatin1().data());
         
-        Wanted.append(item->text(0).latin1());
+        Wanted.append(item->text(0).toLatin1().data());
         Refresh();
         
         // Restore selection
@@ -266,7 +264,7 @@ void MibModule::RemoveModule(void)
 
     if ((item_list.count() == 1) && ((item = item_list.first()) != 0))
     {
-        Wanted.remove(item->text(0).latin1());
+        Wanted.removeAll(item->text(0));
         Refresh();
     }
 }
@@ -299,7 +297,7 @@ void MibModule::InitLib(int restart)
         smiflags = smiGetFlags();
         smiflags |= SMI_FLAG_ERRORS;
         // Read configuration file
-        smiReadConfig(GetMibConfigFile(), NULL);
+        smiReadConfig(GetMibConfigFile().toLatin1().data(), NULL);
     }
 
     smiSetFlags(smiflags);

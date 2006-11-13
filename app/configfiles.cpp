@@ -24,7 +24,7 @@ load SNMPv2-TM\n\
 load SNMP-VIEW-BASED-ACM-MIB"
 };
 
-static QDir SnmpbDir = QDir::homeDirPath() + "/" + SNMPB_CONFIG_DIR;
+static QDir SnmpbDir = QDir::homePath() + "/" + SNMPB_CONFIG_DIR;
 
 void CheckForConfigFiles(void)
 {
@@ -33,7 +33,7 @@ void CheckForConfigFiles(void)
         if(!SnmpbDir.mkdir(SnmpbDir.absolutePath()))
         {
             QString err = QString("Cannot create configuration directory : %1\n")
-                          .arg(SnmpbDir.absolutePath().latin1());
+                          .arg(SnmpbDir.absolutePath().toLatin1().data());
             QMessageBox::warning ( NULL, "SnmpB", err, 
                                    QMessageBox::Ok, Qt::NoButton);
         }
@@ -44,7 +44,7 @@ void CheckForConfigFiles(void)
             if (!file.open(QIODevice::ReadWrite))
             {
                 QString err = QString("Cannot create configuration file : %1\n")
-                                     .arg(file.name().latin1());
+                                     .arg(file.fileName());
                 QMessageBox::warning ( NULL, "SnmpB", err, 
                                        QMessageBox::Ok, Qt::NoButton);
             }

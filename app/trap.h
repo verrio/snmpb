@@ -1,8 +1,6 @@
 #ifndef TRAP_H
 #define TRAP_H
 
-#include <q3listview.h>
-
 #include "ui_mainw.h"
 #include "snmp_pp/snmp_pp.h"
 

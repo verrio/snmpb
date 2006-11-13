@@ -6,9 +6,7 @@
 #include <qcombobox.h>
 #include <qtabwidget.h>
 #include <qwt_plot.h>
-//Added by qt3to4:
 #include <QTimerEvent>
-#include <q3combobox.h>
 #include "mibview.h"
 
 #define NUM_PLOT_PER_GRAPH 10

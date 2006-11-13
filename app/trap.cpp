@@ -1,5 +1,3 @@
-#include <q3stylesheet.h>
-
 #include "smi.h"
 #include "trap.h"
 #include "agent.h"
