@@ -35,6 +35,14 @@ BasicMibView::BasicMibView (QWidget * parent) : QTreeWidget(parent)
     setRootIsDecorated( TRUE );
     
     MibLoader.RegisterView(this);
+
+    // Create context menu actions
+    expandAct = new QAction(tr("&Expand"), this);
+    expandAct->setIcon(QIcon(":/images/expand.png"));
+    connect(expandAct, SIGNAL(triggered()), this, SLOT(ExpandFromNode()));
+    collapseAct = new QAction(tr("&Collapse"), this);
+    collapseAct->setIcon(QIcon(":/images/collapse.png"));
+    connect(collapseAct, SIGNAL(triggered()), this, SLOT(CollapseFromNode()));
     
     // Connect some signals
     connect( this, SIGNAL( itemExpanded( QTreeWidgetItem * ) ),
@@ -140,19 +148,14 @@ void BasicMibView::SelectedNode( QTreeWidgetItem * item, QTreeWidgetItem * old)
         emit SelectedOid(node->GetOid());
 }
 
-void BasicMibView::contextMenuEvent ( QContextMenuEvent *)
+void BasicMibView::contextMenuEvent ( QContextMenuEvent *event)
 {    
-    Q3PopupMenu* contextMenu = new Q3PopupMenu( this );
-    QLabel *caption = new QLabel( "<font color=darkblue><b>Operations</b></font>", this );
-    caption->setAlignment( Qt::AlignCenter );
-    contextMenu->insertItem( caption->text() );
-    contextMenu->insertItem( qPixmapFromMimeSource( ":/images/expand.png" ), 
-                             "&Expand", this, SLOT(ExpandFromNode()));
-    contextMenu->insertItem( qPixmapFromMimeSource( ":/images/collapse.png" ), 
-                             "&Collapse", this, SLOT(CollapseFromNode()));
-    
-    contextMenu->exec( QCursor::pos() );
-    delete contextMenu;
+    QMenu menu(tr("Operations"), this);
+
+    menu.addAction(expandAct);
+    menu.addAction(collapseAct);
+
+    menu.exec(event->globalPos());
 }
 
 //
@@ -162,6 +165,19 @@ void BasicMibView::contextMenuEvent ( QContextMenuEvent *)
 
 MibView::MibView (QWidget * parent) : BasicMibView(parent)
 {
+    // Create context menu actions
+    walkAct = new QAction(tr("&Walk"), this);
+    connect(walkAct, SIGNAL(triggered()), this, SLOT(WalkFromNode()));
+    getAct = new QAction(tr("&Get"), this);
+    connect(getAct, SIGNAL(triggered()), this, SLOT(GetFromNode()));
+    getnextAct = new QAction(tr("&Get Next"), this);
+    connect(getnextAct, SIGNAL(triggered()), this, SLOT(GetNextFromNode()));
+    setAct = new QAction(tr("&Set..."), this);
+    connect(setAct, SIGNAL(triggered()), this, SLOT(SetFromNode()));
+    stopAct = new QAction(tr("&Stop"), this);
+    connect(stopAct, SIGNAL(triggered()), this, SLOT(StopFromNode()));
+    tableviewAct = new QAction(tr("&Table View"), this);
+    connect(tableviewAct, SIGNAL(triggered()), this, SLOT(TableViewFromNode()));
 }
 
 void MibView::WalkFromNode(void)
@@ -246,28 +262,23 @@ void MibView::SelectedNode( QTreeWidgetItem * item, QTreeWidgetItem * old)
     }
 }
 
-void MibView::contextMenuEvent ( QContextMenuEvent *)
-{    
-    Q3PopupMenu* contextMenu = new Q3PopupMenu( this );
-    QLabel *caption = new QLabel( "<font color=darkblue><b>Operations</b></font>", this );
-    caption->setAlignment( Qt::AlignCenter );
-    contextMenu->insertItem( caption->text() );
-    contextMenu->insertItem( qPixmapFromMimeSource( ":/images/expand.png" ), 
-                             "&Expand", this, SLOT(ExpandFromNode()));
-    contextMenu->insertItem( qPixmapFromMimeSource( ":/images/collapse.png" ), 
-                             "&Collapse", this, SLOT(CollapseFromNode()));
-    contextMenu->insertSeparator();
-    contextMenu->insertItem("&Walk", this, SLOT(WalkFromNode()));
-    contextMenu->insertItem("&Get", this, SLOT(GetFromNode()));
-    contextMenu->insertItem("&Get Next", this, SLOT(GetNextFromNode()));
-    contextMenu->insertItem("&Set...", this, SLOT(SetFromNode()));
-    contextMenu->insertSeparator();
-    contextMenu->insertItem("&Stop", this, SLOT(StopFromNode()));
-    contextMenu->insertSeparator();
-    contextMenu->insertItem("&Table View", this, SLOT(TableViewFromNode()));
-    
-    contextMenu->exec( QCursor::pos() );
-    delete contextMenu;
+void MibView::contextMenuEvent ( QContextMenuEvent *event)
+{
+    QMenu menu(tr("Operations"), this);
+
+    menu.addAction(expandAct);
+    menu.addAction(collapseAct);
+    menu.addSeparator();
+    menu.addAction(walkAct);
+    menu.addAction(getAct);
+    menu.addAction(getnextAct);
+    menu.addAction(setAct);
+    menu.addSeparator();
+    menu.addAction(stopAct);
+    menu.addSeparator();
+    menu.addAction(tableviewAct);
+
+    menu.exec(event->globalPos());
 }
 
 //

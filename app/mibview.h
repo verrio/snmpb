@@ -37,7 +37,9 @@ signals:
     void SelectedOid(const QString& oid);
     
 protected:
-    virtual void contextMenuEvent ( QContextMenuEvent *);
+    virtual void contextMenuEvent ( QContextMenuEvent *event);
+    QAction *expandAct;
+    QAction *collapseAct;
     
 private:
     int isdirty;
@@ -69,7 +71,15 @@ signals:
     void TableViewFromOid(const QString& oid);
     
 protected:
-    void contextMenuEvent ( QContextMenuEvent *);
+    void contextMenuEvent ( QContextMenuEvent *event);
+
+private:
+    QAction *walkAct;
+    QAction *getAct;
+    QAction *getnextAct;
+    QAction *setAct;
+    QAction *stopAct;
+    QAction *tableviewAct;
 };
 
 class MibViewLoader
