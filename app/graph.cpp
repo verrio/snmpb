@@ -5,30 +5,15 @@
 #include <qnamespace.h>
 #include <QTimerEvent>
 #include <qlistwidget.h>
+#include <QStandardItemModel>
+#include <QItemDelegate>
+#include <QModelIndex>
+#include <QComboBox>
 
 #include "graph.h"
 #include "agent.h"
 
 #if 0
-class ColorListBoxItem : public QListWidgetItem
-{
-public:
-    ColorListBoxItem(QColor col)
-        : QListWidgetItem()
-    {
-        color = col;
-        setCustomHighlighting( TRUE );
-    }
-
-protected:
-    virtual void paint( QPainter * );
-    virtual int width( const QListWidget* ) const { return 65; }
-    virtual int height( const QListWidget* ) const { return 18; }
-    
-private:
-    QColor color;
-};
-
 class PenWidthListBoxItem : public QListWidgetItem
 {
 public:
@@ -66,20 +51,29 @@ protected:
 private:
     enum Qt::PenStyle style;
 };
+#endif
 
-void ColorListBoxItem::paint( QPainter *painter )
+void ColorBoxDelegate::paint( QPainter * painter, 
+                              const QStyleOptionViewItem & option,
+                              const QModelIndex & index ) const
 {
+    printf("Paint called for index %d,%d !\n", index.column(), index.row());
+    painter->fillRect( 3, 3+(index.row()*18), 65-6, 18-6, index.data().value<QColor>());
+
+#if 0 
     // evil trick: find out whether we are painted onto our listbox
-    bool in_list_box = listBox() && listBox()->viewport() == painter->device();
+    bool in_list_box = view() && view()->viewport() == painter->device();
     QStyleOptionFocusRect f;
-    QRect r ( 0, 0, width( listBox() ), height( listBox() ) );
+    QRect r ( 0, 0, 65, 18 );
     if ( in_list_box && isSelected() )
         painter->eraseRect( r );
-    painter->fillRect( 3, 3, width(listBox())-6, height(listBox())-6, color);
+    painter->fillRect( 3, 3, 65-6, 18-6, Qt::blue);
     if ( in_list_box && isCurrent() )
-        listBox()->style()->drawPrimitive( QStyle::PE_FrameFocusRect, &f, painter);
+        view()->style()->drawPrimitive( QStyle::PE_FrameFocusRect, &f, painter);
+#endif
 }
 
+#if 0 
 void PenWidthListBoxItem::paint( QPainter *painter )
 {
     // evil trick: find out whether we are painted onto our listbox
@@ -248,28 +242,41 @@ Graph::Graph(QTabWidget* GT, QPushButton* GC, QPushButton* GD,
     connect( PA, SIGNAL( clicked() ), this, SLOT( CreatePlot() ));
     connect( PD, SIGNAL( clicked() ), this, SLOT( DeletePlot() ));    
     connect( PM, SIGNAL( SelectedOid(const QString&) ), 
-             this, SLOT( SetObjectString(const QString&) ));    
+             this, SLOT( SetObjectString(const QString&) ));
 
     // Fill the color combobox ...
-   #if 0 // TODO  
-    PlotColor->addItem( "Black", new QVariant(Qt::black) );
-    PlotColor->listBox()->insertItem( new ColorListBoxItem(Qt::white) );
-    PlotColor->listBox()->insertItem( new ColorListBoxItem(Qt::darkGray) );
-    PlotColor->listBox()->insertItem( new ColorListBoxItem(Qt::gray) );
-    PlotColor->listBox()->insertItem( new ColorListBoxItem(Qt::lightGray) );
-    PlotColor->listBox()->insertItem( new ColorListBoxItem(Qt::red) );
-    PlotColor->listBox()->insertItem( new ColorListBoxItem(Qt::green) );
-    PlotColor->listBox()->insertItem( new ColorListBoxItem(Qt::blue) );
-    PlotColor->listBox()->insertItem( new ColorListBoxItem(Qt::cyan) );
-    PlotColor->listBox()->insertItem( new ColorListBoxItem(Qt::magenta) );
-    PlotColor->listBox()->insertItem( new ColorListBoxItem(Qt::yellow) );
-    PlotColor->listBox()->insertItem( new ColorListBoxItem(Qt::darkRed) );
-    PlotColor->listBox()->insertItem( new ColorListBoxItem(Qt::darkGreen) );
-    PlotColor->listBox()->insertItem( new ColorListBoxItem(Qt::darkBlue) );
-    PlotColor->listBox()->insertItem( new ColorListBoxItem(Qt::darkCyan) );
-    PlotColor->listBox()->insertItem( new ColorListBoxItem(Qt::darkMagenta) );
-    PlotColor->listBox()->insertItem( new ColorListBoxItem(Qt::darkYellow) );
-    
+    ColorModel = new QStandardItemModel(17, 1);
+    PC->setModel(ColorModel);
+    ColorDelegate = new ColorBoxDelegate();
+    PC->setItemDelegate(ColorDelegate);
+
+    for (int row = 0; row < 17; row++)
+    {
+        QModelIndex index = ColorModel->index(row, 0, QModelIndex());
+        switch (row)
+        {
+            case 0: ColorModel->setData(index, QVariant(Qt::black)); break;
+            case 1: ColorModel->setData(index, QVariant(Qt::white)); break;
+            case 2: ColorModel->setData(index, QVariant(Qt::darkGray)); break;
+            case 3: ColorModel->setData(index, QVariant(Qt::gray)); break;
+            case 4: ColorModel->setData(index, QVariant(Qt::lightGray)); break;
+            case 5: ColorModel->setData(index, QVariant(Qt::red)); break;
+            case 6: ColorModel->setData(index, QVariant(Qt::green)); break;
+            case 7: ColorModel->setData(index, QVariant(Qt::blue)); break;
+            case 8: ColorModel->setData(index, QVariant(Qt::cyan)); break;
+            case 9: ColorModel->setData(index, QVariant(Qt::magenta)); break;            
+            case 10: ColorModel->setData(index, QVariant(Qt::yellow)); break;
+            case 11: ColorModel->setData(index, QVariant(Qt::darkRed)); break;
+            case 12: ColorModel->setData(index, QVariant(Qt::darkGreen)); break;
+            case 13: ColorModel->setData(index, QVariant(Qt::darkBlue)); break;
+            case 14: ColorModel->setData(index, QVariant(Qt::darkCyan)); break;
+            case 15: ColorModel->setData(index, QVariant(Qt::darkMagenta)); break;
+            case 16: ColorModel->setData(index, QVariant(Qt::darkYellow)); break;
+            default: break;
+        }
+    }
+
+#if 0 // TODO  
     // Fill the pen width combobox ...
     PlotWidth->listBox()->insertItem( new PenWidthListBoxItem(1) );
     PlotWidth->listBox()->insertItem( new PenWidthListBoxItem(2) );
@@ -366,7 +373,7 @@ void Graph::CreatePlot(void)
         case 4: p.setStyle(Qt::DashDotDotLine); break;
         default: break;
         }
-        
+
         printf("Creating plot %s\n", PlotObject->currentText().toLatin1().data());
         
         if (!GraphName->currentText().isEmpty())

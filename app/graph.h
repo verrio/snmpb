@@ -7,10 +7,24 @@
 #include <qtabwidget.h>
 #include <qwt_plot.h>
 #include <QTimerEvent>
+#include <QStandardItemModel>
+#include <QItemDelegate>
+
 #include "mibview.h"
 
 #define NUM_PLOT_PER_GRAPH 10
 #define PLOT_HISTORY 30
+
+class ColorBoxDelegate : public QItemDelegate
+{
+public:
+    ColorBoxDelegate(QObject *parent = 0): QItemDelegate(parent)
+    {
+    }
+
+    void paint ( QPainter * painter, const QStyleOptionViewItem & option,
+                 const QModelIndex & index ) const;
+};
 
 class GraphItem: public QwtPlot
 {
@@ -71,8 +85,9 @@ private:
     QComboBox* PlotShape;
     QComboBox* PlotWidth;
     BasicMibView* PlotMIBTree;
-    
     QList<GraphItem*> Items;
+    QStandardItemModel* ColorModel;
+    ColorBoxDelegate* ColorDelegate;
 };
 
 #endif /* GRAPH_H */
