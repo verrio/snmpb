@@ -414,5 +414,7 @@ void Graph::DeletePlot(void)
 
 void Graph::SetObjectString(const QString& oid)
 {
-    PlotObject->setItemText(PlotObject->currentIndex(), oid);
+    PlotObject->insertItem(0, oid);
+    PlotObject->setCurrentIndex(0);
 }
+

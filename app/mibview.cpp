@@ -58,7 +58,7 @@ void BasicMibView::SetDirty(void)
 void BasicMibView::TreeTabSelected( int index )
 {
     if(index == 0) Populate();
-    if(index == 3) Populate();
+    if(index == 4) Populate();
 }
 
 void BasicMibView::Populate(void)

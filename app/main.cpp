@@ -1,4 +1,5 @@
 #include <qapplication.h>
+#include <QTabWidget>
 #include "ui_mainw.h"
 #include "mibmodule.h"
 #include "agent.h"
@@ -33,12 +34,13 @@ int main( int argc, char ** argv )
  
     CurrentAgent = &agent;
 
-    // TEMP, mart
     // Connect some signals
-    QObject::connect( w.TabW, SIGNAL( currentChanged(int index) ),
-             w.MIBTree, SLOT( TreeTabSelected(int index) ) );
+    QObject::connect( w.TabW, SIGNAL( currentChanged(int) ),
+             w.MIBTree, SLOT( TreeTabSelected(int) ) );
+    QObject::connect( w.TabW, SIGNAL( currentChanged(int) ),
+             w.PlotMIBTree, SLOT( TreeTabSelected(int) ) );
     w.MIBTree->TreeTabSelected(0);
-
+ 
     mw.show();
     a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
     

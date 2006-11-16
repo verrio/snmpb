@@ -20,7 +20,6 @@ public:
     BasicMibView ( QWidget * parent = 0 );
     void Populate (void);
     void SetDirty(void);
-    void TreeTabSelected(int index);
     
 protected slots:
     void ExpandNode( QTreeWidgetItem * item);
@@ -31,7 +30,10 @@ protected slots:
 
 signals:
     void SelectedOid(const QString& oid);
-    
+
+public slots:
+    void TreeTabSelected(int index);
+
 protected:
     virtual void contextMenuEvent ( QContextMenuEvent *event);
     QAction *expandAct;
