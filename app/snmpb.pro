@@ -40,7 +40,8 @@ HEADERS	+= mibnode.h \
 	agent.h \
 	trap.h \
 	graph.h \
-	configfiles.h
+	configfiles.h \
+	comboboxes.h
 unix {
   UI_DIR = .ui
   MOC_DIR = .moc

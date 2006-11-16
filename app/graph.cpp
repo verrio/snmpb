@@ -12,6 +12,7 @@
 
 #include "graph.h"
 #include "agent.h"
+#include "comboboxes.h"
 
 #if 0
 class PenWidthListBoxItem : public QListWidgetItem
@@ -53,43 +54,7 @@ private:
 };
 #endif
 
-void ColorBoxDelegate::paint( QPainter * painter, 
-                                const QStyleOptionViewItem &option,
-                                const QModelIndex &index) const
-{
-    QRect r = option.rect;
-
-    if (option.state & QStyle::State_Selected) {
-        painter->save();
-        painter->setBrush(option.palette.highlight());
-        painter->setPen(Qt::NoPen);
-        painter->drawRect(option.rect);
-        painter->setPen(QPen(option.palette.highlightedText(), 0));
-    }
-
-    r.setRight(r.right() - 3);
-    r.setLeft(r.left() + 3);
-    r.setTop(r.top() + 3);
-    r.setBottom(r.bottom() - 3);
-    painter->fillRect( r, index.data().value<QColor>());
-
-    if (option.state & QStyle::State_Selected)
-        painter->restore();
-}
-
 #if 0 
-#if 1 
-    QComboBox* cb = ((QComboBox*)parent());
-
-     QPainter painter_cb(cb);
-
-     QStyleOptionFocusRect opt;
-     opt.initFrom(cb);
-     opt.backgroundColor = Qt::black;
-//     painter->eraseRect( r );
-
-     cb->style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, &painter_cb/*, cb*/);
-#endif
 
 void PenWidthListBoxItem::paint( QPainter *painter )
 {
