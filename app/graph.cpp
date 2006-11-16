@@ -54,26 +54,43 @@ private:
 #endif
 
 void ColorBoxDelegate::paint( QPainter * painter, 
-                              const QStyleOptionViewItem & option,
-                              const QModelIndex & index ) const
+                                const QStyleOptionViewItem &option,
+                                const QModelIndex &index) const
 {
-    printf("Paint called for index %d,%d !\n", index.column(), index.row());
-    painter->fillRect( 3, 3+(index.row()*18), 65-6, 18-6, index.data().value<QColor>());
+    QRect r = option.rect;
 
-#if 0 
-    // evil trick: find out whether we are painted onto our listbox
-    bool in_list_box = view() && view()->viewport() == painter->device();
-    QStyleOptionFocusRect f;
-    QRect r ( 0, 0, 65, 18 );
-    if ( in_list_box && isSelected() )
-        painter->eraseRect( r );
-    painter->fillRect( 3, 3, 65-6, 18-6, Qt::blue);
-    if ( in_list_box && isCurrent() )
-        view()->style()->drawPrimitive( QStyle::PE_FrameFocusRect, &f, painter);
-#endif
+    if (option.state & QStyle::State_Selected) {
+        painter->save();
+        painter->setBrush(option.palette.highlight());
+        painter->setPen(Qt::NoPen);
+        painter->drawRect(option.rect);
+        painter->setPen(QPen(option.palette.highlightedText(), 0));
+    }
+
+    r.setRight(r.right() - 3);
+    r.setLeft(r.left() + 3);
+    r.setTop(r.top() + 3);
+    r.setBottom(r.bottom() - 3);
+    painter->fillRect( r, index.data().value<QColor>());
+
+    if (option.state & QStyle::State_Selected)
+        painter->restore();
 }
 
 #if 0 
+#if 1 
+    QComboBox* cb = ((QComboBox*)parent());
+
+     QPainter painter_cb(cb);
+
+     QStyleOptionFocusRect opt;
+     opt.initFrom(cb);
+     opt.backgroundColor = Qt::black;
+//     painter->eraseRect( r );
+
+     cb->style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, &painter_cb/*, cb*/);
+#endif
+
 void PenWidthListBoxItem::paint( QPainter *painter )
 {
     // evil trick: find out whether we are painted onto our listbox
@@ -247,7 +264,7 @@ Graph::Graph(QTabWidget* GT, QPushButton* GC, QPushButton* GD,
     // Fill the color combobox ...
     ColorModel = new QStandardItemModel(17, 1);
     PC->setModel(ColorModel);
-    ColorDelegate = new ColorBoxDelegate();
+    ColorDelegate = new ColorBoxDelegate(PC);
     PC->setItemDelegate(ColorDelegate);
 
     for (int row = 0; row < 17; row++)
