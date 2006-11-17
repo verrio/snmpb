@@ -1334,7 +1334,7 @@
                     <number>6</number>
                    </property>
                    <item row="1" column="1" >
-                    <widget class="QComboBox" name="PlotShape" />
+                    <widget class="QPenStyleComboBox" name="PlotShape" />
                    </item>
                    <item row="2" column="0" >
                     <widget class="QLabel" name="PlotWidthL" >
@@ -1344,7 +1344,7 @@
                     </widget>
                    </item>
                    <item row="2" column="1" >
-                    <widget class="QComboBox" name="PlotWidth" />
+                    <widget class="QPenWidthComboBox" name="PlotWidth" />
                    </item>
                    <item row="1" column="0" >
                     <widget class="QLabel" name="PlotShapeL" >
@@ -1577,6 +1577,18 @@
   </customwidget>
   <customwidget>
    <class>QColorComboBox</class>
+   <extends>QComboBox</extends>
+   <header>comboboxes.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QPenWidthComboBox</class>
+   <extends>QComboBox</extends>
+   <header>comboboxes.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QPenStyleComboBox</class>
    <extends>QComboBox</extends>
    <header>comboboxes.h</header>
    <container>1</container>

@@ -1,91 +1,9 @@
 #include <qmessagebox.h>
-#include <qpainter.h>
-#include <qstyle.h>
-#include <qcolor.h>
 #include <qnamespace.h>
-#include <QTimerEvent>
-#include <qlistwidget.h>
-#include <QStandardItemModel>
-#include <QItemDelegate>
-#include <QModelIndex>
-#include <QComboBox>
 
 #include "graph.h"
 #include "agent.h"
 #include "comboboxes.h"
-
-#if 0
-class PenWidthListBoxItem : public QListWidgetItem
-{
-public:
-    PenWidthListBoxItem(uint w)
-        : QListWidgetItem()
-    {
-        thewidth = w;
-        setCustomHighlighting( TRUE );
-    }
-
-protected:
-    virtual void paint( QPainter * );
-    virtual int width( const QListWidget* ) const { return 65; }
-    virtual int height( const QListWidget* ) const { return 18; }
-    
-private:
-    uint thewidth;
-};
-
-class PenStyleListBoxItem : public QListWidgetItem
-{
-public:
-    PenStyleListBoxItem(enum Qt::PenStyle s)
-        : QListWidgetItem()
-    {
-        style = s;
-        setCustomHighlighting( TRUE );
-    }
-
-protected:
-    virtual void paint( QPainter * );
-    virtual int width( const QListWidget* ) const { return 65; }
-    virtual int height( const QListWidget* ) const { return 18; }
-    
-private:
-    enum Qt::PenStyle style;
-};
-#endif
-
-#if 0 
-
-void PenWidthListBoxItem::paint( QPainter *painter )
-{
-    // evil trick: find out whether we are painted onto our listbox
-    bool in_list_box = listBox() && listBox()->viewport() == painter->device();
-    QStyleOptionFocusRect f; 
-    QRect r ( 0, 0, width( listBox() ), height( listBox() ) );
-    if ( in_list_box && isSelected() )
-        painter->eraseRect( r );
-    QPen pen( Qt::black, thewidth);
-    painter->setPen(pen);
-    painter->drawLine ( 0, height(listBox())/2, width(listBox()), height(listBox())/2);    
-    if ( in_list_box && isCurrent() )
-        listBox()->style()->drawPrimitive( QStyle::PE_FrameFocusRect, &f, painter);
-}
-
-void PenStyleListBoxItem::paint( QPainter *painter )
-{
-    // evil trick: find out whether we are painted onto our listbox
-    bool in_list_box = listBox() && listBox()->viewport() == painter->device();
-    QStyleOptionFocusRect f; 
-    QRect r ( 0, 0, width( listBox() ), height( listBox() ) );
-    if ( in_list_box && isSelected() )
-        painter->eraseRect( r );
-    QPen pen( Qt::black, 2, style);
-    painter->setPen(pen);
-    painter->drawLine ( 0, height(listBox())/2, width(listBox()), height(listBox())/2);    
-    if ( in_list_box && isCurrent() )
-        listBox()->style()->drawPrimitive( QStyle::PE_FrameFocusRect, &f, painter);
-}
-#endif
 
 GraphItem::GraphItem(QString name, QTabWidget* tab):QwtPlot(name)
 {
@@ -225,54 +143,6 @@ Graph::Graph(QTabWidget* GT, QPushButton* GC, QPushButton* GD,
     connect( PD, SIGNAL( clicked() ), this, SLOT( DeletePlot() ));    
     connect( PM, SIGNAL( SelectedOid(const QString&) ), 
              this, SLOT( SetObjectString(const QString&) ));
-
-    // Fill the color combobox ...
-    ColorModel = new QStandardItemModel(17, 1);
-    PC->setModel(ColorModel);
-    ColorDelegate = new ColorBoxDelegate(PC);
-    PC->setItemDelegate(ColorDelegate);
-
-    for (int row = 0; row < 17; row++)
-    {
-        QModelIndex index = ColorModel->index(row, 0, QModelIndex());
-        switch (row)
-        {
-            case 0: ColorModel->setData(index, QVariant(Qt::black)); break;
-            case 1: ColorModel->setData(index, QVariant(Qt::white)); break;
-            case 2: ColorModel->setData(index, QVariant(Qt::darkGray)); break;
-            case 3: ColorModel->setData(index, QVariant(Qt::gray)); break;
-            case 4: ColorModel->setData(index, QVariant(Qt::lightGray)); break;
-            case 5: ColorModel->setData(index, QVariant(Qt::red)); break;
-            case 6: ColorModel->setData(index, QVariant(Qt::green)); break;
-            case 7: ColorModel->setData(index, QVariant(Qt::blue)); break;
-            case 8: ColorModel->setData(index, QVariant(Qt::cyan)); break;
-            case 9: ColorModel->setData(index, QVariant(Qt::magenta)); break;            
-            case 10: ColorModel->setData(index, QVariant(Qt::yellow)); break;
-            case 11: ColorModel->setData(index, QVariant(Qt::darkRed)); break;
-            case 12: ColorModel->setData(index, QVariant(Qt::darkGreen)); break;
-            case 13: ColorModel->setData(index, QVariant(Qt::darkBlue)); break;
-            case 14: ColorModel->setData(index, QVariant(Qt::darkCyan)); break;
-            case 15: ColorModel->setData(index, QVariant(Qt::darkMagenta)); break;
-            case 16: ColorModel->setData(index, QVariant(Qt::darkYellow)); break;
-            default: break;
-        }
-    }
-
-#if 0 // TODO  
-    // Fill the pen width combobox ...
-    PlotWidth->listBox()->insertItem( new PenWidthListBoxItem(1) );
-    PlotWidth->listBox()->insertItem( new PenWidthListBoxItem(2) );
-    PlotWidth->listBox()->insertItem( new PenWidthListBoxItem(3) );
-    PlotWidth->listBox()->insertItem( new PenWidthListBoxItem(4) );
-    PlotWidth->listBox()->insertItem( new PenWidthListBoxItem(5) );
-    
-    // Fill the pen shape combobox ...
-    PlotShape->listBox()->insertItem( new PenStyleListBoxItem(Qt::SolidLine) );
-    PlotShape->listBox()->insertItem( new PenStyleListBoxItem(Qt::DashLine) );
-    PlotShape->listBox()->insertItem( new PenStyleListBoxItem(Qt::DotLine) );
-    PlotShape->listBox()->insertItem( new PenStyleListBoxItem(Qt::DashDotLine) );
-    PlotShape->listBox()->insertItem( new PenStyleListBoxItem(Qt::DashDotDotLine) );
-#endif
 }
 
 void Graph::CreateGraph(void)
@@ -320,42 +190,14 @@ void Graph::CreatePlot(void)
 {
     if (!PlotObject->currentText().isEmpty())
     {
-        QPen p;
-     
-        switch (PlotColor->currentIndex())
-        {
-        case 0: p.setColor(Qt::black); break;
-        case 1: p.setColor(Qt::white); break;
-        case 2: p.setColor(Qt::darkGray); break;
-        case 3: p.setColor(Qt::gray); break;
-        case 4: p.setColor(Qt::lightGray); break;
-        case 5: p.setColor(Qt::red); break;
-        case 6: p.setColor(Qt::green); break;
-        case 7: p.setColor(Qt::blue); break;
-        case 8: p.setColor(Qt::cyan); break;
-        case 9: p.setColor(Qt::magenta); break;            
-        case 10: p.setColor(Qt::yellow); break;
-        case 11: p.setColor(Qt::darkRed); break;
-        case 12: p.setColor(Qt::darkGreen); break;
-        case 13: p.setColor(Qt::darkBlue); break;
-        case 14: p.setColor(Qt::darkCyan); break;
-        case 15: p.setColor(Qt::darkMagenta); break;
-        case 16: p.setColor(Qt::darkYellow); break;
-        default: break;
-        }
-        
-        p.setWidth(PlotWidth->currentIndex()+1);
-        
-        switch (PlotShape->currentIndex())
-        {
-        case 0: p.setStyle(Qt::SolidLine); break;
-        case 1: p.setStyle(Qt::DashLine); break;
-        case 2: p.setStyle(Qt::DotLine); break;
-        case 3: p.setStyle(Qt::DashDotLine); break;
-        case 4: p.setStyle(Qt::DashDotDotLine); break;
-        default: break;
-        }
-
+        // Create the pen with the combobox values
+        QPen p(PlotColor->itemData(PlotColor->currentIndex(), 
+                                   Qt::DisplayRole).value<QColor>(),
+               PlotWidth->itemData(PlotWidth->currentIndex(), 
+                                   Qt::DisplayRole).toUInt(),
+               (enum Qt::PenStyle)(PlotShape->itemData(PlotShape->currentIndex(), 
+                                                       Qt::DisplayRole).toUInt()));
+    
         printf("Creating plot %s\n", PlotObject->currentText().toLatin1().data());
         
         if (!GraphName->currentText().isEmpty())

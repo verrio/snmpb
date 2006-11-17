@@ -7,7 +7,6 @@
 #include <qtabwidget.h>
 #include <qwt_plot.h>
 #include <QTimerEvent>
-#include <QStandardItemModel>
 
 #include "mibview.h"
 #include "comboboxes.h"
@@ -75,8 +74,6 @@ private:
     QComboBox* PlotWidth;
     BasicMibView* PlotMIBTree;
     QList<GraphItem*> Items;
-    QStandardItemModel* ColorModel;
-    ColorBoxDelegate* ColorDelegate;
 };
 
 #endif /* GRAPH_H */
