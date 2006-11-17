@@ -18,15 +18,17 @@ GraphItem::GraphItem(QString name, QTabWidget* tab):QwtPlot(name)
     // Zero all curve structures
     for( int j = 0; j < NUM_PLOT_PER_GRAPH; j++)
     {
-#if 0 //TODO
-        curves[j].key = 0;
-#endif
+        curves[j].object = NULL;
         memset(curves[j].data, 0, sizeof(double)*PLOT_HISTORY);
     }
 }
 
 GraphItem::~GraphItem()
 {
+    // Free curve objects
+    for( int j = 0; j < NUM_PLOT_PER_GRAPH; j++)
+        if (curves[j].object) delete curves[j].object;
+
     if (Tab && (Tab->indexOf(this) != -1))
         Tab->removeTab(Tab->indexOf(this));
 }
@@ -35,23 +37,21 @@ void GraphItem::AddCurve(QString name, QPen& pen)
 {
     int i = 0;
     
-    for (i=0; i<NUM_PLOT_PER_GRAPH; i++)
+    for (i = 0; i < NUM_PLOT_PER_GRAPH; i++)
     {
-#if 0 //TODO
-        if (curves[i].key && (curves[i].name == name))
+        if (curves[i].object && (curves[i].object->title().text() == name))
             return;
-        else if (curves[i].key == 0)
+        else if (!curves[i].object)
             break;
-#endif
     }
     
     if (i >= NUM_PLOT_PER_GRAPH)
         return;
-#if 0 //TODO
-    curves[i].key = insertCurve(name);
-    curves[i].name = name;
-    setCurvePen(curves[i].key, pen);
-#endif 
+
+    curves[i].object = new QwtPlotCurve(name);
+    curves[i].object->attach(this);
+    curves[i].object->setPen(pen);
+
     if (!timerID)
         timerID = startTimer(1000); // 1 second
     
@@ -67,19 +67,17 @@ void GraphItem::RemoveCurve(QString name)
         timerID = 0;
     }
 
-#if 0 //TODO
-      
-    for (int i=0; i<NUM_PLOT_PER_GRAPH; i++)
+    for (int i = 0; i < NUM_PLOT_PER_GRAPH; i++)
     {
-        if (curves[i].key && (curves[i].name == name))
+        if (curves[i].object && (curves[i].object->title().text() == name))
         {
-            curves[i].key = 0;
+            delete(curves[i].object);
+            curves[i].object = NULL;
             return;
         }
-        else if (curves[i].key == 0)
+        else if (!curves[i].object)
             return;
     }
-#endif
 }
 
 void GraphItem::timerEvent(QTimerEvent *)
@@ -104,17 +102,16 @@ void GraphItem::timerEvent(QTimerEvent *)
     }
     
     /* Set the data */
-    curves[0].data[dataCount-1] = CurrentAgent->GetSyncValue(curves[0].name);
+    curves[0].data[dataCount-1] = 
+        CurrentAgent->GetSyncValue(curves[0].object->title().text());
     
-    setAxisScale(QwtPlot::xBottom,
-        timeData[PLOT_HISTORY - 1], timeData[0]);
-#if 0 //TODO
+    setAxisScale(QwtPlot::xBottom, timeData[0], timeData[PLOT_HISTORY - 1]);
+    
     for ( int c = 0; c < 1/* TODO */; c++ )
     {
-        setCurveRawData(curves[c].key,
-            timeData, curves[c].data, dataCount);
+        curves[c].object->setRawData(timeData, curves[c].data, dataCount);
     }
-#endif
+
     replot();
 }
 

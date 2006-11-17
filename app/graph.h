@@ -6,6 +6,7 @@
 #include <qcombobox.h>
 #include <qtabwidget.h>
 #include <qwt_plot.h>
+#include <qwt_plot_curve.h>
 #include <QTimerEvent>
 
 #include "mibview.h"
@@ -35,10 +36,7 @@ private:
     
     struct
     {
-#if 0 //TODO
-        QwtPlotCurve key;
-#endif
-        QString name;
+        QwtPlotCurve *object;
         double data[PLOT_HISTORY];
     } curves[NUM_PLOT_PER_GRAPH];
 };
