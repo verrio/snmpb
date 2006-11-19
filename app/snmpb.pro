@@ -33,7 +33,8 @@ SOURCES	+= ../snmp++/src/address.cpp \
 	agent.cpp \
 	trap.cpp \
 	graph.cpp \
-	configfiles.cpp
+	configfiles.cpp \
+    comboboxes.cpp
 HEADERS	+= mibnode.h \
 	mibview.h \
 	mibmodule.h \
