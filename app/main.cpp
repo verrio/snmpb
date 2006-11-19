@@ -1,7 +1,6 @@
 #include <qapplication.h>
 #include <qmainwindow.h>
 #include "snmpb.h"
-#include "configfiles.h"
 
 int main( int argc, char ** argv )
 {
@@ -9,7 +8,7 @@ int main( int argc, char ** argv )
     QMainWindow mw;
     Snmpb snmpb(&mw);
 
-    CheckForConfigFiles();
+    snmpb.CheckForConfigFiles();
 
     mw.show();
     a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );

@@ -3,7 +3,6 @@
 #include <qfileinfo.h>
 #include <qdir.h>
 
-#include "configfiles.h"
 #include "mibmodule.h"
 
 #define PATH_SEPARATOR ';'
@@ -302,7 +301,7 @@ void MibModule::InitLib(int restart)
         smiflags = smiGetFlags();
         smiflags |= SMI_FLAG_ERRORS;
         // Read configuration file
-        smiReadConfig(GetMibConfigFile().toLatin1().data(), NULL);
+        smiReadConfig(s->GetMibConfigFile().toLatin1().data(), NULL);
     }
 
     smiSetFlags(smiflags);

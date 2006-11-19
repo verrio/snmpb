@@ -18,6 +18,11 @@ public:
     Agent* AgentObj(void);
     Trap* TrapObj(void);
 
+    void CheckForConfigFiles(void);
+    QString GetBootCounterConfigFile(void);
+    QString GetMibConfigFile(void);
+    QString GetUsmUsersConfigFile(void);
+
 private:
     Ui_MainW w;
 
@@ -28,3 +33,4 @@ private:
 };
 
 #endif /* SNMPB_H */
+

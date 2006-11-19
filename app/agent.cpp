@@ -3,7 +3,6 @@
 
 #include "mibview.h"
 #include "agent.h"
-#include "configfiles.h"
 #include "snmp_pp/notifyqueue.h"
 
 #define BULK_MAX 10
@@ -71,7 +70,7 @@ Agent::Agent(Snmpb *snmpb)
     char *engineId = "not_needed";
     unsigned int snmpEngineBoots = 0;
 
-    status = getBootCounter(GetBootCounterConfigFile().toLatin1().data(), 
+    status = getBootCounter(s->GetBootCounterConfigFile().toLatin1().data(), 
                             engineId, snmpEngineBoots);
     if ((status != SNMPv3_OK) && (status < SNMPv3_FILEOPEN_ERROR))
     {
@@ -85,7 +84,7 @@ Agent::Agent(Snmpb *snmpb)
     snmpEngineBoots++;
     
     // save the boot counter
-    status = saveBootCounter(GetBootCounterConfigFile().toLatin1().data(), 
+    status = saveBootCounter(s->GetBootCounterConfigFile().toLatin1().data(), 
                              engineId, snmpEngineBoots);
     if (status != SNMPv3_OK)
     {
@@ -119,7 +118,7 @@ Agent::Agent(Snmpb *snmpb)
     USM *usm = v3mp->get_usm();
     
     // Load the USM users from a file, if any
-    usm->load_users(GetUsmUsersConfigFile().toLatin1().data());
+    usm->load_users(s->GetUsmUsersConfigFile().toLatin1().data());
     
     // Bind on the SNMP trap port
     snmp->notify_set_listen_port(TRAP_PORT);
