@@ -5,14 +5,14 @@
 #define COMBOBOXES_NUM_PENWIDTH  5 
 #define COMBOBOXES_NUM_PENSTYLE  5
 #define COMBOBOXES_PEN_THICKNESS 2
-#define COMBOBOXES_MAINBOX_MARGIN_RIGHT   22
-#define COMBOBOXES_MAINBOX_MARGIN_LEFT    5
-#define COMBOBOXES_MAINBOX_MARGIN_TOP     7
-#define COMBOBOXES_MAINBOX_MARGIN_BOTTOM  7
+#define COMBOBOXES_MAINBOX_MARGIN_RIGHT   3 
+#define COMBOBOXES_MAINBOX_MARGIN_LEFT    3
+#define COMBOBOXES_MAINBOX_MARGIN_TOP     3
+#define COMBOBOXES_MAINBOX_MARGIN_BOTTOM  3 
 #define COMBOBOXES_DELEGATE_MARGIN_RIGHT  5
 #define COMBOBOXES_DELEGATE_MARGIN_LEFT   5
-#define COMBOBOXES_DELEGATE_MARGIN_TOP    3
-#define COMBOBOXES_DELEGATE_MARGIN_BOTTOM 3
+#define COMBOBOXES_DELEGATE_MARGIN_TOP    1 
+#define COMBOBOXES_DELEGATE_MARGIN_BOTTOM 1 
 
 QColorBoxDelegate::QColorBoxDelegate(QObject *parent): QItemDelegate(parent)
 {
@@ -32,10 +32,10 @@ void QColorBoxDelegate::paint ( QPainter * painter,
         painter->drawRect(r);
     }
 
-    r.setRight(r.right() - COMBOBOXES_DELEGATE_MARGIN_RIGHT);
-    r.setLeft(r.left() + COMBOBOXES_DELEGATE_MARGIN_LEFT);
-    r.setTop(r.top() + COMBOBOXES_DELEGATE_MARGIN_TOP);
-    r.setBottom(r.bottom() - COMBOBOXES_DELEGATE_MARGIN_BOTTOM);
+    r.adjust(COMBOBOXES_DELEGATE_MARGIN_LEFT, 
+             COMBOBOXES_DELEGATE_MARGIN_TOP, 
+             - COMBOBOXES_DELEGATE_MARGIN_RIGHT, 
+             - COMBOBOXES_DELEGATE_MARGIN_BOTTOM);
     painter->fillRect(r, index.data().value<QColor>());
 
     if (option.state & QStyle::State_Selected)
@@ -87,11 +87,13 @@ void QColorComboBox::paintEvent(QPaintEvent *)
     // draw the combobox frame.
     painter.drawComplexControl(QStyle::CC_ComboBox, optcb);
     // draw the element
-    opt.rect.setRight(opt.rect.right() - COMBOBOXES_MAINBOX_MARGIN_RIGHT);
-    opt.rect.setLeft(opt.rect.left() + COMBOBOXES_MAINBOX_MARGIN_LEFT);
-    opt.rect.setTop(opt.rect.top() + COMBOBOXES_MAINBOX_MARGIN_TOP);
-    opt.rect.setBottom(opt.rect.bottom() - COMBOBOXES_MAINBOX_MARGIN_BOTTOM);
-    painter.fillRect(opt.rect, itemData(currentIndex(), 
+    QRect ef = style()->subControlRect(QStyle::CC_ComboBox, &optcb, 
+                                       QStyle::SC_ComboBoxEditField, this);
+    ef.adjust(COMBOBOXES_MAINBOX_MARGIN_LEFT, 
+              COMBOBOXES_MAINBOX_MARGIN_TOP, 
+              - COMBOBOXES_MAINBOX_MARGIN_RIGHT, 
+              - COMBOBOXES_MAINBOX_MARGIN_BOTTOM);
+    painter.fillRect(ef, itemData(currentIndex(), 
                      Qt::DisplayRole).value<QColor>());
 }
 
@@ -147,12 +149,14 @@ void QPenWidthComboBox::paintEvent(QPaintEvent *)
     // draw the combobox frame.
     painter.drawComplexControl(QStyle::CC_ComboBox, optcb);
     // draw the element
+    QRect ef = style()->subControlRect(QStyle::CC_ComboBox, &optcb, 
+                                       QStyle::SC_ComboBoxEditField, this);
     QPen pen(Qt::black, itemData(currentIndex(), Qt::DisplayRole).toUInt());
     painter.setPen(pen);
-    painter.drawLine(opt.rect.left() + COMBOBOXES_MAINBOX_MARGIN_LEFT,
-                     opt.rect.top() + (opt.rect.height()/2),
-                     opt.rect.right() - COMBOBOXES_MAINBOX_MARGIN_RIGHT, 
-                     opt.rect.top() + (opt.rect.height()/2));
+    painter.drawLine(ef.left() + COMBOBOXES_MAINBOX_MARGIN_LEFT,
+                     ef.top() + (ef.height()/2),
+                     ef.right() - COMBOBOXES_MAINBOX_MARGIN_RIGHT, 
+                     ef.top() + (ef.height()/2));
 }
 
 QPenStyleBoxDelegate::QPenStyleBoxDelegate(QObject *parent): QItemDelegate(parent)
@@ -216,12 +220,14 @@ void QPenStyleComboBox::paintEvent(QPaintEvent *)
     // draw the combobox frame.
     painter.drawComplexControl(QStyle::CC_ComboBox, optcb);
     // draw the element
+    QRect ef = style()->subControlRect(QStyle::CC_ComboBox, &optcb, 
+                                       QStyle::SC_ComboBoxEditField, this);
     QPen pen(Qt::black, COMBOBOXES_PEN_THICKNESS, (enum Qt::PenStyle)
             (itemData(currentIndex(), Qt::DisplayRole).toUInt()));
     painter.setPen(pen);
-    painter.drawLine(opt.rect.left() + COMBOBOXES_MAINBOX_MARGIN_LEFT, 
-                     opt.rect.top() + (opt.rect.height()/2),
-                     opt.rect.right() - COMBOBOXES_MAINBOX_MARGIN_RIGHT, 
-                      opt.rect.top() + (opt.rect.height()/2));
+    painter.drawLine(ef.left() + COMBOBOXES_MAINBOX_MARGIN_LEFT, 
+                     ef.top() + (ef.height()/2),
+                     ef.right() - COMBOBOXES_MAINBOX_MARGIN_RIGHT, 
+                     ef.top() + (ef.height()/2));
 }
 
