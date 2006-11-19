@@ -11,8 +11,6 @@
 #define TRAP_TIMER_MSEC 100
 #define TRAP_PORT 8888
 
-Agent* CurrentAgent = NULL;
-
 /// C Callback functions for snmp++
 void callback_walk(int reason, Snmp *, Pdu &pdu, SnmpTarget &target, void *cd)
 {
@@ -41,51 +39,22 @@ void callback(int reason, Snmp *, Pdu &pdu, SnmpTarget &target, void *cd)
   }
 }
 
-Agent::Agent(QComboBox* UN, QComboBox* SL, QLineEdit* CN,
-             QLineEdit* EID, QComboBox* AProt, QLineEdit* APass,
-             QComboBox* PProt, QLineEdit* PPass, QComboBox* A,
-             QComboBox* P, QSpinBox* R, QSpinBox* T,
-             QRadioButton* v1, QRadioButton* v2, QRadioButton* v3,
-             QLineEdit* RC, QLineEdit* WC, 
-             QPushButton* DU, QPushButton* AU, QPushButton* SU,
-             MibView* MV, QTextEdit* Q, Trap* TR)
+Agent::Agent(Snmpb *snmpb)
 {
-    // Save all widget pointers in this class ... (ugly, I know ...)
-    UserName = UN;
-    SecLevel = SL;
-    ContextName = CN;
-    EngineID = EID;
-    AuthProtocol = AProt;
-    AuthPass = APass;
-    PrivProtocol = PProt;
-    PrivPass = PPass;
-    Address = A;
-    Port = P;
-    Retries = R;
-    Timeout = T;
-    V1 = v1;
-    V2 = v2;
-    V3 = v3;
-    ReadComm = RC;
-    WriteComm = WC;
-    DeleteUser = DU;
-    AddUser = AU;
-    SaveUser = SU;
-    Query = Q;
-    Tr = TR;
-    
+    s = snmpb;
+
     // Connect some signals
-    connect( MV, SIGNAL( WalkFromOid(const QString&) ),
+    connect( s->MainUI()->MIBTree, SIGNAL( WalkFromOid(const QString&) ),
              this, SLOT( WalkFrom(const QString&) ) );
-    connect( MV, SIGNAL( GetFromOid(const QString&) ),
+    connect( s->MainUI()->MIBTree, SIGNAL( GetFromOid(const QString&) ),
              this, SLOT( GetFrom(const QString&) ) );
-    connect( MV, SIGNAL( GetNextFromOid(const QString&) ),
+    connect( s->MainUI()->MIBTree, SIGNAL( GetNextFromOid(const QString&) ),
              this, SLOT( GetNextFrom(const QString&) ) );
-    connect( MV, SIGNAL( SetFromOid(const QString&) ),
+    connect( s->MainUI()->MIBTree, SIGNAL( SetFromOid(const QString&) ),
              this, SLOT( SetFrom(const QString&) ) );
-    connect( MV, SIGNAL( StopFromOid(const QString&) ),
+    connect( s->MainUI()->MIBTree, SIGNAL( StopFromOid(const QString&) ),
              this, SLOT( StopFrom(const QString&) ) );
-    connect( MV, SIGNAL( TableViewFromOid(const QString&) ),
+    connect( s->MainUI()->MIBTree, SIGNAL( TableViewFromOid(const QString&) ),
              this, SLOT( TableViewFrom(const QString&) ) );
     
     int status;
@@ -185,7 +154,8 @@ int Agent::Setup(const QString& oid, SnmpTarget **t, Pdu **p)
     *pdu += vb;
     
     // Create an address object from the entered values
-    QString address_str(Address->currentText() + "/" + Port->currentText());
+    QString address_str(s->MainUI()->Address->currentText() + "/" + 
+                        s->MainUI()->Port->currentText());
     UdpAddress address(address_str.toLatin1().data());
     
     // check if the address is valid
@@ -194,7 +164,7 @@ int Agent::Setup(const QString& oid, SnmpTarget **t, Pdu **p)
     if (!address.valid())
     {
         QString err = QString("Invalid Address or DNS Name: %1\n")
-                      .arg(Address->currentText());
+                      .arg(s->MainUI()->Address->currentText());
         QMessageBox::warning ( NULL, "SnmpB", err, 
                                QMessageBox::Ok, Qt::NoButton);
         return -1;
@@ -203,10 +173,10 @@ int Agent::Setup(const QString& oid, SnmpTarget **t, Pdu **p)
     SnmpTarget *target; // will point to a CTarget(v1/v2c) or UTarget (v3)
         
     // Get retries and timeout values
-    int retries = Retries->value();
-    int timeout = 100 * Timeout->value();
+    int retries = s->MainUI()->Retries->value();
+    int timeout = 100 * s->MainUI()->Timeout->value();
     
-    if (V3->isChecked())
+    if (s->MainUI()->V3->isChecked())
     {
         // For SNMPv3 we need a UTarget object
         UTarget *utarget = new UTarget(address);
@@ -214,35 +184,35 @@ int Agent::Setup(const QString& oid, SnmpTarget **t, Pdu **p)
         utarget->set_version(version3);
         
         utarget->set_security_model(SNMP_SECURITY_MODEL_USM);
-        utarget->set_security_name(UserName->currentText().toLatin1().data());
+        utarget->set_security_name(s->MainUI()->UserName->currentText().toLatin1().data());
         
         target = utarget;
         
         // set the security level to use
-        if (SecLevel->currentText() == "noAuthNoPriv")
+        if (s->MainUI()->SecLevel->currentText() == "noAuthNoPriv")
             pdu->set_security_level(SNMP_SECURITY_LEVEL_NOAUTH_NOPRIV);
-        else if (SecLevel->currentText() == "authNoPriv")
+        else if (s->MainUI()->SecLevel->currentText() == "authNoPriv")
             pdu->set_security_level(SNMP_SECURITY_LEVEL_AUTH_NOPRIV);
         else
             pdu->set_security_level(SNMP_SECURITY_LEVEL_AUTH_PRIV);
         
         // Not needed, as snmp++ will set it, if the user does not set it
-        pdu->set_context_name(ContextName->text().toLatin1().data());
-        pdu->set_context_engine_id(EngineID->text().toLatin1().data());
+        pdu->set_context_name(s->MainUI()->ContextName->text().toLatin1().data());
+        pdu->set_context_engine_id(s->MainUI()->EngineID->text().toLatin1().data());
     }
     else
     {
         // For SNMPv1/v2c we need a CTarget
         CTarget *ctarget = new CTarget(address);
         
-        if (V2->isChecked())
+        if (s->MainUI()->V2->isChecked())
             ctarget->set_version(version2c);
         else
             ctarget->set_version(version1);
         
         // set the community
-        ctarget->set_readcommunity( ReadComm->text().toLatin1().data());
-        ctarget->set_writecommunity( WriteComm->text().toLatin1().data());
+        ctarget->set_readcommunity( s->MainUI()->ReadComm->text().toLatin1().data());
+        ctarget->set_writecommunity( s->MainUI()->WriteComm->text().toLatin1().data());
         
         target = ctarget;
     }
@@ -464,8 +434,8 @@ void Agent::AsyncCallbackTrap(int reason, Pdu &pdu, SnmpTarget &target)
     QStringList values;
     values << no << date << time << timestamp << nottype 
            << msgtype << version << agtaddr << agtport;
-    TrapItem *ti = Tr->Add(id, values, community, seclevel, 
-                           ctxname, ctxid, msgid);
+    TrapItem *ti = s->TrapObj()->Add(id, values, community, seclevel, 
+                                     ctxname, ctxid, msgid);
  
     // Now, loop thru all varbinds and extract info ...
     for (int i=0; i < pdu.get_vb_count(); i++)
@@ -589,7 +559,7 @@ void Agent::AsyncCallback(int reason, Pdu &pdu,
         // Buffer each 10 objects before displaying.
         if (!(objects%10))
         {
-            Query->append(msg);
+            s->MainUI()->Query->append(msg);
             msg = "";
         }
         else
@@ -626,7 +596,7 @@ end:
     msg += QString("%1<br>Total # of Objects = %2</font>")
                     .arg(requests).arg(objects);
 cleanup:
-    Query->append(msg);
+    s->MainUI()->Query->append(msg);
     // Dont stop the timer, but put it back to the lower-rate trap timer value
     timer.start(TRAP_TIMER_MSEC);
 }
@@ -642,8 +612,8 @@ void Agent::WalkFrom(const QString& oid)
         return;
     
     // Clear the Query window ...
-    Query->clear();
-    Query->append("-----SNMP query started-----");
+    s->MainUI()->Query->clear();
+    s->MainUI()->Query->append("-----SNMP query started-----");
     
     // Clear some global vars
     requests = 0;
@@ -662,7 +632,7 @@ void Agent::WalkFrom(const QString& oid)
     {
         msg = QString("<font color=red>Could not send GETBULK request: %1<font>")
                        .arg(Snmp::error_msg(status));
-        Query->append(msg);
+        s->MainUI()->Query->append(msg);
     }
     
     delete target;
@@ -680,8 +650,8 @@ void Agent::GetFrom(const QString& oid)
         return;
     
     // Clear the Query window ...
-    Query->clear();
-    Query->append("-----SNMP query started-----");
+    s->MainUI()->Query->clear();
+    s->MainUI()->Query->append("-----SNMP query started-----");
     
     // Clear some global vars
     requests = 0;
@@ -700,7 +670,7 @@ void Agent::GetFrom(const QString& oid)
     {
         msg = QString("<font color=red>Could not send GET request: %1<font>")
                        .arg(Snmp::error_msg(status));
-        Query->append(msg);
+        s->MainUI()->Query->append(msg);
     }
     
     delete target;
@@ -718,8 +688,8 @@ void Agent::GetNextFrom(const QString& oid)
         return;
         
     // Clear the Query window ...
-    Query->clear();
-    Query->append("-----SNMP query started-----");
+    s->MainUI()->Query->clear();
+    s->MainUI()->Query->append("-----SNMP query started-----");
     
     // Clear some global vars
     requests = 0;
@@ -738,7 +708,7 @@ void Agent::GetNextFrom(const QString& oid)
     {
         msg = QString("<font color=red>Could not send GETNEXT request: %1<font>")
                        .arg(Snmp::error_msg(status));
-        Query->append(msg);
+        s->MainUI()->Query->append(msg);
     }
     
     delete target;
@@ -769,15 +739,15 @@ void Agent::TableViewFrom(const QString& oid)
         return;
     
     // Clear the Query window ...
-    Query->clear();
-    Query->append("-----SNMP query started-----");
+    s->MainUI()->Query->clear();
+    s->MainUI()->Query->append("-----SNMP query started-----");
     
     // Clear some global vars
     requests = 0;
     objects  = 0;
     msg = "";
 
-    Query->append("Collecting table objects, please wait ...<br>");
+    s->MainUI()->Query->append("Collecting table objects, please wait ...<br>");
     
     /* Set the parent oid & parent node */
     Oid poid(oid.toLatin1().data());
@@ -788,7 +758,7 @@ void Agent::TableViewFrom(const QString& oid)
     {
         delete target;
         delete pdu;
-        Query->append("<font color=red>Abort, not a row entry</font>");
+        s->MainUI()->Query->append("<font color=red>Abort, not a row entry</font>");
         return;
     }
     
@@ -864,7 +834,7 @@ void Agent::TableViewFrom(const QString& oid)
     msg += QString("</table>");
     msg += "-----SNMP query finished-----<br>";
     msg += QString("<font color=#009000>Total # of rows = %1<br>").arg(rows);
-    Query->append(msg);
+    s->MainUI()->Query->append(msg);
     
     delete target;
     delete pdu;

@@ -27,6 +27,7 @@ SOURCES	+= ../snmp++/src/address.cpp \
 	../snmp++/src/v3.cpp \
 	../snmp++/src/vb.cpp \
 	main.cpp \
+    snmpb.cpp \
 	mibnode.cpp \
 	mibview.cpp \
 	mibmodule.cpp \
@@ -35,7 +36,8 @@ SOURCES	+= ../snmp++/src/address.cpp \
 	graph.cpp \
 	configfiles.cpp \
     comboboxes.cpp
-HEADERS	+= mibnode.h \
+HEADERS	+= snmpb.h \
+    mibnode.h \
 	mibview.h \
 	mibmodule.h \
 	agent.h \

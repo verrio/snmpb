@@ -1,7 +1,7 @@
 #ifndef MIBMODULE_H
 #define MIBMODULE_H
 
-#include "ui_mainw.h"
+#include "snmpb.h"
 #include "mibview.h"
 #include "smi.h"
 
@@ -22,7 +22,7 @@ class MibModule: public QObject
     Q_OBJECT
     
 public:
-    MibModule(QTextEdit *MI, QTreeWidget *AM, QTreeWidget *LM);
+    MibModule(Snmpb *snmpb);
     void Refresh(void);
 
 public slots:
@@ -40,14 +40,12 @@ private:
     void RebuildUnloadedList(void);
     
 private:
+    Snmpb *s;
+
     QStringList Unloaded;
     QList<LoadedMibModule*> Loaded;
     QStringList Total;
     QStringList Wanted;
-    
-    QTextEdit *ModuleInfo;
-    QTreeWidget *UnloadedM;
-    QTreeWidget *LoadedM;
 };
 
 #endif /* MIBMODULE_H */

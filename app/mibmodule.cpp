@@ -85,28 +85,29 @@ char* LoadedMibModule::GetMibLanguage(void)
     }
 }
 
-MibModule::MibModule(QTextEdit *MI, QTreeWidget *AM, QTreeWidget *LM)
+MibModule::MibModule(Snmpb *snmpb)
 {
-    ModuleInfo = MI;
-    UnloadedM = AM;
-    LoadedM = LM;
+    s = snmpb;
 
     QStringList columns;
     columns << "Module" << "Required" << "Language" << "Path"; 
-    LoadedM->setHeaderLabels(columns);
+    s->MainUI()->LoadedModules->setHeaderLabels(columns);
 
     InitLib(0);
     RebuildTotalList();
 
     // Connect some signals
-    connect( UnloadedM, SIGNAL(itemDoubleClicked ( QTreeWidgetItem *, int )),
+    connect( s->MainUI()->UnloadedModules, 
+             SIGNAL(itemDoubleClicked ( QTreeWidgetItem *, int )),
              this, SLOT( AddModule() ) );
-    connect( LoadedM, SIGNAL(itemDoubleClicked ( QTreeWidgetItem *, int )),
+    connect( s->MainUI()->LoadedModules, 
+             SIGNAL(itemDoubleClicked ( QTreeWidgetItem *, int )),
              this, SLOT( RemoveModule() ) );
-    connect( LoadedM, SIGNAL(itemSelectionChanged ()),
+    connect( s->MainUI()->LoadedModules, SIGNAL(itemSelectionChanged ()),
              this, SLOT( ShowModuleInfo() ) );
     connect( this, SIGNAL(ModuleProperties(const QString&)),
-             (QObject*)ModuleInfo, SLOT(setHtml(const QString&)) );
+             (QObject*)s->MainUI()->ModuleInfo, 
+             SLOT(setHtml(const QString&)) );
     
     for(SmiModule *mod = smiGetFirstModule(); 
         mod; mod = smiGetNextModule(mod))
@@ -117,7 +118,8 @@ MibModule::MibModule(QTextEdit *MI, QTreeWidget *AM, QTreeWidget *LM)
 void MibModule::ShowModuleInfo(void)
 {
     QTreeWidgetItem *item;
-    QList<QTreeWidgetItem *> item_list = LoadedM->selectedItems();
+    QList<QTreeWidgetItem *> item_list = 
+                             s->MainUI()->LoadedModules->selectedItems();
 
     if ((item_list.count() == 1) && ((item = item_list.first()) != 0))
     {
@@ -180,7 +182,7 @@ void MibModule::RebuildLoadedList(void)
     char * required = NULL;
     
     Loaded.clear();
-    LoadedM->clear();
+    s->MainUI()->LoadedModules->clear();
     
     mod = smiGetFirstModule();
     
@@ -197,7 +199,7 @@ void MibModule::RebuildLoadedList(void)
         QStringList values;
         values << lmodule->name.toLatin1().data() << required
                << lmodule->GetMibLanguage() << lmodule->module->path; 
-        new QTreeWidgetItem(LoadedM, values);
+        new QTreeWidgetItem(s->MainUI()->LoadedModules, values);
 
         i++;
         mod = smiGetNextModule(mod);
@@ -212,7 +214,7 @@ void MibModule::RebuildUnloadedList(void)
     int j;
  
     Unloaded.clear();
-    UnloadedM->clear();
+    s->MainUI()->UnloadedModules->clear();
     
     for(int i=0; i < Total.count(); i++)
     {
@@ -227,7 +229,8 @@ void MibModule::RebuildUnloadedList(void)
 
         if (!lmodule || (j >= Loaded.count())) {
             Unloaded.append(current);
-            new QTreeWidgetItem(UnloadedM, QStringList(current));
+            new QTreeWidgetItem(s->MainUI()->UnloadedModules, 
+                                QStringList(current));
         }
     }
 }
@@ -236,7 +239,8 @@ void MibModule::AddModule(void)
 {
     QTreeWidgetItem *item;//, *nextitem  = NULL;
     //    char buf[200];
-    QList<QTreeWidgetItem *> item_list = UnloadedM->selectedItems();
+    QList<QTreeWidgetItem *> item_list = 
+                             s->MainUI()->UnloadedModules->selectedItems();
 
     if ((item_list.count() == 1) && ((item = item_list.first()) != 0))
     {
@@ -260,7 +264,8 @@ void MibModule::AddModule(void)
 void MibModule::RemoveModule(void)
 {
     QTreeWidgetItem *item;
-    QList<QTreeWidgetItem *> item_list = LoadedM->selectedItems();
+    QList<QTreeWidgetItem *> item_list = 
+                             s->MainUI()->LoadedModules->selectedItems();
 
     if ((item_list.count() == 1) && ((item = item_list.first()) != 0))
     {

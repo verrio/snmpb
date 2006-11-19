@@ -104,19 +104,18 @@ void TrapItem::AddVarBind(Vb& vb)
     content.append(new Vb(vb));
 }
    
-Trap::Trap(QTreeWidget* TL, QTreeWidget* TC, QTextEdit* TI)
+Trap::Trap(Snmpb *snmpb)
 {
-    TrapLog = TL;
-    TrapContent = TC;
-    TrapInfo = TI;
-    
-    TrapContent->header()->hide();
-    TrapContent->setSortingEnabled( FALSE );
+    s = snmpb;
+ 
+    s->MainUI()->TrapContent->header()->hide();
+    s->MainUI()->TrapContent->setSortingEnabled( FALSE );
 
-    connect( TrapLog, SIGNAL( currentItemChanged( QTreeWidgetItem *, QTreeWidgetItem * ) ),
+    connect( s->MainUI()->TrapLog, 
+             SIGNAL( currentItemChanged( QTreeWidgetItem *, QTreeWidgetItem * ) ),
              this, SLOT( SelectedTrap( QTreeWidgetItem *, QTreeWidgetItem * ) ) );
     connect( this, SIGNAL(TrapProperties(const QString&)),
-             (QObject*)TrapInfo, SLOT(setHtml(const QString&)) );
+             (QObject*)s->MainUI()->TrapInfo, SLOT(setHtml(const QString&)) );
 }
 
 TrapItem* Trap::Add(Oid &id, const QStringList &values,
@@ -124,18 +123,19 @@ TrapItem* Trap::Add(Oid &id, const QStringList &values,
                     QString &ctxname, QString &ctxid, QString &msgid)
 {
     // Create the trap item
-    TrapItem *ti = new TrapItem(id, TrapLog, values, community, seclevel, 
+    TrapItem *ti = new TrapItem(id, s->MainUI()->TrapLog, 
+                                values, community, seclevel, 
                                 ctxname, ctxid, msgid);
     
     return (ti);
 }
 
-void Trap::SelectedTrap(QTreeWidgetItem * item, QTreeWidgetItem * old)
+void Trap::SelectedTrap(QTreeWidgetItem * item, QTreeWidgetItem *)
 {
     TrapItem *trap = (TrapItem*)item;
     QString text;
     
-    trap->PrintContent(TrapContent);
+    trap->PrintContent(s->MainUI()->TrapContent);
     trap->PrintProperties(text);
     emit TrapProperties(text);
 }

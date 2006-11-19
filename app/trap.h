@@ -1,7 +1,7 @@
 #ifndef TRAP_H
 #define TRAP_H
 
-#include "ui_mainw.h"
+#include "snmpb.h"
 #include "snmp_pp/snmp_pp.h"
 
 class TrapItem : public QTreeWidgetItem
@@ -31,7 +31,7 @@ class Trap: public QObject
     Q_OBJECT
     
 public:
-    Trap(QTreeWidget* TL, QTreeWidget* TC, QTextEdit* TI);
+    Trap(Snmpb *snmpb);
     TrapItem* Add(Oid &id, const QStringList &values, 
                   QString &community, QString &seclevel,
                   QString &ctxname, QString &ctxid, QString &msgid);
@@ -43,9 +43,7 @@ signals:
     void TrapProperties(const QString& text);
     
 private:
-    QTreeWidget* TrapLog;
-    QTreeWidget* TrapContent;
-    QTextEdit* TrapInfo;
+    Snmpb *s;
 };
 
 #endif /* TRAP_H */

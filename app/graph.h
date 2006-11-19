@@ -2,13 +2,12 @@
 #define GRAPH_H
 
 #include <qwidget.h>
-#include <qpushbutton.h>
-#include <qcombobox.h>
 #include <qtabwidget.h>
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 #include <QTimerEvent>
 
+#include "snmpb.h"
 #include "mibview.h"
 #include "comboboxes.h"
 
@@ -18,7 +17,7 @@
 class GraphItem: public QwtPlot
 {
 public:
-    GraphItem(QString name, QTabWidget* tab);
+    GraphItem(Snmpb *snmpb);
     ~GraphItem();
     
     void AddCurve(QString name, QPen& pen);
@@ -28,8 +27,8 @@ protected:
     void timerEvent(QTimerEvent *);
     
 private:
-    QTabWidget* Tab;
-    
+    Snmpb *s;
+     
     int dataCount;
     double timeData[PLOT_HISTORY];
     int timerID;
@@ -46,10 +45,7 @@ class Graph: public QObject
     Q_OBJECT
     
 public:
-    Graph(QTabWidget* GT, QPushButton* GC, QPushButton* GD, 
-          QComboBox* GN, QComboBox* PO, QPushButton* PA, 
-          QPushButton* PD, QComboBox* PI, QComboBox* PC, 
-          QComboBox* PS, QComboBox* PW, BasicMibView* PM);
+    Graph(Snmpb *snmpb);
     
 public slots:
     void CreateGraph(void);
@@ -59,17 +55,8 @@ public slots:
     void SetObjectString(const QString& oid);
     
 private:
-    QTabWidget* GraphTab;
-    QPushButton* GraphCreate;
-    QPushButton* GraphDelete;
-    QComboBox* GraphName;
-    QComboBox* PlotObject;
-    QPushButton* PlotAdd;
-    QPushButton* PlotDelete;
-    QComboBox* PlotIndex;
-    QComboBox* PlotColor;
-    QComboBox* PlotShape;
-    QComboBox* PlotWidth;
+    Snmpb *s;
+
     BasicMibView* PlotMIBTree;
     QList<GraphItem*> Items;
 };

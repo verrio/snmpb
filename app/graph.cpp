@@ -5,10 +5,11 @@
 #include "agent.h"
 #include "comboboxes.h"
 
-GraphItem::GraphItem(QString name, QTabWidget* tab):QwtPlot(name)
+GraphItem::GraphItem(Snmpb *snmpb)
 {
-    Tab = tab;
-    Tab->addTab(this, name);
+    s = snmpb;
+    QwtPlot::QwtPlot(s->MainUI()->GraphName->currentText());
+    s->MainUI()->GraphTab->addTab(this, s->MainUI()->GraphName->currentText());
     dataCount = 0;
     timerID = 0;
     
@@ -29,8 +30,8 @@ GraphItem::~GraphItem()
     for( int j = 0; j < NUM_PLOT_PER_GRAPH; j++)
         if (curves[j].object) delete curves[j].object;
 
-    if (Tab && (Tab->indexOf(this) != -1))
-        Tab->removeTab(Tab->indexOf(this));
+    if (s->MainUI()->GraphTab && (s->MainUI()->GraphTab->indexOf(this) != -1))
+        s->MainUI()->GraphTab->removeTab(s->MainUI()->GraphTab->indexOf(this));
 }
 
 void GraphItem::AddCurve(QString name, QPen& pen)
@@ -103,7 +104,7 @@ void GraphItem::timerEvent(QTimerEvent *)
     
     /* Set the data */
     curves[0].data[dataCount-1] = 
-        CurrentAgent->GetSyncValue(curves[0].object->title().text());
+        s->AgentObj()->GetSyncValue(curves[0].object->title().text());
     
     setAxisScale(QwtPlot::xBottom, timeData[0], timeData[PLOT_HISTORY - 1]);
     
@@ -115,65 +116,55 @@ void GraphItem::timerEvent(QTimerEvent *)
     replot();
 }
 
-Graph::Graph(QTabWidget* GT, QPushButton* GC, QPushButton* GD,
-             QComboBox* GN, QComboBox* PO, QPushButton* PA,
-             QPushButton* PD, QComboBox* PI, QComboBox* PC,
-             QComboBox* PS, QComboBox* PW, BasicMibView* PM)
+Graph::Graph(Snmpb *snmpb)
 {
-    GraphTab = GT;
-    GraphCreate = GC;
-    GraphDelete = GD;
-    GraphName = GN;
-    PlotObject = PO;
-    PlotAdd = PA;
-    PlotDelete = PD;
-    PlotIndex = PI;
-    PlotColor = PC;
-    PlotShape = PS;
-    PlotWidth = PW;
-    PlotMIBTree = PM;
-    
+    s = snmpb;
+ 
     // Connect some signals
-    connect( GC, SIGNAL( clicked() ), this, SLOT( CreateGraph() ));
-    connect( GD, SIGNAL( clicked() ), this, SLOT( DeleteGraph() ));
-    connect( PA, SIGNAL( clicked() ), this, SLOT( CreatePlot() ));
-    connect( PD, SIGNAL( clicked() ), this, SLOT( DeletePlot() ));    
-    connect( PM, SIGNAL( SelectedOid(const QString&) ), 
+    connect( s->MainUI()->GraphCreate, SIGNAL( clicked() ), 
+             this, SLOT( CreateGraph() ));
+    connect( s->MainUI()->GraphDelete, SIGNAL( clicked() ), 
+             this, SLOT( DeleteGraph() ));
+    connect( s->MainUI()->PlotAdd, SIGNAL( clicked() ), 
+             this, SLOT( CreatePlot() ));
+    connect( s->MainUI()->PlotDelete, SIGNAL( clicked() ), 
+             this, SLOT( DeletePlot() ));    
+    connect( s->MainUI()->PlotMIBTree, SIGNAL( SelectedOid(const QString&) ), 
              this, SLOT( SetObjectString(const QString&) ));
 }
 
 void Graph::CreateGraph(void)
 {
-    if (!GraphName->currentText().isEmpty())
+    if (!s->MainUI()->GraphName->currentText().isEmpty())
     {        
         GraphItem *GI;
         for (int i = 0; i < Items.count(); i++)
         {
             GI = Items[i];
-            if (GI->title().text() == GraphName->currentText())
+            if (GI->title().text() == s->MainUI()->GraphName->currentText())
             {
                 QString err = QString("Graph \"%1\" already exist !")
-                      .arg(GraphName->currentText());
+                      .arg(s->MainUI()->GraphName->currentText());
                 QMessageBox::information ( NULL, "Graph", err, 
                              QMessageBox::Ok, Qt::NoButton);
                 return;
             }
         }
                 
-        GI = new GraphItem(GraphName->currentText(), GraphTab);
+        GI = new GraphItem(s); 
         Items.append(GI);
     }
 }
 
 void Graph::DeleteGraph(void)
 {
-    if (!GraphName->currentText().isEmpty())
+    if (!s->MainUI()->GraphName->currentText().isEmpty())
     {
         GraphItem *GI;
         for (int i = 0; i < Items.count(); i++)
         {
             GI = Items[i];
-            if (GI->title().text() == GraphName->currentText())
+            if (GI->title().text() == s->MainUI()->GraphName->currentText())
             {
                 Items.removeAll(GI);
                 delete GI;
@@ -185,57 +176,60 @@ void Graph::DeleteGraph(void)
 
 void Graph::CreatePlot(void)
 {
-    if (!PlotObject->currentText().isEmpty())
+    if (!s->MainUI()->PlotObject->currentText().isEmpty())
     {
         // Create the pen with the combobox values
-        QPen p(PlotColor->itemData(PlotColor->currentIndex(), 
-                                   Qt::DisplayRole).value<QColor>(),
-               PlotWidth->itemData(PlotWidth->currentIndex(), 
-                                   Qt::DisplayRole).toUInt(),
-               (enum Qt::PenStyle)(PlotShape->itemData(PlotShape->currentIndex(), 
-                                                       Qt::DisplayRole).toUInt()));
+        QPen p(s->MainUI()->PlotColor->itemData(
+               s->MainUI()->PlotColor->currentIndex(), 
+               Qt::DisplayRole).value<QColor>(),
+               s->MainUI()->PlotWidth->itemData(
+               s->MainUI()->PlotWidth->currentIndex(), 
+               Qt::DisplayRole).toUInt(),
+               (enum Qt::PenStyle)(s->MainUI()->PlotShape->itemData(
+               s->MainUI()->PlotShape->currentIndex(), 
+               Qt::DisplayRole).toUInt()));
     
-        printf("Creating plot %s\n", PlotObject->currentText().toLatin1().data());
+        printf("Creating plot %s\n", s->MainUI()->PlotObject->currentText().toLatin1().data());
         
-        if (!GraphName->currentText().isEmpty())
+        if (!s->MainUI()->GraphName->currentText().isEmpty())
         {
             GraphItem *GI = NULL;
             for (int i = 0; i < Items.count(); i++)
             {
                 GI = Items[i];
-                if (GI->title().text() == GraphName->currentText())
+                if (GI->title().text() == s->MainUI()->GraphName->currentText())
                     break;
             }
             if (GI)
-                GI->AddCurve(PlotObject->currentText(), p);
+                GI->AddCurve(s->MainUI()->PlotObject->currentText(), p);
         }
     }
 }
 
 void Graph::DeletePlot(void)
 {
-    if (!PlotObject->currentText().isEmpty())
+    if (!s->MainUI()->PlotObject->currentText().isEmpty())
     {
-        printf("Deleting plot %s\n", PlotObject->currentText().toLatin1().data());
+        printf("Deleting plot %s\n", s->MainUI()->PlotObject->currentText().toLatin1().data());
         
-        if (!GraphName->currentText().isEmpty())
+        if (!s->MainUI()->GraphName->currentText().isEmpty())
         {
             GraphItem *GI = NULL;
             for (int i = 0; i < Items.count(); i++)
             {
                 GI = Items[i];
-                if (GI->title().text() == GraphName->currentText())
+                if (GI->title().text() == s->MainUI()->GraphName->currentText())
                     break;
             }
             if (GI) 
-                GI->RemoveCurve(PlotObject->currentText());
+                GI->RemoveCurve(s->MainUI()->PlotObject->currentText());
         }
     }
 }
 
 void Graph::SetObjectString(const QString& oid)
 {
-    PlotObject->insertItem(0, oid);
-    PlotObject->setCurrentIndex(0);
+    s->MainUI()->PlotObject->insertItem(0, oid);
+    s->MainUI()->PlotObject->setCurrentIndex(0);
 }
 
