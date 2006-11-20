@@ -123,6 +123,9 @@
                <property name="autoFormatting" >
                 <set>QTextEdit::AutoAll</set>
                </property>
+               <property name="readOnly" >
+                <bool>true</bool>
+               </property>
               </widget>
              </item>
             </layout>
@@ -1552,6 +1555,9 @@
   <action name="optionsHorizontal_splitAction" >
    <property name="checkable" >
     <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>Hori&amp;zontal split</string>
    </property>
    <property name="iconText" >
     <string>&amp;Horizontal split</string>

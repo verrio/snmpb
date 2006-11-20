@@ -23,6 +23,10 @@ public:
     QString GetMibConfigFile(void);
     QString GetUsmUsersConfigFile(void);
 
+public slots:
+    void TreeTabSelected(int index);
+    void HorizontalSplit(bool checked);
+
 private:
     Ui_MainW w;
 

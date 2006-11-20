@@ -28,7 +28,8 @@ BasicMibView::BasicMibView (QWidget * parent) : QTreeWidget(parent)
     setLineWidth( 2 );
     setFrameShadow( MibView::Plain );
     setAllColumnsShowFocus( FALSE );
-
+    setFrameShape(QFrame::WinPanel);
+    setFrameShadow(QFrame::Plain);
     setRootIsDecorated( TRUE );
     
     MibLoader.RegisterView(this);
@@ -53,12 +54,6 @@ BasicMibView::BasicMibView (QWidget * parent) : QTreeWidget(parent)
 void BasicMibView::SetDirty(void)
 {
     isdirty = 1;
-}
-
-void BasicMibView::TreeTabSelected( int index )
-{
-    if(index == 0) Populate();
-    if(index == 4) Populate();
 }
 
 void BasicMibView::Populate(void)
@@ -137,7 +132,7 @@ void BasicMibView::CollapseNode( QTreeWidgetItem * item)
     node->SetPixmap(FALSE);
 }
 
-void BasicMibView::SelectedNode( QTreeWidgetItem * item, QTreeWidgetItem * old)
+void BasicMibView::SelectedNode( QTreeWidgetItem * item, QTreeWidgetItem *)
 {
     MibNode *node = (MibNode*)item;
     
@@ -247,7 +242,7 @@ void MibView::TableViewFromNode(void)
     emit TableViewFromOid(((MibNode*)start)->GetOid());
 }
 
-void MibView::SelectedNode( QTreeWidgetItem * item, QTreeWidgetItem * old)
+void MibView::SelectedNode( QTreeWidgetItem * item, QTreeWidgetItem *)
 {
     MibNode *node = (MibNode*)item;
     QString text;

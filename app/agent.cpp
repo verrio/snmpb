@@ -286,6 +286,7 @@ char *Agent::GetPrintableValue(SmiNode *node, Vb *vb)
                 vb->get_value(buf, len, 5000);
                 myvalue.len = len;
                 myvalue.value.ptr = buf;
+                myvalue.value.ptr[len] = '\0';
                 return smiRenderValue(&myvalue, type, SMI_RENDER_ALL);
             }
             case sNMP_SYNTAX_OPAQUE:

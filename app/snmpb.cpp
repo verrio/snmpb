@@ -38,11 +38,12 @@ Snmpb::Snmpb(QMainWindow* mw)
     graph = new Graph(this);
  
     // Connect some signals
-    QObject::connect( w.TabW, SIGNAL( currentChanged(int) ),
-             w.MIBTree, SLOT( TreeTabSelected(int) ) );
-    QObject::connect( w.TabW, SIGNAL( currentChanged(int) ),
-             w.PlotMIBTree, SLOT( TreeTabSelected(int) ) );
-    w.MIBTree->TreeTabSelected(0);
+    connect( w.TabW, SIGNAL( currentChanged(int) ),
+             this, SLOT( TreeTabSelected(int) ) );
+    connect( w.optionsHorizontal_splitAction, SIGNAL( toggled(bool) ),
+             this, SLOT( HorizontalSplit(bool) ) );
+
+    TreeTabSelected(0);
 }
 
 Ui_MainW* Snmpb::MainUI(void)
@@ -104,5 +105,18 @@ QString Snmpb::GetMibConfigFile(void)
 QString Snmpb::GetUsmUsersConfigFile(void)
 {
     return (SnmpbDir.filePath(USM_USERS_CONFIG_FILE));
+}
+
+void Snmpb::HorizontalSplit(bool checked)
+{
+    w.QuerySplitter->setOrientation(checked==FALSE?Qt::Horizontal:Qt::Vertical);
+}
+
+void Snmpb::TreeTabSelected( int index )
+{
+    if (w.TabW->tabText(index) == "Tree")
+        w.MIBTree->Populate();
+    else if (w.TabW->tabText(index) == "Graphs")
+        w.PlotMIBTree->Populate();
 }
 
