@@ -1,3 +1,4 @@
+#include <QtGui>
 #include <qfileinfo.h>
 #include <qdir.h>
 #include <qmessagebox.h>
@@ -36,12 +37,24 @@ Snmpb::Snmpb(QMainWindow* mw)
     trap = new Trap(this);
     agent = new Agent(this);
     graph = new Graph(this);
- 
+
     // Connect some signals
     connect( w.TabW, SIGNAL( currentChanged(int) ),
              this, SLOT( TreeTabSelected(int) ) );
     connect( w.optionsHorizontal_splitAction, SIGNAL( toggled(bool) ),
              this, SLOT( HorizontalSplit(bool) ) );
+    connect( w.fileNewAction, SIGNAL( triggered(bool) ),
+             this, SLOT( MibFileNew(bool) ) );
+    connect( w.fileOpenAction, SIGNAL( triggered(bool) ),
+             this, SLOT( MibFileOpen(bool) ) );
+    connect( w.fileSaveAction, SIGNAL( triggered(bool) ),
+             this, SLOT( MibFileSave(bool) ) );
+    connect( w.fileSaveAsAction, SIGNAL( triggered(bool) ),
+             this, SLOT( MibFileSaveAs(bool) ) );
+    connect( w.actionVerifyMIB, SIGNAL( triggered(bool) ),
+             this, SLOT( VerifyMIB(bool) ) );
+    connect( w.actionExtractMIBfromRFC, SIGNAL( triggered(bool) ),
+             this, SLOT( ExtractMIBfromRFC(bool) ) );
 
     TreeTabSelected(0);
 
@@ -120,5 +133,101 @@ void Snmpb::TreeTabSelected( int index )
         w.MIBTree->Populate();
     else if (w.TabW->tabText(index) == "Graphs")
         w.PlotMIBTree->Populate();
+}
+
+void Snmpb::MibFileNew(bool)
+{
+    w.MIBFile->clear();
+    LoadedFile = "";
+}
+
+void Snmpb::MibFileOpen(bool)
+{
+    QString fileName = NULL;
+
+    if (fileName.isNull())
+        fileName = QFileDialog::getOpenFileName(w.MIBFile,
+                                tr("Open File"), "", 
+                                "MIB Files (*-MIB *-PIB *.mib *.pib *.smi)");
+
+    if (!fileName.isEmpty())
+    {
+        QFile file(fileName);
+        if (file.open(QIODevice::ReadWrite | QFile::Text))
+            w.MIBFile->setPlainText(file.readAll());
+        LoadedFile = fileName; 
+    }
+}
+
+void Snmpb::MibFileSave(bool)
+{
+}
+
+void Snmpb::MibFileSaveAs(bool)
+{
+}
+
+void Snmpb::ErrorHandler(char *path, int line, int severity, 
+                         char *msg, char *tag)
+{
+    QString message = NULL;
+    (void)path;
+
+    switch (severity)
+    {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+            message += "<font color=red>Error: </font>";
+            break;
+        case 4:
+        case 5:
+            message += "<font color=blue>Warning: </font>";
+            break;
+        case 6:
+        case 7:
+        case 8:
+        case 9:
+            message += "<font color=yellow>Info: </font>";
+            break;
+    }
+
+    message += QString("<b>Line %1</b>: [%2] {%3} %4")
+                       .arg(line).arg(severity).arg(tag).arg(msg);
+    w.MIBLog->append(message);
+}
+
+Snmpb *CurrentSnmpbObject = NULL;
+static void ErrorHdlr(char *path, int line, int severity, 
+                      char *msg, char *tag)
+{
+    CurrentSnmpbObject->ErrorHandler(path, line, severity, msg, tag);
+}
+
+void Snmpb::VerifyMIB(bool)
+{
+    int flags =  smiGetFlags();
+    int saved_flags = flags;
+    flags |= SMI_FLAG_ERRORS;
+    flags |= SMI_FLAG_NODESCR;
+    smiSetFlags(flags);
+
+    w.MIBLog->clear();
+    CurrentSnmpbObject = this;
+    smiSetErrorHandler(ErrorHdlr);
+    smiSetErrorLevel(9);
+
+    if (smiLoadModule(LoadedFile.toLatin1().data()) == NULL)
+    {
+        QString message = QString("Cannot locate module `%1'\n").arg(LoadedFile);
+        w.MIBLog->append(message.toLatin1().data());
+    }
+
+    smiSetFlags(saved_flags);
+}
+
+void Snmpb::ExtractMIBfromRFC(bool)
+{
 }
 

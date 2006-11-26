@@ -584,7 +584,7 @@ void Agent::AsyncCallback(int reason, Pdu &pdu,
         }
         else
         {
-            msg = QString("<font color=red>Could not send GETBULK request: %1<font>")
+            msg = QString("<font color=red>Could not send GETBULK request: %1</font>")
                            .arg(Snmp::error_msg(status));
             goto cleanup;
         }
@@ -630,7 +630,7 @@ void Agent::WalkFrom(const QString& oid)
     }
     else
     {
-        msg = QString("<font color=red>Could not send GETBULK request: %1<font>")
+        msg = QString("<font color=red>Could not send GETBULK request: %1</font>")
                        .arg(Snmp::error_msg(status));
         s->MainUI()->Query->append(msg);
     }
@@ -668,7 +668,7 @@ void Agent::GetFrom(const QString& oid)
     }
     else
     {
-        msg = QString("<font color=red>Could not send GET request: %1<font>")
+        msg = QString("<font color=red>Could not send GET request: %1</font>")
                        .arg(Snmp::error_msg(status));
         s->MainUI()->Query->append(msg);
     }
@@ -706,7 +706,7 @@ void Agent::GetNextFrom(const QString& oid)
     }
     else
     {
-        msg = QString("<font color=red>Could not send GETNEXT request: %1<font>")
+        msg = QString("<font color=red>Could not send GETNEXT request: %1</font>")
                        .arg(Snmp::error_msg(status));
         s->MainUI()->Query->append(msg);
     }

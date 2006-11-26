@@ -1537,6 +1537,8 @@
     <addaction name="fileOpenAction" />
     <addaction name="fileSaveAction" />
     <addaction name="fileSaveAsAction" />
+    <addaction name="actionVerifyMIB" />
+    <addaction name="actionExtractMIBfromRFC" />
     <addaction name="separator" />
     <addaction name="filePrintAction" />
     <addaction name="separator" />
@@ -1551,7 +1553,7 @@
     <iconset resource="snmpb.qrc" >:/images/filenew.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;New</string>
+    <string>&amp;New MIB</string>
    </property>
    <property name="iconText" >
     <string>New</string>
@@ -1565,7 +1567,7 @@
     <iconset resource="snmpb.qrc" >:/images/fileopen.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Open...</string>
+    <string>&amp;Open MIB...</string>
    </property>
    <property name="iconText" >
     <string>Open</string>
@@ -1579,7 +1581,7 @@
     <iconset resource="snmpb.qrc" >:/images/filesave.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Save</string>
+    <string>&amp;Save MIB</string>
    </property>
    <property name="iconText" >
     <string>Save</string>
@@ -1593,7 +1595,7 @@
     <iconset resource="snmpb.qrc" >:/images/filesave.png</iconset>
    </property>
    <property name="text" >
-    <string>Save &amp;As...</string>
+    <string>Save MIB &amp;As...</string>
    </property>
    <property name="iconText" >
     <string>Save As</string>
@@ -1672,6 +1674,16 @@
    </property>
    <property name="shortcut" >
     <string>Ctrl+H</string>
+   </property>
+  </action>
+  <action name="actionVerifyMIB" >
+   <property name="text" >
+    <string>&amp;Verify MIB syntax</string>
+   </property>
+  </action>
+  <action name="actionExtractMIBfromRFC" >
+   <property name="text" >
+    <string>&amp;Extract MIB from RFC</string>
    </property>
   </action>
  </widget>

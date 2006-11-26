@@ -23,10 +23,18 @@ public:
     QString GetBootCounterConfigFile(void);
     QString GetMibConfigFile(void);
     QString GetUsmUsersConfigFile(void);
+    void ErrorHandler(char *path, int line, int severity, 
+                      char *msg, char *tag);
 
 public slots:
     void TreeTabSelected(int index);
     void HorizontalSplit(bool checked);
+    void MibFileNew(bool checked);
+    void MibFileOpen(bool checked);
+    void MibFileSave(bool checked);
+    void MibFileSaveAs(bool checked);
+    void VerifyMIB(bool checked);
+    void ExtractMIBfromRFC(bool checked);
 
 private:
     Ui_MainW w;
@@ -36,6 +44,7 @@ private:
     Agent *agent;
     Graph *graph;
     MibHighlighter *highlighter;
+    QString LoadedFile;
 };
 
 #endif /* SNMPB_H */
