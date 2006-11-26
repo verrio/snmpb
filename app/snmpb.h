@@ -2,6 +2,7 @@
 #define SNMPB_H
 
 #include "ui_mainw.h"
+#include "mibhighlighter.h"
 
 class MibModule;
 class Trap;
@@ -34,6 +35,7 @@ private:
     Trap *trap;
     Agent *agent;
     Graph *graph;
+    MibHighlighter *highlighter;
 };
 
 #endif /* SNMPB_H */

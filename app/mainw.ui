@@ -367,108 +367,114 @@
         </item>
        </layout>
       </widget>
-    <widget class="QWidget" name="tab" >
-     <attribute name="title" >
-      <string>Editor</string>
-     </attribute>
-     <layout class="QGridLayout" >
-      <property name="margin" >
-       <number>9</number>
-      </property>
-      <property name="spacing" >
-       <number>6</number>
-      </property>
-      <item row="0" column="0" >
-       <widget class="QSplitter" name="MIBSplitter" >
-        <property name="orientation" >
-         <enum>Qt::Vertical</enum>
+      <widget class="QWidget" name="tab" >
+       <attribute name="title" >
+        <string>Editor</string>
+       </attribute>
+       <layout class="QGridLayout" >
+        <property name="margin" >
+         <number>9</number>
         </property>
-        <widget class="QWidget" name="" >
-         <layout class="QVBoxLayout" >
-          <property name="margin" >
-           <number>0</number>
+        <property name="spacing" >
+         <number>6</number>
+        </property>
+        <item row="0" column="0" >
+         <widget class="QSplitter" name="MIBSplitter" >
+          <property name="orientation" >
+           <enum>Qt::Vertical</enum>
           </property>
-          <property name="spacing" >
-           <number>0</number>
-          </property>
-          <item>
-           <widget class="QLabel" name="MIBFileL" >
-            <property name="text" >
-             <string>Loaded MIB file</string>
+          <widget class="QWidget" name="layoutWidget" >
+           <layout class="QVBoxLayout" >
+            <property name="margin" >
+             <number>0</number>
             </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QTextEdit" name="MIBFile" >
-            <property name="sizePolicy" >
-             <sizepolicy>
-              <hsizetype>7</hsizetype>
-              <vsizetype>7</vsizetype>
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
+            <property name="spacing" >
+             <number>0</number>
             </property>
-            <property name="frameShape" >
-             <enum>QFrame::WinPanel</enum>
+            <item>
+             <widget class="QLabel" name="MIBFileL" >
+              <property name="text" >
+               <string>Loaded MIB file</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTextEdit" name="MIBFile" >
+              <property name="sizePolicy" >
+               <sizepolicy>
+                <hsizetype>7</hsizetype>
+                <vsizetype>7</vsizetype>
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="font" >
+               <font>
+                <family>Courier</family>
+                <pointsize>10</pointsize>
+               </font>
+              </property>
+              <property name="frameShape" >
+               <enum>QFrame::WinPanel</enum>
+              </property>
+              <property name="frameShadow" >
+               <enum>QFrame::Plain</enum>
+              </property>
+              <property name="readOnly" >
+               <bool>false</bool>
+              </property>
+              <property name="overwriteMode" >
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="layoutWidget" >
+           <layout class="QVBoxLayout" >
+            <property name="margin" >
+             <number>0</number>
             </property>
-            <property name="frameShadow" >
-             <enum>QFrame::Plain</enum>
+            <property name="spacing" >
+             <number>0</number>
             </property>
-            <property name="readOnly" >
-             <bool>false</bool>
-            </property>
-            <property name="overwriteMode" >
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-        <widget class="QWidget" name="" >
-         <layout class="QVBoxLayout" >
-          <property name="margin" >
-           <number>0</number>
-          </property>
-          <property name="spacing" >
-           <number>0</number>
-          </property>
-          <item>
-           <widget class="QLabel" name="MIBLogL" >
-            <property name="text" >
-             <string>Verification log</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QTextEdit" name="MIBLog" >
-            <property name="sizePolicy" >
-             <sizepolicy>
-              <hsizetype>7</hsizetype>
-              <vsizetype>7</vsizetype>
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="frameShape" >
-             <enum>QFrame::WinPanel</enum>
-            </property>
-            <property name="frameShadow" >
-             <enum>QFrame::Plain</enum>
-            </property>
-            <property name="readOnly" >
-             <bool>true</bool>
-            </property>
-            <property name="overwriteMode" >
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </widget>
-      </item>
-     </layout>
-    </widget>
+            <item>
+             <widget class="QLabel" name="MIBLogL" >
+              <property name="text" >
+               <string>Verification log</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTextEdit" name="MIBLog" >
+              <property name="sizePolicy" >
+               <sizepolicy>
+                <hsizetype>7</hsizetype>
+                <vsizetype>7</vsizetype>
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="frameShape" >
+               <enum>QFrame::WinPanel</enum>
+              </property>
+              <property name="frameShadow" >
+               <enum>QFrame::Plain</enum>
+              </property>
+              <property name="readOnly" >
+               <bool>true</bool>
+              </property>
+              <property name="overwriteMode" >
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
       <widget class="QWidget" name="TabPage" >
        <attribute name="title" >
         <string>Agent</string>
@@ -1672,18 +1678,6 @@
  <layoutdefault spacing="6" margin="11" />
  <customwidgets>
   <customwidget>
-   <class>BasicMibView</class>
-   <extends>QWidget</extends>
-   <header>mibview.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>MibView</class>
-   <extends>QWidget</extends>
-   <header>mibview.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>QColorComboBox</class>
    <extends>QComboBox</extends>
    <header>comboboxes.h</header>
@@ -1699,6 +1693,18 @@
    <class>QPenStyleComboBox</class>
    <extends>QComboBox</extends>
    <header>comboboxes.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>BasicMibView</class>
+   <extends>QWidget</extends>
+   <header>mibview.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>MibView</class>
+   <extends>QWidget</extends>
+   <header>mibview.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

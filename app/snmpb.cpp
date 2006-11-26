@@ -28,11 +28,6 @@ load SNMP-VIEW-BASED-ACM-MIB"
 
 static QDir SnmpbDir = QDir::homePath() + "/" + SNMPB_CONFIG_DIR;
 
-#if 0
-#include "mibhighlighter.h"
-MibHighlighter *highlighter;
-#endif
-
 Snmpb::Snmpb(QMainWindow* mw)
 {
     w.setupUi(mw);
@@ -50,19 +45,7 @@ Snmpb::Snmpb(QMainWindow* mw)
 
     TreeTabSelected(0);
 
-#if 0
     highlighter = new MibHighlighter(w.MIBFile->document());
-
-    QFont font;
-    font.setFamily("Courier");
-    font.setFixedPitch(true);
-    font.setPointSize(10);
-    w.MIBFile->setFont(font);
-
-    QFile file("../libsmi/mibs/ietf/SONET-MIB");
-    if (file.open(QFile::ReadOnly | QFile::Text))
-        w.MIBFile->setPlainText(file.readAll());
-#endif
 }
 
 Ui_MainW* Snmpb::MainUI(void)
