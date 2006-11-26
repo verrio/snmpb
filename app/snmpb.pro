@@ -34,7 +34,8 @@ SOURCES	+= ../snmp++/src/address.cpp \
 	agent.cpp \
 	trap.cpp \
 	graph.cpp \
-    comboboxes.cpp
+    comboboxes.cpp \
+    mibhighlighter.cpp
 HEADERS	+= snmpb.h \
     mibnode.h \
 	mibview.h \
@@ -42,7 +43,8 @@ HEADERS	+= snmpb.h \
 	agent.h \
 	trap.h \
 	graph.h \
-	comboboxes.h
+	comboboxes.h \
+    mibhighlighter.h
 unix {
   UI_DIR = .ui
   MOC_DIR = .moc
