@@ -55,6 +55,8 @@ Snmpb::Snmpb(QMainWindow* mw)
              this, SLOT( VerifyMIB(bool) ) );
     connect( w.actionExtractMIBfromRFC, SIGNAL( triggered(bool) ),
              this, SLOT( ExtractMIBfromRFC(bool) ) );
+    connect( w.MIBLog, SIGNAL ( itemDoubleClicked ( QListWidgetItem* ) ),
+             this, SLOT( SelectedLogEntry ( QListWidgetItem* ) ) );
 
     TreeTabSelected(0);
 
@@ -171,6 +173,8 @@ void Snmpb::ErrorHandler(char *path, int line, int severity,
                          char *msg, char *tag)
 {
     QString message = NULL;
+    QListWidgetItem *item;
+    QBrush item_brush;
     (void)path;
 
     switch (severity)
@@ -179,23 +183,28 @@ void Snmpb::ErrorHandler(char *path, int line, int severity,
         case 1:
         case 2:
         case 3:
-            message += "<font color=red>Error: </font>";
+            message += "Error ";
+            item_brush.setColor(Qt::red);
             break;
         case 4:
         case 5:
-            message += "<font color=blue>Warning: </font>";
+            message += "Warning ";
+            item_brush.setColor(Qt::darkYellow);
             break;
         case 6:
         case 7:
         case 8:
         case 9:
-            message += "<font color=yellow>Info: </font>";
+            message += "Info ";
+            item_brush.setColor(Qt::blue);
             break;
     }
 
-    message += QString("<b>Line %1</b>: [%2] {%3} %4")
-                       .arg(line).arg(severity).arg(tag).arg(msg);
-    w.MIBLog->append(message);
+    message += QString("(level %1), line %2: [%3] %4")
+                       .arg(severity).arg(line).arg(tag).arg(msg);
+    item = new QListWidgetItem(message, w.MIBLog);
+    item->setForeground(item_brush);
+    w.MIBLog->addItem(item);
 }
 
 Snmpb *CurrentSnmpbObject = NULL;
@@ -218,16 +227,17 @@ void Snmpb::VerifyMIB(bool)
     smiSetErrorHandler(ErrorHdlr);
     smiSetErrorLevel(9);
 
-    if (smiLoadModule(LoadedFile.toLatin1().data()) == NULL)
-    {
-        QString message = QString("Cannot locate module `%1'\n").arg(LoadedFile);
-        w.MIBLog->append(message.toLatin1().data());
-    }
+    smiLoadModule(LoadedFile.toLatin1().data());
 
     smiSetFlags(saved_flags);
 }
 
 void Snmpb::ExtractMIBfromRFC(bool)
 {
+}
+
+void Snmpb::SelectedLogEntry(QListWidgetItem *item)
+{
+    printf("Selected!\n");
 }
 

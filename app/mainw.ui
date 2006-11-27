@@ -446,7 +446,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QTextEdit" name="MIBLog" >
+             <widget class="QListWidget" name="MIBLog" >
               <property name="sizePolicy" >
                <sizepolicy>
                 <hsizetype>7</hsizetype>
@@ -460,12 +460,6 @@
               </property>
               <property name="frameShadow" >
                <enum>QFrame::Plain</enum>
-              </property>
-              <property name="readOnly" >
-               <bool>true</bool>
-              </property>
-              <property name="overwriteMode" >
-               <bool>false</bool>
               </property>
              </widget>
             </item>

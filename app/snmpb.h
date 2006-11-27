@@ -35,6 +35,7 @@ public slots:
     void MibFileSaveAs(bool checked);
     void VerifyMIB(bool checked);
     void ExtractMIBfromRFC(bool checked);
+    void SelectedLogEntry(QListWidgetItem *item);
 
 private:
     Ui_MainW w;
