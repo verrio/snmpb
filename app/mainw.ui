@@ -398,6 +398,17 @@
               </property>
              </widget>
             </item>
+         <item>
+           <layout class="QHBoxLayout" >
+            <property name="margin" >
+             <number>0</number>
+            </property>
+            <property name="spacing" >
+             <number>6</number>
+            </property>
+            <item>
+             <widget class="MarkerWidget" name="MIBFileMarker" />
+            </item>
             <item>
              <widget class="QTextEdit" name="MIBFile" >
               <property name="sizePolicy" >
@@ -425,11 +436,13 @@
               </property>
               <property name="overwriteMode" >
                <bool>false</bool>
-              </property>
+             </property>
              </widget>
             </item>
            </layout>
-          </widget>
+          </item>
+         </layout>
+        </widget>
           <widget class="QWidget" name="layoutWidget" >
            <layout class="QVBoxLayout" >
             <property name="margin" >
@@ -1711,6 +1724,12 @@
    <class>MibView</class>
    <extends>QWidget</extends>
    <header>mibview.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>MarkerWidget</class>
+   <extends>QWidget</extends>
+   <header>markerwidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

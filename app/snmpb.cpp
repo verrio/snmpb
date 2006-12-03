@@ -61,6 +61,8 @@ Snmpb::Snmpb(QMainWindow* mw)
     TreeTabSelected(0);
 
     highlighter = new MibHighlighter(w.MIBFile->document());
+
+    w.MIBFileMarker->setTextEditor(w.MIBFile);
 }
 
 Ui_MainW* Snmpb::MainUI(void)
@@ -238,6 +240,10 @@ void Snmpb::ExtractMIBfromRFC(bool)
 
 void Snmpb::SelectedLogEntry(QListWidgetItem *item)
 {
-    printf("Selected!\n");
+    QRegExp expression(" line ([1-9][0-9]*|0): ");
+    expression.indexIn(item->text());
+    int line = expression.capturedTexts()[1].toInt();
+
+    w.MIBFileMarker->setMarker(line); 
 }
 
