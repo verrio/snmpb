@@ -398,51 +398,51 @@
               </property>
              </widget>
             </item>
-         <item>
-           <layout class="QHBoxLayout" >
-            <property name="margin" >
-             <number>0</number>
-            </property>
-            <property name="spacing" >
-             <number>6</number>
-            </property>
             <item>
-             <widget class="MarkerWidget" name="MIBFileMarker" />
-            </item>
-            <item>
-             <widget class="QTextEdit" name="MIBFile" >
-              <property name="sizePolicy" >
-               <sizepolicy>
-                <hsizetype>7</hsizetype>
-                <vsizetype>7</vsizetype>
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
+             <layout class="QHBoxLayout" >
+              <property name="margin" >
+               <number>0</number>
               </property>
-              <property name="font" >
-               <font>
-                <family>Courier</family>
-                <pointsize>10</pointsize>
-               </font>
+              <property name="spacing" >
+               <number>6</number>
               </property>
-              <property name="frameShape" >
-               <enum>QFrame::WinPanel</enum>
-              </property>
-              <property name="frameShadow" >
-               <enum>QFrame::Plain</enum>
-              </property>
-              <property name="readOnly" >
-               <bool>false</bool>
-              </property>
-              <property name="overwriteMode" >
-               <bool>false</bool>
-             </property>
-             </widget>
+              <item>
+               <widget class="MarkerWidget" native="1" name="MIBFileMarker" />
+              </item>
+              <item>
+               <widget class="QTextEdit" name="MIBFile" >
+                <property name="sizePolicy" >
+                 <sizepolicy>
+                  <hsizetype>7</hsizetype>
+                  <vsizetype>7</vsizetype>
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font" >
+                 <font>
+                  <family>Courier</family>
+                  <pointsize>10</pointsize>
+                 </font>
+                </property>
+                <property name="frameShape" >
+                 <enum>QFrame::WinPanel</enum>
+                </property>
+                <property name="frameShadow" >
+                 <enum>QFrame::Plain</enum>
+                </property>
+                <property name="readOnly" >
+                 <bool>false</bool>
+                </property>
+                <property name="overwriteMode" >
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
            </layout>
-          </item>
-         </layout>
-        </widget>
+          </widget>
           <widget class="QWidget" name="layoutWidget" >
            <layout class="QVBoxLayout" >
             <property name="margin" >
@@ -1697,6 +1697,12 @@
  <layoutdefault spacing="6" margin="11" />
  <customwidgets>
   <customwidget>
+   <class>MarkerWidget</class>
+   <extends>QWidget</extends>
+   <header>markerwidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>QColorComboBox</class>
    <extends>QComboBox</extends>
    <header>comboboxes.h</header>
@@ -1724,12 +1730,6 @@
    <class>MibView</class>
    <extends>QWidget</extends>
    <header>mibview.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>MarkerWidget</class>
-   <extends>QWidget</extends>
-   <header>markerwidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
