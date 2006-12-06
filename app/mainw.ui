@@ -441,6 +441,13 @@
               </item>
              </layout>
             </item>
+            <item>
+             <widget class="QStatusBar" name="MIBFileStatus" >
+              <property name="sizeGripEnabled" >
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
            </layout>
           </widget>
           <widget class="QWidget" name="layoutWidget" >
