@@ -172,7 +172,7 @@ void LineNumberWidget::paintEvent( QPaintEvent* /*e*/ )
     printf("%s\n", numbers.toLatin1().data());
 
     painter.drawText(0, 0,
-            /*Qt::AlignRight | Qt::AlignBottom*/,
+            /*Qt::AlignRight | Qt::AlignBottom,*/
             numbers);
 
     painter.end();
