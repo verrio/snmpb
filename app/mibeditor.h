@@ -2,25 +2,9 @@
 #define MIBEDITOR_H
 
 #include <qwidget.h>
+#include <qlabel.h>
 #include "snmpb.h"
 #include "mibhighlighter.h"
-
-class LineNumberWidget: public QWidget
-{
-    Q_OBJECT
-public:
-    LineNumberWidget(QTextEdit*, QWidget* = 0);
-    virtual ~LineNumberWidget();
-
-public slots:
-    void doRepaint() { repaint(); }
-
-protected:
-    virtual void paintEvent( QPaintEvent* );
-
-private:
-    QTextEdit  *m_editor;
-};
 
 class MibEditor: public QObject
 {
@@ -39,10 +23,12 @@ public slots:
     void VerifyMIB(bool checked);
     void ExtractMIBfromRFC(bool checked);
     void SelectedLogEntry(QListWidgetItem *item);
-    
+    void SetLineNumStatus(void); 
+
 private:
     Snmpb *s;
     MibHighlighter *highlighter;
+    QLabel *lnum;
 
     QString LoadedFile;
 };

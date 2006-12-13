@@ -6,7 +6,8 @@
 MibEditor::MibEditor(Snmpb *snmpb)
 {
     s = snmpb;
- 
+
+    // Menu items
     connect( s->MainUI()->fileNewAction, SIGNAL( triggered(bool) ),
              this, SLOT( MibFileNew(bool) ) );
     connect( s->MainUI()->fileOpenAction, SIGNAL( triggered(bool) ),
@@ -24,13 +25,20 @@ MibEditor::MibEditor(Snmpb *snmpb)
     connect( s->MainUI()->fileNewAction, SIGNAL( triggered(bool) ),
              this, SLOT( MibFileNew(bool) ) );
 
+    // Syntax highlighter
     highlighter = new MibHighlighter(s->MainUI()->MIBFile->document());
 
+    // Marker widget
     s->MainUI()->MIBFileMarker->setTextEditor(s->MainUI()->MIBFile);
 
-    LineNumberWidget *lnum = new LineNumberWidget(s->MainUI()->MIBFile,
-                                                  s->MainUI()->MIBFileStatus);
+    // Line number statusbar widget
+    lnum = new QLabel();
     s->MainUI()->MIBFileStatus->addPermanentWidget(lnum);
+
+    connect( s->MainUI()->MIBFile, SIGNAL( cursorPositionChanged() ),
+             this, SLOT( SetLineNumStatus() ) );
+
+    SetLineNumStatus();
 }
 
 void MibEditor::MibFileNew(bool)
@@ -141,40 +149,11 @@ void MibEditor::SelectedLogEntry(QListWidgetItem *item)
     s->MainUI()->MIBFileMarker->setMarker(line); 
 }
 
-
-LineNumberWidget::LineNumberWidget(QTextEdit *editor, QWidget* parent)
-                                   :QWidget( parent )
+void MibEditor::SetLineNumStatus(void)
 {
-//    setAttribute(Qt::WA_StaticContents);
+    QString lc = QString("Line: %1, Col: %2").
+                     arg(s->MainUI()->MIBFile->textCursor().blockNumber()+1).
+                     arg(s->MainUI()->MIBFile->textCursor().columnNumber()+1);
 
-    setFixedWidth( 100 );
-
-    m_editor = editor;
-
-    connect( m_editor, SIGNAL( cursorPositionChanged() ),
-             this, SLOT( doRepaint() ) );
-
-    doRepaint();
+    lnum->setText(lc);
 }
-
-LineNumberWidget::~LineNumberWidget()
-{
-}
-
-void LineNumberWidget::paintEvent( QPaintEvent* /*e*/ )
-{
-    QPainter painter( this );
-
-    QString numbers = QString("Line: %1, Col: %2").
-                              arg(m_editor->textCursor().blockNumber()+1).
-                              arg(m_editor->textCursor().columnNumber()+1);
-
-    printf("%s\n", numbers.toLatin1().data());
-
-    painter.drawText(0, 0,
-            /*Qt::AlignRight | Qt::AlignBottom,*/
-            numbers);
-
-    painter.end();
-}
-
