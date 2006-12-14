@@ -138,6 +138,180 @@ void MibEditor::VerifyMIB(bool)
 
 void MibEditor::ExtractMIBfromRFC(bool)
 {
+    QRegExp module_regexp("^[ \t]*([A-Za-z0-9-]*) *(PIB-)?DEFINITIONS *(::=)? *(BEGIN)? *$");
+    QRegExp page_regexp("\\[[pP]age [iv0-9]*\\] *");
+    QRegExp macro_regexp("^[ \t]*[A-Za-z0-9-]* *MACRO *::=");
+    QRegExp end_regexp("^[ \t]*END[ \t]*$");
+    QRegExp blankline_regexp("^[ \t]*$");
+    QRegExp blank_regexp("[^ \t]");
+    QRegExp leadingspaces_regexp("^([ ]*)");
+    QRegExp draft_regexp("^[ ]*Internet[ \\-]Draft");
+
+    QFile file("rfc4706.txt");
+    QFile file2("empty");
+    QFile file3("empty");
+    QTextStream in(&file);
+    QTextStream out; 
+    QTextStream out_final; 
+
+    QString line;
+    QString module;
+
+    int skip = 0, skipped = 0, macro = 0, n = 0, single = 0;
+
+    if (!file.open(QFile::ReadOnly | QFile::Text))
+    {
+        QMessageBox::warning(NULL, tr("Application"),
+                tr("Cannot read file: %1\n")
+                .arg(file.errorString()));
+        return;
+    }
+
+    // Process each line
+    while (in.atEnd() != true)
+    {
+        line = in.readLine();
+
+        // Start of module
+        if (module_regexp.indexIn(line) != -1)
+        {
+            module = module_regexp.cap(1); 
+            skip = 9;
+            skipped = -1;
+            macro = 0;
+            n = 0;
+
+            file2.setFileName(module+".tmp");
+            if (!file2.open(QFile::ReadWrite | QFile::Text))
+            {
+                QMessageBox::warning(NULL, tr("Application"),
+                        tr("Cannot create file: %1\n")
+                        .arg(file2.errorString()));
+                return;
+            }
+
+            out.setDevice(&file2); 
+
+            file3.setFileName(module);
+            if (!file3.open(QFile::ReadWrite | QFile::Text))
+            {
+                QMessageBox::warning(NULL, tr("Application"),
+                        tr("Cannot create file: %1\n")
+                        .arg(file3.errorString()));
+                return;
+            }
+
+            out_final.setDevice(&file3);
+        }
+
+        // At the end of a page we go back one line (which is expected to
+        // be a separator line), and start the counter skipped to skip the
+        // next few lines.
+        if (page_regexp.indexIn(line) != -1)
+        {
+#if 0
+            // Some drafts do not use that separator line. so keep it if
+            // there are non-blank characters.
+            if (!(line[n] ~ /^[ \t]*$/)) 
+            {
+                printf("WARNING: the line ::%s:: should be a separator before a page break. It was kept.", line[n]); 
+                n--;
+            }
+#endif
+            skipped = 0;
+        }
+
+        // If we are skipping...
+        if (skipped >= 0)
+        {
+            skipped++;
+
+            // If we have skipped enough lines to the top of the next page...
+            if (skipped >= skip)
+            {
+                skipped = -1;
+            }
+            else
+            {
+                // Finish skipping, if we find a non-empty line, but not before
+                // we have skipped four lines. remember the miminum of lines
+                // we have ever skipped to keep empty lines in a modules that
+                // appear near the top of a page.
+                if ((skipped >= 4) && (blank_regexp.indexIn(line) != -1))
+                {
+                    if (skipped < skip)
+                        skip = skipped;
+
+                    skipped = -1;
+                }   
+            }
+        }
+
+        // So, if we are not skipping and inside a module, remember the line.
+        if ((skipped == -1) && (module.length() > 0))
+        {
+            n++;
+            out << line << endl;
+        }
+
+        // Remember when we enter a macro definition
+        if (macro_regexp.indexIn(line) != -1)
+            macro = 1;
+
+        // End of module
+        if (end_regexp.indexIn(line) != -1)
+        {
+            if (macro == 0)
+            {
+                if (single == 0)
+                {
+                    out.flush(); 
+                    out.seek(0);
+
+                    int strip = 99, p = 0;
+
+                    while (out.atEnd() != true)
+                    {
+                        line = out.readLine();
+
+                        // Find the minimum column that contains non-blank
+                        // characters in order to cut a blank prefix off.
+                        // Ignore lines that only contain white spaces.
+                        if (blankline_regexp.indexIn(line) == -1)
+                        {
+                            if (leadingspaces_regexp.indexIn(line) != -1)
+                            {
+                                p = leadingspaces_regexp.cap(1).length(); 
+                                if ((p < strip) && (line.length() > p))
+                                    strip = p;
+                            }
+                        }
+                    }
+
+                    out.seek(0);
+
+                    while (out.atEnd() != true)
+                    {
+
+                        line = out.readLine();
+                        out_final << line.remove(0, strip) << endl;
+                    }
+
+                    out_final.flush(); 
+                    file3.close();
+                    file2.remove();
+
+                    printf("%s: %d lines.\n", module.toLatin1().data(), n);
+                }
+
+                module = "";
+            }
+            else
+            {
+                macro = 0;
+            }
+        }
+    }
 }
 
 void MibEditor::SelectedLogEntry(QListWidgetItem *item)
