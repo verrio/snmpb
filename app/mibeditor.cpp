@@ -146,77 +146,61 @@ void MibEditor::ExtractMIBfromRFC(bool)
     QRegExp leadingspaces_regexp("^([ ]*)");
     QRegExp draft_regexp("^[ ]*Internet[ \\-]Draft");
 
-    QFile file("empty");
-    QFile file2("empty");
-    QFile file3("empty");
-    QTextStream in(&file);
+    QFile file_in("empty");
+    QFile file_tmpout("empty");
+    QFile file_out("empty");
+    QTextStream in(&file_in);
+    QTextStream tmpout; 
     QTextStream out; 
-    QTextStream out_final; 
 
     QString line;
     QString module;
+    QStringList modules;
 
-    QString fileName = NULL;
-    int skip = 0, skipped = 0, macro = 0, n = 0, single = 0;
+    QString dir = NULL, filename = NULL;
+    int skipmibfile = 0, skip = 0, skipped = 0, macro = 0, n = 0;
 
     // Open RFC file
-    fileName = QFileDialog::getOpenFileName(s->MainUI()->MIBFile,
+    filename = QFileDialog::getOpenFileName(s->MainUI()->MIBFile,
                                         tr("Open RFC file"), "", 
                                         "RFC files (*.txt);;All Files (*.*)");
 
-    if (!fileName.isEmpty())
+    if (!filename.isEmpty())
     {
-        file.setFileName(fileName);
-        if (!file.open(QFile::ReadOnly | QFile::Text))
+        file_in.setFileName(filename);
+        if (!file_in.open(QFile::ReadOnly | QFile::Text))
         {
-            QMessageBox::warning(NULL, tr("SnmpB"),
-                                 tr("Cannot read file: %1\n")
-                                 .arg(file.errorString()));
+            QMessageBox::warning(NULL, tr("SnmpB: Extract MIB from RFC"),
+                                 tr("Cannot read file %1: %2\n")
+                                 .arg(file_in.fileName())
+                                 .arg(file_in.errorString()));
             return;
         }
     }
+    else
+        return;
 
-    // First, check how many MIB modules in the RFC file ...
-    int num_modules = 0;
+    // Ask for directory where to save MIB files 
+    dir = QFileDialog::getExistingDirectory(s->MainUI()->MIBFile,
+                           tr("Select destination folder for MIB files"), "");
 
-    // Process each line 
-    while (in.atEnd() != true)
+    if (dir.isEmpty())
     {
-        line = in.readLine();
-
-        // Start of module
-        if (module_regexp.indexIn(line) != -1)
-        {
-            module = module_regexp.cap(1); 
-        }
-
-        // Remember when we enter a macro definition
-        if (macro_regexp.indexIn(line) != -1)
-            macro = 1;
-
-        // End of module
-        if (end_regexp.indexIn(line) != -1)
-        {
-            if (macro == 0)
-            {
-                num_modules++;
-                module = "";
-            }
-            else
-            {
-                macro = 0;
-            }
-        }
+        QMessageBox::warning(NULL, tr("SnmpB: Extract MIB from RFC"),
+                             tr("No directory selected. Aborting.\n"));
+        file_in.close();
+        return;
     }
 
-    //printf("Number of modules in RFC: %d\n", num_modules);
-    QMessageBox::information(NULL, tr("SnmpB"),
-                             tr("Found %1 MIB modules in RFC file.\n")
-                             .arg(num_modules));
+    if (!QFileInfo(dir).isWritable())
+    {
+        QMessageBox::warning(NULL, tr("SnmpB: Extract MIB from RFC"),
+                tr("Directory not writable by this user. Aborting.\n"));
+        file_in.close();
+        return;
+    }
 
-    in.seek(0);
-
-    // Then process & save the modules ...
+    // Extract & save each modules ...
 
     // Process each line
     while (in.atEnd() != true)
@@ -235,27 +219,62 @@ void MibEditor::ExtractMIBfromRFC(bool)
             macro = 0;
             n = 0;
 
-            file2.setFileName(module+".tmp");
-            if (!file2.open(QFile::ReadWrite | QFile::Text))
+            // Create temporary output file
+            file_tmpout.setFileName(QDir::tempPath()+"/"+module+".tmp");
+            file_tmpout.remove();
+            if (!file_tmpout.open(QFile::ReadWrite | QFile::Text))
             {
-                QMessageBox::warning(NULL, tr("SnmpB"),
-                        tr("Cannot create file: %1\n")
-                        .arg(file2.errorString()));
+                QMessageBox::warning(NULL, tr("SnmpB: Extract MIB from RFC"),
+                                     tr("Cannot create file %1: %2. Abort.\n")
+                                     .arg(file_tmpout.fileName())
+                                     .arg(file_tmpout.errorString()));
+                file_in.close();
                 return;
             }
 
-            out.setDevice(&file2); 
+            tmpout.setDevice(&file_tmpout); 
 
-            file3.setFileName(module);
-            if (!file3.open(QFile::ReadWrite | QFile::Text))
+            // Create output file
+            file_out.setFileName(dir+module);
+            if (file_out.exists())
             {
-                QMessageBox::warning(NULL, tr("SnmpB"),
-                        tr("Cannot create file: %1\n")
-                        .arg(file3.errorString()));
-                return;
-            }
+                QMessageBox mb(QMessageBox::Question, 
+                               tr("SnmpB: Extract MIB from RFC"), 
+                               tr("The file %1 already exist.\n")
+                               .arg(file_out.fileName()));
+                QPushButton *ob = mb.addButton(tr("Overwrite"), 
+                                               QMessageBox::YesRole);
+                QPushButton *sb = mb.addButton(tr("Skip"), 
+                                               QMessageBox::NoRole);
+                mb.exec();
 
-            out_final.setDevice(&file3);
+                if (mb.clickedButton() == ob)
+                {
+                    // overwrite 
+                    skipmibfile = 0;
+                }
+                else if (mb.clickedButton() == sb)
+                {
+                    // skip 
+                    skipmibfile = 1;
+                }
+            }
+            else
+                skipmibfile = 0;
+
+            if (!skipmibfile)
+            {
+                if (!file_out.open(QFile::ReadWrite | QFile::Text))
+                {
+                    QMessageBox::warning(NULL, tr("SnmpB: Extract MIB from RFC"),
+                                         tr("Cannot create file %1: %2. Skipping.\n")
+                                         .arg(file_out.fileName())
+                                         .arg(file_out.errorString()));
+                    skipmibfile = 1;
+                }
+                else
+                    out.setDevice(&file_out);
+            }
         }
 
         // At the end of a page we go back one line (which is expected to
@@ -305,7 +324,7 @@ void MibEditor::ExtractMIBfromRFC(bool)
         if ((skipped == -1) && (module.length() > 0))
         {
             n++;
-            out << line << endl;
+            tmpout << line << endl;
         }
 
         // Remember when we enter a macro definition
@@ -317,46 +336,46 @@ void MibEditor::ExtractMIBfromRFC(bool)
         {
             if (macro == 0)
             {
-                if (single == 0)
+                tmpout.flush(); 
+                tmpout.seek(0);
+
+                int strip = 99, p = 0;
+
+                while (tmpout.atEnd() != true)
                 {
-                    out.flush(); 
-                    out.seek(0);
+                    line = tmpout.readLine();
 
-                    int strip = 99, p = 0;
-
-                    while (out.atEnd() != true)
+                    // Find the minimum column that contains non-blank
+                    // characters in order to cut a blank prefix off.
+                    // Ignore lines that only contain white spaces.
+                    if (blankline_regexp.indexIn(line) == -1)
                     {
-                        line = out.readLine();
-
-                        // Find the minimum column that contains non-blank
-                        // characters in order to cut a blank prefix off.
-                        // Ignore lines that only contain white spaces.
-                        if (blankline_regexp.indexIn(line) == -1)
+                        if (leadingspaces_regexp.indexIn(line) != -1)
                         {
-                            if (leadingspaces_regexp.indexIn(line) != -1)
-                            {
-                                p = leadingspaces_regexp.cap(1).length(); 
-                                if ((p < strip) && (line.length() > p))
-                                    strip = p;
-                            }
+                            p = leadingspaces_regexp.cap(1).length(); 
+                            if ((p < strip) && (line.length() > p))
+                                strip = p;
                         }
                     }
+                }
 
-                    out.seek(0);
+                tmpout.seek(0);
 
-                    while (out.atEnd() != true)
+                if (!skipmibfile)
+                {
+                    while (tmpout.atEnd() != true)
                     {
-
-                        line = out.readLine();
-                        out_final << line.remove(0, strip) << endl;
+                        line = tmpout.readLine();
+                        out << line.remove(0, strip) << endl;
                     }
 
-                    out_final.flush(); 
-                    file3.close();
-                    file2.remove();
+                    out.flush(); 
+                    file_out.close();
 
-                    printf("%s: %d lines.\n", module.toLatin1().data(), n);
+                    modules << module;
                 }
+
+                file_tmpout.remove();
 
                 module = "";
             }
@@ -365,6 +384,24 @@ void MibEditor::ExtractMIBfromRFC(bool)
                 macro = 0;
             }
         }
+    }
+
+    file_in.close();
+ 
+    if(modules.size() > 0)
+    {
+        QString module_list;
+        for (int i = 0; i < modules.size(); i++)
+        {
+            module_list += "\n\t";
+            module_list +=  modules[i];
+        }
+
+        QMessageBox::information(NULL, tr("SnmpB: Extract MIB from RFC"),
+                                 tr("%1 MIB module(s) have been extracted. \
+The following MIB file(s) were created: %2")
+                                 .arg(modules.size())
+                                 .arg(module_list));
     }
 }
 

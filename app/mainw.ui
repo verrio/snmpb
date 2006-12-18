@@ -1697,7 +1697,7 @@
   </action>
   <action name="actionExtractMIBfromRFC" >
    <property name="text" >
-    <string>&amp;Extract MIB from RFC</string>
+    <string>&amp;Extract MIB from RFC...</string>
    </property>
   </action>
  </widget>
