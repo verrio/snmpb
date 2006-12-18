@@ -51,8 +51,7 @@ void MibEditor::MibFileOpen(bool)
 {
     QString fileName = NULL;
 
-    if (fileName.isNull())
-        fileName = QFileDialog::getOpenFileName(s->MainUI()->MIBFile,
+    fileName = QFileDialog::getOpenFileName(s->MainUI()->MIBFile,
                                 tr("Open File"), "", 
                                 "MIB Files (*-MIB *-PIB *.mib *.pib *.smi)");
 
@@ -147,7 +146,7 @@ void MibEditor::ExtractMIBfromRFC(bool)
     QRegExp leadingspaces_regexp("^([ ]*)");
     QRegExp draft_regexp("^[ ]*Internet[ \\-]Draft");
 
-    QFile file("rfc4706.txt");
+    QFile file("empty");
     QFile file2("empty");
     QFile file3("empty");
     QTextStream in(&file);
@@ -157,20 +156,75 @@ void MibEditor::ExtractMIBfromRFC(bool)
     QString line;
     QString module;
 
+    QString fileName = NULL;
     int skip = 0, skipped = 0, macro = 0, n = 0, single = 0;
 
-    if (!file.open(QFile::ReadOnly | QFile::Text))
+    // Open RFC file
+    fileName = QFileDialog::getOpenFileName(s->MainUI()->MIBFile,
+                                        tr("Open RFC file"), "", 
+                                        "RFC files (*.txt);;All Files (*.*)");
+
+    if (!fileName.isEmpty())
     {
-        QMessageBox::warning(NULL, tr("Application"),
-                tr("Cannot read file: %1\n")
-                .arg(file.errorString()));
-        return;
+        file.setFileName(fileName);
+        if (!file.open(QFile::ReadOnly | QFile::Text))
+        {
+            QMessageBox::warning(NULL, tr("SnmpB"),
+                                 tr("Cannot read file: %1\n")
+                                 .arg(file.errorString()));
+            return;
+        }
     }
+
+    // First, check how many MIB modules in the RFC file ...
+    int num_modules = 0;
+
+    // Process each line 
+    while (in.atEnd() != true)
+    {
+        line = in.readLine();
+
+        // Start of module
+        if (module_regexp.indexIn(line) != -1)
+        {
+            module = module_regexp.cap(1); 
+        }
+
+        // Remember when we enter a macro definition
+        if (macro_regexp.indexIn(line) != -1)
+            macro = 1;
+
+        // End of module
+        if (end_regexp.indexIn(line) != -1)
+        {
+            if (macro == 0)
+            {
+                num_modules++;
+                module = "";
+            }
+            else
+            {
+                macro = 0;
+            }
+        }
+    }
+
+    //printf("Number of modules in RFC: %d\n", num_modules);
+    QMessageBox::information(NULL, tr("SnmpB"),
+                             tr("Found %1 MIB modules in RFC file.\n")
+                             .arg(num_modules));
+
+    in.seek(0);
+
+    // Then process & save the modules ...
 
     // Process each line
     while (in.atEnd() != true)
     {
         line = in.readLine();
+
+        if (draft_regexp.indexIn(line) != -1)
+            continue;
 
         // Start of module
         if (module_regexp.indexIn(line) != -1)
@@ -184,7 +238,7 @@ void MibEditor::ExtractMIBfromRFC(bool)
             file2.setFileName(module+".tmp");
             if (!file2.open(QFile::ReadWrite | QFile::Text))
             {
-                QMessageBox::warning(NULL, tr("Application"),
+                QMessageBox::warning(NULL, tr("SnmpB"),
                         tr("Cannot create file: %1\n")
                         .arg(file2.errorString()));
                 return;
@@ -195,7 +249,7 @@ void MibEditor::ExtractMIBfromRFC(bool)
             file3.setFileName(module);
             if (!file3.open(QFile::ReadWrite | QFile::Text))
             {
-                QMessageBox::warning(NULL, tr("Application"),
+                QMessageBox::warning(NULL, tr("SnmpB"),
                         tr("Cannot create file: %1\n")
                         .arg(file3.errorString()));
                 return;
