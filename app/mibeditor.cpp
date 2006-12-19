@@ -130,7 +130,7 @@ void MibEditor::VerifyMIB(bool)
     smiSetErrorHandler(ErrorHdlr);
     smiSetErrorLevel(9);
 
-    smiLoadModule(LoadedFile.toLatin1().data());
+    smiLoadModule(QDir::toNativeSeparators(LoadedFile).toLatin1().data());
 
     smiSetFlags(saved_flags);
 }
