@@ -235,7 +235,7 @@ void MibEditor::ExtractMIBfromRFC(bool)
             tmpout.setDevice(&file_tmpout); 
 
             // Create output file
-            file_out.setFileName(dir+module);
+            file_out.setFileName(dir+"/"+module);
             if (file_out.exists())
             {
                 QMessageBox mb(QMessageBox::Question, 
