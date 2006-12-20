@@ -264,6 +264,7 @@ void MibEditor::ExtractMIBfromRFC(bool)
 
             if (!skipmibfile)
             {
+                file_out.remove();
                 if (!file_out.open(QFile::ReadWrite | QFile::Text))
                 {
                     QMessageBox::warning(NULL, tr("SnmpB: Extract MIB from RFC"),
@@ -277,22 +278,10 @@ void MibEditor::ExtractMIBfromRFC(bool)
             }
         }
 
-        // At the end of a page we go back one line (which is expected to
-        // be a separator line), and start the counter skipped to skip the
+        // At the end of a page we start the counter skipped to skip the
         // next few lines.
         if (page_regexp.indexIn(line) != -1)
-        {
-#if 0
-            // Some drafts do not use that separator line. so keep it if
-            // there are non-blank characters.
-            if (!(line[n] ~ /^[ \t]*$/)) 
-            {
-                printf("WARNING: the line ::%s:: should be a separator before a page break. It was kept.", line[n]); 
-                n--;
-            }
-#endif
             skipped = 0;
-        }
 
         // If we are skipping...
         if (skipped >= 0)
@@ -363,9 +352,25 @@ void MibEditor::ExtractMIBfromRFC(bool)
 
                 if (!skipmibfile)
                 {
+                    int num_bl = 0;
+
                     while (tmpout.atEnd() != true)
                     {
                         line = tmpout.readLine();
+                        // For each block of consecutive blank lines,
+                        // remove all lines but one.
+                        if (blankline_regexp.indexIn(line) != -1)
+                        {
+                            num_bl++;
+                            continue;
+                        }
+                        else
+                        {
+                            if (num_bl > 0)
+                                out << endl;
+                            num_bl = 0;
+                        }
+
                         out << line.remove(0, strip) << endl;
                     }
 
