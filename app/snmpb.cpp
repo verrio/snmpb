@@ -65,6 +65,11 @@ Trap* Snmpb::TrapObj(void)
     return (trap);
 }
 
+MibViewLoader* Snmpb::MibLoaderObj(void)
+{
+    return (&MibLoader);
+}
+
 void Snmpb::CheckForConfigFiles(void)
 {
     if (!SnmpbDir.exists())

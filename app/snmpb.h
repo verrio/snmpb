@@ -18,6 +18,7 @@ public:
     Ui_MainW* MainUI(void);
     Agent* AgentObj(void);
     Trap* TrapObj(void);
+    MibViewLoader* MibLoaderObj(void);
 
     void CheckForConfigFiles(void);
     QString GetBootCounterConfigFile(void);
@@ -32,6 +33,7 @@ private:
     Ui_MainW w;
 
     MibModule *modules;
+    MibViewLoader MibLoader;
     Trap *trap;
     Agent *agent;
     Graph *graph;

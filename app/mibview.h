@@ -98,6 +98,4 @@ private:
     QList<BasicMibView*> views;
 };
 
-extern MibViewLoader MibLoader;
-
 #endif /* MIBVIEW_H */

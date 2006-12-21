@@ -276,7 +276,7 @@ void MibModule::RemoveModule(void)
 void MibModule::Refresh(void)
 {
     InitLib(1);
-    MibLoader.Load(Wanted);
+    s->MibLoaderObj()->Load(Wanted);
     RebuildLoadedList();
     RebuildUnloadedList();
 }
