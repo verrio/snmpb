@@ -11,8 +11,6 @@
 
 #include "mibview.h"
 
-MibViewLoader MibLoader;
-
 //
 // BasicMibView class
 //
@@ -32,8 +30,6 @@ BasicMibView::BasicMibView (QWidget * parent) : QTreeWidget(parent)
     setFrameShadow(QFrame::Plain);
     setRootIsDecorated( TRUE );
     
-    MibLoader.RegisterView(this);
-
     // Create context menu actions
     expandAct = new QAction(tr("&Expand"), this);
     expandAct->setIcon(QIcon(":/images/expand.png"));
@@ -56,6 +52,12 @@ void BasicMibView::SetDirty(void)
     isdirty = 1;
 }
 
+void BasicMibView::RegisterToLoader(MibViewLoader *loader)
+{
+    MibLoader = loader;
+    MibLoader->RegisterView(this);
+}
+
 void BasicMibView::Populate(void)
 {
     SmiNode *smiNode;
@@ -68,7 +70,7 @@ void BasicMibView::Populate(void)
         
         smiNode = smiGetNode(NULL, "iso");
         if (smiNode)
-            MibLoader.PopulateSubTree(smiNode, root, NULL);
+            MibLoader->PopulateSubTree(smiNode, root, NULL);
     }
 }
 

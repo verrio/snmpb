@@ -2,6 +2,7 @@
 #include <qfileinfo.h>
 #include <qpainter.h>
 #include "mibeditor.h"
+#include "mibmodule.h"
 
 MibEditor::MibEditor(Snmpb *snmpb)
 {
@@ -87,11 +88,13 @@ void MibEditor::ErrorHandler(char *path, int line, int severity,
         case 2:
         case 3:
             message += "Error ";
+            num_error++;
             item_brush.setColor(Qt::red);
             break;
         case 4:
         case 5:
             message += "Warning ";
+            num_warning++;
             item_brush.setColor(Qt::darkYellow);
             break;
         case 6:
@@ -99,6 +102,7 @@ void MibEditor::ErrorHandler(char *path, int line, int severity,
         case 8:
         case 9:
             message += "Info ";
+            num_info++;
             item_brush.setColor(Qt::blue);
             break;
     }
@@ -130,9 +134,25 @@ void MibEditor::VerifyMIB(bool)
     smiSetErrorHandler(ErrorHdlr);
     smiSetErrorLevel(9);
 
+    num_error = 0;
+    num_warning = 0;
+    num_info = 0;
+
+    QString start_msg = QString("Starting MIB verification ...");
+    s->MainUI()->MIBLog->addItem(new QListWidgetItem(start_msg, 
+                                                     s->MainUI()->MIBLog));
+
     smiLoadModule(QDir::toNativeSeparators(LoadedFile).toLatin1().data());
 
+    QString stop_msg = QString("Verification completed. %1 errors, %2 warnings, %3 infos")
+                               .arg(num_error).arg(num_warning).arg(num_info);
+    s->MainUI()->MIBLog->addItem(new QListWidgetItem(stop_msg, 
+                                                     s->MainUI()->MIBLog));
+
     smiSetFlags(saved_flags);
+
+    // Reload everything
+    s->MibModuleObj()->Refresh();
 }
 
 void MibEditor::ExtractMIBfromRFC(bool)

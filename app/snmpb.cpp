@@ -46,8 +46,11 @@ Snmpb::Snmpb(QMainWindow* mw)
     connect( w.optionsHorizontal_splitAction, SIGNAL( toggled(bool) ),
              this, SLOT( HorizontalSplit(bool) ) );
 
+    // Register every MIB tree to the MIB loader object
+    w.MIBTree->RegisterToLoader(&loader);
+    w.PlotMIBTree->RegisterToLoader(&loader);
+    
     TreeTabSelected(0);
-
 }
 
 Ui_MainW* Snmpb::MainUI(void)
@@ -67,7 +70,12 @@ Trap* Snmpb::TrapObj(void)
 
 MibViewLoader* Snmpb::MibLoaderObj(void)
 {
-    return (&MibLoader);
+    return (&loader);
+}
+
+MibModule* Snmpb::MibModuleObj(void)
+{
+    return (modules);
 }
 
 void Snmpb::CheckForConfigFiles(void)

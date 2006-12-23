@@ -12,6 +12,8 @@
 #include "mibnode.h"
 #include "smi.h"
 
+class MibViewLoader;
+
 class BasicMibView : public QTreeWidget
 {
     Q_OBJECT
@@ -20,7 +22,8 @@ public:
     BasicMibView ( QWidget * parent = 0 );
     void Populate (void);
     void SetDirty(void);
-    
+    void RegisterToLoader(MibViewLoader *loader); 
+
 protected slots:
     void ExpandNode( QTreeWidgetItem * item);
     void CollapseNode( QTreeWidgetItem * item);
@@ -38,6 +41,7 @@ protected:
     
 private:
     int isdirty;
+    MibViewLoader *MibLoader;
 };
 
 class MibView : public BasicMibView

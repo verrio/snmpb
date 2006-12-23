@@ -29,8 +29,12 @@ private:
     Snmpb *s;
     MibHighlighter *highlighter;
     QLabel *lnum;
-
+    
     QString LoadedFile;
+
+    int num_error;
+    int num_warning;
+    int num_info;
 };
 
 #endif /* MIBEDITOR_H */
