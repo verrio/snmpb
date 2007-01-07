@@ -7,6 +7,7 @@
 #include "agent.h"
 #include "trap.h"
 #include "graph.h"
+#include "logsnmpb.h"
 #include "mibeditor.h"
 
 #define SNMPB_CONFIG_DIR         ".snmpb"
@@ -36,6 +37,7 @@ Snmpb::Snmpb(QMainWindow* mw)
 
     modules = new MibModule(this);
     trap = new Trap(this);
+    logsnmpb = new LogSnmpb(this); // Must be created before the agent object
     agent = new Agent(this);
     graph = new Graph(this);
     editor = new MibEditor(this);

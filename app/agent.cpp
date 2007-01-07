@@ -3,7 +3,6 @@
 
 #include "mibview.h"
 #include "agent.h"
-#include "logsnmpb.h"
 #include "snmp_pp/notifyqueue.h"
 
 #define BULK_MAX 10
@@ -58,12 +57,6 @@ Agent::Agent(Snmpb *snmpb)
              this, SLOT( TableViewFrom(const QString&) ) );
     
     int status;
- 
-#if 0 
-    DefaultLog::init(new SnmpbAgentLog(s->MainUI()->Query));
-    for (int i=1; i<=LOG_TYPES; i++)
-        DefaultLog::log()->set_filter(i*16, 15); 
-#endif
 
     Snmp::socket_startup();  // Initialize socket subsystem
     

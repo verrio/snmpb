@@ -1544,6 +1544,9 @@
             <property name="text" >
              <string>Enable SNMP stack logging</string>
             </property>
+            <property name="checked" >
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
           <item>
@@ -1566,8 +1569,11 @@
                <property name="text" >
                 <string>Error</string>
                </property>
-               <property name="tristate" >
+               <property name="checked" >
                 <bool>true</bool>
+               </property>
+               <property name="tristate" >
+                <bool>false</bool>
                </property>
               </widget>
              </item>
@@ -1576,8 +1582,11 @@
                <property name="text" >
                 <string>Warning</string>
                </property>
-               <property name="tristate" >
+               <property name="checked" >
                 <bool>true</bool>
+               </property>
+               <property name="tristate" >
+                <bool>false</bool>
                </property>
               </widget>
              </item>
@@ -1586,8 +1595,11 @@
                <property name="text" >
                 <string>Event</string>
                </property>
-               <property name="tristate" >
+               <property name="checked" >
                 <bool>true</bool>
+               </property>
+               <property name="tristate" >
+                <bool>false</bool>
                </property>
               </widget>
              </item>
@@ -1596,8 +1608,11 @@
                <property name="text" >
                 <string>Info</string>
                </property>
-               <property name="tristate" >
+               <property name="checked" >
                 <bool>true</bool>
+               </property>
+               <property name="tristate" >
+                <bool>false</bool>
                </property>
               </widget>
              </item>
@@ -1605,6 +1620,9 @@
               <widget class="QCheckBox" name="LogDebug" >
                <property name="text" >
                 <string>Debug</string>
+               </property>
+               <property name="checked" >
+                <bool>false</bool>
                </property>
               </widget>
              </item>
