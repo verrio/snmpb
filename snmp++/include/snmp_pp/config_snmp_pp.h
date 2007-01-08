@@ -89,7 +89,7 @@
 
 // define _NO_LOGGING if you do not want any logging output 
 // (increases performance drastically and minimizes memory consumption)
-#define _NO_LOGGING
+//#define _NO_LOGGING
 
 // define _IPX_ADDRESS and/or _MAC_ADDRESS if you want to use the
 // classess IpxAddress/IpxSockAddress and/or MacAddress
