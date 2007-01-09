@@ -1015,6 +1015,170 @@
        <attribute name="title" >
         <string>Discovery</string>
        </attribute>
+       <layout class="QGridLayout" >
+        <property name="margin" >
+         <number>9</number>
+        </property>
+        <property name="spacing" >
+         <number>6</number>
+        </property>
+        <item row="0" column="0" >
+         <layout class="QGridLayout" >
+          <property name="margin" >
+           <number>0</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item row="1" column="0" colspan="2" >
+           <layout class="QHBoxLayout" >
+            <property name="margin" >
+             <number>0</number>
+            </property>
+            <property name="spacing" >
+             <number>6</number>
+            </property>
+            <item>
+             <widget class="QProgressBar" name="DiscoveryProgress" >
+              <property name="value" >
+               <number>0</number>
+              </property>
+              <property name="orientation" >
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="invertedAppearance" >
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="DiscoveryButton" >
+              <property name="text" >
+               <string>Discover</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="2" column="0" colspan="2" >
+           <widget class="QTreeWidget" name="DiscoveryOutput" />
+          </item>
+          <item row="0" column="0" >
+           <widget class="QGroupBox" name="DiscoveryRange" >
+            <property name="title" >
+             <string>Discovery range</string>
+            </property>
+            <layout class="QGridLayout" >
+             <property name="margin" >
+              <number>9</number>
+             </property>
+             <property name="spacing" >
+              <number>6</number>
+             </property>
+             <item row="2" column="2" >
+              <widget class="QLineEdit" name="DiscoveryFrom" />
+             </item>
+             <item row="2" column="4" >
+              <widget class="QLineEdit" name="DiscoveryTo" />
+             </item>
+             <item row="2" column="3" >
+              <widget class="QLabel" name="DiscoveryToL" >
+               <property name="text" >
+                <string>To address</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0" >
+              <spacer>
+               <property name="orientation" >
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeType" >
+                <enum>QSizePolicy::Fixed</enum>
+               </property>
+               <property name="sizeHint" >
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="2" column="1" >
+              <widget class="QLabel" name="DiscoveryFromL" >
+               <property name="text" >
+                <string>From address</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0" colspan="2" >
+              <widget class="QRadioButton" name="DiscoveryNetworks" >
+               <property name="text" >
+                <string>IP networks</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0" colspan="2" >
+              <widget class="QRadioButton" name="DiscoveryLocal" >
+               <property name="text" >
+                <string>Local subnet(s)</string>
+               </property>
+               <property name="checked" >
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="0" column="1" >
+           <widget class="QGroupBox" name="DiscoveryVersion" >
+            <property name="title" >
+             <string>Protocol version</string>
+            </property>
+            <layout class="QGridLayout" >
+             <property name="margin" >
+              <number>9</number>
+             </property>
+             <property name="spacing" >
+              <number>6</number>
+             </property>
+             <item row="2" column="0" >
+              <widget class="QCheckBox" name="DiscoveryV3" >
+               <property name="text" >
+                <string>SNMPv3</string>
+               </property>
+               <property name="checked" >
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0" >
+              <widget class="QCheckBox" name="DiscoveryV2c" >
+               <property name="text" >
+                <string>SNMPv2c</string>
+               </property>
+               <property name="checked" >
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0" >
+              <widget class="QCheckBox" name="DiscoveryV1" >
+               <property name="text" >
+                <string>SNMPv1</string>
+               </property>
+               <property name="checked" >
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
       </widget>
       <widget class="QWidget" name="TabPage" >
        <attribute name="title" >
