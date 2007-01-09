@@ -38,7 +38,8 @@ SOURCES	+= ../snmp++/src/address.cpp \
     mibhighlighter.cpp \
     markerwidget.cpp \
     mibeditor.cpp \
-    logsnmpb.cpp
+    logsnmpb.cpp \
+    discovery.cpp
 HEADERS	+= snmpb.h \
     mibnode.h \
 	mibview.h \
@@ -50,7 +51,8 @@ HEADERS	+= snmpb.h \
     mibhighlighter.h \
     markerwidget.h \
     mibeditor.h \
-    logsnmpb.h
+    logsnmpb.h \
+    discovery.h
 unix {
   UI_DIR = .ui
   MOC_DIR = .moc

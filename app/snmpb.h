@@ -9,6 +9,7 @@ class Agent;
 class Graph;
 class MibEditor;
 class LogSnmpb;
+class Discovery;
 
 class Snmpb: public QObject
 {
@@ -41,6 +42,7 @@ private:
     Graph *graph;
     MibEditor *editor;
     LogSnmpb *logsnmpb;
+    Discovery *discovery;
 };
 
 #endif /* SNMPB_H */

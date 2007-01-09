@@ -9,6 +9,7 @@
 #include "graph.h"
 #include "logsnmpb.h"
 #include "mibeditor.h"
+#include "discovery.h"
 
 #define SNMPB_CONFIG_DIR         ".snmpb"
 #define MIB_CONFIG_FILE          "mib.conf"
@@ -41,6 +42,7 @@ Snmpb::Snmpb(QMainWindow* mw)
     agent = new Agent(this);
     graph = new Graph(this);
     editor = new MibEditor(this);
+    discovery = new Discovery(this);
 
     // Connect some signals
     connect( w.TabW, SIGNAL( currentChanged(int) ),
