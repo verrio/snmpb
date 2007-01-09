@@ -55,19 +55,6 @@ Snmpb::Snmpb(QMainWindow* mw)
     w.PlotMIBTree->RegisterToLoader(&loader);
     
     TreeTabSelected(0);
-
-#if 0
-{
-    UdpAddressCollection a;
-    UdpAddress bc("255.255.255.255/161");
-    OctetStr comm("errorcomm");
-    agent->GetSnmp()->broadcast_discovery(a, 3, bc, version2c, &comm);
-    for (int j=0;j<a.size();j++)
-    {
-        printf("Found: %s\n", a[j].get_printable());
-    }
-}
-#endif
 }
 
 Ui_MainW* Snmpb::MainUI(void)

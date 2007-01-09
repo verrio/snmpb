@@ -11,6 +11,7 @@ public:
     Discovery(Snmpb *snmpb);
     
 protected slots:
+    void Discover(void);
 
 private:
     Snmpb *s;
