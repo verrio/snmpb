@@ -54,6 +54,7 @@ Snmpb::Snmpb(QMainWindow* mw)
     
     TreeTabSelected(0);
 
+#if 0
 {
     UdpAddressCollection a;
     UdpAddress bc("255.255.255.255/161");
@@ -64,6 +65,7 @@ Snmpb::Snmpb(QMainWindow* mw)
         printf("Found: %s\n", a[j].get_printable());
     }
 }
+#endif
 }
 
 Ui_MainW* Snmpb::MainUI(void)
