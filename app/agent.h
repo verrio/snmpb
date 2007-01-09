@@ -23,9 +23,6 @@ public:
     // Used by graph update timer
     unsigned long GetSyncValue(const QString& oid);
 
-// TEMP
-Snmp* GetSnmp(void) {return snmp;};
-
 protected:
     int Setup(const QString& oid, SnmpTarget **t, Pdu **p);
             
