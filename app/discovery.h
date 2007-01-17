@@ -17,6 +17,8 @@ public:
 
 signals:
     void SendAgent(QString address);
+    void SignalStartStop(int isstart);
+    void SignalProgress(int value);
 
 protected:
     Snmpb *s;
@@ -32,6 +34,8 @@ public:
 protected slots:
     void Discover(void);
     void DisplayAgent(QString address);
+    void StartStop(int isstart);
+    void DisplayProgress(int value);
 
 private:
     Snmpb *s;

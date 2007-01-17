@@ -16,6 +16,10 @@ Discovery::Discovery(Snmpb *snmpb)
 
     connect( dt, SIGNAL( SendAgent(QString) ), 
              this, SLOT( DisplayAgent(QString) ));
+    connect( dt, SIGNAL( SignalStartStop(int) ), 
+             this, SLOT( StartStop(int) ));
+    connect( dt, SIGNAL( SignalProgress(int) ), 
+             this, SLOT( DisplayProgress(int) ));
 }
 
 void DiscoveryThread::run(void)
@@ -26,12 +30,9 @@ void DiscoveryThread::run(void)
     Snmp *snmp = new Snmp(status);
 
     if (status != SNMP_CLASS_SUCCESS)
-    {
-        QString err = QString("Could not create SNMP++ session:\n")
-                              .arg(Snmp::error_msg(status));
-        QMessageBox::warning ( NULL, "SnmpB", err, 
-                               QMessageBox::Ok, Qt::NoButton);
-    }
+        return;
+
+    emit SignalStartStop(1);
 
     UdpAddressCollection a;
     UdpAddress bc("255.255.255.255/161");
@@ -74,13 +75,13 @@ void DiscoveryThread::run(void)
         }
 
         num_proto++;
-        s->MainUI()->DiscoveryProgress->setValue(num_proto);
+        emit SignalProgress(num_proto);
 
         for (int j = 0; j < a.size(); j++)
             emit SendAgent(QString(a[j].get_printable()));
     }
 
-    s->MainUI()->DiscoveryButton->setEnabled(true);
+    emit SignalStartStop(0);
 }
 
 void Discovery::DisplayAgent(QString address)
@@ -89,6 +90,19 @@ void Discovery::DisplayAgent(QString address)
         new QTreeWidgetItem(s->MainUI()->DiscoveryOutput,
                             QStringList(address));
     s->MainUI()->DiscoveryOutput->addTopLevelItem(val);
+}
+
+void Discovery::StartStop(int isstart)
+{
+    if (isstart)
+        s->MainUI()->DiscoveryButton->setEnabled(false);
+    else
+        s->MainUI()->DiscoveryButton->setEnabled(true);
+}
+
+void Discovery::DisplayProgress(int value)
+{
+    s->MainUI()->DiscoveryProgress->setValue(value);
 }
 
 void Discovery::Discover(void)
@@ -107,9 +121,6 @@ void Discovery::Discover(void)
     s->MainUI()->DiscoveryProgress->setRange(0, dt->num_proto);
 
     if (s->MainUI()->DiscoveryLocal->isChecked())
-    {
-        s->MainUI()->DiscoveryButton->setEnabled(false);
         dt->start();
-    }
 }
 
