@@ -16,7 +16,7 @@ public:
     int num_proto;
 
 signals:
-    void SendAgent(QString address);
+    void SendAgent(QStringList agent_info);
     void SignalStartStop(int isstart);
     void SignalProgress(int value);
 
@@ -33,7 +33,7 @@ public:
     
 protected slots:
     void Discover(void);
-    void DisplayAgent(QString address);
+    void DisplayAgent(QStringList agent_info);
     void StartStop(int isstart);
     void DisplayProgress(int value);
 

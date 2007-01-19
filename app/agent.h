@@ -23,7 +23,6 @@ public:
     // Used by graph update timer
     unsigned long GetSyncValue(const QString& oid);
 
-protected:
     int Setup(const QString& oid, SnmpTarget **t, Pdu **p);
             
 public slots:

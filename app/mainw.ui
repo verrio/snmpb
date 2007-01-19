@@ -1061,7 +1061,17 @@
            </layout>
           </item>
           <item row="2" column="0" colspan="2" >
-           <widget class="QTreeWidget" name="DiscoveryOutput" />
+           <widget class="QTreeWidget" name="DiscoveryOutput" >
+            <property name="frameShape" >
+             <enum>QFrame::WinPanel</enum>
+            </property>
+            <property name="frameShadow" >
+             <enum>QFrame::Plain</enum>
+            </property>
+            <property name="rootIsDecorated" >
+             <bool>false</bool>
+            </property>
+           </widget>
           </item>
           <item row="0" column="0" >
            <widget class="QGroupBox" name="DiscoveryRange" >
@@ -1999,6 +2009,12 @@
  <layoutdefault spacing="6" margin="11" />
  <customwidgets>
   <customwidget>
+   <class>QColorComboBox</class>
+   <extends>QComboBox</extends>
+   <header>comboboxes.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>QPenWidthComboBox</class>
    <extends>QComboBox</extends>
    <header>comboboxes.h</header>
@@ -2026,12 +2042,6 @@
    <class>MarkerWidget</class>
    <extends>QWidget</extends>
    <header>markerwidget.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>QColorComboBox</class>
-   <extends>QComboBox</extends>
-   <header>comboboxes.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
