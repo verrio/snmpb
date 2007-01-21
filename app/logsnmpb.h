@@ -24,25 +24,18 @@ private:
     Snmpb *s;
 };
 
-class SnmpbAgentLog: public AgentLog
+class SnmpbAgentLog: public QObject, public AgentLog
 {
+    Q_OBJECT
+
 public:
-    SnmpbAgentLog(QTextEdit *out) : te(out) {};
+    SnmpbAgentLog(QTextEdit *out)
+    {
+        connect(this, SIGNAL ( SendLog(QString) ), 
+                out, SLOT ( append (QString) ));
+    };
+
     ~SnmpbAgentLog() {};
-
-    void lock()
-    {
-#ifdef _THREADS
-        logLock.lock();
-#endif
-    }
-
-    void unlock()
-    {
-#ifdef _THREADS
-        logLock.unlock();
-#endif
-    }
 
     LogEntry* create_log_entry(unsigned char t) const
     {
@@ -51,13 +44,12 @@ public:
 
     AgentLog& operator+=(const LogEntry *log)
     {
-        te->append(log->get_value());
+        emit SendLog(log->get_value());
         return *this;
     };
 
-private:
-    QTextEdit *te;
-    SnmpSynchronized logLock;
+signals:
+    void SendLog(QString str);
 };
 
 #endif /* LOGSNMPB_H */

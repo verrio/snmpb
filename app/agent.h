@@ -19,10 +19,15 @@ public:
     void AsyncCallbackTrap(int reason, Pdu &pdu, SnmpTarget &target);
     
     static char *GetPrintableValue(SmiNode *node, Vb *vb);
+    static void ConfigTargetFromSettings(snmp_version v, Snmpb *s, 
+                                         SnmpTarget *t);
+    static Oid ConfigPduFromSettings(snmp_version v, Snmpb *s,
+                                     const QString& oid, Pdu *p);
     
     // Used by graph update timer
     unsigned long GetSyncValue(const QString& oid);
 
+protected:
     int Setup(const QString& oid, SnmpTarget **t, Pdu **p);
             
 public slots:

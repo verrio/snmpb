@@ -141,13 +141,6 @@ int Agent::Setup(const QString& oid, SnmpTarget **t, Pdu **p)
     if (!snmp)
         return -1;
     
-    Pdu *pdu = new Pdu();
-    Vb vb;
-    // Set the Oid part of the Vb & add it to pdu
-    theoid = Oid(oid.toLatin1().data());    
-    vb.set_oid(theoid);    
-    *pdu += vb;
-    
     // Create an address object from the entered values
     QString address_str(s->MainUI()->Address->currentText() + "/" + 
                         s->MainUI()->Port->currentText());
@@ -164,61 +157,93 @@ int Agent::Setup(const QString& oid, SnmpTarget **t, Pdu **p)
                                QMessageBox::Ok, Qt::NoButton);
         return -1;
     }
-    
-    SnmpTarget *target; // will point to a CTarget(v1/v2c) or UTarget (v3)
-        
-    // Get retries and timeout values
-    int retries = s->MainUI()->Retries->value();
-    int timeout = 100 * s->MainUI()->Timeout->value();
-    
+
+    Pdu *pdu = new Pdu();
+
     if (s->MainUI()->V3->isChecked())
     {
         // For SNMPv3 we need a UTarget object
         UTarget *utarget = new UTarget(address);
-        
-        utarget->set_version(version3);
-        
-        utarget->set_security_model(SNMP_SECURITY_MODEL_USM);
-        utarget->set_security_name(s->MainUI()->UserName->currentText().toLatin1().data());
-        
-        target = utarget;
-        
-        // set the security level to use
-        if (s->MainUI()->SecLevel->currentText() == "noAuthNoPriv")
-            pdu->set_security_level(SNMP_SECURITY_LEVEL_NOAUTH_NOPRIV);
-        else if (s->MainUI()->SecLevel->currentText() == "authNoPriv")
-            pdu->set_security_level(SNMP_SECURITY_LEVEL_AUTH_NOPRIV);
-        else
-            pdu->set_security_level(SNMP_SECURITY_LEVEL_AUTH_PRIV);
-        
-        // Not needed, as snmp++ will set it, if the user does not set it
-        pdu->set_context_name(s->MainUI()->ContextName->text().toLatin1().data());
-        pdu->set_context_engine_id(s->MainUI()->EngineID->text().toLatin1().data());
+
+        ConfigTargetFromSettings(version3, s, utarget);
+        theoid = ConfigPduFromSettings(version3, s, oid, pdu);
+        *t = utarget;
     }
     else
     {
         // For SNMPv1/v2c we need a CTarget
         CTarget *ctarget = new CTarget(address);
-        
+
         if (s->MainUI()->V2->isChecked())
-            ctarget->set_version(version2c);
+        {
+            ConfigTargetFromSettings(version2c, s, ctarget);
+            theoid = ConfigPduFromSettings(version2c, s, oid, pdu);
+        }
         else
-            ctarget->set_version(version1);
-        
-        // set the community
-        ctarget->set_readcommunity( s->MainUI()->ReadComm->text().toLatin1().data());
-        ctarget->set_writecommunity( s->MainUI()->WriteComm->text().toLatin1().data());
-        
-        target = ctarget;
+        {
+            ConfigTargetFromSettings(version1, s, ctarget);
+            theoid = ConfigPduFromSettings(version1, s, oid, pdu);
+        }
+
+        *t = ctarget;
     }
-    
-    target->set_retry(retries);            // set the number of auto retries
-    target->set_timeout(timeout);          // set timeout
-    
-    *t = target;
+
     *p = pdu;
     
     return 0;
+}
+
+void Agent::ConfigTargetFromSettings(snmp_version v, Snmpb *s, SnmpTarget *t)
+{
+    if (v == version3)
+    {
+        UTarget *utarget = (UTarget *)t;
+        utarget->set_security_model(SNMP_SECURITY_MODEL_USM);
+        utarget->set_security_name(s->MainUI()->UserName->currentText().toLatin1().data());
+    }
+    else if ((v == version1) || (v == version2c))
+    {
+        CTarget *ctarget = (CTarget *)t;
+        // set the community
+        ctarget->set_readcommunity( s->MainUI()->ReadComm->text().toLatin1().data());
+        ctarget->set_writecommunity( s->MainUI()->WriteComm->text().toLatin1().data());
+    }
+
+    // Set the version
+    t->set_version(v);
+
+    // Set retries and timeout values
+    t->set_retry(s->MainUI()->Retries->value());
+    t->set_timeout(100 * s->MainUI()->Timeout->value());
+}
+
+Oid Agent::ConfigPduFromSettings(snmp_version v, Snmpb *s, 
+                                  const QString& oid, Pdu *p)
+{
+    Vb vb;
+    Oid oidobj(oid.toLatin1().data());
+
+    // Set the Oid part of the Vb & add it to pdu
+    vb.set_oid(oidobj);
+    p->clear();
+    *p += vb;
+
+    if (v == version3)
+    {
+        // set the security level to use
+        if (s->MainUI()->SecLevel->currentText() == "noAuthNoPriv")
+            p->set_security_level(SNMP_SECURITY_LEVEL_NOAUTH_NOPRIV);
+        else if (s->MainUI()->SecLevel->currentText() == "authNoPriv")
+            p->set_security_level(SNMP_SECURITY_LEVEL_AUTH_NOPRIV);
+        else
+            p->set_security_level(SNMP_SECURITY_LEVEL_AUTH_PRIV);
+
+        // Not needed, as snmp++ will set it, if the user does not set it
+        p->set_context_name(s->MainUI()->ContextName->text().toLatin1().data());
+        p->set_context_engine_id(s->MainUI()->EngineID->text().toLatin1().data());
+    }
+
+    return oidobj;
 }
 
 void Agent::TimerExpired(void)

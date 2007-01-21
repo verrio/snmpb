@@ -97,6 +97,12 @@ void DiscoveryThread::run(void)
             QString location;
             QString description;
 
+            SnmpTarget *target;
+            UTarget utarget;
+            CTarget ctarget;
+            Pdu pdu;
+            Vb vb;
+
             char * info_oids[] = {
                 "1.3.6.1.2.1.1.1.0", 
                 "1.3.6.1.2.1.1.3.0", 
@@ -104,45 +110,46 @@ void DiscoveryThread::run(void)
                 "1.3.6.1.2.1.1.5.0", 
                 "1.3.6.1.2.1.1.6.0"};
 
+            // Setup the target object
+            if (cur_version == version3)
+                target = &utarget;
+            else
+                target = &ctarget;
+
+            Agent::ConfigTargetFromSettings(cur_version, s, target);
+            target->set_address(a[j]);
+
+            // Loop and get the values
             for (int k = 0; k < 5; k++)
             {
-                // Initialize agent & pdu objects
-                SnmpTarget *target;
-                Pdu *pdu;
-                Vb vb;
-                if (s->AgentObj()->Setup(info_oids[k], &target, &pdu) >= 0)
+                Agent::ConfigPduFromSettings(cur_version, s, info_oids[k], &pdu);
+
+                // Now do a sync get
+                if (snmp->get(pdu, *target) == SNMP_CLASS_SUCCESS)
                 {
-                    target->set_address(a[j]);
-                    // Now do a sync get
-                    if (snmp->get(*pdu, *target) == SNMP_CLASS_SUCCESS)
+                    pdu.get_vb(vb, 0);
+                    if (k == 1)
                     {
-                        pdu->get_vb(vb, 0);
-                        if (k == 1)
+                        unsigned long time = 0;
+                        vb.get_value(time);
+                        TimeTicks ut(time);
+                        uptime = ut.get_printable(); 
+                    }
+                    else
+                    {
+                        static unsigned char buf[5000];
+                        unsigned long len;
+                        vb.get_value(buf, len, 5000);
+                        buf[len] = '\0';
+                        switch(k)
                         {
-                            unsigned long time = 0;
-                            vb.get_value(time);
-                            TimeTicks ut(time);
-                            uptime = ut.get_printable(); 
-                        }
-                        else
-                        {
-                            static unsigned char buf[5000];
-                            unsigned long len;
-                            vb.get_value(buf, len, 5000);
-                            buf[len] = '\0';
-                            switch(k)
-                            {
-                                case 0: description = (const char*)buf; break;
-                                case 2: contact = (const char*)buf; break;
-                                case 3: name = (const char*)buf; break;
-                                case 4: location = (const char*)buf; break;
-                                default: break;
-                            }
+                            case 0: description = (const char*)buf; break;
+                            case 2: contact = (const char*)buf; break;
+                            case 3: name = (const char*)buf; break;
+                            case 4: location = (const char*)buf; break;
+                            default: break;
                         }
                     }
-
-                    delete target;
-                    delete pdu;
                 }
             }
 
@@ -150,6 +157,7 @@ void DiscoveryThread::run(void)
             protocol = (cur_version == version3)?"SNMPv3":
                       ((cur_version == version2c)?"SNMPv2c":"SNMPv1");
 
+            agent_info.clear();
             agent_info << name << address << protocol << uptime 
                        << contact << location << description;
 
