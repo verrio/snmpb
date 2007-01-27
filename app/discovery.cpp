@@ -42,7 +42,6 @@ void DiscoveryThread::run(void)
 
     UdpAddressCollection a;
     UdpAddress bc("255.255.255.255/161");
-    OctetStr comm("errorcomm");
 
     num_proto = 0;
 
@@ -104,11 +103,11 @@ void DiscoveryThread::run(void)
             Vb vb;
 
             char * info_oids[] = {
-                "1.3.6.1.2.1.1.1.0", 
-                "1.3.6.1.2.1.1.3.0", 
-                "1.3.6.1.2.1.1.4.0", 
-                "1.3.6.1.2.1.1.5.0", 
-                "1.3.6.1.2.1.1.6.0"};
+                "1.3.6.1.2.1.1.1", 
+                "1.3.6.1.2.1.1.3", 
+                "1.3.6.1.2.1.1.4", 
+                "1.3.6.1.2.1.1.5", 
+                "1.3.6.1.2.1.1.6"};
 
             // Setup the target object
             if (cur_version == version3)
@@ -118,16 +117,19 @@ void DiscoveryThread::run(void)
 
             Agent::ConfigTargetFromSettings(cur_version, s, target);
             target->set_address(a[j]);
+            Agent::ConfigPduFromSettings(cur_version, s, info_oids[0], &pdu);
+            for (int k = 1; k < 5; k++)
+            { 
+                vb.set_oid(Oid(info_oids[k]));
+                pdu += vb;
+            }
 
-            // Loop and get the values
-            for (int k = 0; k < 5; k++)
+            // Now do a sync getnext
+            if (snmp->get_next(pdu, *target) == SNMP_CLASS_SUCCESS)
             {
-                Agent::ConfigPduFromSettings(cur_version, s, info_oids[k], &pdu);
-
-                // Now do a sync get
-                if (snmp->get(pdu, *target) == SNMP_CLASS_SUCCESS)
+                for (int k = 0; k < 5; k++)
                 {
-                    pdu.get_vb(vb, 0);
+                    pdu.get_vb(vb, k);
                     if (k == 1)
                     {
                         unsigned long time = 0;
