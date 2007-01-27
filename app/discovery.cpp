@@ -204,6 +204,40 @@ void Discovery::Discover(void)
     s->MainUI()->DiscoveryProgress->setRange(0, dt->num_proto);
 
     if (s->MainUI()->DiscoveryLocal->isChecked())
+    {
         dt->start();
+    }
+    else
+    {
+        IpAddress addr_from(s->MainUI()->DiscoveryFrom->text().toLatin1().data());
+        IpAddress addr_to(s->MainUI()->DiscoveryTo->text().toLatin1().data());
+
+        if (!addr_from.valid() || (addr_from[0] == 0))
+        {
+            QString err = QString("Invalid Address or DNS Name: %1")
+                                  .arg(s->MainUI()->DiscoveryFrom->text());
+            QMessageBox::critical ( NULL, "From address", err, 
+                                    QMessageBox::Ok, Qt::NoButton);
+            return;
+        }
+
+        if (!addr_to.valid() || (addr_to[0] == 0))
+        {
+            QString err = QString("Invalid Address or DNS Name: %1")
+                                  .arg(s->MainUI()->DiscoveryTo->text());
+            QMessageBox::critical ( NULL, "To address", err, 
+                                    QMessageBox::Ok, Qt::NoButton);
+            return;
+        }
+
+        if (addr_from > addr_to)
+        {
+            QString err = QString("'To address' must be greater than 'From address'");
+            QMessageBox::critical ( NULL, "Invalid address range", err, 
+                                    QMessageBox::Ok, Qt::NoButton);
+            return;
+        }
+
+    }
 }
 
