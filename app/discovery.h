@@ -3,17 +3,19 @@
 
 #include <qthread.h>
 #include "snmpb.h"
+#include "snmp_pp/snmp_pp.h"
 
 class DiscoveryThread: public QThread
 {
     Q_OBJECT
 
 public:
-    DiscoveryThread(QObject *parent):QThread(parent) { s = (Snmpb*)parent; };
+    DiscoveryThread(QObject *parent);
     void run();
 
 public:
     int num_proto;
+    int num_addresses;
 
 signals:
     void SendAgent(QStringList agent_info);
@@ -21,7 +23,11 @@ signals:
     void SignalProgress(int value);
 
 protected:
+    void QueryAgentInfo(UdpAddress a, snmp_version v);
+
     Snmpb *s;
+    Snmp *snmp;
+    int status;
 };
 
 class Discovery: public QObject
