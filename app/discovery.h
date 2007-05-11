@@ -5,6 +5,18 @@
 #include "snmpb.h"
 #include "snmp_pp/snmp_pp.h"
 
+class DiscoveryThread;
+
+class DiscoverySnmp: public Snmp
+{
+public:
+    DiscoverySnmp(int &status):Snmp(status) {};
+
+    void discover(const UdpAddress &start_addr, int num_addr,
+                  const int timeout_sec, const snmp_version version,
+                  DiscoveryThread* thread);
+};
+
 class DiscoveryThread: public QThread
 {
     Q_OBJECT
@@ -12,6 +24,8 @@ class DiscoveryThread: public QThread
 public:
     DiscoveryThread(QObject *parent);
     void run();
+    void SendAgentInfo(Pdu pdu, UdpAddress a, snmp_version v);
+    void Progress(void);
 
 public:
     int num_proto;
@@ -23,11 +37,10 @@ signals:
     void SignalProgress(int value);
 
 protected:
-    void QueryAgentInfo(UdpAddress a, snmp_version v);
-
     Snmpb *s;
-    Snmp *snmp;
+    DiscoverySnmp *snmp;
     int status;
+    int current_progress;
 };
 
 class Discovery: public QObject
