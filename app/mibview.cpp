@@ -300,7 +300,7 @@ void MibViewLoader::Load(QStringList &modules)
     
     QString module;
     
-    if ( (module = modules.first()) != 0)
+    if ( modules.count() && (module = modules.first()) != 0)
     {
         for (int j=0; j < views.count(); j++)
         {
