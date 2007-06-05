@@ -2,7 +2,7 @@ To compile:
 
 # make
 
-Tested & compiles on Cygwin & Linux (FC5)
+Tested & compiles on Cygwin & Linux
 
 External packages
 ------------------

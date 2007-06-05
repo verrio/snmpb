@@ -13,7 +13,7 @@ ifeq (${os}, Cygwin)
 	sed -e 's/.*qtmain.prl/Makefile/g' makefile.snmpb >> makefile.temp
 	mv makefile.temp makefile.snmpb
 else
-	# Linux/FC5
+	# Linux
 	qmake-qt4 -makefile -o makefile.snmpb snmpb.pro
 endif
 

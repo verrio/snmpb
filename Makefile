@@ -33,7 +33,7 @@ libsmi/lib/.libs/libsmi.a: libsmi/Makefile
 endif
 
 libsmi/Makefile:
-	# Linux FC5
+	# Linux
 	cd libsmi; automake-1.4; ./configure --disable-shared --with-pathseparator=';' --with-dirseparator='/' --with-smipath=${INSTALL_PREFIX}'/share/apps/snmpb/mibs;'${INSTALL_PREFIX}'/share/apps/snmpb/pibs'
 
 qwt/lib/libqwt.a: qwt/Makefile
@@ -43,7 +43,7 @@ qwt/Makefile:
 ifeq (${os}, Cygwin)
 	cd qwt; export MINGW_IN_SHELL=1; qmake qwt.pro
 else
-	# Linux FC5
+	# Linux
 	cd qwt; qmake-qt4 qwt.pro
 endif
 
