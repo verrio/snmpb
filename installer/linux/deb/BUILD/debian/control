@@ -1,0 +1,12 @@
+Source: snmpb
+Section: unknown
+Priority: extra
+Maintainer: root <snmpb1@gmail.com>
+Build-Depends: debhelper (>= 5)
+Standards-Version: 3.7.2
+
+Package: snmpb
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: <insert up to 60 chars description>
+ <insert long description, indented with spaces>
