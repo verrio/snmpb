@@ -1,12 +1,17 @@
 Source: snmpb
-Section: unknown
+Section: Applications/Internet 
 Priority: extra
-Maintainer: root <snmpb1@gmail.com>
+Maintainer: Martin Jolicoeur <snmpb1@gmail.com>
 Build-Depends: debhelper (>= 5)
 Standards-Version: 3.7.2
 
 Package: snmpb
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: <insert up to 60 chars description>
- <insert long description, indented with spaces>
+Depends: ${shlibs:Depends}
+Description: Graphical SNMP MIB browser written in QT. 
+SnmpB is an SNMP (Simple Network Management Protocol) MIB
+browser written in QT. It supports snmpv1, snmpv2c & snmpv3.
+
+SnmpB can browse/load/add MIB files and can query SNMP
+agents. It also supports agent discovery and graph plotting.
+
