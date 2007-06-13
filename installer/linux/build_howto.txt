@@ -28,5 +28,5 @@ This will install the package by default in /usr.
 Change the ROOT_INSTALL value in the deb/BUILD/debian/rules file to change this.
 
 Note: to install the package, cd deb then, as root, 
-issue the command: dpkg -i snmpb_x.x.x.i386.deb
+issue the command: dpkg -i snmpb_x.x.x_i386.deb
 
