@@ -2,14 +2,31 @@ How to build a binary rpm for snmpb
 ------------------------------------
 
 1- log in a root
-2- cd SPECS
+2- cd rpm/SPECS
 3- rpmbuild -bb snmpb.spec
 
 This will build the package and create a .rpm 
-file in the local RPMS/i386 directory.
+file in the local rpm/RPMS/i386 directory.
 
 This will install the package by default in /usr.
-Change the _prefix value in the spec file to change this.
+Change the _prefix value in the snmpb.spec spec file to change this.
 
 Note: to install the package, cd RPMS/i386 then, as root, 
 issue the command: rpm -i snmpb-x.x.x.i386.rpm
+
+How to build a binary deb for snmpb
+------------------------------------
+
+1- log in a root
+2- cd deb/BUILD 
+3- dpkg-buildpackage
+
+This will build the package and create a .deb
+file in the local deb/ directory.
+
+This will install the package by default in /usr.
+Change the ROOT_INSTALL value in the deb/BUILD/debian/rules file to change this.
+
+Note: to install the package, cd deb then, as root, 
+issue the command: dpkg -i snmpb_x.x.x.i386.deb
+
