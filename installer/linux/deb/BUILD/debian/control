@@ -11,7 +11,7 @@ Depends: ${shlibs:Depends}
 Description: Graphical SNMP MIB browser written in QT. 
  SnmpB is an SNMP (Simple Network Management Protocol) MIB
  browser written in QT. It supports snmpv1, snmpv2c & snmpv3.
-  
+ - 
  SnmpB can browse/load/add MIB files and can query SNMP
  agents. It also supports agent discovery and graph plotting.
  
