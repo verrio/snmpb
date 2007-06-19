@@ -39,7 +39,10 @@ SOURCES	+= ../snmp++/src/address.cpp \
     markerwidget.cpp \
     mibeditor.cpp \
     logsnmpb.cpp \
-    discovery.cpp
+    discovery.cpp \
+    agentprofile.cpp \
+    usmprofile.cpp \
+    preferences.cpp
 HEADERS	+= snmpb.h \
     mibnode.h \
 	mibview.h \
@@ -52,14 +55,17 @@ HEADERS	+= snmpb.h \
     markerwidget.h \
     mibeditor.h \
     logsnmpb.h \
-    discovery.h
+    discovery.h \
+    agentprofile.h \
+    usmprofile.h \
+    preferences.h
 unix {
   UI_DIR = .ui
   MOC_DIR = .moc
   OBJECTS_DIR = .obj
 }
-FORMS	= mainw.ui
-TEMPLATE	=app
+FORMS	= mainw.ui agentprofile.ui usmprofile.ui preferences.ui
+TEMPLATE	= app
 CONFIG	+= qt warn_on
 win32:CONFIG += release
 win32:DEFINES	+= WIN32

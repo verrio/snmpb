@@ -1833,21 +1833,6 @@
      <height>29</height>
     </rect>
    </property>
-   <widget class="QMenu" name="helpMenu" >
-    <property name="title" >
-     <string>&amp;Help</string>
-    </property>
-    <addaction name="helpContentsAction" />
-    <addaction name="helpIndexAction" />
-    <addaction name="separator" />
-    <addaction name="helpAboutAction" />
-   </widget>
-   <widget class="QMenu" name="PopupMenuEditor" >
-    <property name="title" >
-     <string>&amp;Options</string>
-    </property>
-    <addaction name="optionsHorizontal_splitAction" />
-   </widget>
    <widget class="QMenu" name="fileMenu" >
     <property name="title" >
      <string>&amp;File</string>
@@ -1863,8 +1848,27 @@
     <addaction name="separator" />
     <addaction name="fileExitAction" />
    </widget>
+   <widget class="QMenu" name="helpMenu" >
+    <property name="title" >
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="helpContentsAction" />
+    <addaction name="helpIndexAction" />
+    <addaction name="separator" />
+    <addaction name="helpAboutAction" />
+   </widget>
+   <widget class="QMenu" name="optionsMenu" >
+    <property name="title" >
+     <string>&amp;Options</string>
+    </property>
+    <addaction name="actionHorizontalSplit" />
+    <addaction name="actionManageAgentProfiles" />
+    <addaction name="actionManageUSMProfiles" />
+    <addaction name="separator" />
+    <addaction name="actionPreferences" />
+   </widget>
    <addaction name="fileMenu" />
-   <addaction name="PopupMenuEditor" />
+   <addaction name="optionsMenu" />
    <addaction name="helpMenu" />
   </widget>
   <action name="fileNewAction" >
@@ -1981,7 +1985,7 @@
     <string/>
    </property>
   </action>
-  <action name="optionsHorizontal_splitAction" >
+  <action name="actionHorizontalSplit" >
    <property name="checkable" >
     <bool>true</bool>
    </property>
@@ -2005,21 +2009,24 @@
     <string>&amp;Extract MIB from RFC...</string>
    </property>
   </action>
+  <action name="actionManageAgentProfiles" >
+   <property name="text" >
+    <string>&amp;Manage Agent Profiles...</string>
+   </property>
+  </action>
+  <action name="actionManageUSMProfiles" >
+   <property name="text" >
+    <string>Manage SNMPv3 USM Profiles...</string>
+   </property>
+  </action>
+  <action name="actionPreferences" >
+   <property name="text" >
+    <string>Preferences...</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11" />
  <customwidgets>
-  <customwidget>
-   <class>QColorComboBox</class>
-   <extends>QComboBox</extends>
-   <header>comboboxes.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>QPenWidthComboBox</class>
-   <extends>QComboBox</extends>
-   <header>comboboxes.h</header>
-   <container>1</container>
-  </customwidget>
   <customwidget>
    <class>QPenStyleComboBox</class>
    <extends>QComboBox</extends>
@@ -2042,6 +2049,18 @@
    <class>MarkerWidget</class>
    <extends>QWidget</extends>
    <header>markerwidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QColorComboBox</class>
+   <extends>QComboBox</extends>
+   <header>comboboxes.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QPenWidthComboBox</class>
+   <extends>QComboBox</extends>
+   <header>comboboxes.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

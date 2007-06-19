@@ -11,6 +11,10 @@
 #include "mibeditor.h"
 #include "discovery.h"
 
+#include "agentprofile.h"
+#include "usmprofile.h"
+#include "preferences.h"
+
 #define SNMPB_CONFIG_DIR         ".snmpb"
 #define MIB_CONFIG_FILE          "mib.conf"
 #define BOOT_COUNTER_CONFIG_FILE "boot_counter.conf"
@@ -47,8 +51,14 @@ Snmpb::Snmpb(QMainWindow* mw)
     // Connect some signals
     connect( w.TabW, SIGNAL( currentChanged(int) ),
              this, SLOT( TreeTabSelected(int) ) );
-    connect( w.optionsHorizontal_splitAction, SIGNAL( toggled(bool) ),
+    connect( w.actionHorizontalSplit, SIGNAL( toggled(bool) ),
              this, SLOT( HorizontalSplit(bool) ) );
+    connect( w.actionManageAgentProfiles, SIGNAL( triggered(bool) ),
+             this, SLOT( ManageAgentProfiles(bool) ) );
+    connect( w.actionManageUSMProfiles, SIGNAL( triggered(bool) ),
+             this, SLOT( ManageUSMProfiles(bool) ) );
+    connect( w.actionPreferences, SIGNAL( triggered(bool) ),
+             this, SLOT( ManagePreferences(bool) ) );
 
     // Register every MIB tree to the MIB loader object
     w.MIBTree->RegisterToLoader(&loader);
@@ -60,6 +70,21 @@ Snmpb::Snmpb(QMainWindow* mw)
 Ui_MainW* Snmpb::MainUI(void)
 {
     return (&w);
+}
+
+Ui_AgentProfile* Snmpb::AgentProfileUI(void)
+{
+    return (&ap);
+}
+
+Ui_USMProfile* Snmpb::USMProfileUI(void)
+{
+    return (&up);
+}
+
+Ui_Preferences* Snmpb::PreferencesUI(void)
+{
+    return (&p);
 }
 
 Agent* Snmpb::AgentObj(void)
@@ -131,6 +156,71 @@ QString Snmpb::GetUsmUsersConfigFile(void)
 void Snmpb::HorizontalSplit(bool checked)
 {
     w.QuerySplitter->setOrientation(checked==FALSE?Qt::Horizontal:Qt::Vertical);
+}
+
+void Snmpb::ManageAgentProfiles(bool)
+{
+    QDialog w;
+
+    ap.setupUi(&w);
+
+    // Set some properties for the Agent Profile TreeView
+    ap.ProfileTree->header()->hide();
+    ap.ProfileTree->setSortingEnabled( FALSE );
+    ap.ProfileTree->header()->setSortIndicatorShown( FALSE );
+    ap.ProfileTree->setLineWidth( 2 );
+    ap.ProfileTree->setAllColumnsShowFocus( FALSE );
+    ap.ProfileTree->setFrameShape(QFrame::WinPanel);
+    ap.ProfileTree->setFrameShadow(QFrame::Plain);
+    ap.ProfileTree->setRootIsDecorated( TRUE );
+
+    // TODO: loop & load all stored agent profiles
+    AgentProfile localhost(this);
+
+    w.exec();
+}
+
+void Snmpb::ManageUSMProfiles(bool)
+{
+    QDialog w;
+
+    up.setupUi(&w);
+
+    // Set some properties for the USM Profile TreeView
+    up.ProfileTree->header()->hide();
+    up.ProfileTree->setSortingEnabled( FALSE );
+    up.ProfileTree->header()->setSortIndicatorShown( FALSE );
+    up.ProfileTree->setLineWidth( 2 );
+    up.ProfileTree->setAllColumnsShowFocus( FALSE );
+    up.ProfileTree->setFrameShape(QFrame::WinPanel);
+    up.ProfileTree->setFrameShadow(QFrame::Plain);
+    up.ProfileTree->setRootIsDecorated( TRUE );
+
+    // TODO: loop & load all stored USM profiles
+    USMProfile default_usm(this);
+
+    w.exec();
+}
+
+void Snmpb::ManagePreferences(bool)
+{
+    QDialog w;
+
+    p.setupUi(&w);
+
+    // Set some properties for the Preferences TreeView
+    p.PreferencesTree->header()->hide();
+    p.PreferencesTree->setSortingEnabled( FALSE );
+    p.PreferencesTree->header()->setSortIndicatorShown( FALSE );
+    p.PreferencesTree->setLineWidth( 2 );
+    p.PreferencesTree->setAllColumnsShowFocus( FALSE );
+    p.PreferencesTree->setFrameShape(QFrame::WinPanel);
+    p.PreferencesTree->setFrameShadow(QFrame::Plain);
+    p.PreferencesTree->setRootIsDecorated( TRUE );
+
+    Preferences prefs(this);
+
+    w.exec();
 }
 
 void Snmpb::TreeTabSelected( int index )

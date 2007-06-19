@@ -24,7 +24,6 @@ BasicMibView::BasicMibView (QWidget * parent) : QTreeWidget(parent)
     setHorizontalScrollBarPolicy ( Qt::ScrollBarAlwaysOn );
     header()->setSortIndicatorShown( FALSE );
     setLineWidth( 2 );
-    setFrameShadow( MibView::Plain );
     setAllColumnsShowFocus( FALSE );
     setFrameShape(QFrame::WinPanel);
     setFrameShadow(QFrame::Plain);

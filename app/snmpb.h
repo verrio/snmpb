@@ -2,6 +2,9 @@
 #define SNMPB_H
 
 #include "ui_mainw.h"
+#include "ui_agentprofile.h"
+#include "ui_usmprofile.h"
+#include "ui_preferences.h"
 
 class MibModule;
 class Trap;
@@ -18,6 +21,9 @@ class Snmpb: public QObject
 public:
     Snmpb(QMainWindow *mw);
     Ui_MainW* MainUI(void);
+    Ui_AgentProfile* AgentProfileUI(void);
+    Ui_USMProfile* USMProfileUI(void);
+    Ui_Preferences* PreferencesUI(void);
     Agent* AgentObj(void);
     Trap* TrapObj(void);
     MibViewLoader* MibLoaderObj(void);
@@ -31,9 +37,15 @@ public:
 public slots:
     void TreeTabSelected(int index);
     void HorizontalSplit(bool checked);
+    void ManageAgentProfiles(bool);
+    void ManageUSMProfiles(bool);
+    void ManagePreferences(bool);
 
 private:
     Ui_MainW w;
+    Ui_AgentProfile ap;
+    Ui_USMProfile up;
+    Ui_Preferences p;
 
     MibModule *modules;
     MibViewLoader loader;
