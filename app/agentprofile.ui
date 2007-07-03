@@ -75,7 +75,7 @@
           <item row="0" column="1" >
            <widget class="QLineEdit" name="ProfileName" >
             <property name="text" >
-             <string>localhost</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -104,14 +104,14 @@
           <item row="0" column="1" >
            <widget class="QLineEdit" name="Address" >
             <property name="text" >
-             <string>localhost</string>
+             <string/>
             </property>
            </widget>
           </item>
           <item row="1" column="1" >
            <widget class="QLineEdit" name="Port" >
             <property name="text" >
-             <string>161</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -207,7 +207,7 @@
              <string>SNMPV2</string>
             </property>
             <property name="checked" >
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -217,7 +217,7 @@
              <string>SNMPV1</string>
             </property>
             <property name="checked" >
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
             <property name="tristate" >
              <bool>false</bool>
@@ -301,7 +301,7 @@ p, li { white-space: pre-wrap; }
           <item row="0" column="1" >
            <widget class="QLineEdit" name="ReadComm" >
             <property name="text" >
-             <string>public</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -315,7 +315,7 @@ p, li { white-space: pre-wrap; }
           <item row="1" column="1" >
            <widget class="QLineEdit" name="WriteComm" >
             <property name="text" >
-             <string>private</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -401,16 +401,16 @@ p, li { white-space: pre-wrap; }
            <number>6</number>
           </property>
           <item row="1" column="1" >
-           <widget class="QLineEdit" name="MaxRepetitions" >
-            <property name="text" >
-             <string>10</string>
+           <widget class="QSpinBox" name="MaxRepetitions" >
+            <property name="value" >
+             <number>10</number>
             </property>
            </widget>
           </item>
           <item row="0" column="1" >
-           <widget class="QLineEdit" name="NonRepeaters" >
-            <property name="text" >
-             <string>0</string>
+           <widget class="QSpinBox" name="NonRepeaters" >
+            <property name="value" >
+             <number>0</number>
             </property>
            </widget>
           </item>

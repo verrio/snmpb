@@ -14,6 +14,7 @@ public:
 
 protected slots:
     void SelectedPreferences( QTreeWidgetItem * item, QTreeWidgetItem * old);
+    void HorizontalSplit(bool checked);
 
 private:
     Snmpb *s;

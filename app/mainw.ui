@@ -1861,7 +1861,6 @@
     <property name="title" >
      <string>&amp;Options</string>
     </property>
-    <addaction name="actionHorizontalSplit" />
     <addaction name="actionManageAgentProfiles" />
     <addaction name="actionManageUSMProfiles" />
     <addaction name="separator" />
@@ -1985,20 +1984,6 @@
     <string/>
    </property>
   </action>
-  <action name="actionHorizontalSplit" >
-   <property name="checkable" >
-    <bool>true</bool>
-   </property>
-   <property name="text" >
-    <string>Hori&amp;zontal split</string>
-   </property>
-   <property name="iconText" >
-    <string>&amp;Horizontal split</string>
-   </property>
-   <property name="shortcut" >
-    <string>Ctrl+H</string>
-   </property>
-  </action>
   <action name="actionVerifyMIB" >
    <property name="text" >
     <string>&amp;Verify MIB syntax</string>
@@ -2028,6 +2013,18 @@
  <layoutdefault spacing="6" margin="11" />
  <customwidgets>
   <customwidget>
+   <class>QColorComboBox</class>
+   <extends>QComboBox</extends>
+   <header>comboboxes.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QPenWidthComboBox</class>
+   <extends>QComboBox</extends>
+   <header>comboboxes.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>QPenStyleComboBox</class>
    <extends>QComboBox</extends>
    <header>comboboxes.h</header>
@@ -2049,18 +2046,6 @@
    <class>MarkerWidget</class>
    <extends>QWidget</extends>
    <header>markerwidget.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>QColorComboBox</class>
-   <extends>QComboBox</extends>
-   <header>comboboxes.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>QPenWidthComboBox</class>
-   <extends>QComboBox</extends>
-   <header>comboboxes.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

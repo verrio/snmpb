@@ -14,6 +14,13 @@ Preferences::Preferences(Snmpb *snmpb)
     connect( s->PreferencesUI()->PreferencesTree, 
              SIGNAL( currentItemChanged( QTreeWidgetItem *, QTreeWidgetItem * ) ),
              this, SLOT( SelectedPreferences( QTreeWidgetItem *, QTreeWidgetItem * ) ) );
+    connect( s->PreferencesUI()->HorizontalSplit, SIGNAL( toggled(bool) ),
+             this, SLOT( HorizontalSplit(bool) ) );
+}
+
+void Preferences::HorizontalSplit(bool checked)
+{
+    s->MainUI()->QuerySplitter->setOrientation(checked==FALSE?Qt::Horizontal:Qt::Vertical);
 }
 
 void Preferences::SelectedPreferences(QTreeWidgetItem * item, QTreeWidgetItem *)
