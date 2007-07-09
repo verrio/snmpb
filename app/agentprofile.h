@@ -54,11 +54,17 @@ public:
     int GetNonRepeaters(void);
     void SetBulk(int mr, int nr);
 
-    void SetUserName(void);
-    QString GetUserName(void);
+    void SetSecName(void);
+    QString GetSecName(void);
     void SetSecLevel(void);
     int GetSecLevel(void);
-    void SetV3(QString u, int l);
+    void SetUser(QString u, int l);
+
+    void SetContextName(void);
+    QString GetContextName(void);
+    void SetContextEngineID(void);
+    QString GetContextEngineID(void);
+    void SetContext(QString n, QString id);
 
 protected:
     Ui_AgentProfile *ap;
@@ -80,8 +86,10 @@ protected:
     QString writecomm;
     int maxrepetitions;
     int nonrepeaters;
-    QString username;
+    QString secname;
     int seclevel;
+    QString contextname;
+    QString contextengineid;
 };
 
 class AgentProfileManager: public QObject
@@ -109,8 +117,10 @@ protected slots:
     void SetWriteComm(void);
     void SetMaxRepetitions(void);
     void SetNonRepeaters(void);
-    void SetUserName(void);
+    void SetSecName(void);
     void SetSecLevel(void);
+    void SetContextName(void);
+    void SetContextEngineID(void);
     void SelectedAgentProfile( QTreeWidgetItem * item, QTreeWidgetItem * old);
     void AgentProfileNameChange(QTreeWidgetItem * item, int column);
     void Add(void);

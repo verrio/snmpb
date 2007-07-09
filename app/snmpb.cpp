@@ -41,7 +41,6 @@ Snmpb::Snmpb(QMainWindow* mw)
 {
     w.setupUi(mw);
 
-    pm = new AgentProfileManager(this);
     modules = new MibModule(this);
     trap = new Trap(this);
     logsnmpb = new LogSnmpb(this); // Must be created before the agent object
@@ -49,6 +48,8 @@ Snmpb::Snmpb(QMainWindow* mw)
     graph = new Graph(this);
     editor = new MibEditor(this);
     discovery = new Discovery(this);
+    apm = new AgentProfileManager(this);
+    upm = new USMProfileManager(this);
 
     // Connect some signals
     connect( w.TabW, SIGNAL( currentChanged(int) ),
@@ -70,11 +71,6 @@ Snmpb::Snmpb(QMainWindow* mw)
 Ui_MainW* Snmpb::MainUI(void)
 {
     return (&w);
-}
-
-Ui_USMProfile* Snmpb::USMProfileUI(void)
-{
-    return (&up);
 }
 
 Ui_Preferences* Snmpb::PreferencesUI(void)
@@ -100,6 +96,16 @@ MibViewLoader* Snmpb::MibLoaderObj(void)
 MibModule* Snmpb::MibModuleObj(void)
 {
     return (modules);
+}
+
+AgentProfileManager* Snmpb::APManagerObj(void)
+{
+    return (apm);
+}
+
+USMProfileManager* Snmpb::UPManagerObj(void)
+{
+    return (upm);
 }
 
 void Snmpb::CheckForConfigFiles(void)
@@ -155,32 +161,12 @@ QString Snmpb::GetAgentsConfigFile(void)
 
 void Snmpb::ManageAgentProfiles(bool)
 {
-    pm->Execute();
+    apm->Execute();
 }
 
 void Snmpb::ManageUSMProfiles(bool)
 {
-    QDialog w;
-
-    up.setupUi(&w);
-
-    // Set some properties for the USM Profile TreeView
-    up.ProfileTree->header()->hide();
-    up.ProfileTree->setSortingEnabled( FALSE );
-    up.ProfileTree->header()->setSortIndicatorShown( FALSE );
-    up.ProfileTree->setLineWidth( 2 );
-    up.ProfileTree->setAllColumnsShowFocus( FALSE );
-    up.ProfileTree->setFrameShape(QFrame::WinPanel);
-    up.ProfileTree->setFrameShadow(QFrame::Plain);
-    up.ProfileTree->setRootIsDecorated( TRUE );
-
-    // TODO: loop & load all stored USM profiles
-    USMProfile default_usm(this);
-
-    if(w.exec() == QDialog::Accepted)
-    {
-        printf("Saving USM profiles ...\n");
-    }
+    upm->Execute();
 }
 
 void Snmpb::ManagePreferences(bool)

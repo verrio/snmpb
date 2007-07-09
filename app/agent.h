@@ -27,6 +27,8 @@ public:
     // Used by graph update timer
     unsigned long GetSyncValue(const QString& oid);
 
+    inline USM *GetUSMObj(void) { return v3mp->get_usm(); };
+
 protected:
     int Setup(const QString& oid, SnmpTarget **t, Pdu **p);
             

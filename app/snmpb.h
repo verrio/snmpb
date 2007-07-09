@@ -13,6 +13,7 @@ class MibEditor;
 class LogSnmpb;
 class Discovery;
 class AgentProfileManager;
+class USMProfileManager;
 
 class Snmpb: public QObject
 {
@@ -21,12 +22,13 @@ class Snmpb: public QObject
 public:
     Snmpb(QMainWindow *mw);
     Ui_MainW* MainUI(void);
-    Ui_USMProfile* USMProfileUI(void);
     Ui_Preferences* PreferencesUI(void);
     Agent* AgentObj(void);
     Trap* TrapObj(void);
     MibViewLoader* MibLoaderObj(void);
     MibModule* MibModuleObj(void);
+    AgentProfileManager* APManagerObj(void);
+    USMProfileManager* UPManagerObj(void);
 
     void CheckForConfigFiles(void);
     QString GetBootCounterConfigFile(void);
@@ -42,8 +44,8 @@ public slots:
 
 private:
     Ui_MainW w;
-    AgentProfileManager *pm;
-    Ui_USMProfile up;
+    AgentProfileManager *apm;
+    USMProfileManager *upm;
     Ui_Preferences p;
 
     MibModule *modules;

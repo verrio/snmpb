@@ -1,4 +1,5 @@
 #include "agentprofile.h"
+#include "usmprofile.h"
 #include <qmessagebox.h>
 
 AgentProfileManager::AgentProfileManager(Snmpb *snmpb)
@@ -41,17 +42,32 @@ AgentProfileManager::AgentProfileManager(Snmpb *snmpb)
              this, SLOT( ProtocolV2Support(bool) ) );
     connect( ap.V3, SIGNAL( toggled(bool) ),
              this, SLOT( ProtocolV3Support(bool) ) );
-    connect( ap.ProfileName, SIGNAL( editingFinished() ), this, SLOT ( SetProfileName() ) );
-    connect( ap.Address, SIGNAL( editingFinished() ), this, SLOT ( SetAddress() ) );
-    connect( ap.Port, SIGNAL( editingFinished() ), this, SLOT ( SetPort() ) );
-    connect( ap.Retries, SIGNAL( valueChanged( int ) ), this, SLOT ( SetRetries() ) );
-    connect( ap.Timeout, SIGNAL( valueChanged( int ) ), this, SLOT ( SetTimeout() ) );
-    connect( ap.ReadComm, SIGNAL( editingFinished() ), this, SLOT ( SetReadComm() ) );
-    connect( ap.WriteComm, SIGNAL( editingFinished() ), this, SLOT ( SetWriteComm() ) );
-    connect( ap.MaxRepetitions, SIGNAL( valueChanged( int ) ), this, SLOT ( SetMaxRepetitions() ) );
-    connect( ap.NonRepeaters, SIGNAL( valueChanged( int ) ), this, SLOT ( SetNonRepeaters() ) );
-    connect( ap.UserName, SIGNAL( currentIndexChanged( int ) ), this, SLOT ( SetUserName() ) );
-    connect( ap.SecLevel, SIGNAL( currentIndexChanged( int ) ), this, SLOT ( SetSecLevel() ) );
+    connect( ap.ProfileName, SIGNAL( editingFinished() ), 
+             this, SLOT ( SetProfileName() ) );
+    connect( ap.Address, SIGNAL( editingFinished() ), 
+             this, SLOT ( SetAddress() ) );
+    connect( ap.Port, SIGNAL( editingFinished() ), 
+             this, SLOT ( SetPort() ) );
+    connect( ap.Retries, SIGNAL( valueChanged( int ) ),
+             this, SLOT ( SetRetries() ) );
+    connect( ap.Timeout, SIGNAL( valueChanged( int ) ), 
+             this, SLOT ( SetTimeout() ) );
+    connect( ap.ReadComm, SIGNAL( editingFinished() ), 
+             this, SLOT ( SetReadComm() ) );
+    connect( ap.WriteComm, SIGNAL( editingFinished() ), 
+             this, SLOT ( SetWriteComm() ) );
+    connect( ap.MaxRepetitions, SIGNAL( valueChanged( int ) ), 
+             this, SLOT ( SetMaxRepetitions() ) );
+    connect( ap.NonRepeaters, SIGNAL( valueChanged( int ) ), 
+             this, SLOT ( SetNonRepeaters() ) );
+    connect( ap.SecName, SIGNAL( currentIndexChanged( int ) ), 
+             this, SLOT ( SetSecName() ) );
+    connect( ap.SecLevel, SIGNAL( currentIndexChanged( int ) ), 
+             this, SLOT ( SetSecLevel() ) );
+    connect( ap.ContextName, SIGNAL( editingFinished() ), 
+             this, SLOT ( SetContextName() ) );
+    connect( ap.ContextEngineID, SIGNAL( editingFinished() ), 
+             this, SLOT ( SetContextEngineID() ) );
 
     // Loop & load all stored agent profiles
     currentprofile = NULL; 
@@ -60,8 +76,8 @@ AgentProfileManager::AgentProfileManager(Snmpb *snmpb)
     for (int i = 0; i < size; i++)
     {
         settings->setArrayIndex(i);
-        QString name = settings->value("name").toString();
-        AgentProfile *newagent = new AgentProfile(&ap, &name);
+        QString _name = settings->value("name").toString();
+        AgentProfile *newagent = new AgentProfile(&ap, &_name);
         newagent->SetSupportedProtocol(settings->value("v1").toBool(), 
                                        settings->value("v2").toBool(), 
                                        settings->value("v3").toBool());
@@ -73,8 +89,10 @@ AgentProfileManager::AgentProfileManager(Snmpb *snmpb)
                            settings->value("writecomm").toString());
         newagent->SetBulk(settings->value("maxrepetitions").toInt(),
                           settings->value("nonrepeaters").toInt());
-        newagent->SetV3(settings->value("username").toString(), 
-                        settings->value("seclevel").toInt());
+        newagent->SetUser(settings->value("secname").toString(), 
+                          settings->value("seclevel").toInt());
+        newagent->SetContext(settings->value("contextname").toString(), 
+                             settings->value("contextengineid").toString());
         agents.append(newagent);
     }
     settings->endArray();
@@ -85,9 +103,12 @@ AgentProfileManager::AgentProfileManager(Snmpb *snmpb)
 
 void AgentProfileManager::Execute (void)
 {
+    // Fill-in loaded user names
+    ap.SecName->clear();
+    ap.SecName->addItems(s->UPManagerObj()->GetUsersList());
+
     if(apw.exec() == QDialog::Accepted)
     {
-        printf("Saving agent profiles ...\n");
         bool v1, v2, v3;
         settings->beginWriteArray("agents");
         settings->remove("");
@@ -107,8 +128,10 @@ void AgentProfileManager::Execute (void)
             settings->setValue("writecomm", agents[i]->GetWriteComm());
             settings->setValue("maxrepetitions", agents[i]->GetMaxRepetitions());
             settings->setValue("nonrepeaters", agents[i]->GetNonRepeaters());
-            settings->setValue("username", agents[i]->GetUserName());
+            settings->setValue("secname", agents[i]->GetSecName());
             settings->setValue("seclevel", agents[i]->GetSecLevel());
+            settings->setValue("contextname", agents[i]->GetContextName());
+            settings->setValue("contextengineid", agents[i]->GetContextEngineID());
         }
         settings->endArray();
     }
@@ -186,16 +209,28 @@ void AgentProfileManager::SetNonRepeaters(void)
         currentprofile->SetNonRepeaters();
 }
 
-void AgentProfileManager::SetUserName(void)
+void AgentProfileManager::SetSecName(void)
 {
     if (currentprofile)
-        currentprofile->SetUserName();
+        currentprofile->SetSecName();
 }
 
 void AgentProfileManager::SetSecLevel(void)
 {
     if (currentprofile)
         currentprofile->SetSecLevel();
+}
+
+void AgentProfileManager::SetContextName(void)
+{
+    if (currentprofile)
+        currentprofile->SetContextName();
+}
+
+void AgentProfileManager::SetContextEngineID(void)
+{
+    if (currentprofile)
+        currentprofile->SetContextEngineID();
 }
 
 void AgentProfileManager::ContextMenu ( const QPoint &pos )
@@ -217,7 +252,8 @@ void AgentProfileManager::Add(void)
     newagent->SetRetriesTimeout(1, 3);
     newagent->SetComms("public", "private");
     newagent->SetBulk(10, 0);
-    newagent->SetV3("", 0);
+    newagent->SetUser("", 0);
+    newagent->SetContext("", "");
     agents.append(newagent);
 }
 
@@ -437,8 +473,10 @@ int AgentProfile::SelectAgentProfile(QTreeWidgetItem * item)
     {
         ap->ProfileProps->setCurrentIndex(3);
 
-        ap->UserName->setCurrentIndex(0); // TODO
+        ap->SecName->setCurrentIndex(ap->SecName->findText(secname));
         ap->SecLevel->setCurrentIndex(seclevel);
+        ap->ContextName->setText(contextname);
+        ap->ContextEngineID->setText(contextengineid);
 
         return 1;
     }
@@ -627,14 +665,14 @@ void AgentProfile::SetBulk(int mr, int nr)
     nonrepeaters = nr;
 }
 
-void AgentProfile::SetUserName(void)
+void AgentProfile::SetSecName(void)
 {
-    username = ap->UserName->itemText(ap->UserName->currentIndex());
+    secname = ap->SecName->itemText(ap->SecName->currentIndex());
 }
 
-QString AgentProfile::GetUserName(void)
+QString AgentProfile::GetSecName(void)
 {
-    return username;
+    return secname;
 }
 
 void AgentProfile::SetSecLevel(void)
@@ -647,9 +685,35 @@ int AgentProfile::GetSecLevel(void)
     return seclevel;
 }
 
-void AgentProfile::SetV3(QString u, int l)
+void AgentProfile::SetUser(QString u, int l)
 {
-    username = u;
+    secname = u;
     seclevel = l;
+}
+
+void AgentProfile::SetContextName(void)
+{
+    contextname = ap->ContextName->text();
+}
+
+QString AgentProfile::GetContextName(void)
+{
+    return contextname;
+}
+
+void AgentProfile::SetContextEngineID(void)
+{
+    contextengineid = ap->ContextEngineID->text();
+}
+
+QString AgentProfile::GetContextEngineID(void)
+{
+    return contextengineid;
+}
+
+void AgentProfile::SetContext(QString n, QString id)
+{
+    contextname = n;
+    contextengineid = id;
 }
 
