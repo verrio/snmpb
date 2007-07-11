@@ -4,40 +4,84 @@ Preferences::Preferences(Snmpb *snmpb)
 {
     s = snmpb;
 
-    mibtree = new QTreeWidgetItem(s->PreferencesUI()->PreferencesTree);
+    settings = new QSettings(s->GetPrefsConfigFile(), QSettings::IniFormat, this);
+
+    p.setupUi(&pw);
+
+    // Set some properties for the Preferences TreeView
+    p.PreferencesTree->header()->hide();
+    p.PreferencesTree->setSortingEnabled( FALSE );
+    p.PreferencesTree->header()->setSortIndicatorShown( FALSE );
+    p.PreferencesTree->setLineWidth( 2 );
+    p.PreferencesTree->setAllColumnsShowFocus( FALSE );
+    p.PreferencesTree->setFrameShape(QFrame::WinPanel);
+    p.PreferencesTree->setFrameShadow(QFrame::Plain);
+    p.PreferencesTree->setRootIsDecorated( TRUE );
+
+    mibtree = new QTreeWidgetItem(p.PreferencesTree);
     mibtree->setText(0, "MIB Tree");
-    modules = new QTreeWidgetItem(s->PreferencesUI()->PreferencesTree);
+    modules = new QTreeWidgetItem(p.PreferencesTree);
     modules->setText(0, "Modules");
-    traps = new QTreeWidgetItem(s->PreferencesUI()->PreferencesTree);
+    traps = new QTreeWidgetItem(p.PreferencesTree);
     traps->setText(0, "Traps");
 
-    connect( s->PreferencesUI()->PreferencesTree, 
+    connect( p.PreferencesTree, 
              SIGNAL( currentItemChanged( QTreeWidgetItem *, QTreeWidgetItem * ) ),
              this, SLOT( SelectedPreferences( QTreeWidgetItem *, QTreeWidgetItem * ) ) );
-    connect( s->PreferencesUI()->HorizontalSplit, SIGNAL( toggled(bool) ),
-             this, SLOT( HorizontalSplit(bool) ) );
+    connect( p.HorizontalSplit, SIGNAL( toggled(bool) ),
+             this, SLOT( SetHorizontalSplit(bool) ) );
+    connect( p.TrapPort, SIGNAL( valueChanged( int ) ), 
+             this, SLOT ( SetTrapPort() ) );
+
+    // Load preferences from file
+    p.HorizontalSplit->setCheckState(settings->value("horizontalsplit", false)
+                                     .toBool() == true  ?Qt::Checked:Qt::Unchecked);
+    trapport = settings->value("trapport", 161).toInt();
+
+    p.PreferencesTree->setCurrentItem(p.PreferencesTree->topLevelItem(0));
 }
 
-void Preferences::HorizontalSplit(bool checked)
+void Preferences::Execute (void)
 {
-    s->MainUI()->QuerySplitter->setOrientation(checked==FALSE?Qt::Horizontal:Qt::Vertical);
+    if(pw.exec() == QDialog::Accepted)
+    {
+        // Save preferences
+        settings->setValue("horizontalsplit", horizontalsplit);
+        settings->setValue("trapport", trapport);
+    }
+}
+
+void Preferences::SetHorizontalSplit(bool checked)
+{
+    horizontalsplit = checked;
+    s->MainUI()->QuerySplitter->setOrientation(checked==true?Qt::Vertical:Qt::Horizontal);
+}
+
+void Preferences::SetTrapPort(void)
+{
+    trapport = p.TrapPort->value();
 }
 
 void Preferences::SelectedPreferences(QTreeWidgetItem * item, QTreeWidgetItem *)
 {
     if (item == mibtree)
     {
-        s->PreferencesUI()->PreferencesProps->setCurrentIndex(0);
+        p.PreferencesProps->setCurrentIndex(0);
+
+        p.HorizontalSplit->setCheckState(horizontalsplit==true?Qt::Checked:Qt::Unchecked);
+
     }
     else
     if (item == modules)
     {
-        s->PreferencesUI()->PreferencesProps->setCurrentIndex(1);
+        p.PreferencesProps->setCurrentIndex(1);
     }
     else
     if (item == traps)
     {
-        s->PreferencesUI()->PreferencesProps->setCurrentIndex(2);
+        p.PreferencesProps->setCurrentIndex(2);
+
+        p.TrapPort->setValue(trapport);
     }
 }
 

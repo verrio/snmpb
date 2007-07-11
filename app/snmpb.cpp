@@ -20,6 +20,7 @@
 #define BOOT_COUNTER_CONFIG_FILE "boot_counter.conf"
 #define USM_USERS_CONFIG_FILE    "usm_users.conf"
 #define AGENTS_CONFIG_FILE       "agents.conf"
+#define PREFS_CONFIG_FILE        "preferences.conf"
 
 char default_mib_config[] = {
 "level 0\n\
@@ -50,6 +51,7 @@ Snmpb::Snmpb(QMainWindow* mw)
     discovery = new Discovery(this);
     apm = new AgentProfileManager(this);
     upm = new USMProfileManager(this);
+    prefs = new Preferences(this);
 
     // Connect some signals
     connect( w.TabW, SIGNAL( currentChanged(int) ),
@@ -71,11 +73,6 @@ Snmpb::Snmpb(QMainWindow* mw)
 Ui_MainW* Snmpb::MainUI(void)
 {
     return (&w);
-}
-
-Ui_Preferences* Snmpb::PreferencesUI(void)
-{
-    return (&p);
 }
 
 Agent* Snmpb::AgentObj(void)
@@ -106,6 +103,11 @@ AgentProfileManager* Snmpb::APManagerObj(void)
 USMProfileManager* Snmpb::UPManagerObj(void)
 {
     return (upm);
+}
+
+Preferences* Snmpb::PreferencesObj(void)
+{
+    return (prefs);
 }
 
 void Snmpb::CheckForConfigFiles(void)
@@ -159,6 +161,11 @@ QString Snmpb::GetAgentsConfigFile(void)
     return (SnmpbDir.filePath(AGENTS_CONFIG_FILE));
 }
 
+QString Snmpb::GetPrefsConfigFile(void)
+{
+    return (SnmpbDir.filePath(PREFS_CONFIG_FILE));
+}
+
 void Snmpb::ManageAgentProfiles(bool)
 {
     apm->Execute();
@@ -171,26 +178,7 @@ void Snmpb::ManageUSMProfiles(bool)
 
 void Snmpb::ManagePreferences(bool)
 {
-    QDialog w;
-
-    p.setupUi(&w);
-
-    // Set some properties for the Preferences TreeView
-    p.PreferencesTree->header()->hide();
-    p.PreferencesTree->setSortingEnabled( FALSE );
-    p.PreferencesTree->header()->setSortIndicatorShown( FALSE );
-    p.PreferencesTree->setLineWidth( 2 );
-    p.PreferencesTree->setAllColumnsShowFocus( FALSE );
-    p.PreferencesTree->setFrameShape(QFrame::WinPanel);
-    p.PreferencesTree->setFrameShadow(QFrame::Plain);
-    p.PreferencesTree->setRootIsDecorated( TRUE );
-
-    Preferences prefs(this);
-
-    if(w.exec() == QDialog::Accepted)
-    {
-        printf("Saving preferences ...\n");
-    }
+    prefs->Execute();
 }
 
 void Snmpb::TreeTabSelected( int index )
