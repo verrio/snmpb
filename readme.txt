@@ -25,6 +25,7 @@ Version: 0.4.5
 Modified file(s):
 win/Makefile.mingw
 win/config.h
+lib/smi.c "Fixed a bug on paths with spaces in smiReadConfig()"
 
 QWT is taken from http://qwt.sourceforge.net
 Version: 5.0.0rc0 (Release Candidate 0)
