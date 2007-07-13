@@ -347,7 +347,7 @@ int smiReadConfig(const char *filename, const char *tag)
 		if (strcmp(cmd, tag)) continue;
 		cmd = strtok(NULL, " \t\n\r");
 	    }
-	    arg = strtok(NULL, " \t\n\r");
+	    arg = strtok(NULL, "\t\n\r");
 	    if (!strcmp(cmd, "load")) {
 		smiLoadModule(arg);
 	    } else if (!strcmp(cmd, "path")) {
