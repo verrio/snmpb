@@ -5,6 +5,8 @@
 #include "mibview.h"
 #include "smi.h"
 
+#define PATH_SEPARATOR ';'
+
 class LoadedMibModule
 {
 public:
@@ -24,6 +26,7 @@ class MibModule: public QObject
 public:
     MibModule(Snmpb *snmpb);
     void Refresh(void);
+    void RefreshPathChange(void);
 
 public slots:
     void AddModule(void);

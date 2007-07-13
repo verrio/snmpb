@@ -5,7 +5,7 @@
 
 #include "mibmodule.h"
 
-#define PATH_SEPARATOR ';'
+
 
 LoadedMibModule::LoadedMibModule(SmiModule* mod)
 {
@@ -281,6 +281,25 @@ void MibModule::Refresh(void)
     RebuildUnloadedList();
 }
 
+
+void MibModule::RefreshPathChange(void)
+{
+    smiReadConfig(s->GetPathConfigFile().toLatin1().data(), NULL);
+
+    InitLib(1);
+
+    RebuildTotalList();
+
+    smiReadConfig(s->GetMibConfigFile().toLatin1().data(), NULL);
+
+    Wanted.clear();
+    for(SmiModule *mod = smiGetFirstModule(); 
+        mod; mod = smiGetNextModule(mod))
+        Wanted.append(mod->name);
+
+    Refresh();
+}
+
 void MibModule::InitLib(int restart)
 {
     int smiflags;
@@ -300,8 +319,9 @@ void MibModule::InitLib(int restart)
         smiInit(NULL);
         smiflags = smiGetFlags();
         smiflags |= SMI_FLAG_ERRORS;
-        // Read configuration file
+        // Read configuration files
         smiReadConfig(s->GetMibConfigFile().toLatin1().data(), NULL);
+        smiReadConfig(s->GetPathConfigFile().toLatin1().data(), NULL);
     }
 
     smiSetFlags(smiflags);

@@ -17,15 +17,14 @@
 
 #define SNMPB_CONFIG_DIR         ".snmpb"
 #define MIB_CONFIG_FILE          "mib.conf"
+#define PATH_CONFIG_FILE         "path.conf"
 #define BOOT_COUNTER_CONFIG_FILE "boot_counter.conf"
 #define USM_USERS_CONFIG_FILE    "usm_users.conf"
 #define AGENTS_CONFIG_FILE       "agents.conf"
 #define PREFS_CONFIG_FILE        "preferences.conf"
 
 char default_mib_config[] = {
-"level 0\n\
-\n\
-load IF-MIB\n\
+"load IF-MIB\n\
 load RFC1213-MIB\n\
 load SNMP-FRAMEWORK-MIB\n\
 load SNMP-NOTIFICATION-MIB\n\
@@ -42,9 +41,12 @@ Snmpb::Snmpb(QMainWindow* mw)
 {
     w.setupUi(mw);
 
+    connect(&loader, SIGNAL ( LogError(QString) ),
+            w.LogOutput, SLOT ( append (QString) ));
+
+    logsnmpb = new LogSnmpb(this); // Must be created before the agent object
     modules = new MibModule(this);
     trap = new Trap(this);
-    logsnmpb = new LogSnmpb(this); // Must be created before the agent object
     agent = new Agent(this);
     graph = new Graph(this);
     editor = new MibEditor(this);
@@ -55,7 +57,7 @@ Snmpb::Snmpb(QMainWindow* mw)
 
     // Connect some signals
     connect( w.TabW, SIGNAL( currentChanged(int) ),
-             this, SLOT( TreeTabSelected(int) ) );
+             this, SLOT( TreeTabSelected() ) );
     connect( w.actionManageAgentProfiles, SIGNAL( triggered(bool) ),
              this, SLOT( ManageAgentProfiles(bool) ) );
     connect( w.actionManageUSMProfiles, SIGNAL( triggered(bool) ),
@@ -67,7 +69,7 @@ Snmpb::Snmpb(QMainWindow* mw)
     w.MIBTree->RegisterToLoader(&loader);
     w.PlotMIBTree->RegisterToLoader(&loader);
     
-    TreeTabSelected(0);
+    TreeTabSelected();
 }
 
 Ui_MainW* Snmpb::MainUI(void)
@@ -151,6 +153,11 @@ QString Snmpb::GetMibConfigFile(void)
     return (SnmpbDir.filePath(MIB_CONFIG_FILE));
 }
 
+QString Snmpb::GetPathConfigFile(void)
+{
+    return (SnmpbDir.filePath(PATH_CONFIG_FILE));
+}
+
 QString Snmpb::GetUsmUsersConfigFile(void)
 {
     return (SnmpbDir.filePath(USM_USERS_CONFIG_FILE));
@@ -181,11 +188,11 @@ void Snmpb::ManagePreferences(bool)
     prefs->Execute();
 }
 
-void Snmpb::TreeTabSelected( int index )
+void Snmpb::TreeTabSelected(void)
 {
-    if (w.TabW->tabText(index) == "Tree")
+    if (w.TabW->tabText(w.TabW->currentIndex()) == "Tree")
         w.MIBTree->Populate();
-    else if (w.TabW->tabText(index) == "Graphs")
+    else if (w.TabW->tabText(w.TabW->currentIndex()) == "Graphs")
         w.PlotMIBTree->Populate();
 }
 

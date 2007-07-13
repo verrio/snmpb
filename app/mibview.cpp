@@ -298,29 +298,28 @@ void MibViewLoader::Load(QStringList &modules)
     modc = 0;
     
     QString module;
-    
-    if ( modules.count() && (module = modules.first()) != 0)
+
+    for (int j=0; j < views.count(); j++)
     {
-        for (int j=0; j < views.count(); j++)
+        views[j]->SetDirty();
+        views[j]->clear();
+    }
+
+    for (int i=0; i < modules.count(); i++) 
+    {
+        module = modules[i];
+        modulename = smiLoadModule(module.toLatin1().data());
+        smiModule = modulename ? smiGetModule(modulename) : NULL;
+
+        if (smiModule)
+            modv[modc++] = smiModule;
+        else
         {
-            views[j]->SetDirty();
-            views[j]->clear();
-        }
-        
-        for (int i=0; i < modules.count(); i++) 
-        {
-            module = modules[i];
-            modulename = smiLoadModule(module.toLatin1().data());
-            smiModule = modulename ? smiGetModule(modulename) : NULL;
-            
-            if (smiModule)
-                modv[modc++] = smiModule;
-            else
-                fprintf(stderr, "SnmpB: cannot locate module `%s'\n", 
-                                module.toLatin1().data());
+            emit LogError(QString("Error: `%1` module cannot be loaded (not in PATHS)")
+                                  .arg(module.toLatin1().data()));
         }
     }
-    
+
     pmodc = modc;
     if (pmodv)
         free(pmodv);

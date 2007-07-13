@@ -32,12 +32,13 @@ public:
     void CheckForConfigFiles(void);
     QString GetBootCounterConfigFile(void);
     QString GetMibConfigFile(void);
+    QString GetPathConfigFile(void);
     QString GetUsmUsersConfigFile(void);
     QString GetAgentsConfigFile(void);
     QString GetPrefsConfigFile(void);
 
 public slots:
-    void TreeTabSelected(int index);
+    void TreeTabSelected(void);
     void ManageAgentProfiles(bool);
     void ManageUSMProfiles(bool);
     void ManagePreferences(bool);

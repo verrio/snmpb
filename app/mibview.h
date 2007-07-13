@@ -81,13 +81,18 @@ private:
     QAction *tableviewAct;
 };
 
-class MibViewLoader
+class MibViewLoader: public QObject
 {
+    Q_OBJECT
+
 public:
     MibViewLoader();
     void Load (QStringList &);
     MibNode *PopulateSubTree (SmiNode *smiNode, MibNode *parent, MibNode *sibling);    
     void RegisterView(BasicMibView* view);
+
+signals:
+    void LogError(const QString& text);
     
 private:
     enum MibNode::MibType SmiKindToMibNodeType(int smikind);

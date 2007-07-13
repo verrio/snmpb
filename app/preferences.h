@@ -20,6 +20,12 @@ protected slots:
     void SelectedPreferences( QTreeWidgetItem * item, QTreeWidgetItem * old);
     void SetHorizontalSplit(bool checked);
     void SetTrapPort(void);
+    void ModuleReset(void);
+    void ModuleAdd(void);
+    void ModuleDelete(void);
+
+protected:
+    void ModuleRefresh(void);
 
 private:
     Snmpb *s;
@@ -33,6 +39,8 @@ private:
 
     bool horizontalsplit;
     int trapport;
+    QStringList mibpaths;
+    bool pathschanged;
 };
 
 #endif /* PREFERENCES_H */
