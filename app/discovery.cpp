@@ -176,7 +176,7 @@ void DiscoverySnmp::discover(const UdpAddress &start_addr, int num_addr,
 
         if (uaddr.get_ip_version() == Address::version_ipv4)
         {
-            if (iv_snmp_session != INVALID_SOCKET)
+            if (iv_snmp_session != (int)INVALID_SOCKET)
                 sock = iv_snmp_session;
             else
             {
