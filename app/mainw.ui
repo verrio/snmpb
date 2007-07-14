@@ -249,6 +249,20 @@
              </property>
              <item>
               <widget class="QLabel" name="UnloadedLabel" >
+               <property name="sizePolicy" >
+                <sizepolicy>
+                 <hsizetype>13</hsizetype>
+                 <vsizetype>5</vsizetype>
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize" >
+                <size>
+                 <width>100</width>
+                 <height>0</height>
+                </size>
+               </property>
                <property name="text" >
                 <string>Available MIB modules</string>
                </property>
@@ -256,6 +270,20 @@
              </item>
              <item>
               <widget class="QTreeWidget" name="UnloadedModules" >
+               <property name="sizePolicy" >
+                <sizepolicy>
+                 <hsizetype>13</hsizetype>
+                 <vsizetype>7</vsizetype>
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize" >
+                <size>
+                 <width>100</width>
+                 <height>0</height>
+                </size>
+               </property>
                <property name="frameShape" >
                 <enum>QFrame::WinPanel</enum>
                </property>
@@ -2013,6 +2041,18 @@
  <layoutdefault spacing="6" margin="11" />
  <customwidgets>
   <customwidget>
+   <class>MibView</class>
+   <extends>QWidget</extends>
+   <header>mibview.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>MarkerWidget</class>
+   <extends>QWidget</extends>
+   <header>markerwidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>QColorComboBox</class>
    <extends>QComboBox</extends>
    <header>comboboxes.h</header>
@@ -2034,18 +2074,6 @@
    <class>BasicMibView</class>
    <extends>QWidget</extends>
    <header>mibview.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>MibView</class>
-   <extends>QWidget</extends>
-   <header>mibview.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>MarkerWidget</class>
-   <extends>QWidget</extends>
-   <header>markerwidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

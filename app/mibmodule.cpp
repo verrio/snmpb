@@ -279,6 +279,10 @@ void MibModule::Refresh(void)
     s->MibLoaderObj()->Load(Wanted);
     RebuildLoadedList();
     RebuildUnloadedList();
+    s->MainUI()->LoadedModules->resizeColumnToContents(0);
+    s->MainUI()->UnloadedModules->resizeColumnToContents(0);
+    s->MainUI()->LoadedModules->sortByColumn(0, Qt::AscendingOrder);
+    s->MainUI()->UnloadedModules->sortByColumn(0, Qt::AscendingOrder);
 }
 
 

@@ -51,8 +51,9 @@ Preferences::Preferences(Snmpb *snmpb)
              SIGNAL( clicked() ), this, SLOT( ModuleDelete() ));
 
     // Load preferences from file
-    p.HorizontalSplit->setCheckState(settings->value("horizontalsplit", false)
-                                     .toBool() == true  ?Qt::Checked:Qt::Unchecked);
+    horizontalsplit = settings->value("horizontalsplit", false).toBool();
+    p.HorizontalSplit->setCheckState((horizontalsplit == true)?
+                                     Qt::Checked:Qt::Unchecked);
     trapport = settings->value("trapport", 161).toInt();
 
     char    *dir, *smipath;
