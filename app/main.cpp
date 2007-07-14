@@ -8,8 +8,6 @@ int main( int argc, char ** argv )
     QMainWindow mw;
     Snmpb snmpb(&mw);
 
-    snmpb.CheckForConfigFiles();
-
     mw.show();
     a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
     

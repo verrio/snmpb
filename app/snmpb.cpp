@@ -41,6 +41,8 @@ Snmpb::Snmpb(QMainWindow* mw)
 {
     w.setupUi(mw);
 
+    CheckForConfigFiles();
+
     connect(&loader, SIGNAL ( LogError(QString) ),
             w.LogOutput, SLOT ( append (QString) ));
 
