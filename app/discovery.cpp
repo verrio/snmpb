@@ -105,9 +105,9 @@ void DiscoverySnmp::discover(const UdpAddress &start_addr, int num_addr,
                              const int timeout_sec, const snmp_version version,
                              DiscoveryThread* thread)
 {
-    unsigned char *message;
-    int message_length;
-    SnmpSocket sock = iv_snmp_session;
+    unsigned char *message = NULL;
+    int message_length = 0;
+    unsigned int sock = iv_snmp_session;
     SnmpMessage snmpmsg;
     Pdu pdu;
     OctetStr get_community;
