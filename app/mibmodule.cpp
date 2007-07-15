@@ -236,27 +236,14 @@ void MibModule::RebuildUnloadedList(void)
 
 void MibModule::AddModule(void)
 {
-    QTreeWidgetItem *item;//, *nextitem  = NULL;
-    //    char buf[200];
+    QTreeWidgetItem *item;
     QList<QTreeWidgetItem *> item_list = 
                              s->MainUI()->UnloadedModules->selectedItems();
 
     if ((item_list.count() == 1) && ((item = item_list.first()) != 0))
     {
-        // Save string of next item to restore selection ...
-        //        nextitem = item->itemBelow() ? item->itemBelow():item->itemAbove();
-        //        if (nextitem)
-        //            strcpy(buf, nextitem->text(0).toLatin1().data());
-        
         Wanted.append(item->text(0).toLatin1().data());
         Refresh();
-        
-        // Restore selection
-        //        if (nextitem) {
-        //	nextitem = AvailM->findItem(buf, 0);
-        //	AvailM->setSelected(nextitem, TRUE);
-        //	AvailM->ensureItemVisible(nextitem);
-        //       }    
     }
 }
 
@@ -280,6 +267,7 @@ void MibModule::Refresh(void)
     RebuildLoadedList();
     RebuildUnloadedList();
     s->MainUI()->LoadedModules->resizeColumnToContents(0);
+    s->MainUI()->LoadedModules->resizeColumnToContents(3);
     s->MainUI()->UnloadedModules->resizeColumnToContents(0);
     s->MainUI()->LoadedModules->sortByColumn(0, Qt::AscendingOrder);
     s->MainUI()->UnloadedModules->sortByColumn(0, Qt::AscendingOrder);
