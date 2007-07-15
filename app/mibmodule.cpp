@@ -2,6 +2,8 @@
 #include <string.h>
 #include <qfileinfo.h>
 #include <qdir.h>
+#include <qmessagebox.h> 
+#include <qtextstream.h>
 
 #include "mibmodule.h"
 
@@ -247,6 +249,8 @@ void MibModule::AddModule(void)
 
     if (item_list.size())
         Refresh();
+
+    SaveWantedModules();
 }
 
 void MibModule::RemoveModule(void)
@@ -259,6 +263,26 @@ void MibModule::RemoveModule(void)
 
     if (item_list.size())
         Refresh();
+
+    SaveWantedModules();
+}
+
+void MibModule::SaveWantedModules(void)
+{
+    QFile mibs(s->GetMibConfigFile());
+    mibs.remove();
+    if (!mibs.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        QString err = QString("Unable to save mibs in file %1 !\n")
+                              .arg(mibs.fileName());
+        QMessageBox::critical ( NULL, "SnmpB error", err, 
+                                QMessageBox::Ok, Qt::NoButton);
+        return;
+    }
+    QTextStream out(&mibs);
+    for (int i = 0; i < Wanted.size(); i++)
+        out << "load " << Wanted[i] << endl;
+    mibs.close();
 }
 
 void MibModule::Refresh(void)

@@ -41,7 +41,8 @@ private:
     void RebuildTotalList(void);
     void RebuildLoadedList(void);
     void RebuildUnloadedList(void);
-    
+    void SaveWantedModules(void);
+
 private:
     Snmpb *s;
 
