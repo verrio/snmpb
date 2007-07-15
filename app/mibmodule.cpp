@@ -5,8 +5,6 @@
 
 #include "mibmodule.h"
 
-
-
 LoadedMibModule::LoadedMibModule(SmiModule* mod)
 {
     name = mod->name;
@@ -107,6 +105,11 @@ MibModule::MibModule(Snmpb *snmpb)
     connect( this, SIGNAL(ModuleProperties(const QString&)),
              (QObject*)s->MainUI()->ModuleInfo, 
              SLOT(setHtml(const QString&)) );
+    connect( s->MainUI()->ModuleAdd, 
+             SIGNAL( clicked() ), this, SLOT( AddModule() ));
+    connect( s->MainUI()->ModuleDelete, 
+             SIGNAL( clicked() ), this, SLOT( RemoveModule() ));
+
     
     for(SmiModule *mod = smiGetFirstModule(); 
         mod; mod = smiGetNextModule(mod))
@@ -236,28 +239,26 @@ void MibModule::RebuildUnloadedList(void)
 
 void MibModule::AddModule(void)
 {
-    QTreeWidgetItem *item;
     QList<QTreeWidgetItem *> item_list = 
                              s->MainUI()->UnloadedModules->selectedItems();
 
-    if ((item_list.count() == 1) && ((item = item_list.first()) != 0))
-    {
-        Wanted.append(item->text(0).toLatin1().data());
+    for (int i = 0; i < item_list.size(); i++)
+        Wanted.append(item_list[i]->text(0).toLatin1().data());
+
+    if (item_list.size())
         Refresh();
-    }
 }
 
 void MibModule::RemoveModule(void)
 {
-    QTreeWidgetItem *item;
     QList<QTreeWidgetItem *> item_list = 
                              s->MainUI()->LoadedModules->selectedItems();
 
-    if ((item_list.count() == 1) && ((item = item_list.first()) != 0))
-    {
-        Wanted.removeAll(item->text(0));
+    for (int i = 0; i < item_list.size(); i++)
+        Wanted.removeAll(item_list[i]->text(0));
+
+    if (item_list.size())
         Refresh();
-    }
 }
 
 void MibModule::Refresh(void)
