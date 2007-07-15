@@ -92,6 +92,10 @@ MibModule::MibModule(Snmpb *snmpb)
     columns << "Module" << "Required" << "Language" << "Path"; 
     s->MainUI()->LoadedModules->setHeaderLabels(columns);
 
+    // Must be connected before call to InitLib ...
+    connect(this, SIGNAL ( LogError(QString) ),
+            s->MainUI()->LogOutput, SLOT ( append (QString) ));
+
     InitLib(0);
     RebuildTotalList();
 
@@ -112,7 +116,6 @@ MibModule::MibModule(Snmpb *snmpb)
     connect( s->MainUI()->ModuleDelete, 
              SIGNAL( clicked() ), this, SLOT( RemoveModule() ));
 
-    
     for(SmiModule *mod = smiGetFirstModule(); 
         mod; mod = smiGetNextModule(mod))
         Wanted.append(mod->name);
@@ -316,10 +319,21 @@ void MibModule::RefreshPathChange(void)
     Refresh();
 }
 
+MibModule *CurrentModuleObject = NULL;
+static void NormalErrorHdlr(char *path, int line, int severity, 
+                            char *msg, char *tag)
+{
+    (void)path; (void)line; (void)tag;
+    CurrentModuleObject->SendLogError(QString("Error(%1): %2")
+                                      .arg(severity).arg(msg));
+}
+
 void MibModule::InitLib(int restart)
 {
     int smiflags;
     char *smipath;
+
+    CurrentModuleObject = this;
 
     if (restart)
     {
@@ -328,6 +342,8 @@ void MibModule::InitLib(int restart)
         smiflags = smiGetFlags();
         smiInit(NULL);
         smiSetPath(smipath);
+        smiSetErrorHandler(NormalErrorHdlr);
+        smiSetErrorLevel(0);
         free(smipath);
     }
     else
@@ -335,11 +351,12 @@ void MibModule::InitLib(int restart)
         smiInit(NULL);
         smiflags = smiGetFlags();
         smiflags |= SMI_FLAG_ERRORS;
+        smiSetErrorHandler(NormalErrorHdlr);
+        smiSetErrorLevel(0);
         // Read configuration files: order is important
         smiReadConfig(s->GetPathConfigFile().toLatin1().data(), NULL);
         smiReadConfig(s->GetMibConfigFile().toLatin1().data(), NULL);
     }
 
     smiSetFlags(smiflags);
-    smiSetErrorLevel(0);
 }

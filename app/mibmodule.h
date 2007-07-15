@@ -27,6 +27,7 @@ public:
     MibModule(Snmpb *snmpb);
     void Refresh(void);
     void RefreshPathChange(void);
+    void SendLogError(const QString& text) { emit LogError(text); }
 
 public slots:
     void AddModule(void);
@@ -35,6 +36,7 @@ public slots:
 
 signals:
     void ModuleProperties(const QString& text);
+    void LogError(const QString& text);
 
 private:
     void InitLib(int restart);
