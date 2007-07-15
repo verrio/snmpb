@@ -335,9 +335,9 @@ void MibModule::InitLib(int restart)
         smiInit(NULL);
         smiflags = smiGetFlags();
         smiflags |= SMI_FLAG_ERRORS;
-        // Read configuration files
-        smiReadConfig(s->GetMibConfigFile().toLatin1().data(), NULL);
+        // Read configuration files: order is important
         smiReadConfig(s->GetPathConfigFile().toLatin1().data(), NULL);
+        smiReadConfig(s->GetMibConfigFile().toLatin1().data(), NULL);
     }
 
     smiSetFlags(smiflags);
