@@ -74,6 +74,99 @@
               <number>0</number>
              </property>
              <item>
+              <widget class="QGroupBox" name="AgentProperties" >
+               <property name="title" >
+                <string>Remote SNMP Agent</string>
+               </property>
+               <layout class="QGridLayout" >
+                <property name="margin" >
+                 <number>1</number>
+                </property>
+                <property name="spacing" >
+                 <number>3</number>
+                </property>
+                <item row="0" column="4" >
+                 <widget class="QRadioButton" name="AgentProtoV3" >
+                  <property name="sizePolicy" >
+                   <sizepolicy>
+                    <hsizetype>0</hsizetype>
+                    <vsizetype>0</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text" >
+                   <string>SNMPv3</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="3" >
+                 <widget class="QRadioButton" name="AgentProtoV2" >
+                  <property name="sizePolicy" >
+                   <sizepolicy>
+                    <hsizetype>0</hsizetype>
+                    <vsizetype>0</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text" >
+                   <string>SNMPv2c</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0" >
+                 <widget class="QComboBox" name="AgentProfile" >
+                  <property name="sizePolicy" >
+                   <sizepolicy>
+                    <hsizetype>5</hsizetype>
+                    <vsizetype>0</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1" >
+                 <widget class="QPushButton" name="AgentSettings" >
+                  <property name="sizePolicy" >
+                   <sizepolicy>
+                    <hsizetype>0</hsizetype>
+                    <vsizetype>0</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text" >
+                   <string/>
+                  </property>
+                  <property name="icon" >
+                   <iconset>images/agentsettings.png</iconset>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="2" >
+                 <widget class="QRadioButton" name="AgentProtoV1" >
+                  <property name="sizePolicy" >
+                   <sizepolicy>
+                    <hsizetype>0</hsizetype>
+                    <vsizetype>0</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text" >
+                   <string>SNMPv1</string>
+                  </property>
+                  <property name="autoRepeat" >
+                   <bool>false</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
               <widget class="QLabel" name="MIBTreeL" >
                <property name="text" >
                 <string>MIB Tree</string>
