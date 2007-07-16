@@ -46,16 +46,17 @@ Snmpb::Snmpb(QMainWindow* mw)
     connect(&loader, SIGNAL ( LogError(QString) ),
             w.LogOutput, SLOT ( append (QString) ));
 
-    logsnmpb = new LogSnmpb(this); // Must be created before the agent object
+    // Creation order is VERY important here
+    logsnmpb = new LogSnmpb(this);
     modules = new MibModule(this);
+    apm = new AgentProfileManager(this);
+    prefs = new Preferences(this);
     trap = new Trap(this);
     agent = new Agent(this);
+    upm = new USMProfileManager(this);
     graph = new Graph(this);
     editor = new MibEditor(this);
     discovery = new Discovery(this);
-    apm = new AgentProfileManager(this);
-    upm = new USMProfileManager(this);
-    prefs = new Preferences(this);
 
     // Connect some signals
     connect( w.TabW, SIGNAL( currentChanged(int) ),

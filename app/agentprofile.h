@@ -99,6 +99,9 @@ class AgentProfileManager: public QObject
 public:
     AgentProfileManager(Snmpb *snmpb);
     void Execute(void);
+    QStringList GetAgentsList(void);
+    void SetSelectedAgent(QString a);
+    AgentProfile *GetAgentProfile(QString a);
 
 protected:
     QAction *addAct;

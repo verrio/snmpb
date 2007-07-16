@@ -283,7 +283,7 @@ QStringList USMProfileManager::GetUsersList(void)
         sl << users[i]->GetName();
 
     return sl;
-};
+}
 
 USMProfile::USMProfile(Ui_USMProfile *uiup, QString *n)
 {

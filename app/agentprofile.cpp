@@ -137,6 +137,30 @@ void AgentProfileManager::Execute (void)
     }
 }
 
+void AgentProfileManager::SetSelectedAgent(QString a)
+{
+    QTreeWidgetItem *item;
+    for (int i = 0; i < ap.ProfileTree->topLevelItemCount(); i++)
+    {
+        item = ap.ProfileTree->topLevelItem(i);
+        if (item->text(0) == a)
+        {
+            ap.ProfileTree->setCurrentItem(item);
+            break;
+        }
+    }
+}
+
+AgentProfile *AgentProfileManager::GetAgentProfile(QString a)
+{
+    for (int i = 0; i < agents.size(); i++)
+    {
+        if (agents[i]->GetName() == a)
+            return agents[i];
+    }
+    return NULL;
+}
+
 void AgentProfileManager::ProtocolV1Support(bool checked)
 {
     if (currentprofile)
@@ -311,6 +335,16 @@ void AgentProfileManager::AgentProfileNameChange(QTreeWidgetItem * item, int col
             return;
         }
     }
+}
+
+QStringList AgentProfileManager::GetAgentsList(void)
+{
+    QStringList sl;
+
+    for(int i = 0; i < agents.size(); i++)
+        sl << agents[i]->GetName();
+
+    return sl;
 }
 
 AgentProfile::AgentProfile(Ui_AgentProfile *uiap, QString *n)

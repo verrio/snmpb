@@ -55,7 +55,15 @@ Agent::Agent(Snmpb *snmpb)
              this, SLOT( StopFrom(const QString&) ) );
     connect( s->MainUI()->MIBTree, SIGNAL( TableViewFromOid(const QString&) ),
              this, SLOT( TableViewFrom(const QString&) ) );
-    
+    connect( s->MainUI()->AgentSettings, 
+             SIGNAL( clicked() ), this, SLOT( ShowAgentSettings() ));
+    connect( s->MainUI()->AgentProfile, SIGNAL( currentIndexChanged( int ) ), 
+             this, SLOT ( SelectAgentProfile() ) );
+
+    // Fill-in the list of agent profiles from profiles manager
+    s->MainUI()->AgentProfile->addItems(s->APManagerObj()->GetAgentsList());
+    SelectAgentProfile();
+
     int status;
 
     Snmp::socket_startup();  // Initialize socket subsystem
@@ -136,14 +144,47 @@ Agent::Agent(Snmpb *snmpb)
     timer.start(TRAP_TIMER_MSEC);
 }
 
+void Agent::ShowAgentSettings(void)
+{
+     s->APManagerObj()->SetSelectedAgent(s->MainUI()->AgentProfile->currentText()); 
+     s->APManagerObj()->Execute();
+}
+
+void Agent::SelectAgentProfile(void)
+{
+    AgentProfile *ap = s->APManagerObj()->GetAgentProfile(s->MainUI()->AgentProfile->currentText());
+    if (ap)
+    {
+        bool v1,v2,v3;
+        ap->GetSupportedProtocol(&v1, &v2, &v3);
+
+        s->MainUI()->AgentProtoV1->setEnabled(v1);
+        s->MainUI()->AgentProtoV2->setEnabled(v2);
+        s->MainUI()->AgentProtoV3->setEnabled(v3);
+
+        if (v1) s->MainUI()->AgentProtoV1->setChecked(true);
+        else if (v2) s->MainUI()->AgentProtoV2->setChecked(true);
+        else if (v3) s->MainUI()->AgentProtoV3->setChecked(true);
+    }
+    else
+    {
+        s->MainUI()->AgentProtoV1->setEnabled(false);
+        s->MainUI()->AgentProtoV2->setEnabled(false);
+        s->MainUI()->AgentProtoV3->setEnabled(false);
+    }
+}
+
 int Agent::Setup(const QString& oid, SnmpTarget **t, Pdu **p)
 {    
     if (!snmp)
         return -1;
+
+    AgentProfile *ap = s->APManagerObj()->GetAgentProfile(s->MainUI()->AgentProfile->currentText());
+    if (!ap)
+        return -1;
     
     // Create an address object from the entered values
-    QString address_str(s->MainUI()->Address->currentText() + "/" + 
-                        s->MainUI()->Port->currentText());
+    QString address_str(ap->GetAddress() + "/" + ap->GetPort());
     UdpAddress address(address_str.toLatin1().data());
     
     // check if the address is valid
@@ -152,7 +193,7 @@ int Agent::Setup(const QString& oid, SnmpTarget **t, Pdu **p)
     if (!address.valid())
     {
         QString err = QString("Invalid Address or DNS Name: %1\n")
-                      .arg(s->MainUI()->Address->currentText());
+                              .arg(ap->GetAddress());
         QMessageBox::warning ( NULL, "SnmpB", err, 
                                QMessageBox::Ok, Qt::NoButton);
         return -1;
@@ -160,13 +201,13 @@ int Agent::Setup(const QString& oid, SnmpTarget **t, Pdu **p)
 
     Pdu *pdu = new Pdu();
 
-    if (s->MainUI()->V3->isChecked())
+    if (s->MainUI()->AgentProtoV3->isChecked())
     {
         // For SNMPv3 we need a UTarget object
         UTarget *utarget = new UTarget(address);
 
-        ConfigTargetFromSettings(version3, s, utarget);
-        theoid = ConfigPduFromSettings(version3, s, oid, pdu);
+        ConfigTargetFromSettings(version3, utarget, ap);
+        theoid = ConfigPduFromSettings(version3, oid, pdu, ap);
         *t = utarget;
     }
     else
@@ -174,15 +215,15 @@ int Agent::Setup(const QString& oid, SnmpTarget **t, Pdu **p)
         // For SNMPv1/v2c we need a CTarget
         CTarget *ctarget = new CTarget(address);
 
-        if (s->MainUI()->V2->isChecked())
+        if (s->MainUI()->AgentProtoV2->isChecked())
         {
-            ConfigTargetFromSettings(version2c, s, ctarget);
-            theoid = ConfigPduFromSettings(version2c, s, oid, pdu);
+            ConfigTargetFromSettings(version2c, ctarget, ap);
+            theoid = ConfigPduFromSettings(version2c, oid, pdu, ap);
         }
         else
         {
-            ConfigTargetFromSettings(version1, s, ctarget);
-            theoid = ConfigPduFromSettings(version1, s, oid, pdu);
+            ConfigTargetFromSettings(version1, ctarget, ap);
+            theoid = ConfigPduFromSettings(version1, oid, pdu, ap);
         }
 
         *t = ctarget;
@@ -193,32 +234,33 @@ int Agent::Setup(const QString& oid, SnmpTarget **t, Pdu **p)
     return 0;
 }
 
-void Agent::ConfigTargetFromSettings(snmp_version v, Snmpb *s, SnmpTarget *t)
+void Agent::ConfigTargetFromSettings(snmp_version v, SnmpTarget *t, 
+                                     AgentProfile *ap)
 {
     if (v == version3)
     {
         UTarget *utarget = (UTarget *)t;
         utarget->set_security_model(SNMP_SECURITY_MODEL_USM);
-        utarget->set_security_name(s->MainUI()->UserName->currentText().toLatin1().data());
+        utarget->set_security_name(ap->GetSecName().toLatin1().data());
     }
     else if ((v == version1) || (v == version2c))
     {
         CTarget *ctarget = (CTarget *)t;
         // set the community
-        ctarget->set_readcommunity( s->MainUI()->ReadComm->text().toLatin1().data());
-        ctarget->set_writecommunity( s->MainUI()->WriteComm->text().toLatin1().data());
+        ctarget->set_readcommunity( ap->GetReadComm().toLatin1().data());
+        ctarget->set_writecommunity( ap->GetWriteComm().toLatin1().data());
     }
 
     // Set the version
     t->set_version(v);
 
     // Set retries and timeout values
-    t->set_retry(s->MainUI()->Retries->value());
-    t->set_timeout(100 * s->MainUI()->Timeout->value());
+    t->set_retry(ap->GetRetries());
+    t->set_timeout(100 * ap->GetTimeout());
 }
 
-Oid Agent::ConfigPduFromSettings(snmp_version v, Snmpb *s, 
-                                  const QString& oid, Pdu *p)
+Oid Agent::ConfigPduFromSettings(snmp_version v, const QString& oid, 
+                                 Pdu *p, AgentProfile *ap)
 {
     Vb vb;
     Oid oidobj(oid.toLatin1().data());
@@ -231,16 +273,16 @@ Oid Agent::ConfigPduFromSettings(snmp_version v, Snmpb *s,
     if (v == version3)
     {
         // set the security level to use
-        if (s->MainUI()->SecLevel->currentText() == "noAuthNoPriv")
+        if (ap->GetSecLevel() == 0/*"noAuthNoPriv"*/)
             p->set_security_level(SNMP_SECURITY_LEVEL_NOAUTH_NOPRIV);
-        else if (s->MainUI()->SecLevel->currentText() == "authNoPriv")
+        else if (ap->GetSecLevel() == 1/*"authNoPriv"*/)
             p->set_security_level(SNMP_SECURITY_LEVEL_AUTH_NOPRIV);
         else
             p->set_security_level(SNMP_SECURITY_LEVEL_AUTH_PRIV);
 
         // Not needed, as snmp++ will set it, if the user does not set it
-        p->set_context_name(s->MainUI()->ContextName->text().toLatin1().data());
-        p->set_context_engine_id(s->MainUI()->EngineID->text().toLatin1().data());
+        p->set_context_name(ap->GetContextName().toLatin1().data());
+        p->set_context_engine_id(ap->GetContextEngineID().toLatin1().data());
     }
 
     return oidobj;
