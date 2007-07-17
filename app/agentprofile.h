@@ -103,6 +103,9 @@ public:
     void SetSelectedAgent(QString a);
     AgentProfile *GetAgentProfile(QString a);
 
+signals:
+    void AgentProfileListChanged(void);
+
 protected:
     QAction *addAct;
     QAction *deleteAct;

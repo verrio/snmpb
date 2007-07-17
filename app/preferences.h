@@ -15,6 +15,7 @@ class Preferences: public QObject
 public:
     Preferences(Snmpb *snmpb);
     void Execute(void);
+    int GetTrapPort(void);
 
 protected slots:
     void SelectedPreferences( QTreeWidgetItem * item, QTreeWidgetItem * old);

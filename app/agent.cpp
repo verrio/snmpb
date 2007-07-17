@@ -4,11 +4,10 @@
 #include "mibview.h"
 #include "agent.h"
 #include "snmp_pp/notifyqueue.h"
+#include "preferences.h"
 
-#define BULK_MAX 10
 #define ASYNC_TIMER_MSEC 5
 #define TRAP_TIMER_MSEC 100
-#define TRAP_PORT 8888
 
 /// C Callback functions for snmp++
 void callback_walk(int reason, Snmp *, Pdu &pdu, SnmpTarget &target, void *cd)
@@ -59,10 +58,11 @@ Agent::Agent(Snmpb *snmpb)
              SIGNAL( clicked() ), this, SLOT( ShowAgentSettings() ));
     connect( s->MainUI()->AgentProfile, SIGNAL( currentIndexChanged( int ) ), 
              this, SLOT ( SelectAgentProfile() ) );
+    connect( s->APManagerObj(), SIGNAL( AgentProfileListChanged() ), 
+             this, SLOT ( AgentProfileListChange() ) );
 
     // Fill-in the list of agent profiles from profiles manager
-    s->MainUI()->AgentProfile->addItems(s->APManagerObj()->GetAgentsList());
-    SelectAgentProfile();
+    AgentProfileListChange();
 
     int status;
 
@@ -125,7 +125,7 @@ Agent::Agent(Snmpb *snmpb)
     usm->load_users(s->GetUsmUsersConfigFile().toLatin1().data());
     
     // Bind on the SNMP trap port
-    snmp->notify_set_listen_port(TRAP_PORT);
+    snmp->notify_set_listen_port(s->PreferencesObj()->GetTrapPort());
 
     OidCollection oidc;
     TargetCollection targetc;
@@ -134,7 +134,8 @@ Agent::Agent(Snmpb *snmpb)
     if (status != SNMP_CLASS_SUCCESS)
     {
         QString err = QString("Could not bind on trap port %1:\n%2\n")
-                      .arg(TRAP_PORT).arg(Snmp::error_msg(status));
+                      .arg(s->PreferencesObj()->GetTrapPort())
+                      .arg(Snmp::error_msg(status));
         QMessageBox::warning ( NULL, "SnmpB", err,
                                QMessageBox::Ok, Qt::NoButton);
         return;
@@ -150,9 +151,32 @@ void Agent::ShowAgentSettings(void)
      s->APManagerObj()->Execute();
 }
 
-void Agent::SelectAgentProfile(void)
+void Agent::AgentProfileListChange(void)
 {
-    AgentProfile *ap = s->APManagerObj()->GetAgentProfile(s->MainUI()->AgentProfile->currentText());
+    int prefproto = -1;
+    if (s->MainUI()->AgentProtoV1->isChecked()) prefproto = 0;
+    else if (s->MainUI()->AgentProtoV2->isChecked()) prefproto = 1;
+    else if (s->MainUI()->AgentProtoV3->isChecked()) prefproto = 2;
+
+    QString cap = s->MainUI()->AgentProfile->currentText();
+    s->MainUI()->AgentProfile->clear();
+    s->MainUI()->AgentProfile->addItems(s->APManagerObj()->GetAgentsList());
+    if (cap.isEmpty() == false)
+    {
+        int idx = s->MainUI()->AgentProfile->findText(cap);
+        s->MainUI()->AgentProfile->setCurrentIndex(idx>0?idx:0);
+        if (idx < 0) prefproto = -1;
+    }
+    else
+        prefproto = -1;
+
+    SelectAgentProfile(prefproto);
+}
+
+void Agent::SelectAgentProfile(int prefproto)
+{
+    AgentProfile *ap = s->APManagerObj()->GetAgentProfile
+                        (s->MainUI()->AgentProfile->currentText());
     if (ap)
     {
         bool v1,v2,v3;
@@ -162,7 +186,10 @@ void Agent::SelectAgentProfile(void)
         s->MainUI()->AgentProtoV2->setEnabled(v2);
         s->MainUI()->AgentProtoV3->setEnabled(v3);
 
-        if (v1) s->MainUI()->AgentProtoV1->setChecked(true);
+        if ((prefproto == 0) && v1) s->MainUI()->AgentProtoV1->setChecked(true);
+        else if ((prefproto == 1) && v2) s->MainUI()->AgentProtoV2->setChecked(true);
+        else if ((prefproto == 2) && v3) s->MainUI()->AgentProtoV3->setChecked(true);
+        else if (v1) s->MainUI()->AgentProtoV1->setChecked(true);
         else if (v2) s->MainUI()->AgentProtoV2->setChecked(true);
         else if (v3) s->MainUI()->AgentProtoV3->setChecked(true);
     }
@@ -179,7 +206,8 @@ int Agent::Setup(const QString& oid, SnmpTarget **t, Pdu **p)
     if (!snmp)
         return -1;
 
-    AgentProfile *ap = s->APManagerObj()->GetAgentProfile(s->MainUI()->AgentProfile->currentText());
+    AgentProfile *ap = s->APManagerObj()->GetAgentProfile
+                        (s->MainUI()->AgentProfile->currentText());
     if (!ap)
         return -1;
     
@@ -637,7 +665,11 @@ void Agent::AsyncCallback(int reason, Pdu &pdu,
         pdu.set_vblist(&vb, 1);
  
         // Now do an async get_bulk
-        status = snmp->get_bulk(pdu, target, 0, BULK_MAX, callback_walk, this);
+        AgentProfile *ap = s->APManagerObj()->GetAgentProfile
+                            (s->MainUI()->AgentProfile->currentText());
+        status = snmp->get_bulk(pdu, target, ap?ap->GetNonRepeaters():0, 
+                                ap?ap->GetMaxRepetitions():10, 
+                                callback_walk, this);
 
         // Could we send it?
         if (status == SNMP_CLASS_SUCCESS)
@@ -684,7 +716,11 @@ void Agent::WalkFrom(const QString& oid)
     msg = "";
     
     // Now do an async get_bulk
-    status = snmp->get_bulk(*pdu, *target, 0, BULK_MAX, callback_walk, this);
+    AgentProfile *ap = s->APManagerObj()->GetAgentProfile
+                        (s->MainUI()->AgentProfile->currentText());
+    status = snmp->get_bulk(*pdu, *target, ap?ap->GetNonRepeaters():0, 
+                            ap?ap->GetMaxRepetitions():10, 
+                            callback_walk, this);
 
     // Could we send it?
     if (status == SNMP_CLASS_SUCCESS)

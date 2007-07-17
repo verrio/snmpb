@@ -186,6 +186,11 @@ void Preferences::SetTrapPort(void)
     trapport = p.TrapPort->value();
 }
 
+int Preferences::GetTrapPort(void)
+{
+    return trapport;
+}
+
 void Preferences::ModuleRefresh(void)
 {
     p.ModulePaths->clear();

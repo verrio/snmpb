@@ -32,7 +32,7 @@ public:
 
 protected:
     int Setup(const QString& oid, SnmpTarget **t, Pdu **p);
-            
+
 public slots:
     void WalkFrom(const QString& oid);
     void GetFrom(const QString& oid);
@@ -44,8 +44,9 @@ public slots:
 protected slots:
     void TimerExpired(void);    
     void ShowAgentSettings(void);
-    void SelectAgentProfile(void);
-    
+    void SelectAgentProfile(int prefproto = -1);
+    void AgentProfileListChange(void);
+
 private:
     Snmpb *s;
     

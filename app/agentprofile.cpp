@@ -104,8 +104,16 @@ AgentProfileManager::AgentProfileManager(Snmpb *snmpb)
 void AgentProfileManager::Execute (void)
 {
     // Fill-in loaded user names
+    QString cpn;
+    if (currentprofile)
+        cpn = currentprofile->GetSecName();
     ap.SecName->clear();
     ap.SecName->addItems(s->UPManagerObj()->GetUsersList());
+    if (currentprofile)
+    {
+        int idx = ap.SecName->findText(cpn);
+        ap.SecName->setCurrentIndex(idx>0?idx:0);
+    }
 
     if(apw.exec() == QDialog::Accepted)
     {
@@ -133,6 +141,9 @@ void AgentProfileManager::Execute (void)
             settings->setValue("contextname", agents[i]->GetContextName());
             settings->setValue("contextengineid", agents[i]->GetContextEngineID());
         }
+
+        emit AgentProfileListChanged();
+
         settings->endArray();
     }
 }
