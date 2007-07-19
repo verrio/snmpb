@@ -5,15 +5,48 @@
 #include "snmp_pp/snmp_pp.h"
 #include "snmp_pp/snmpmsg.h"
 
-/* Internal SNMP++ routines */
-extern int send_snmp_request(SnmpSocket sock, unsigned char *send_buf,
-                             size_t send_len, Address &address);
+/* Internal SNMP++ routine */
 extern int receive_snmp_response(SnmpSocket sock, Snmp &snmp_session,
                                  Pdu &pdu, UdpAddress &fromaddress,
                                  bool process_msg = true);
 
-
 #define DISCOVERY_WAIT_TIME_PER_PROTO     3 /* In secs, should be configurable */
+
+static unsigned char snmpv3_broadcast_message[] =
+{
+    0x30, 0x3a,
+    0x02, 0x01, 0x03,             // Version: 3
+    0x30, 0x0f,                   // global header length 15
+    0x02, 0x03, 0x01, 0x00, 0x00, // message id
+    0x02, 0x02, 0x10, 0x00,       // message max size
+    0x04, 0x01, 0x04,             // flags (reportable set)
+    0x02, 0x01, 0x03,             // security model USM
+    0x04, 0x10,                   // security params
+    0x30, 0x0e,
+    0x04, 0x00,                   // no engine id
+    0x02, 0x01, 0x00,             // boots 0
+    0x02, 0x01, 0x00,             // time 0
+    0x04, 0x00,                   // no user name
+    0x04, 0x00,                   // no auth par
+    0x04, 0x00,                   // no priv par
+    0x30, 0x12,
+    0x04, 0x00,                   // no context engine id
+    0x04, 0x00,                   // no context name
+    0xa0, 0x0c,                   // GET PDU
+    0x02, 0x02, 0x34, 0x26,       // request id
+    0x02, 0x01, 0x00,             // error status no error
+    0x02, 0x01, 0x00,             // error index 0
+    0x30, 0x00                    // no data
+};
+
+static const char *info_oids[] =
+{
+    "1.3.6.1.2.1.1.1.0", // Description
+    "1.3.6.1.2.1.1.3.0", // Uptime
+    "1.3.6.1.2.1.1.4.0", // Contact
+    "1.3.6.1.2.1.1.5.0", // Name
+    "1.3.6.1.2.1.1.6.0"  // Location
+};
 
 Discovery::Discovery(Snmpb *snmpb)
 {
@@ -87,7 +120,7 @@ void DiscoveryThread::SendAgentInfo(Pdu pdu, UdpAddress a, snmp_version v)
     }
 
     address = a.get_printable();
-    protocol = (v == version3)?"SNMPv3": ((v == version2c)?"SNMPv2c":"SNMPv1");
+    protocol = (v == version3)?"v3": ((v == version2c)?"v2c":"v1");
 
     agent_info.clear();
     agent_info << name << address << protocol << uptime 
@@ -112,49 +145,10 @@ void DiscoverySnmp::discover(const UdpAddress &start_addr, int num_addr,
     Pdu pdu;
     OctetStr get_community;
 
-#ifdef _SNMPv3
-    unsigned char snmpv3_broadcast_message[60] = {
-        0x30, 0x3a,
-        0x02, 0x01, 0x03,                   // Version: 3
-        0x30, 0x0f,                         // global header length 15
-        0x02, 0x03, 0x01, 0x00, 0x00, // message id
-        0x02, 0x02, 0x10, 0x00,       // message max size
-        0x04, 0x01, 0x04,             // flags (reportable set)
-        0x02, 0x01, 0x03,             // security model USM
-        0x04, 0x10,                         // security params
-        0x30, 0x0e,
-        0x04, 0x00,             // no engine id
-        0x02, 0x01, 0x00,       // boots 0
-        0x02, 0x01, 0x00,       // time 0
-        0x04, 0x00,             // no user name
-        0x04, 0x00,             // no auth par
-        0x04, 0x00,             // no priv par
-        0x30, 0x12,
-        0x04, 0x00,                   // no context engine id
-        0x04, 0x00,                   // no context name
-        0xa0, 0x0c,                         // GET PDU
-        0x02, 0x02, 0x34, 0x26,       // request id
-        0x02, 0x01, 0x00,             // error status no error
-        0x02, 0x01, 0x00,             // error index 0
-        0x30, 0x00                    // no data
-    };
-
-    if (version == version3)
-    {
-        message = (unsigned char *)snmpv3_broadcast_message;
-        message_length = 60;
-    }
-    else
-#endif
+    // Prepare pdu
+    if (version != version3)
     {
         Vb vb;
-
-        char * info_oids[] = {
-            "1.3.6.1.2.1.1.1.0", 
-            "1.3.6.1.2.1.1.3.0", 
-            "1.3.6.1.2.1.1.4.0", 
-            "1.3.6.1.2.1.1.5.0", 
-            "1.3.6.1.2.1.1.6.0"};
 
         for (int k = 0; k < 5; k++)
         { 
@@ -167,8 +161,7 @@ void DiscoverySnmp::discover(const UdpAddress &start_addr, int num_addr,
         get_community = "public";
     }
 
-    lock();
-
+    // Send probe packets
     UdpAddress cur_address = start_addr;
     for(int j = 0; j < num_addr; j++)
     {
@@ -191,36 +184,28 @@ void DiscoverySnmp::discover(const UdpAddress &start_addr, int num_addr,
         {
             pdu.set_request_id(MyMakeReqId()); // determine request id to use
 
-            int status = snmpmsg.load(pdu, get_community, version);
-            if (status != SNMP_CLASS_SUCCESS)
-            {
-                debugprintf(0, "Error encoding broadcast pdu (%i).", status);
-                unlock();
+            if (snmpmsg.load(pdu, get_community, version) != SNMP_CLASS_SUCCESS)
                 return;
-            }
+
             message        = snmpmsg.data();
             message_length = snmpmsg.len();
         }
-#ifdef _SNMPv3
         else
         {
             unsigned short v3reqid = MyMakeReqId();
+            message = (unsigned char *)snmpv3_broadcast_message;
+            message_length = sizeof(snmpv3_broadcast_message);
             message[50] = v3reqid >> 8;
             message[51] = v3reqid & 0xFF;
         }
-#endif
 
-        if (send_snmp_request(sock, message, message_length, uaddr) < 0)
-        {
-            debugprintf(0, "Error sending broadast.");
-            unlock();
+        if (send_raw_data(message, message_length, uaddr) < 0)
             return;
-        }
 
         cur_address[3] = cur_address[3]++;
     }
 
-    // now wait for the responses
+    // Now wait for the responses
     Pdu in_pdu;
     fd_set readfds;
     int nfound = 0;
@@ -230,6 +215,7 @@ void DiscoverySnmp::discover(const UdpAddress &start_addr, int num_addr,
     end_time += 1000;
     int num_sec = 1;
 
+    lock();
     do
     {
 new_loop:
@@ -242,14 +228,16 @@ new_loop:
 
         if ((nfound > 0) && (FD_ISSET(sock, &readfds)))
         {
-            // receive message
+            // Received a message
             UdpAddress from;
-            if (receive_snmp_response(sock, *this, in_pdu, from, true) 
-                                                 == SNMP_CLASS_SUCCESS)
+            int res = receive_snmp_response(sock, *this, in_pdu, from, true);
+
+            if((res == SNMPv3_MP_UNKNOWN_PDU_HANDLERS) || // SNMPv3
+               (res == SNMP_CLASS_SUCCESS)) // SNMPv1 or SNMPv2c
                 thread->SendAgentInfo(in_pdu, from, version);
         }
 
-        /* A second as elapsed, show progress */
+        // A second as elapsed, show progress
         if ((fd_timeout.tv_sec == 0) && (fd_timeout.tv_usec == 0))
         {
             thread->Progress();
@@ -332,9 +320,20 @@ void DiscoveryThread::run(void)
 
 void Discovery::DisplayAgent(QStringList agent_info)
 {
-    QTreeWidgetItem *val = new QTreeWidgetItem(s->MainUI()->DiscoveryOutput,
-                                               agent_info);
-    s->MainUI()->DiscoveryOutput->addTopLevelItem(val);
+    QList<QTreeWidgetItem *> laddr = 
+        s->MainUI()->DiscoveryOutput->findItems(agent_info[1], 
+                                                Qt::MatchExactly, 1);
+
+    if (!laddr.isEmpty())
+    {
+        laddr[0]->setText(2,  laddr[0]->text(2) + "/" + agent_info[2]);
+    }
+    else
+    {
+        QTreeWidgetItem *val = new QTreeWidgetItem(s->MainUI()->DiscoveryOutput,
+                                                   agent_info);
+        s->MainUI()->DiscoveryOutput->addTopLevelItem(val);
+    }
 }
 
 void Discovery::StartStop(int isstart)
