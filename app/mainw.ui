@@ -713,171 +713,312 @@
         <property name="spacing" >
          <number>6</number>
         </property>
-        <item row="0" column="0" >
-         <layout class="QGridLayout" >
-          <property name="margin" >
+        <item rowspan="2" row="1" column="1" >
+         <widget class="QGroupBox" name="DiscoveryOptions" >
+          <property name="title" >
+           <string>Options</string>
+          </property>
+          <layout class="QGridLayout" >
+           <property name="margin" >
+            <number>6</number>
+           </property>
+           <property name="spacing" >
+            <number>6</number>
+           </property>
+           <item row="1" column="2" >
+            <widget class="QLabel" name="DiscoveryWaitTimeL2" >
+             <property name="text" >
+              <string>secs.</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1" >
+            <widget class="QSpinBox" name="DiscoveryWaitTime" />
+           </item>
+           <item row="1" column="0" >
+            <widget class="QLabel" name="DiscoveryWaitTimeL" >
+             <property name="text" >
+              <string>Wait time per protocol version</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0" colspan="2" >
+            <widget class="QCheckBox" name="DiscoverySNMPv3Probe" >
+             <property name="text" >
+              <string>Use probe packet for SNMPv3</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="0" column="1" colspan="2" >
+         <widget class="QGroupBox" name="DiscoveryAgentProperties" >
+          <property name="sizePolicy" >
+           <sizepolicy>
+            <hsizetype>5</hsizetype>
+            <vsizetype>5</vsizetype>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="title" >
+           <string>Use settings from SNMP Agent profile</string>
+          </property>
+          <layout class="QGridLayout" >
+           <property name="margin" >
+            <number>6</number>
+           </property>
+           <property name="spacing" >
+            <number>6</number>
+           </property>
+           <item row="0" column="2" >
+            <widget class="QCheckBox" name="DiscoveryV1" >
+             <property name="text" >
+              <string>SNMPv1</string>
+             </property>
+             <property name="checked" >
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3" >
+            <widget class="QCheckBox" name="DiscoveryV2c" >
+             <property name="text" >
+              <string>SNMPv2c</string>
+             </property>
+             <property name="checked" >
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="4" >
+            <widget class="QCheckBox" name="DiscoveryV3" >
+             <property name="text" >
+              <string>SNMPv3</string>
+             </property>
+             <property name="checked" >
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1" >
+            <widget class="QPushButton" name="DiscoveryAgentSettings" >
+             <property name="sizePolicy" >
+              <sizepolicy>
+               <hsizetype>0</hsizetype>
+               <vsizetype>0</vsizetype>
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text" >
+              <string/>
+             </property>
+             <property name="icon" >
+              <iconset>images/agentsettings.png</iconset>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0" >
+            <widget class="QComboBox" name="DiscoveryAgentProfile" >
+             <property name="sizePolicy" >
+              <sizepolicy>
+               <hsizetype>7</hsizetype>
+               <vsizetype>0</vsizetype>
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item rowspan="4" row="0" column="0" >
+         <widget class="QGroupBox" name="DiscoveryRange" >
+          <property name="title" >
+           <string>Discovery range</string>
+          </property>
+          <layout class="QGridLayout" >
+           <property name="margin" >
+            <number>9</number>
+           </property>
+           <property name="spacing" >
+            <number>6</number>
+           </property>
+           <item row="3" column="2" colspan="2" >
+            <widget class="QLineEdit" name="DiscoveryTo" >
+             <property name="sizePolicy" >
+              <sizepolicy>
+               <hsizetype>1</hsizetype>
+               <vsizetype>0</vsizetype>
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize" >
+              <size>
+               <width>130</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize" >
+              <size>
+               <width>130</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0" >
+            <spacer>
+             <property name="orientation" >
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType" >
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" >
+              <size>
+               <width>60</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="3" column="0" >
+            <spacer>
+             <property name="orientation" >
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType" >
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" >
+              <size>
+               <width>60</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="3" column="1" >
+            <widget class="QLabel" name="DiscoveryToL" >
+             <property name="text" >
+              <string>To address</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1" >
+            <widget class="QLabel" name="DiscoveryFromL" >
+             <property name="text" >
+              <string>From address</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="2" colspan="2" >
+            <widget class="QLineEdit" name="DiscoveryFrom" >
+             <property name="sizePolicy" >
+              <sizepolicy>
+               <hsizetype>1</hsizetype>
+               <vsizetype>0</vsizetype>
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize" >
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize" >
+              <size>
+               <width>130</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text" >
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0" colspan="2" >
+            <widget class="QRadioButton" name="DiscoveryLocal" >
+             <property name="text" >
+              <string>Local subnet(s)</string>
+             </property>
+             <property name="checked" >
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" colspan="2" >
+            <widget class="QRadioButton" name="DiscoveryNetworks" >
+             <property name="text" >
+              <string>IP networks</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="4" column="0" colspan="3" >
+         <widget class="QTreeWidget" name="DiscoveryOutput" >
+          <property name="frameShape" >
+           <enum>QFrame::WinPanel</enum>
+          </property>
+          <property name="frameShadow" >
+           <enum>QFrame::Plain</enum>
+          </property>
+          <property name="rootIsDecorated" >
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2" >
+         <widget class="QPushButton" name="DiscoveryAbortButton" >
+          <property name="sizePolicy" >
+           <sizepolicy>
+            <hsizetype>0</hsizetype>
+            <vsizetype>0</vsizetype>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text" >
+           <string>Abort</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2" >
+         <widget class="QPushButton" name="DiscoveryButton" >
+          <property name="sizePolicy" >
+           <sizepolicy>
+            <hsizetype>0</hsizetype>
+            <vsizetype>0</vsizetype>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text" >
+           <string>Discover</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1" colspan="2" >
+         <widget class="QProgressBar" name="DiscoveryProgress" >
+          <property name="value" >
            <number>0</number>
           </property>
-          <property name="spacing" >
-           <number>6</number>
+          <property name="orientation" >
+           <enum>Qt::Horizontal</enum>
           </property>
-          <item row="1" column="0" colspan="2" >
-           <layout class="QHBoxLayout" >
-            <property name="margin" >
-             <number>0</number>
-            </property>
-            <property name="spacing" >
-             <number>6</number>
-            </property>
-            <item>
-             <widget class="QProgressBar" name="DiscoveryProgress" >
-              <property name="value" >
-               <number>0</number>
-              </property>
-              <property name="orientation" >
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="invertedAppearance" >
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="DiscoveryButton" >
-              <property name="text" >
-               <string>Discover</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item row="2" column="0" colspan="2" >
-           <widget class="QTreeWidget" name="DiscoveryOutput" >
-            <property name="frameShape" >
-             <enum>QFrame::WinPanel</enum>
-            </property>
-            <property name="frameShadow" >
-             <enum>QFrame::Plain</enum>
-            </property>
-            <property name="rootIsDecorated" >
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0" >
-           <widget class="QGroupBox" name="DiscoveryRange" >
-            <property name="title" >
-             <string>Discovery range</string>
-            </property>
-            <layout class="QGridLayout" >
-             <property name="margin" >
-              <number>9</number>
-             </property>
-             <property name="spacing" >
-              <number>6</number>
-             </property>
-             <item row="2" column="2" >
-              <widget class="QLineEdit" name="DiscoveryFrom" />
-             </item>
-             <item row="2" column="4" >
-              <widget class="QLineEdit" name="DiscoveryTo" />
-             </item>
-             <item row="2" column="3" >
-              <widget class="QLabel" name="DiscoveryToL" >
-               <property name="text" >
-                <string>To address</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0" >
-              <spacer>
-               <property name="orientation" >
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeType" >
-                <enum>QSizePolicy::Fixed</enum>
-               </property>
-               <property name="sizeHint" >
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item row="2" column="1" >
-              <widget class="QLabel" name="DiscoveryFromL" >
-               <property name="text" >
-                <string>From address</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0" colspan="2" >
-              <widget class="QRadioButton" name="DiscoveryNetworks" >
-               <property name="text" >
-                <string>IP networks</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0" colspan="2" >
-              <widget class="QRadioButton" name="DiscoveryLocal" >
-               <property name="text" >
-                <string>Local subnet(s)</string>
-               </property>
-               <property name="checked" >
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item row="0" column="1" >
-           <widget class="QGroupBox" name="DiscoveryVersion" >
-            <property name="title" >
-             <string>Protocol version</string>
-            </property>
-            <layout class="QGridLayout" >
-             <property name="margin" >
-              <number>9</number>
-             </property>
-             <property name="spacing" >
-              <number>6</number>
-             </property>
-             <item row="2" column="0" >
-              <widget class="QCheckBox" name="DiscoveryV3" >
-               <property name="text" >
-                <string>SNMPv3</string>
-               </property>
-               <property name="checked" >
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0" >
-              <widget class="QCheckBox" name="DiscoveryV2c" >
-               <property name="text" >
-                <string>SNMPv2c</string>
-               </property>
-               <property name="checked" >
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0" >
-              <widget class="QCheckBox" name="DiscoveryV1" >
-               <property name="text" >
-                <string>SNMPv1</string>
-               </property>
-               <property name="checked" >
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
-         </layout>
+          <property name="invertedAppearance" >
+           <bool>false</bool>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -1704,6 +1845,18 @@
  <layoutdefault spacing="6" margin="11" />
  <customwidgets>
   <customwidget>
+   <class>QPenStyleComboBox</class>
+   <extends>QComboBox</extends>
+   <header>comboboxes.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>BasicMibView</class>
+   <extends>QWidget</extends>
+   <header>mibview.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>MibView</class>
    <extends>QWidget</extends>
    <header>mibview.h</header>
@@ -1725,18 +1878,6 @@
    <class>QPenWidthComboBox</class>
    <extends>QComboBox</extends>
    <header>comboboxes.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>QPenStyleComboBox</class>
-   <extends>QComboBox</extends>
-   <header>comboboxes.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>BasicMibView</class>
-   <extends>QWidget</extends>
-   <header>mibview.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
