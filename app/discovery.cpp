@@ -10,8 +10,6 @@ extern int receive_snmp_response(SnmpSocket sock, Snmp &snmp_session,
                                  Pdu &pdu, UdpAddress &fromaddress,
                                  bool process_msg = true);
 
-#define DISCOVERY_WAIT_TIME_PER_PROTO     3 /* In secs, should be configurable */
-
 static unsigned char snmpv3_broadcast_message[] =
 {
     0x30, 0x3a,
@@ -59,6 +57,15 @@ Discovery::Discovery(Snmpb *snmpb)
 
     connect( s->MainUI()->DiscoveryButton, 
              SIGNAL( clicked() ), this, SLOT( Discover() ));
+    connect( s->MainUI()->DiscoveryAbortButton, 
+             SIGNAL( clicked() ), this, SLOT( Abort() ));
+    connect( s->MainUI()->DiscoveryAgentSettings, 
+             SIGNAL( clicked() ), this, SLOT( ShowAgentSettings() ));
+    connect( s->APManagerObj(), SIGNAL( AgentProfileListChanged() ), 
+             this, SLOT ( AgentProfileListChange() ) );
+
+    // Fill-in the list of agent profiles from profiles manager
+    AgentProfileListChange();
 
     // Create the discovery thread (not started)
     dt = new DiscoveryThread(s);
@@ -71,12 +78,32 @@ Discovery::Discovery(Snmpb *snmpb)
              this, SLOT( DisplayProgress(int) ));
 }
 
+void Discovery::ShowAgentSettings(void)
+{
+     s->APManagerObj()->SetSelectedAgent(s->MainUI()->DiscoveryAgentProfile->currentText()); 
+     s->APManagerObj()->Execute();
+}
+
+void Discovery::AgentProfileListChange(void)
+{
+    QString cap = s->MainUI()->DiscoveryAgentProfile->currentText();
+    s->MainUI()->DiscoveryAgentProfile->clear();
+    s->MainUI()->DiscoveryAgentProfile->addItems(s->APManagerObj()->GetAgentsList());
+    if (cap.isEmpty() == false)
+    {
+        int idx = s->MainUI()->DiscoveryAgentProfile->findText(cap);
+        s->MainUI()->DiscoveryAgentProfile->setCurrentIndex(idx>0?idx:0);
+    }
+}
+
 DiscoveryThread::DiscoveryThread(QObject *parent):QThread(parent)
 {
     s = (Snmpb*)parent;
 
     // Create our SNMP session object
     snmp = new DiscoverySnmp(status);
+
+    snmp->aborting = false;
 };
 
 void DiscoveryThread::SendAgentInfo(Pdu pdu, UdpAddress a, snmp_version v)
@@ -134,19 +161,26 @@ void DiscoveryThread::Progress(void)
     emit SignalProgress(++current_progress);
 }
 
+void DiscoveryThread::Abort(void)
+{
+    snmp->aborting = true;
+}
+
 void DiscoverySnmp::discover(const UdpAddress &start_addr, int num_addr,
                              const int timeout_sec, const snmp_version version,
-                             DiscoveryThread* thread)
+                             QString readcomm, QString secname, int seclevel, 
+                             QString ctxname, QString ctxengineid, 
+                             bool use_snmpv3_probe, DiscoveryThread* thread)
 {
     unsigned char *message = NULL;
     int message_length = 0;
     unsigned int sock = iv_snmp_session;
-    SnmpMessage snmpmsg;
+    SnmpMessage *snmpmsg = NULL;
     Pdu pdu;
     OctetStr get_community;
 
     // Prepare pdu
-    if (version != version3)
+    if ((version != version3) || (use_snmpv3_probe == false))
     {
         Vb vb;
 
@@ -158,7 +192,24 @@ void DiscoverySnmp::discover(const UdpAddress &start_addr, int num_addr,
 
         pdu.set_error_index(0);            // set error index to none
         pdu.set_type(sNMP_PDU_GET);        // set pdu type
-        get_community = "public";
+
+        if (version != version3)
+        {
+            get_community = readcomm.toLatin1().data();
+        }
+        else
+        {
+            // set the security level to use
+            if (seclevel == 0/*"noAuthNoPriv"*/)
+                pdu.set_security_level(SNMP_SECURITY_LEVEL_NOAUTH_NOPRIV);
+            else if (seclevel == 1/*"authNoPriv"*/)
+                pdu.set_security_level(SNMP_SECURITY_LEVEL_AUTH_NOPRIV);
+            else
+                pdu.set_security_level(SNMP_SECURITY_LEVEL_AUTH_PRIV);
+
+            pdu.set_context_name(ctxname.toLatin1().data());
+            pdu.set_context_engine_id(ctxengineid.toLatin1().data());
+        }
     }
 
     // Send probe packets
@@ -184,25 +235,58 @@ void DiscoverySnmp::discover(const UdpAddress &start_addr, int num_addr,
         {
             pdu.set_request_id(MyMakeReqId()); // determine request id to use
 
-            if (snmpmsg.load(pdu, get_community, version) != SNMP_CLASS_SUCCESS)
-                return;
+            snmpmsg = new SnmpMessage();
+            if (snmpmsg->load(pdu, get_community, version) != SNMP_CLASS_SUCCESS)
+                goto next_addr;
 
-            message        = snmpmsg.data();
-            message_length = snmpmsg.len();
+            message        = snmpmsg->data();
+            message_length = snmpmsg->len();
         }
         else
         {
-            unsigned short v3reqid = MyMakeReqId();
-            message = (unsigned char *)snmpv3_broadcast_message;
-            message_length = sizeof(snmpv3_broadcast_message);
-            message[50] = v3reqid >> 8;
-            message[51] = v3reqid & 0xFF;
+            if (use_snmpv3_probe == true)
+            {
+                unsigned short v3reqid = MyMakeReqId();
+                message = (unsigned char *)snmpv3_broadcast_message;
+                message_length = sizeof(snmpv3_broadcast_message);
+                message[50] = v3reqid >> 8;
+                message[51] = v3reqid & 0xFF;
+            }
+            else
+            {
+                OctetStr engine_id;
+                pdu.set_request_id(MyMakeReqId()); // determine request id to use
+                v3MP::I->get_from_engine_id_table(engine_id, 
+                                                  uaddr.get_printable());
+
+                snmpmsg = new SnmpMessage();
+                if (snmpmsg->loadv3( pdu, engine_id, secname.toLatin1().data(),
+                                     SNMP_SECURITY_MODEL_USM, 
+                                     version) != SNMP_CLASS_SUCCESS)
+                    goto next_addr;
+
+                message        = snmpmsg->data();
+                message_length = snmpmsg->len();
+            }
         }
 
         if (send_raw_data(message, message_length, uaddr) < 0)
+        {
+            if (snmpmsg) delete snmpmsg;
             return;
+        }
+
+next_addr:
+        if (snmpmsg)
+        {
+            delete snmpmsg;
+            snmpmsg = NULL;
+        }
 
         cur_address[3] = cur_address[3]++;
+
+        if (aborting == true)
+            return;
     }
 
     // Now wait for the responses
@@ -237,6 +321,12 @@ new_loop:
                 thread->SendAgentInfo(in_pdu, from, version);
         }
 
+        if (aborting == true)
+        {
+            unlock();
+            return;
+        }
+
         // A second as elapsed, show progress
         if ((fd_timeout.tv_sec == 0) && (fd_timeout.tv_usec == 0))
         {
@@ -256,25 +346,23 @@ new_loop:
 void DiscoveryThread::run(void)
 {
     snmp_version cur_version  = version1;
+    AgentProfile *ap = s->APManagerObj()->GetAgentProfile
+                        (s->MainUI()->DiscoveryAgentProfile->currentText());
+
 
     if (status != SNMP_CLASS_SUCCESS)
         return;
 
     emit SignalStartStop(1);
 
-    UdpAddress start_address;
+    QString address_str;
 
     if (s->MainUI()->DiscoveryLocal->isChecked())
-    {
-        start_address = UdpAddress("255.255.255.255/161");
-    }
+        address_str = "255.255.255.255/" + ap->GetPort();
     else
-    {
-        QString tmp_addr(s->MainUI()->DiscoveryFrom->text() + "/161");
-        UdpAddress cur_address(tmp_addr.toLatin1().data());
+        address_str = s->MainUI()->DiscoveryFrom->text() + "/" + ap->GetPort();
 
-        start_address = cur_address;
-    }
+    UdpAddress start_address(address_str.toLatin1().data());
 
     current_progress = 0;
 
@@ -310,9 +398,13 @@ void DiscoveryThread::run(void)
                 break;
         }
 
+        snmp->aborting = false;
         snmp->discover(start_address, num_addresses, 
-                       DISCOVERY_WAIT_TIME_PER_PROTO, 
-                       cur_version, this);
+                       wait_time, cur_version, ap->GetReadComm(), 
+                       ap->GetSecName(), ap->GetSecLevel(), 
+                       ap->GetContextName(), ap->GetContextEngineID(), 
+                       s->MainUI()->DiscoverySNMPv3Probe->isChecked(), this);
+        if (snmp->aborting == true) break;
     }
 
     emit SignalStartStop(0);
@@ -339,14 +431,25 @@ void Discovery::DisplayAgent(QStringList agent_info)
 void Discovery::StartStop(int isstart)
 {
     if (isstart)
+    {
         s->MainUI()->DiscoveryButton->setEnabled(false);
+        s->MainUI()->DiscoveryAbortButton->setEnabled(true);
+    }
     else
+    {
         s->MainUI()->DiscoveryButton->setEnabled(true);
+        s->MainUI()->DiscoveryAbortButton->setEnabled(false);
+    }
 }
 
 void Discovery::DisplayProgress(int value)
 {
     s->MainUI()->DiscoveryProgress->setValue(value);
+}
+
+void Discovery::Abort(void)
+{
+    dt->Abort();
 }
 
 void Discovery::Discover(void)
@@ -360,6 +463,8 @@ void Discovery::Discover(void)
 
     if (dt->num_proto < 1)
         return;
+
+    dt->wait_time = s->MainUI()->DiscoveryWaitTime->value();
 
     s->MainUI()->DiscoveryProgress->reset();
     s->MainUI()->DiscoveryOutput->clear();
@@ -420,7 +525,7 @@ void Discovery::Discover(void)
         dt->num_addresses = addr_to[3] - addr_from[3] + 1;
     }
 
-    s->MainUI()->DiscoveryProgress->setRange(0, dt->num_proto*DISCOVERY_WAIT_TIME_PER_PROTO);
+    s->MainUI()->DiscoveryProgress->setRange(0, dt->num_proto*dt->wait_time);
 
     dt->start();
 }

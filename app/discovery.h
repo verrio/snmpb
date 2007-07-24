@@ -14,7 +14,11 @@ public:
 
     void discover(const UdpAddress &start_addr, int num_addr,
                   const int timeout_sec, const snmp_version version,
+                  QString readcomm, QString secname, int seclevel, 
+                  QString cxtname, QString ctxengineid, bool use_snmpv3_probe,
                   DiscoveryThread* thread);
+
+    bool aborting;
 };
 
 class DiscoveryThread: public QThread
@@ -26,10 +30,12 @@ public:
     void run();
     void SendAgentInfo(Pdu pdu, UdpAddress a, snmp_version v);
     void Progress(void);
+    void Abort(void);
 
 public:
     int num_proto;
     int num_addresses;
+    int wait_time;
 
 signals:
     void SendAgent(QStringList agent_info);
@@ -52,9 +58,12 @@ public:
     
 protected slots:
     void Discover(void);
+    void Abort(void);
     void DisplayAgent(QStringList agent_info);
     void StartStop(int isstart);
     void DisplayProgress(int value);
+    void ShowAgentSettings(void);
+    void AgentProfileListChange(void);
 
 private:
     Snmpb *s;

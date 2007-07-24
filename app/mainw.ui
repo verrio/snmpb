@@ -733,7 +733,17 @@
             </widget>
            </item>
            <item row="1" column="1" >
-            <widget class="QSpinBox" name="DiscoveryWaitTime" />
+            <widget class="QSpinBox" name="DiscoveryWaitTime" >
+             <property name="maximum" >
+              <number>1000</number>
+             </property>
+             <property name="minimum" >
+              <number>1</number>
+             </property>
+             <property name="value" >
+              <number>3</number>
+             </property>
+            </widget>
            </item>
            <item row="1" column="0" >
             <widget class="QLabel" name="DiscoveryWaitTimeL" >
@@ -746,6 +756,9 @@
             <widget class="QCheckBox" name="DiscoverySNMPv3Probe" >
              <property name="text" >
               <string>Use probe packet for SNMPv3</string>
+             </property>
+             <property name="checked" >
+              <bool>true</bool>
              </property>
             </widget>
            </item>
@@ -979,6 +992,9 @@
         </item>
         <item row="1" column="2" >
          <widget class="QPushButton" name="DiscoveryAbortButton" >
+          <property name="enabled" >
+           <bool>false</bool>
+          </property>
           <property name="sizePolicy" >
            <sizepolicy>
             <hsizetype>0</hsizetype>
@@ -1845,12 +1861,6 @@
  <layoutdefault spacing="6" margin="11" />
  <customwidgets>
   <customwidget>
-   <class>QPenStyleComboBox</class>
-   <extends>QComboBox</extends>
-   <header>comboboxes.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>BasicMibView</class>
    <extends>QWidget</extends>
    <header>mibview.h</header>
@@ -1876,6 +1886,12 @@
   </customwidget>
   <customwidget>
    <class>QPenWidthComboBox</class>
+   <extends>QComboBox</extends>
+   <header>comboboxes.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QPenStyleComboBox</class>
    <extends>QComboBox</extends>
    <header>comboboxes.h</header>
    <container>1</container>
