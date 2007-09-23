@@ -64,7 +64,7 @@ unix {
   MOC_DIR = .moc
   OBJECTS_DIR = .obj
 }
-FORMS	= mainw.ui agentprofile.ui usmprofile.ui preferences.ui
+FORMS	= mainw.ui agentprofile.ui usmprofile.ui preferences.ui gotoline.ui find.ui replace.ui
 TEMPLATE	= app
 CONFIG	+= qt warn_on
 win32:CONFIG += release

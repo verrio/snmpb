@@ -3,6 +3,9 @@
 #include <qpainter.h>
 #include "mibeditor.h"
 #include "mibmodule.h"
+#include "ui_gotoline.h"
+#include "ui_find.h"
+#include "ui_replace.h"
 
 MibEditor::MibEditor(Snmpb *snmpb)
 {
@@ -25,8 +28,16 @@ MibEditor::MibEditor(Snmpb *snmpb)
              this, SLOT( SelectedLogEntry ( QListWidgetItem* ) ) );
     connect( s->MainUI()->fileNewAction, SIGNAL( triggered() ),
              this, SLOT( MibFileNew() ) );
-    connect(s->MainUI()->MIBFile->document(), SIGNAL(modificationChanged(bool)),
-            this, SLOT( MibFileModified(bool) ));
+    connect( s->MainUI()->MIBFile->document(), SIGNAL(modificationChanged(bool)),
+             this, SLOT( MibFileModified(bool) ));
+    connect( s->MainUI()->actionGotoLine, SIGNAL( triggered() ),
+             this, SLOT( GotoLine() ) );
+    connect( s->MainUI()->actionFind, SIGNAL( triggered() ),
+             this, SLOT( Find() ) );
+    connect( s->MainUI()->actionReplace, SIGNAL( triggered() ),
+             this, SLOT( Replace() ) );
+    connect( s->MainUI()->actionFindNext, SIGNAL( triggered() ),
+             this, SLOT( FindNext() ) );
 
     // Syntax highlighter
     highlighter = new MibHighlighter(s->MainUI()->MIBFile->document());
@@ -77,6 +88,35 @@ void MibEditor::MibFileNew(void)
 {
     s->MainUI()->MIBFile->clear();
     SetCurrentFileName("");
+}
+
+void MibEditor::GotoLine(void)
+{
+    Ui_GotoLineDialog uid;
+    QDialog d;
+    uid.setupUi(&d);
+    d.exec();
+}
+
+void MibEditor::Find(void)
+{
+    Ui_FindDialog uid;
+    QDialog d;
+    uid.setupUi(&d);
+    d.exec();
+}
+
+void MibEditor::Replace(void)
+{
+    Ui_ReplaceDialog uid;
+    QDialog d;
+    uid.setupUi(&d);
+    d.exec();
+}
+
+void MibEditor::FindNext(void)
+{
+    printf("Find NEXT!\n");
 }
 
 void MibEditor::MibFileOpen(void)

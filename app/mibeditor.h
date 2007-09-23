@@ -25,6 +25,10 @@ public slots:
     void SelectedLogEntry(QListWidgetItem *item);
     void SetLineNumStatus(void); 
     void MibFileModified(bool modified);
+    void GotoLine(void);
+    void Find(void);
+    void Replace(void);
+    void FindNext(void);
 
 private:
     void SetCurrentFileName(const QString &FileName);

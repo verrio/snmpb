@@ -1681,21 +1681,6 @@
      <height>29</height>
     </rect>
    </property>
-   <widget class="QMenu" name="fileMenu" >
-    <property name="title" >
-     <string>&amp;File</string>
-    </property>
-    <addaction name="fileNewAction" />
-    <addaction name="fileOpenAction" />
-    <addaction name="fileSaveAction" />
-    <addaction name="fileSaveAsAction" />
-    <addaction name="actionVerifyMIB" />
-    <addaction name="actionExtractMIBfromRFC" />
-    <addaction name="separator" />
-    <addaction name="filePrintAction" />
-    <addaction name="separator" />
-    <addaction name="fileExitAction" />
-   </widget>
    <widget class="QMenu" name="helpMenu" >
     <property name="title" >
      <string>&amp;Help</string>
@@ -1714,8 +1699,34 @@
     <addaction name="separator" />
     <addaction name="actionPreferences" />
    </widget>
+   <widget class="QMenu" name="menuTools" >
+    <property name="title" >
+     <string>Tools</string>
+    </property>
+    <addaction name="actionGotoLine" />
+    <addaction name="separator" />
+    <addaction name="actionFind" />
+    <addaction name="actionReplace" />
+    <addaction name="actionFindNext" />
+   </widget>
+   <widget class="QMenu" name="fileMenu" >
+    <property name="title" >
+     <string>&amp;File</string>
+    </property>
+    <addaction name="fileNewAction" />
+    <addaction name="fileOpenAction" />
+    <addaction name="fileSaveAction" />
+    <addaction name="fileSaveAsAction" />
+    <addaction name="actionVerifyMIB" />
+    <addaction name="actionExtractMIBfromRFC" />
+    <addaction name="separator" />
+    <addaction name="filePrintAction" />
+    <addaction name="separator" />
+    <addaction name="fileExitAction" />
+   </widget>
    <addaction name="fileMenu" />
    <addaction name="optionsMenu" />
+   <addaction name="menuTools" />
    <addaction name="helpMenu" />
   </widget>
   <action name="fileNewAction" >
@@ -1857,9 +1868,53 @@
     <string>Preferences...</string>
    </property>
   </action>
+  <action name="actionGotoLine" >
+   <property name="text" >
+    <string>&amp;Goto Line...</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+G</string>
+   </property>
+  </action>
+  <action name="actionFind" >
+   <property name="text" >
+    <string>&amp;Find...</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+F</string>
+   </property>
+  </action>
+  <action name="actionReplace" >
+   <property name="text" >
+    <string>&amp;Replace...</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+R</string>
+   </property>
+  </action>
+  <action name="actionFindNext" >
+   <property name="text" >
+    <string>Find nex&amp;t</string>
+   </property>
+   <property name="iconText" >
+    <string>Find next</string>
+   </property>
+   <property name="toolTip" >
+    <string>Find next</string>
+   </property>
+   <property name="shortcut" >
+    <string>F3</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11" />
  <customwidgets>
+  <customwidget>
+   <class>QPenStyleComboBox</class>
+   <extends>QComboBox</extends>
+   <header>comboboxes.h</header>
+   <container>1</container>
+  </customwidget>
   <customwidget>
    <class>BasicMibView</class>
    <extends>QWidget</extends>
@@ -1886,12 +1941,6 @@
   </customwidget>
   <customwidget>
    <class>QPenWidthComboBox</class>
-   <extends>QComboBox</extends>
-   <header>comboboxes.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>QPenStyleComboBox</class>
    <extends>QComboBox</extends>
    <header>comboboxes.h</header>
    <container>1</container>
