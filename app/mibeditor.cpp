@@ -9,22 +9,24 @@ MibEditor::MibEditor(Snmpb *snmpb)
     s = snmpb;
 
     // Menu items
-    connect( s->MainUI()->fileNewAction, SIGNAL( triggered(bool) ),
-             this, SLOT( MibFileNew(bool) ) );
-    connect( s->MainUI()->fileOpenAction, SIGNAL( triggered(bool) ),
-             this, SLOT( MibFileOpen(bool) ) );
-    connect( s->MainUI()->fileSaveAction, SIGNAL( triggered(bool) ),
-             this, SLOT( MibFileSave(bool) ) );
-    connect( s->MainUI()->fileSaveAsAction, SIGNAL( triggered(bool) ),
-             this, SLOT( MibFileSaveAs(bool) ) );
-    connect( s->MainUI()->actionVerifyMIB, SIGNAL( triggered(bool) ),
-             this, SLOT( VerifyMIB(bool) ) );
-    connect( s->MainUI()->actionExtractMIBfromRFC, SIGNAL( triggered(bool) ),
-             this, SLOT( ExtractMIBfromRFC(bool) ) );
+    connect( s->MainUI()->fileNewAction, SIGNAL( triggered() ),
+             this, SLOT( MibFileNew() ) );
+    connect( s->MainUI()->fileOpenAction, SIGNAL( triggered() ),
+             this, SLOT( MibFileOpen() ) );
+    connect( s->MainUI()->fileSaveAction, SIGNAL( triggered() ),
+             this, SLOT( MibFileSave() ) );
+    connect( s->MainUI()->fileSaveAsAction, SIGNAL( triggered() ),
+             this, SLOT( MibFileSaveAs() ) );
+    connect( s->MainUI()->actionVerifyMIB, SIGNAL( triggered() ),
+             this, SLOT( VerifyMIB() ) );
+    connect( s->MainUI()->actionExtractMIBfromRFC, SIGNAL( triggered() ),
+             this, SLOT( ExtractMIBfromRFC() ) );
     connect( s->MainUI()->MIBLog, SIGNAL ( itemDoubleClicked ( QListWidgetItem* ) ),
              this, SLOT( SelectedLogEntry ( QListWidgetItem* ) ) );
-    connect( s->MainUI()->fileNewAction, SIGNAL( triggered(bool) ),
-             this, SLOT( MibFileNew(bool) ) );
+    connect( s->MainUI()->fileNewAction, SIGNAL( triggered() ),
+             this, SLOT( MibFileNew() ) );
+    connect(s->MainUI()->MIBFile->document(), SIGNAL(modificationChanged(bool)),
+            this, SLOT( MibFileModified(bool) ));
 
     // Syntax highlighter
     highlighter = new MibHighlighter(s->MainUI()->MIBFile->document());
@@ -36,41 +38,92 @@ MibEditor::MibEditor(Snmpb *snmpb)
     lnum = new QLabel();
     s->MainUI()->MIBFileStatus->addPermanentWidget(lnum);
 
+    // Filename statusbar widget
+    lfn = new QLabel();
+    s->MainUI()->MIBFileStatus->addWidget(lfn);
+
+    SetCurrentFileName("");
+
     connect( s->MainUI()->MIBFile, SIGNAL( cursorPositionChanged() ),
              this, SLOT( SetLineNumStatus() ) );
 
     SetLineNumStatus();
 }
 
-void MibEditor::MibFileNew(bool)
+void MibEditor::SetCurrentFileName(const QString &FileName)
 {
-    s->MainUI()->MIBFile->clear();
-    LoadedFile = "";
+    LoadedFile = FileName;
+    s->MainUI()->MIBFile->document()->setModified(false);
+    MibFileModified(false);
 }
 
-void MibEditor::MibFileOpen(bool)
+void MibEditor::MibFileModified(bool modified)
+{
+    s->MainUI()->fileSaveAction->setEnabled(modified);
+
+    QString ShownName;
+    if (LoadedFile.isEmpty())
+        ShownName = "UNTITLED-MIB";
+    else
+        ShownName = QFileInfo(LoadedFile).fileName();
+
+    if (modified)
+        lfn->setText(tr("%1 *").arg(ShownName));
+    else
+        lfn->setText(tr("%1").arg(ShownName));
+}
+
+void MibEditor::MibFileNew(void)
+{
+    s->MainUI()->MIBFile->clear();
+    SetCurrentFileName("");
+}
+
+void MibEditor::MibFileOpen(void)
 {
     QString fileName = NULL;
 
     fileName = QFileDialog::getOpenFileName(s->MainUI()->MIBFile,
-                                tr("Open File"), "", 
-                                "MIB Files (*-MIB *-PIB *.mib *.pib *.smi)");
+                                            tr("Open File"), "", 
+                                            "MIB Files (*-MIB *-PIB *.mib *.pib *.smi);;All Files (*)");
 
     if (!fileName.isEmpty())
     {
         QFile file(fileName);
         if (file.open(QIODevice::ReadWrite | QFile::Text))
+        {
             s->MainUI()->MIBFile->setPlainText(file.readAll());
-        LoadedFile = fileName; 
+            SetCurrentFileName(fileName);
+        }
     }
 }
 
-void MibEditor::MibFileSave(bool)
+void MibEditor::MibFileSave(void)
 {
+    if (LoadedFile.isEmpty())
+        return MibFileSaveAs();
+
+    QFile file(LoadedFile);
+    if (!file.open(QFile::WriteOnly))
+        return;
+    QTextStream ts(&file);
+
+    ts << s->MainUI()->MIBFile->toPlainText();
+    SetCurrentFileName(LoadedFile);
+    file.close();
 }
 
-void MibEditor::MibFileSaveAs(bool)
+void MibEditor::MibFileSaveAs(void)
 {
+    QString fileName = NULL;
+
+    fileName  = QFileDialog::getSaveFileName(s->MainUI()->MIBFile, 
+                                             tr("Save as..."), "", 
+                                             "MIB Files (*-MIB *-PIB *.mib *.pib *.smi);;All Files (*)");
+    if (fileName.isEmpty())
+        return;
+    SetCurrentFileName(fileName);
+    return MibFileSave();
 }
 
 void MibEditor::ErrorHandler(char *path, int line, int severity, 
@@ -121,7 +174,7 @@ static void ErrorHdlr(char *path, int line, int severity,
     CurrentEditorObject->ErrorHandler(path, line, severity, msg, tag);
 }
 
-void MibEditor::VerifyMIB(bool)
+void MibEditor::VerifyMIB(void)
 {
     int flags =  smiGetFlags();
     int saved_flags = flags;
@@ -155,7 +208,7 @@ void MibEditor::VerifyMIB(bool)
     s->MibModuleObj()->Refresh();
 }
 
-void MibEditor::ExtractMIBfromRFC(bool)
+void MibEditor::ExtractMIBfromRFC(void)
 {
     QRegExp module_regexp("^[ \t]*([A-Za-z0-9-]*) *(PIB-)?DEFINITIONS *(::=)? *(BEGIN)? *$");
     QRegExp page_regexp("\\[[pP]age [iv0-9]*\\] *");

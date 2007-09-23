@@ -16,19 +16,24 @@ public:
                       char *msg, char *tag);
 
 public slots:
-    void MibFileNew(bool checked);
-    void MibFileOpen(bool checked);
-    void MibFileSave(bool checked);
-    void MibFileSaveAs(bool checked);
-    void VerifyMIB(bool checked);
-    void ExtractMIBfromRFC(bool checked);
+    void MibFileNew(void);
+    void MibFileOpen(void);
+    void MibFileSave(void);
+    void MibFileSaveAs(void);
+    void VerifyMIB(void);
+    void ExtractMIBfromRFC(void);
     void SelectedLogEntry(QListWidgetItem *item);
     void SetLineNumStatus(void); 
+    void MibFileModified(bool modified);
+
+private:
+    void SetCurrentFileName(const QString &FileName);
 
 private:
     Snmpb *s;
     MibHighlighter *highlighter;
     QLabel *lnum;
+    QLabel *lfn;
     
     QString LoadedFile;
 
