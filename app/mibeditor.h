@@ -5,6 +5,9 @@
 #include <qlabel.h>
 #include "snmpb.h"
 #include "mibhighlighter.h"
+#include "ui_gotoline.h"
+#include "ui_find.h"
+#include "ui_replace.h"
 
 class MibEditor: public QObject
 {
@@ -29,12 +32,19 @@ public slots:
     void Find(void);
     void Replace(void);
     void FindNext(void);
+    void ExecuteGotoLine(void);
+    void ExecuteFind(void);
+    void ExecuteReplace(void);
 
 private:
     void SetCurrentFileName(const QString &FileName);
 
 private:
     Snmpb *s;
+    Ui_GotoLineDialog goto_uid;
+    Ui_FindDialog find_uid;
+    Ui_ReplaceDialog replace_uid;
+
     MibHighlighter *highlighter;
     QLabel *lnum;
     QLabel *lfn;
@@ -44,6 +54,9 @@ private:
     int num_error;
     int num_warning;
     int num_info;
+
+    QTextDocument::FindFlags ff;
+    QString find_string;
 };
 
 #endif /* MIBEDITOR_H */

@@ -30,7 +30,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>243</width>
+    <width>186</width>
     <height>108</height>
    </rect>
   </property>
@@ -67,6 +67,12 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="correctionMode" >
+      <enum>QAbstractSpinBox::CorrectToPreviousValue</enum>
+     </property>
+     <property name="maximum" >
+      <number>999999999</number>
+     </property>
     </widget>
    </item>
    <item row="2" column="0" colspan="2" >
@@ -95,6 +101,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="PushButton2" >
+       <property name="focusPolicy" >
+        <enum>Qt::StrongFocus</enum>
+       </property>
        <property name="text" >
         <string>&amp;Goto</string>
        </property>
@@ -106,7 +115,7 @@
      <item>
       <widget class="QPushButton" name="PushButton1" >
        <property name="text" >
-        <string>&amp;Close</string>
+        <string>&amp;Cancel</string>
        </property>
       </widget>
      </item>
@@ -139,6 +148,16 @@
    <signal>clicked()</signal>
    <receiver>GotoLineDialog</receiver>
    <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
   </connection>
  </connections>
 </ui>

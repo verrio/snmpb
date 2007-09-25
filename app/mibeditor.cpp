@@ -3,9 +3,6 @@
 #include <qpainter.h>
 #include "mibeditor.h"
 #include "mibmodule.h"
-#include "ui_gotoline.h"
-#include "ui_find.h"
-#include "ui_replace.h"
 
 MibEditor::MibEditor(Snmpb *snmpb)
 {
@@ -92,31 +89,153 @@ void MibEditor::MibFileNew(void)
 
 void MibEditor::GotoLine(void)
 {
-    Ui_GotoLineDialog uid;
     QDialog d;
-    uid.setupUi(&d);
+
+    goto_uid.setupUi(&d);
+    connect( goto_uid.PushButton2, SIGNAL( clicked() ), 
+             this, SLOT( ExecuteGotoLine() ));
+    connect( goto_uid.PushButton2, SIGNAL( clicked() ), 
+             &d, SLOT( accept() ));
+    goto_uid.spinLine->setFocus(Qt::TabFocusReason);
     d.exec();
+}
+
+void MibEditor::ExecuteGotoLine(void)
+{
+    QTextBlock currentBlock = s->MainUI()->MIBFile->document()->begin();
+    QTextBlock foundBlock;
+    int l = 1;
+    int found = 0;
+
+    int line = goto_uid.spinLine->value();
+
+    // Loop through the blocks
+    while(currentBlock.isValid())
+    {
+        if (l == line)
+        {
+            found = 1;
+            foundBlock = currentBlock;
+            break;
+        }
+
+        currentBlock = currentBlock.next();
+        l++;
+    };
+
+    if (found)
+    {
+        // Change scrollbar to put the marker visible in the middle of the editor
+        int halfViewPortHeight = s->MainUI()->MIBFile->maximumViewportSize().height()/2;
+        int yCoord = (int)foundBlock.layout()->position().y();
+        int yAdjust = (yCoord < halfViewPortHeight)?yCoord : halfViewPortHeight;
+        int halfLineHeight = (int)foundBlock.layout()->boundingRect().height()/2;
+
+        s->MainUI()->MIBFile->verticalScrollBar()->setValue(yCoord - yAdjust);
+
+        // Set the cursor position to the marker line
+        QPoint cursorPos(0, yAdjust+halfLineHeight);
+        QTextCursor tc = s->MainUI()->MIBFile->cursorForPosition(cursorPos);
+
+        s->MainUI()->MIBFile->setTextCursor(tc);
+
+        // Finally, set the focus to the editor
+        s->MainUI()->MIBFile->setFocus(Qt::OtherFocusReason);
+    }
 }
 
 void MibEditor::Find(void)
 {
-    Ui_FindDialog uid;
     QDialog d;
-    uid.setupUi(&d);
+
+    find_uid.setupUi(&d);
+    connect( find_uid.PushButton1, SIGNAL( clicked() ), 
+             this, SLOT( ExecuteFind() ));
+    connect( find_uid.PushButton1, SIGNAL( clicked() ), 
+             &d, SLOT( accept() ));
+    find_uid.comboFind->setFocus(Qt::TabFocusReason);
     d.exec();
+}
+
+void MibEditor::ExecuteFind(void)
+{
+    QTextCursor tc;
+
+    ff = 0;
+    find_string = find_uid.comboFind->itemText(0);
+
+    if (find_uid.checkWords->isChecked())
+        ff |= QTextDocument::FindWholeWords;
+    if (find_uid.checkCase->isChecked())
+        ff |= QTextDocument::FindCaseSensitively;
+    if (find_uid.radioBackward->isChecked())
+        ff |= QTextDocument::FindBackward;
+
+    if (find_uid.checkBegin->isChecked())
+        tc = s->MainUI()->MIBFile->document()->find(find_string, 0, ff);
+    else
+        tc = s->MainUI()->MIBFile->document()->find(find_string,
+                 s->MainUI()->MIBFile->textCursor(), ff);
+
+    if (!tc.isNull())
+    {
+        s->MainUI()->MIBFile->setTextCursor(tc);
+        tc.select(QTextCursor::WordUnderCursor);
+    }
 }
 
 void MibEditor::Replace(void)
 {
-    Ui_ReplaceDialog uid;
     QDialog d;
-    uid.setupUi(&d);
+
+    replace_uid.setupUi(&d);
+    connect( replace_uid.buttonReplace, SIGNAL( clicked() ), 
+             this, SLOT( ExecuteReplace() ));
+    replace_uid.comboFind->setFocus(Qt::TabFocusReason);
     d.exec();
+}
+
+void MibEditor::ExecuteReplace(void)
+{
+    QTextCursor tc;
+    QTextDocument::FindFlags ffr = 0;
+
+    if (replace_uid.checkWords->isChecked())
+        ffr |= QTextDocument::FindWholeWords;
+    if (replace_uid.checkCase->isChecked())
+        ffr |= QTextDocument::FindCaseSensitively;
+    if (replace_uid.radioBackward->isChecked())
+        ffr |= QTextDocument::FindBackward;
+
+    if (replace_uid.checkBegin->isChecked())
+        tc = s->MainUI()->MIBFile->document()->find(replace_uid.comboFind->itemText(0), 0, ffr);
+    else
+{
+printf("REPLACE from cursor !\n");
+if (s->MainUI()->MIBFile->textCursor().isNull()) printf("CURSOR is NULL!\n");
+        tc = s->MainUI()->MIBFile->document()->find(replace_uid.comboFind->itemText(0),
+                 s->MainUI()->MIBFile->textCursor(), ffr);
+}
+
+    if (!tc.isNull())
+    {
+        s->MainUI()->MIBFile->setTextCursor(tc);
+        tc.select(QTextCursor::WordUnderCursor);
+        printf("REPLACING!\n");  
+    }
+else
+printf("NULL CURSOR !\n");
 }
 
 void MibEditor::FindNext(void)
 {
-    printf("Find NEXT!\n");
+    QTextCursor tc = s->MainUI()->MIBFile->document()->find(find_string,
+                         s->MainUI()->MIBFile->textCursor(), ff);
+    if (!tc.isNull())
+    {
+        s->MainUI()->MIBFile->setTextCursor(tc);
+        tc.select(QTextCursor::WordUnderCursor);
+    }
 }
 
 void MibEditor::MibFileOpen(void)
