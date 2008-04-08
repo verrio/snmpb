@@ -41,7 +41,13 @@ qwt/lib/libqwt.a: qwt/Makefile
 
 qwt/Makefile:
 ifeq (${os}, Cygwin)
-	cd qwt; export MINGW_IN_SHELL=1; qmake qwt.pro
+	cd qwt; export DIR_SEPARATOR="/"; qmake qwt.pro
+	sed -e 's/c:/\/cygdrive\/c/g;s/C:.*moc.exe/moc.exe/g' qwt/Makefile > qwt/Makefile.tmp
+	mv qwt/Makefile.tmp qwt/Makefile
+	sed -e 's/c:/\/cygdrive\/c/g;s/C:.*moc.exe/moc.exe/g' qwt/Makefile.Debug > qwt/Makefile.tmp
+	mv qwt/Makefile.tmp qwt/Makefile.Debug
+	sed -e 's/c:/\/cygdrive\/c/g;s/C:.*moc.exe/moc.exe/g' qwt/Makefile.Release > qwt/Makefile.tmp
+	mv qwt/Makefile.tmp qwt/Makefile.Release
 else
 	# Linux
 	cd qwt; qmake-qt4 qwt.pro
