@@ -141,7 +141,7 @@
                    <string/>
                   </property>
                   <property name="icon" >
-                   <iconset>images/agentsettings.png</iconset>
+                   <iconset>:/images/agentsettings.png</iconset>
                   </property>
                  </widget>
                 </item>
@@ -829,7 +829,7 @@
               <string/>
              </property>
              <property name="icon" >
-              <iconset>images/agentsettings.png</iconset>
+              <iconset>:/images/agentsettings.png</iconset>
              </property>
             </widget>
            </item>
