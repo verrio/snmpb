@@ -149,10 +149,8 @@ void MibEditor::Find(void)
     QDialog d;
 
     find_uid.setupUi(&d);
-    connect( find_uid.PushButton1, SIGNAL( clicked() ), 
+    connect( find_uid.buttonFindNext, SIGNAL( clicked() ), 
              this, SLOT( ExecuteFind() ));
-    connect( find_uid.PushButton1, SIGNAL( clicked() ), 
-             &d, SLOT( accept() ));
     find_uid.comboFind->setFocus(Qt::TabFocusReason);
     d.exec();
 }
@@ -162,7 +160,7 @@ void MibEditor::ExecuteFind(void)
     QTextCursor tc;
 
     ff = 0;
-    find_string = find_uid.comboFind->itemText(0);
+    find_string = find_uid.comboFind->currentText();
 
     if (find_uid.checkWords->isChecked())
         ff |= QTextDocument::FindWholeWords;
@@ -174,8 +172,9 @@ void MibEditor::ExecuteFind(void)
     if (find_uid.checkBegin->isChecked())
         tc = s->MainUI()->MIBFile->document()->find(find_string, 0, ff);
     else
-        tc = s->MainUI()->MIBFile->document()->find(find_string,
-                 s->MainUI()->MIBFile->textCursor(), ff);
+        tc = s->MainUI()->MIBFile->document()->find(find_string, 
+                                                    s->MainUI()->MIBFile->textCursor(), 
+                                                    ff);
 
     if (!tc.isNull())
     {
@@ -208,23 +207,20 @@ void MibEditor::ExecuteReplace(void)
         ffr |= QTextDocument::FindBackward;
 
     if (replace_uid.checkBegin->isChecked())
-        tc = s->MainUI()->MIBFile->document()->find(replace_uid.comboFind->itemText(0), 0, ffr);
+        tc = s->MainUI()->MIBFile->document()->find(replace_uid.comboFind->currentText(), 
+                                                    0, ffr);
     else
-{
-printf("REPLACE from cursor !\n");
-if (s->MainUI()->MIBFile->textCursor().isNull()) printf("CURSOR is NULL!\n");
-        tc = s->MainUI()->MIBFile->document()->find(replace_uid.comboFind->itemText(0),
-                 s->MainUI()->MIBFile->textCursor(), ffr);
-}
+        tc = s->MainUI()->MIBFile->document()->find(replace_uid.comboFind->currentText(),
+                                                    s->MainUI()->MIBFile->textCursor(),
+                                                    ffr);
 
     if (!tc.isNull())
     {
         s->MainUI()->MIBFile->setTextCursor(tc);
         tc.select(QTextCursor::WordUnderCursor);
-        printf("REPLACING!\n");  
+        tc.insertText(replace_uid.comboReplace->currentText());
+        tc.select(QTextCursor::WordUnderCursor);
     }
-else
-printf("NULL CURSOR !\n");
 }
 
 void MibEditor::FindNext(void)
