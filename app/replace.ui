@@ -38,18 +38,42 @@
    <string>Replace Text</string>
   </property>
   <layout class="QGridLayout" >
-   <property name="margin" >
+   <property name="leftMargin" >
     <number>11</number>
    </property>
-   <property name="spacing" >
+   <property name="topMargin" >
+    <number>11</number>
+   </property>
+   <property name="rightMargin" >
+    <number>11</number>
+   </property>
+   <property name="bottomMargin" >
+    <number>11</number>
+   </property>
+   <property name="horizontalSpacing" >
+    <number>6</number>
+   </property>
+   <property name="verticalSpacing" >
     <number>6</number>
    </property>
    <item row="0" column="0" colspan="2" >
     <layout class="QGridLayout" >
-     <property name="margin" >
+     <property name="leftMargin" >
       <number>0</number>
      </property>
-     <property name="spacing" >
+     <property name="topMargin" >
+      <number>0</number>
+     </property>
+     <property name="rightMargin" >
+      <number>0</number>
+     </property>
+     <property name="bottomMargin" >
+      <number>0</number>
+     </property>
+     <property name="horizontalSpacing" >
+      <number>6</number>
+     </property>
+     <property name="verticalSpacing" >
       <number>6</number>
      </property>
      <item row="1" column="0" >
@@ -81,9 +105,7 @@
      <item row="0" column="1" >
       <widget class="QComboBox" name="comboFind" >
        <property name="sizePolicy" >
-        <sizepolicy>
-         <hsizetype>7</hsizetype>
-         <vsizetype>0</vsizetype>
+        <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -96,9 +118,7 @@
      <item row="1" column="1" >
       <widget class="QComboBox" name="comboReplace" >
        <property name="sizePolicy" >
-        <sizepolicy>
-         <hsizetype>7</hsizetype>
-         <vsizetype>0</vsizetype>
+        <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -112,11 +132,20 @@
    </item>
    <item row="2" column="0" colspan="2" >
     <layout class="QHBoxLayout" >
-     <property name="margin" >
-      <number>0</number>
-     </property>
      <property name="spacing" >
       <number>6</number>
+     </property>
+     <property name="leftMargin" >
+      <number>0</number>
+     </property>
+     <property name="topMargin" >
+      <number>0</number>
+     </property>
+     <property name="rightMargin" >
+      <number>0</number>
+     </property>
+     <property name="bottomMargin" >
+      <number>0</number>
      </property>
      <item>
       <spacer>
@@ -133,6 +162,13 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="buttonFindNext" >
+       <property name="text" >
+        <string>&amp;Find Next</string>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QPushButton" name="buttonReplace" >
@@ -152,7 +188,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="PushButton2" >
+      <widget class="QPushButton" name="buttonClose" >
        <property name="text" >
         <string>&amp;Close</string>
        </property>
@@ -166,11 +202,20 @@
       <string>Options</string>
      </property>
      <layout class="QVBoxLayout" >
-      <property name="margin" >
-       <number>11</number>
-      </property>
       <property name="spacing" >
        <number>6</number>
+      </property>
+      <property name="leftMargin" >
+       <number>11</number>
+      </property>
+      <property name="topMargin" >
+       <number>11</number>
+      </property>
+      <property name="rightMargin" >
+       <number>11</number>
+      </property>
+      <property name="bottomMargin" >
+       <number>11</number>
       </property>
       <item>
        <widget class="QCheckBox" name="checkWords" >
@@ -202,11 +247,20 @@
       <string>Direction</string>
      </property>
      <layout class="QVBoxLayout" >
-      <property name="margin" >
-       <number>11</number>
-      </property>
       <property name="spacing" >
        <number>6</number>
+      </property>
+      <property name="leftMargin" >
+       <number>11</number>
+      </property>
+      <property name="topMargin" >
+       <number>11</number>
+      </property>
+      <property name="rightMargin" >
+       <number>11</number>
+      </property>
+      <property name="bottomMargin" >
+       <number>11</number>
       </property>
       <item>
        <widget class="QRadioButton" name="radioForward" >
@@ -232,8 +286,6 @@
  </widget>
  <layoutdefault spacing="6" margin="11" />
  <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
- <customwidgets>
- </customwidgets>
  <tabstops>
   <tabstop>comboFind</tabstop>
   <tabstop>comboReplace</tabstop>
@@ -244,15 +296,25 @@
   <tabstop>radioBackward</tabstop>
   <tabstop>buttonReplace</tabstop>
   <tabstop>buttonReplaceAll</tabstop>
-  <tabstop>PushButton2</tabstop>
+  <tabstop>buttonClose</tabstop>
  </tabstops>
  <resources/>
  <connections>
   <connection>
-   <sender>PushButton2</sender>
+   <sender>buttonClose</sender>
    <signal>clicked()</signal>
    <receiver>ReplaceDialog</receiver>
    <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
   </connection>
  </connections>
 </ui>
