@@ -8,7 +8,7 @@ snmpb_app: makefile.snmpb
 	$(MAKE) -f makefile.snmpb
 
 makefile.snmpb:
-ifneq (,$(findstring ${os},CYGWIN))
+ifneq ($(findstring CYGWIN,${os}),)
 	export DIR_SEPARATOR="/"; qmake -makefile -o makefile.snmpb snmpb.pro
 	sed -e 's/.*qtmain.prl/Makefile/g;s/c:/\/cygdrive\/c/g;s/C:.*moc.exe/moc.exe/g' makefile.snmpb > makefile.tmp
 	mv makefile.tmp makefile.snmpb

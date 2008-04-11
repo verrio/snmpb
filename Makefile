@@ -3,7 +3,7 @@
 #
 os:=$(shell uname -s)
 
-ifeq (,$(findstring ${os},BSD))
+ifneq ($(findstring BSD,${os}),)
 INSTALL=ginstall
 else
 INSTALL=install
@@ -11,7 +11,7 @@ endif
 
 INSTALL_PREFIX=/usr
 
-ifneq (,$(findstring ${os},CYGWIN))
+ifneq ($(findstring CYGWIN,${os}),)
 snmpb: libtomcrypt/libtomcrypt.a \
        libsmi/win/libsmi.a \
        qwt/lib/libqwt.a \
@@ -24,13 +24,13 @@ snmpb: libtomcrypt/libtomcrypt.a \
 endif
 
 libtomcrypt/libtomcrypt.a:
-ifneq (,$(findstring ${os},CYGWIN))
+ifneq ($(findstring CYGWIN,${os}),)
 	export CFLAGS="-mno-cygwin"; $(MAKE) -C libtomcrypt
 else
 	$(MAKE) -C libtomcrypt
 endif
 
-ifneq (,$(findstring ${os},CYGWIN))
+ifneq ($(findstring CYGWIN,${os}),)
 libsmi/win/libsmi.a:
 	$(MAKE) -C libsmi/win -f Makefile.mingw
 else
@@ -46,7 +46,7 @@ qwt/lib/libqwt.a: qwt/Makefile
 	$(MAKE) -C qwt
 
 qwt/Makefile:
-ifneq (,$(findstring ${os},CYGWIN))
+ifneq ($(findstring CYGWIN,${os}),)
 	cd qwt; export DIR_SEPARATOR="/"; qmake qwt.pro
 	sed -e 's/c:/\/cygdrive\/c/g;s/C:.*moc.exe/moc.exe/g' qwt/Makefile > qwt/Makefile.tmp
 	mv qwt/Makefile.tmp qwt/Makefile
@@ -64,7 +64,7 @@ app/snmpb:
 
 clean:
 	-$(MAKE) -C libtomcrypt clean
-ifneq (,$(findstring ${os},CYGWIN))
+ifneq ($(findstring CYGWIN,${os}),)
 	-$(MAKE) -C libsmi/win -f Makefile.mingw clean
 else
 	-$(MAKE) -C libsmi clean
