@@ -27,38 +27,40 @@ SOURCES	+= ../snmp++/src/address.cpp \
 	../snmp++/src/v3.cpp \
 	../snmp++/src/vb.cpp \
 	main.cpp \
-    snmpb.cpp \
+	snmpb.cpp \
 	mibnode.cpp \
 	mibview.cpp \
 	mibmodule.cpp \
 	agent.cpp \
 	trap.cpp \
 	graph.cpp \
-    comboboxes.cpp \
-    mibhighlighter.cpp \
-    markerwidget.cpp \
-    mibeditor.cpp \
-    logsnmpb.cpp \
-    discovery.cpp \
-    agentprofile.cpp \
-    usmprofile.cpp \
-    preferences.cpp
+	comboboxes.cpp \
+	mibhighlighter.cpp \
+	markerwidget.cpp \
+	mibeditor.cpp \
+	logsnmpb.cpp \
+	discovery.cpp \
+	agentprofile.cpp \
+	usmprofile.cpp \
+	preferences.cpp
+
 HEADERS	+= snmpb.h \
-    mibnode.h \
+	mibnode.h \
 	mibview.h \
 	mibmodule.h \
 	agent.h \
 	trap.h \
 	graph.h \
 	comboboxes.h \
-    mibhighlighter.h \
-    markerwidget.h \
-    mibeditor.h \
-    logsnmpb.h \
-    discovery.h \
-    agentprofile.h \
-    usmprofile.h \
-    preferences.h
+	mibhighlighter.h \
+	markerwidget.h \
+	mibeditor.h \
+	logsnmpb.h \
+	discovery.h \
+	agentprofile.h \
+	usmprofile.h \
+	preferences.h
+
 unix {
   UI_DIR = .ui
   MOC_DIR = .moc
@@ -67,6 +69,7 @@ unix {
 FORMS	= mainw.ui agentprofile.ui usmprofile.ui preferences.ui gotoline.ui find.ui replace.ui
 TEMPLATE	= app
 CONFIG	+= qt warn_on
+DEFINES += __unix
 win32:CONFIG += release
 win32:DEFINES	+= WIN32
 win32:QMAKE_CXXFLAGS += -mno-cygwin

@@ -2,13 +2,13 @@
 # Makefile for snmpb app
 #
 
-os:=$(shell uname -o)
+os:=$(shell uname -s)
 
 snmpb_app: makefile.snmpb
-	make -f makefile.snmpb
+	$(MAKE) -f makefile.snmpb
 
 makefile.snmpb:
-ifeq (${os}, Cygwin)
+ifneq (,$(findstring ${os},CYGWIN))
 	export DIR_SEPARATOR="/"; qmake -makefile -o makefile.snmpb snmpb.pro
 	sed -e 's/.*qtmain.prl/Makefile/g;s/c:/\/cygdrive\/c/g;s/C:.*moc.exe/moc.exe/g' makefile.snmpb > makefile.tmp
 	mv makefile.tmp makefile.snmpb
@@ -17,12 +17,12 @@ ifeq (${os}, Cygwin)
 	sed -e 's/c:/\/cygdrive\/c/g;s/C:.*moc.exe/moc.exe/g' makefile.snmpb.Release > makefile.tmp
 	mv makefile.tmp makefile.snmpb.Release
 else
-	# Linux
+	# Linux/BSD
 	qmake-qt4 -makefile -o makefile.snmpb snmpb.pro
 endif
 
 clean:
-	-make -f makefile.snmpb clean
+	-$(MAKE) -f makefile.snmpb clean
 	-rm -rf .moc .obj .ui
 	-rm -f makefile.snmpb
 	-rm snmpb

@@ -32,6 +32,8 @@
 #ifndef _CONFIG_SNMP_PP_H_
 #define _CONFIG_SNMP_PP_H_
 
+#include <sys/param.h>
+
 #define SNMP_PP_VERSION_STRING "3.2.21"
 #define SNMP_PP_VERSION 3
 #define SNMP_PP_RELEASE 2
@@ -126,9 +128,11 @@
 // are the standard functions thread safe
 #ifdef __GNUC__
 #ifndef WIN32
+#ifndef BSD
 #define HAVE_GETHOSTBYNAME_R
-#define HAVE_LOCALTIME_R
 #define HAVE_GETHOSTBYADDR_R
+#endif
+#define HAVE_LOCALTIME_R
 #else
 #define HAVE_REENTRANT_GETHOSTBYNAME
 #define HAVE_REENTRANT_LOCALTIME

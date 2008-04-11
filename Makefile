@@ -1,11 +1,17 @@
 #
-# snmpb project top-level makefile. Supports Linux & Windows(mingwin)
+# snmpb project top-level makefile. Supports Linux, NetBSD & Cygwin/Windows
 #
-os:=$(shell uname -o)
+os:=$(shell uname -s)
+
+ifeq (,$(findstring ${os},BSD))
+INSTALL=ginstall
+else
+INSTALL=install
+endif
 
 INSTALL_PREFIX=/usr
 
-ifeq (${os}, Cygwin)
+ifneq (,$(findstring ${os},CYGWIN))
 snmpb: libtomcrypt/libtomcrypt.a \
        libsmi/win/libsmi.a \
        qwt/lib/libqwt.a \
@@ -18,29 +24,29 @@ snmpb: libtomcrypt/libtomcrypt.a \
 endif
 
 libtomcrypt/libtomcrypt.a:
-ifeq (${os}, Cygwin)
-	export CFLAGS="-mno-cygwin"; make -C libtomcrypt
+ifneq (,$(findstring ${os},CYGWIN))
+	export CFLAGS="-mno-cygwin"; $(MAKE) -C libtomcrypt
 else
-	make -C libtomcrypt
+	$(MAKE) -C libtomcrypt
 endif
 
-ifeq (${os}, Cygwin)
+ifneq (,$(findstring ${os},CYGWIN))
 libsmi/win/libsmi.a:
-	make -C libsmi/win -f Makefile.mingw
+	$(MAKE) -C libsmi/win -f Makefile.mingw
 else
 libsmi/lib/.libs/libsmi.a: libsmi/Makefile
-	make -C libsmi
+	$(MAKE) -C libsmi
 endif
 
 libsmi/Makefile:
-	# Linux
+	# Linux/BSD
 	cd libsmi; automake-1.4; ./configure --disable-shared --with-pathseparator=';' --with-dirseparator='/' --with-smipath=${INSTALL_PREFIX}'/share/apps/snmpb/mibs;'${INSTALL_PREFIX}'/share/apps/snmpb/pibs'
 
 qwt/lib/libqwt.a: qwt/Makefile
-	make -C qwt
+	$(MAKE) -C qwt
 
 qwt/Makefile:
-ifeq (${os}, Cygwin)
+ifneq (,$(findstring ${os},CYGWIN))
 	cd qwt; export DIR_SEPARATOR="/"; qmake qwt.pro
 	sed -e 's/c:/\/cygdrive\/c/g;s/C:.*moc.exe/moc.exe/g' qwt/Makefile > qwt/Makefile.tmp
 	mv qwt/Makefile.tmp qwt/Makefile
@@ -49,32 +55,32 @@ ifeq (${os}, Cygwin)
 	sed -e 's/c:/\/cygdrive\/c/g;s/C:.*moc.exe/moc.exe/g' qwt/Makefile.Release > qwt/Makefile.tmp
 	mv qwt/Makefile.tmp qwt/Makefile.Release
 else
-	# Linux
+	# Linux/BSD
 	cd qwt; qmake-qt4 qwt.pro
 endif
 
 app/snmpb:
-	make -C app
+	$(MAKE) -C app
 
 clean:
-	-make -C libtomcrypt clean
-ifeq (${os}, Cygwin)
-	-make -C libsmi/win -f Makefile.mingw clean
+	-$(MAKE) -C libtomcrypt clean
+ifneq (,$(findstring ${os},CYGWIN))
+	-$(MAKE) -C libsmi/win -f Makefile.mingw clean
 else
-	-make -C libsmi clean
+	-$(MAKE) -C libsmi clean
 	rm libsmi/Makefile
 endif
-	-make -C qwt clean
-	-make -C app clean
+	-$(MAKE) -C qwt clean
+	-$(MAKE) -C app clean
 
 install:
-	install -v -d ${INSTALL_PREFIX}/bin ${INSTALL_PREFIX}/share/apps/snmpb/mibs ${INSTALL_PREFIX}/share/apps/snmpb/pibs
-	install -v -D -s -o root app/snmpb ${INSTALL_PREFIX}/bin
-	install -v -m 444 -o root libsmi/mibs/iana/* ${INSTALL_PREFIX}/share/apps/snmpb/mibs
-	install -v -m 444 -o root libsmi/mibs/ietf/* ${INSTALL_PREFIX}/share/apps/snmpb/mibs
-	install -v -m 444 -o root libsmi/mibs/irtf/* ${INSTALL_PREFIX}/share/apps/snmpb/mibs
-	install -v -m 444 -o root libsmi/mibs/tubs/* ${INSTALL_PREFIX}/share/apps/snmpb/mibs
-	install -v -m 444 -o root libsmi/pibs/ietf/* ${INSTALL_PREFIX}/share/apps/snmpb/pibs
-	install -v -m 444 -o root libsmi/pibs/tubs/* ${INSTALL_PREFIX}/share/apps/snmpb/pibs
+	$(INSTALL) -v -d ${INSTALL_PREFIX}/bin ${INSTALL_PREFIX}/share/apps/snmpb/mibs ${INSTALL_PREFIX}/share/apps/snmpb/pibs
+	$(INSTALL) -v -D -s -o root app/snmpb ${INSTALL_PREFIX}/bin
+	$(INSTALL) -v -m 444 -o root libsmi/mibs/iana/* ${INSTALL_PREFIX}/share/apps/snmpb/mibs
+	$(INSTALL) -v -m 444 -o root libsmi/mibs/ietf/* ${INSTALL_PREFIX}/share/apps/snmpb/mibs
+	$(INSTALL) -v -m 444 -o root libsmi/mibs/irtf/* ${INSTALL_PREFIX}/share/apps/snmpb/mibs
+	$(INSTALL) -v -m 444 -o root libsmi/mibs/tubs/* ${INSTALL_PREFIX}/share/apps/snmpb/mibs
+	$(INSTALL) -v -m 444 -o root libsmi/pibs/ietf/* ${INSTALL_PREFIX}/share/apps/snmpb/pibs
+	$(INSTALL) -v -m 444 -o root libsmi/pibs/tubs/* ${INSTALL_PREFIX}/share/apps/snmpb/pibs
 	rm ${INSTALL_PREFIX}/share/apps/snmpb/mibs/Makefile* ${INSTALL_PREFIX}/share/apps/snmpb/pibs/Makefile*
 
