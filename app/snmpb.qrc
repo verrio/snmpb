@@ -18,7 +18,6 @@
         <file>images/group.png</file>
         <file>images/marker.png</file>
         <file>images/notification.png</file>
-        <file>images/print.png</file>
         <file>images/scalar.png</file>
         <file>images/snmpb.png</file>
     </qresource>

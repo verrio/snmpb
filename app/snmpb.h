@@ -42,6 +42,7 @@ public slots:
     void ManageAgentProfiles(bool);
     void ManageUSMProfiles(bool);
     void ManagePreferences(bool);
+    void AboutBox(bool);
 
 private:
     Ui_MainW w;

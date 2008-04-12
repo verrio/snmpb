@@ -23,8 +23,6 @@ MibEditor::MibEditor(Snmpb *snmpb)
              this, SLOT( ExtractMIBfromRFC() ) );
     connect( s->MainUI()->MIBLog, SIGNAL ( itemDoubleClicked ( QListWidgetItem* ) ),
              this, SLOT( SelectedLogEntry ( QListWidgetItem* ) ) );
-    connect( s->MainUI()->fileNewAction, SIGNAL( triggered() ),
-             this, SLOT( MibFileNew() ) );
     connect( s->MainUI()->MIBFile->document(), SIGNAL(modificationChanged(bool)),
              this, SLOT( MibFileModified(bool) ));
     connect( s->MainUI()->actionGotoLine, SIGNAL( triggered() ),

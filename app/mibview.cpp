@@ -265,9 +265,11 @@ void MibView::contextMenuEvent ( QContextMenuEvent *event)
     menu.addAction(walkAct);
     menu.addAction(getAct);
     menu.addAction(getnextAct);
+#ifdef NOTYET
     menu.addAction(setAct);
     menu.addSeparator();
     menu.addAction(stopAct);
+#endif
     menu.addSeparator();
     menu.addAction(tableviewAct);
 

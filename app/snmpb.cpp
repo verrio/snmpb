@@ -67,6 +67,8 @@ Snmpb::Snmpb(QMainWindow* mw)
              this, SLOT( ManageUSMProfiles(bool) ) );
     connect( w.actionPreferences, SIGNAL( triggered(bool) ),
              this, SLOT( ManagePreferences(bool) ) );
+    connect( w.helpAboutAction, SIGNAL( triggered(bool) ),
+             this, SLOT( AboutBox(bool) ) );
 
     // Register every MIB tree to the MIB loader object
     w.MIBTree->RegisterToLoader(&loader);
@@ -197,5 +199,10 @@ void Snmpb::TreeTabSelected(void)
         w.MIBTree->Populate();
     else if (w.TabW->tabText(w.TabW->currentIndex()) == "Graphs")
         w.PlotMIBTree->Populate();
+}
+
+void Snmpb::AboutBox(bool)
+{
+    QMessageBox::aboutQt(NULL, "About SnmpB");
 }
 

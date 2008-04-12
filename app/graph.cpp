@@ -190,9 +190,9 @@ void Graph::CreatePlot(void)
                (enum Qt::PenStyle)(s->MainUI()->PlotShape->itemData(
                s->MainUI()->PlotShape->currentIndex(), 
                Qt::DisplayRole).toUInt()));
-    
+#ifdef NOTYET  
         printf("Creating plot %s\n", s->MainUI()->PlotObject->currentText().toLatin1().data());
-        
+#endif 
         if (!s->MainUI()->GraphName->currentText().isEmpty())
         {
             GraphItem *GI = NULL;
@@ -212,8 +212,9 @@ void Graph::DeletePlot(void)
 {
     if (!s->MainUI()->PlotObject->currentText().isEmpty())
     {
+#ifdef NOTYET
         printf("Deleting plot %s\n", s->MainUI()->PlotObject->currentText().toLatin1().data());
-        
+#endif 
         if (!s->MainUI()->GraphName->currentText().isEmpty())
         {
             GraphItem *GI = NULL;
