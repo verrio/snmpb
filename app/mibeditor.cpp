@@ -32,7 +32,7 @@ MibEditor::MibEditor(Snmpb *snmpb)
     connect( s->MainUI()->actionReplace, SIGNAL( triggered() ),
              this, SLOT( Replace() ) );
     connect( s->MainUI()->actionFindNext, SIGNAL( triggered() ),
-             this, SLOT( FindNext() ) );
+             this, SLOT( ExecuteFindNext() ) );
 
     // Syntax highlighter
     highlighter = new MibHighlighter(s->MainUI()->MIBFile->document());
@@ -54,6 +54,9 @@ MibEditor::MibEditor(Snmpb *snmpb)
              this, SLOT( SetLineNumStatus() ) );
 
     SetLineNumStatus();
+
+    find_string = "";
+    replace_string = "";
 }
 
 void MibEditor::SetCurrentFileName(const QString &FileName)
@@ -150,29 +153,45 @@ void MibEditor::Find(void)
     connect( find_uid.buttonFindNext, SIGNAL( clicked() ), 
              this, SLOT( ExecuteFind() ));
     find_uid.comboFind->setFocus(Qt::TabFocusReason);
+
+    find_uid.comboFind->addItems(find_strings);
+    if (!find_string.isEmpty())
+        find_uid.comboFind->setCurrentIndex(find_uid.comboFind->findText(find_string));
     d.exec();
+}
+
+void MibEditor::ExecuteFindNext(void)
+{
+    Find(false);
 }
 
 void MibEditor::ExecuteFind(void)
 {
+    Find(true);
+}
+
+void MibEditor::Find(bool reevaluate)
+{
     QTextCursor tc;
 
-    ff = 0;
-    find_string = find_uid.comboFind->currentText();
+    if (reevaluate)
+    {
+        ff = 0;
+        find_string = find_uid.comboFind->currentText();
+        if (!find_strings.contains(find_string))
+            find_strings.append(find_string);
 
-    if (find_uid.checkWords->isChecked())
-        ff |= QTextDocument::FindWholeWords;
-    if (find_uid.checkCase->isChecked())
-        ff |= QTextDocument::FindCaseSensitively;
-    if (find_uid.radioBackward->isChecked())
-        ff |= QTextDocument::FindBackward;
+        if (find_uid.checkWords->isChecked())
+            ff |= QTextDocument::FindWholeWords;
+        if (find_uid.checkCase->isChecked())
+            ff |= QTextDocument::FindCaseSensitively;
+        if (find_uid.checkBackward->isChecked())
+            ff |= QTextDocument::FindBackward;
+    }
 
-    if (find_uid.checkBegin->isChecked())
-        tc = s->MainUI()->MIBFile->document()->find(find_string, 0, ff);
-    else
-        tc = s->MainUI()->MIBFile->document()->find(find_string, 
-                                                    s->MainUI()->MIBFile->textCursor(), 
-                                                    ff);
+    tc = s->MainUI()->MIBFile->document()->find(find_string, 
+                                                s->MainUI()->MIBFile->textCursor(), 
+                                                ff);
 
     if (!tc.isNull())
     {
@@ -188,48 +207,77 @@ void MibEditor::Replace(void)
     replace_uid.setupUi(&d);
     connect( replace_uid.buttonReplace, SIGNAL( clicked() ), 
              this, SLOT( ExecuteReplace() ));
+    connect( replace_uid.buttonFindNext, SIGNAL( clicked() ), 
+             this, SLOT( ExecuteFindNextReplace() ));
+    connect( replace_uid.buttonReplaceAll, SIGNAL( clicked() ), 
+             this, SLOT( ExecuteReplaceAll() ));
     replace_uid.comboFind->setFocus(Qt::TabFocusReason);
+
+    replace_uid.comboFind->addItems(find_strings);
+    if (!find_string.isEmpty())
+        replace_uid.comboFind->setCurrentIndex(replace_uid.comboFind->findText(find_string));
+    replace_uid.comboReplace->addItems(replace_strings);
+    if (!replace_string.isEmpty())
+        replace_uid.comboReplace->setCurrentIndex(replace_uid.comboReplace->findText(replace_string));
     d.exec();
 }
 
 void MibEditor::ExecuteReplace(void)
 {
-    QTextCursor tc;
-    QTextDocument::FindFlags ffr = 0;
-
-    if (replace_uid.checkWords->isChecked())
-        ffr |= QTextDocument::FindWholeWords;
-    if (replace_uid.checkCase->isChecked())
-        ffr |= QTextDocument::FindCaseSensitively;
-    if (replace_uid.radioBackward->isChecked())
-        ffr |= QTextDocument::FindBackward;
-
-    if (replace_uid.checkBegin->isChecked())
-        tc = s->MainUI()->MIBFile->document()->find(replace_uid.comboFind->currentText(), 
-                                                    0, ffr);
-    else
-        tc = s->MainUI()->MIBFile->document()->find(replace_uid.comboFind->currentText(),
-                                                    s->MainUI()->MIBFile->textCursor(),
-                                                    ffr);
-
-    if (!tc.isNull())
-    {
-        s->MainUI()->MIBFile->setTextCursor(tc);
-        tc.select(QTextCursor::WordUnderCursor);
-        tc.insertText(replace_uid.comboReplace->currentText());
-        tc.select(QTextCursor::WordUnderCursor);
-    }
+    Replace(true);
 }
 
-void MibEditor::FindNext(void)
+void MibEditor::ExecuteFindNextReplace(void)
 {
-    QTextCursor tc = s->MainUI()->MIBFile->document()->find(find_string,
-                         s->MainUI()->MIBFile->textCursor(), ff);
+    Replace(false);
+}
+
+void MibEditor::ExecuteReplaceAll(void)
+{
+    while(!Replace(true));
+}
+
+// 
+// Replace text if doreplace is true, otherwise only do "find next"
+// Returns true if the find next failed (end of document)
+//
+bool MibEditor::Replace(bool doreplace)
+{
+    QTextCursor tc;
+
+    ff = 0;
+    find_string = replace_uid.comboFind->currentText(); 
+    if (!find_strings.contains(find_string))
+        find_strings.append(find_string);
+    replace_string = replace_uid.comboReplace->currentText();
+    if (!replace_strings.contains(replace_string))
+            replace_strings.append(replace_string);
+
+    if (replace_uid.checkWords->isChecked())
+        ff |= QTextDocument::FindWholeWords;
+    if (replace_uid.checkCase->isChecked())
+        ff |= QTextDocument::FindCaseSensitively;
+    if (replace_uid.checkBackward->isChecked())
+        ff |= QTextDocument::FindBackward;
+
+    tc = s->MainUI()->MIBFile->textCursor();
+    if(doreplace && !tc.isNull() && tc.hasSelection() && 
+       (tc.selectedText().compare(find_string, 
+                                  (replace_uid.checkCase->isChecked()?
+                                  Qt::CaseSensitive:Qt::CaseInsensitive))==0))
+        tc.insertText(replace_uid.comboReplace->currentText());
+
+    tc = s->MainUI()->MIBFile->document()->find(find_string,
+                                                s->MainUI()->MIBFile->textCursor(),
+                                                ff);
+
     if (!tc.isNull())
     {
         s->MainUI()->MIBFile->setTextCursor(tc);
         tc.select(QTextCursor::WordUnderCursor);
     }
+
+    return (tc.isNull()?true:false);
 }
 
 void MibEditor::MibFileOpen(void)

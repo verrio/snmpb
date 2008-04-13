@@ -31,13 +31,17 @@ public slots:
     void GotoLine(void);
     void Find(void);
     void Replace(void);
-    void FindNext(void);
     void ExecuteGotoLine(void);
     void ExecuteFind(void);
+    void ExecuteFindNext(void);
     void ExecuteReplace(void);
+    void ExecuteFindNextReplace(void);
+    void ExecuteReplaceAll(void);
 
 private:
     void SetCurrentFileName(const QString &FileName);
+    void Find(bool reevaluate);
+    bool Replace(bool doreplace);
 
 private:
     Snmpb *s;
@@ -56,7 +60,10 @@ private:
     int num_info;
 
     QTextDocument::FindFlags ff;
+    QStringList find_strings;
     QString find_string;
+    QStringList replace_strings;
+    QString replace_string;
 };
 
 #endif /* MIBEDITOR_H */

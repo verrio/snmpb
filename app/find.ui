@@ -30,8 +30,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>377</width>
-    <height>230</height>
+    <width>186</width>
+    <height>189</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -56,7 +56,7 @@
    <property name="verticalSpacing" >
     <number>6</number>
    </property>
-   <item row="0" column="0" colspan="2" >
+   <item row="0" column="0" >
     <layout class="QHBoxLayout" >
      <property name="spacing" >
       <number>6</number>
@@ -97,11 +97,59 @@
        <property name="editable" >
         <bool>true</bool>
        </property>
+       <property name="insertPolicy" >
+        <enum>QComboBox::InsertAlphabetically</enum>
+       </property>
       </widget>
      </item>
     </layout>
    </item>
-   <item row="2" column="0" colspan="2" >
+   <item row="1" column="0" >
+    <widget class="QGroupBox" name="ButtonGroup1" >
+     <property name="title" >
+      <string>Options</string>
+     </property>
+     <layout class="QVBoxLayout" >
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <property name="leftMargin" >
+       <number>11</number>
+      </property>
+      <property name="topMargin" >
+       <number>11</number>
+      </property>
+      <property name="rightMargin" >
+       <number>11</number>
+      </property>
+      <property name="bottomMargin" >
+       <number>11</number>
+      </property>
+      <item>
+       <widget class="QCheckBox" name="checkWords" >
+        <property name="text" >
+         <string>&amp;Whole words only</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="checkCase" >
+        <property name="text" >
+         <string>Case &amp;sensitive</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="checkBackward" >
+        <property name="text" >
+         <string>Search &amp;backward</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="2" column="0" >
     <layout class="QHBoxLayout" >
      <property name="spacing" >
       <number>6</number>
@@ -153,92 +201,6 @@
      </item>
     </layout>
    </item>
-   <item row="1" column="1" >
-    <widget class="QGroupBox" name="ButtonGroup2" >
-     <property name="title" >
-      <string>Direction</string>
-     </property>
-     <layout class="QVBoxLayout" >
-      <property name="spacing" >
-       <number>6</number>
-      </property>
-      <property name="leftMargin" >
-       <number>11</number>
-      </property>
-      <property name="topMargin" >
-       <number>11</number>
-      </property>
-      <property name="rightMargin" >
-       <number>11</number>
-      </property>
-      <property name="bottomMargin" >
-       <number>11</number>
-      </property>
-      <item>
-       <widget class="QRadioButton" name="radioForward" >
-        <property name="text" >
-         <string>Forwar&amp;d</string>
-        </property>
-        <property name="checked" >
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="radioBackward" >
-        <property name="text" >
-         <string>Bac&amp;kward</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="1" column="0" >
-    <widget class="QGroupBox" name="ButtonGroup1" >
-     <property name="title" >
-      <string>Options</string>
-     </property>
-     <layout class="QVBoxLayout" >
-      <property name="spacing" >
-       <number>6</number>
-      </property>
-      <property name="leftMargin" >
-       <number>11</number>
-      </property>
-      <property name="topMargin" >
-       <number>11</number>
-      </property>
-      <property name="rightMargin" >
-       <number>11</number>
-      </property>
-      <property name="bottomMargin" >
-       <number>11</number>
-      </property>
-      <item>
-       <widget class="QCheckBox" name="checkWords" >
-        <property name="text" >
-         <string>&amp;Whole words only</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="checkCase" >
-        <property name="text" >
-         <string>Case &amp;sensitive</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="checkBegin" >
-        <property name="text" >
-         <string>Start at &amp;beginning</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11" />
@@ -247,9 +209,7 @@
   <tabstop>comboFind</tabstop>
   <tabstop>checkWords</tabstop>
   <tabstop>checkCase</tabstop>
-  <tabstop>checkBegin</tabstop>
-  <tabstop>radioForward</tabstop>
-  <tabstop>radioBackward</tabstop>
+  <tabstop>checkBackward</tabstop>
   <tabstop>buttonFindNext</tabstop>
   <tabstop>buttonClose</tabstop>
  </tabstops>

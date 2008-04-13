@@ -30,33 +30,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>377</width>
-    <height>258</height>
+    <width>188</width>
+    <height>256</height>
    </rect>
   </property>
   <property name="windowTitle" >
    <string>Replace Text</string>
   </property>
   <layout class="QGridLayout" >
-   <property name="leftMargin" >
-    <number>11</number>
-   </property>
-   <property name="topMargin" >
-    <number>11</number>
-   </property>
-   <property name="rightMargin" >
-    <number>11</number>
-   </property>
-   <property name="bottomMargin" >
-    <number>11</number>
-   </property>
-   <property name="horizontalSpacing" >
-    <number>6</number>
-   </property>
-   <property name="verticalSpacing" >
-    <number>6</number>
-   </property>
-   <item row="0" column="0" colspan="2" >
+   <item row="0" column="0" >
     <layout class="QGridLayout" >
      <property name="leftMargin" >
       <number>0</number>
@@ -113,6 +95,9 @@
        <property name="editable" >
         <bool>true</bool>
        </property>
+       <property name="insertPolicy" >
+        <enum>QComboBox::InsertAlphabetically</enum>
+       </property>
       </widget>
      </item>
      <item row="1" column="1" >
@@ -126,71 +111,8 @@
        <property name="editable" >
         <bool>true</bool>
        </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="2" column="0" colspan="2" >
-    <layout class="QHBoxLayout" >
-     <property name="spacing" >
-      <number>6</number>
-     </property>
-     <property name="leftMargin" >
-      <number>0</number>
-     </property>
-     <property name="topMargin" >
-      <number>0</number>
-     </property>
-     <property name="rightMargin" >
-      <number>0</number>
-     </property>
-     <property name="bottomMargin" >
-      <number>0</number>
-     </property>
-     <item>
-      <spacer>
-       <property name="orientation" >
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeType" >
-        <enum>QSizePolicy::Expanding</enum>
-       </property>
-       <property name="sizeHint" >
-        <size>
-         <width>20</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="buttonFindNext" >
-       <property name="text" >
-        <string>&amp;Find Next</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="buttonReplace" >
-       <property name="text" >
-        <string>&amp;Replace</string>
-       </property>
-       <property name="default" >
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="buttonReplaceAll" >
-       <property name="text" >
-        <string>Replace &amp;All</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="buttonClose" >
-       <property name="text" >
-        <string>&amp;Close</string>
+       <property name="insertPolicy" >
+        <enum>QComboBox::InsertAlphabetically</enum>
        </property>
       </widget>
      </item>
@@ -232,55 +154,69 @@
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="checkBegin" >
+       <widget class="QCheckBox" name="checkBackward" >
         <property name="text" >
-         <string>Start at &amp;beginning</string>
+         <string>Search &amp;backward</string>
         </property>
        </widget>
       </item>
      </layout>
     </widget>
    </item>
-   <item row="1" column="1" >
-    <widget class="QGroupBox" name="ButtonGroup2" >
-     <property name="title" >
-      <string>Direction</string>
-     </property>
-     <layout class="QVBoxLayout" >
-      <property name="spacing" >
-       <number>6</number>
-      </property>
-      <property name="leftMargin" >
-       <number>11</number>
-      </property>
-      <property name="topMargin" >
-       <number>11</number>
-      </property>
-      <property name="rightMargin" >
-       <number>11</number>
-      </property>
-      <property name="bottomMargin" >
-       <number>11</number>
-      </property>
-      <item>
-       <widget class="QRadioButton" name="radioForward" >
-        <property name="text" >
-         <string>Forwar&amp;d</string>
-        </property>
-        <property name="checked" >
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="radioBackward" >
-        <property name="text" >
-         <string>Bac&amp;kward</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
+   <item row="2" column="0" >
+    <layout class="QHBoxLayout" >
+     <item>
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType" >
+        <enum>QSizePolicy::Expanding</enum>
+       </property>
+       <property name="sizeHint" >
+        <size>
+         <width>16</width>
+         <height>24</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <layout class="QGridLayout" >
+       <item row="0" column="0" >
+        <widget class="QPushButton" name="buttonReplace" >
+         <property name="text" >
+          <string>&amp;Replace</string>
+         </property>
+         <property name="default" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1" >
+        <widget class="QPushButton" name="buttonFindNext" >
+         <property name="text" >
+          <string>&amp;Find Next</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" >
+        <widget class="QPushButton" name="buttonReplaceAll" >
+         <property name="text" >
+          <string>Replace &amp;All</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1" >
+        <widget class="QPushButton" name="buttonClose" >
+         <property name="text" >
+          <string>&amp;Close</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
@@ -291,9 +227,7 @@
   <tabstop>comboReplace</tabstop>
   <tabstop>checkWords</tabstop>
   <tabstop>checkCase</tabstop>
-  <tabstop>checkBegin</tabstop>
-  <tabstop>radioForward</tabstop>
-  <tabstop>radioBackward</tabstop>
+  <tabstop>checkBackward</tabstop>
   <tabstop>buttonReplace</tabstop>
   <tabstop>buttonReplaceAll</tabstop>
   <tabstop>buttonClose</tabstop>
