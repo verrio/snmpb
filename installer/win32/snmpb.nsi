@@ -13,7 +13,8 @@
 
   ;Name and file
   Name "SnmpB"
-  OutFile "snmpb-v${NOW}.exe"
+;  OutFile "snmpb-v${NOW}.exe"
+  OutFile "snmpb-v0.5.exe"
   Icon "..\..\app\images\snmpb.ico"
 
   ;Default installation folder

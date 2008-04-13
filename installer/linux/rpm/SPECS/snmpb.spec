@@ -6,7 +6,7 @@
 
 Summary: Graphical SNMP MIB browser written in QT.
 Name: %{name}
-Version: 0.0.1
+Version: 0.5.0
 Release:  1
 License: GPL
 Group: Applications/Internet
@@ -15,10 +15,11 @@ Prefix: %{_prefix}
 
 %description
 SnmpB is an SNMP (Simple Network Management Protocol) MIB
-browser written in QT. It supports snmpv1, snmpv2c & snmpv3.
+browser written in QT. It supports SNMPv1, SNMPv2c & SNMPv3.
 
-SnmpB can browse/load/add MIB files and can query SNMP
-agents. It also supports agent discovery and graph plotting.
+SnmpB can browse/edit/load/add MIB files and can query SNMP
+agents. It also supports agent discovery, trap events
+and graph plotting.
 
 %prep
 
@@ -334,6 +335,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/share/apps/snmpb/pibs/UMTS-PIB-orig
 
 %changelog
-* Sat Oct 28 2006 Martin Jolicoeur 
+* Sun Apr 13 2008 Martin Jolicoeur 
 - Initial release 
 
