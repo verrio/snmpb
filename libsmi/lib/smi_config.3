@@ -150,7 +150,7 @@ a path name (identified by containing at least one dot or slash character),
 this
 is assumed to be the exact file to read. Otherwise, if a module is identified
 by its plain module name, the correspondant file (either SMIv1/2 or
-SMIng) is searched along a path. This path is initialized with /usr/local/share/mibs/ietf:/usr/local/share/mibs/iana:/usr/local/share/mibs/irtf:/usr/local/share/mibs/site:/usr/local/share/mibs/tubs:/usr/local/share/pibs/ietf:/usr/local/share/pibs/site:/usr/local/share/pibs/tubs.
+SMIng) is searched along a path. This path is initialized with /usr/pkg/share/apps/snmpb/mibs;/usr/pkg/share/apps/snmpb/pibs.
 Afterwards the optional global and user configuration files are parsed for
 `path' commands, and finally the optional \fBSMIPATH\fP environment variable
 is evaluated. The `path' command argument and the environment variable

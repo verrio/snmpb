@@ -2,7 +2,19 @@ To compile:
 
 # make (or gmake)
 
+To install in places other than /usr, add INSTALL_PREFIX=<prefix> to the make command.
+
 Tested & compiles on Cygwin/Windows, Linux and NetBSD
+
+--------------------------------
+
+Required installed packages for compilation:
+- bison & flex
+- GNU make
+- QT4 development package
+- GNU install
+- automake 1.4 (won't work with later versions)
+- gcc
 
 External packages
 ------------------

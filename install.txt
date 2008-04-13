@@ -1,4 +1,4 @@
-To install snmpb, type make install with the install prefix in argument:
+To install snmpb, type make install (as root) with the install prefix in argument:
 
 make INSTALL_PREFIX=/usr install
 
