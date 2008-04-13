@@ -2102,8 +2102,11 @@
    </property>
   </action>
   <action name="helpAboutAction" >
+   <property name="icon" >
+    <iconset resource="snmpb.qrc" >:/images/snmpb.png</iconset>
+   </property>
    <property name="text" >
-    <string>&amp;About</string>
+    <string>&amp;About Snmpb</string>
    </property>
    <property name="iconText" >
     <string>About</string>
