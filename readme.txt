@@ -1,6 +1,6 @@
 To compile:
 
-# make
+# make (or gmake)
 
 Tested & compiles on Cygwin/Windows, Linux and NetBSD
 
@@ -35,4 +35,4 @@ qwt.pro
 
 --------------------------------
 
-Martin Jolicoeur, September 2006
+Martin Jolicoeur, April 2008
