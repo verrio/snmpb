@@ -34,7 +34,7 @@
 
 #include <sys/param.h>
 
-#ifndef WIN32
+#ifdef BSD 
 #define __unix
 #endif
 
