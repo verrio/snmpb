@@ -19,7 +19,7 @@
 #define DEFAULT_USERCONFIG ".smirc"
 
 /* The default search path to lookup SMI module files. */
-#define DEFAULT_SMIPATH "c:/smi/mibs/ietf;c:/smi/mibs/iana;c:/smi/mibs/irtf;c:/smi/mibs/site;c:/smi/mibs/tubs"
+#define DEFAULT_SMIPATH "mibs;pibs"
 
 /* The default path separator character. */
 #define PATH_SEPARATOR ';'
@@ -35,8 +35,8 @@
 #define LIBSMI_INT64_MIN     _I64_MIN
 #define LIBSMI_INT64_MAX     _I64_MAX
 #else
-#define UINT64_FORMAT "%llu"
-#define INT64_FORMAT  "%lld"
+#define UINT64_FORMAT "%lu"
+#define INT64_FORMAT  "%ld"
 #define LIBSMI_UINT64_MAX    18446744073709551615ULL
 #define LIBSMI_INT64_MIN     -9223372036854775808LL
 #define LIBSMI_INT64_MAX     9223372036854775807LL
