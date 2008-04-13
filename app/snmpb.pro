@@ -69,7 +69,6 @@ unix {
 FORMS	= mainw.ui agentprofile.ui usmprofile.ui preferences.ui gotoline.ui find.ui replace.ui
 TEMPLATE	= app
 CONFIG	+= qt warn_on
-DEFINES += __unix
 win32:CONFIG += release
 win32:DEFINES	+= WIN32
 win32:QMAKE_CXXFLAGS += -mno-cygwin
