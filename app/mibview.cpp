@@ -63,6 +63,9 @@ BasicMibView::BasicMibView (QWidget * parent) : QTreeWidget(parent)
              this, SLOT( CollapseNode( QTreeWidgetItem * ) ) );
     connect( this, SIGNAL( currentItemChanged( QTreeWidgetItem *, QTreeWidgetItem * ) ),
              this, SLOT( SelectedNode( QTreeWidgetItem *, QTreeWidgetItem * ) ) );
+
+    // Force initial refresh
+    isdirty = 1;
 }
 
 void BasicMibView::SetDirty(void)

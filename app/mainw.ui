@@ -433,7 +433,7 @@
                <item>
                 <widget class="QLabel" name="UnloadedLabel" >
                  <property name="sizePolicy" >
-                  <sizepolicy vsizetype="Preferred" hsizetype="Ignored" >
+                  <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
@@ -452,7 +452,7 @@
                <item>
                 <widget class="QTreeWidget" name="UnloadedModules" >
                  <property name="sizePolicy" >
-                  <sizepolicy vsizetype="Expanding" hsizetype="Ignored" >
+                  <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
