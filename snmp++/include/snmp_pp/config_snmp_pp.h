@@ -34,6 +34,10 @@
 
 #include <sys/param.h>
 
+#ifndef WIN32
+#define __unix
+#endif
+
 #define SNMP_PP_VERSION_STRING "3.2.21"
 #define SNMP_PP_VERSION 3
 #define SNMP_PP_RELEASE 2
