@@ -69,9 +69,28 @@ AgentProfileManager::AgentProfileManager(Snmpb *snmpb)
     connect( ap.ContextEngineID, SIGNAL( editingFinished() ), 
              this, SLOT ( SetContextEngineID() ) );
 
-    // Loop & load all stored agent profiles
+    // First time the app is started, populate with a minimum config of localhost
+    if (!QFile::exists(s->GetAgentsConfigFile()))
+    {
+        currentprofile = NULL; 
+        Add();
+        currentprofile = GetAgentProfile("newagent");
+        currentprofile->SetName("localhost");
+        WriteConfigFile();
+        Delete();
+    }
+
     currentprofile = NULL; 
 
+    // Loop & load all stored agent profiles
+    ReadConfigFile();
+
+    if (agents.size() != 0)
+       ap.ProfileTree->setCurrentItem(ap.ProfileTree->topLevelItem(0));
+}
+
+void AgentProfileManager::ReadConfigFile (void)
+{
     int size = settings->beginReadArray("agents");
     for (int i = 0; i < size; i++)
     {
@@ -96,9 +115,35 @@ AgentProfileManager::AgentProfileManager(Snmpb *snmpb)
         agents.append(newagent);
     }
     settings->endArray();
+}
 
-    if (size != 0)
-       ap.ProfileTree->setCurrentItem(ap.ProfileTree->topLevelItem(0));
+void AgentProfileManager::WriteConfigFile (void)
+{
+    bool v1, v2, v3;
+    settings->beginWriteArray("agents");
+    settings->remove("");
+    for (int i = 0; i < agents.size(); i++)
+    {
+        settings->setArrayIndex(i);
+        settings->setValue("name", agents[i]->GetName());
+        agents[i]->GetSupportedProtocol(&v1, &v2, &v3);
+        settings->setValue("v1", v1);
+        settings->setValue("v2", v2);
+        settings->setValue("v3", v3);
+        settings->setValue("address", agents[i]->GetAddress());
+        settings->setValue("port", agents[i]->GetPort());
+        settings->setValue("retries", agents[i]->GetRetries());
+        settings->setValue("timeout", agents[i]->GetTimeout());
+        settings->setValue("readcomm", agents[i]->GetReadComm());
+        settings->setValue("writecomm", agents[i]->GetWriteComm());
+        settings->setValue("maxrepetitions", agents[i]->GetMaxRepetitions());
+        settings->setValue("nonrepeaters", agents[i]->GetNonRepeaters());
+        settings->setValue("secname", agents[i]->GetSecName());
+        settings->setValue("seclevel", agents[i]->GetSecLevel());
+        settings->setValue("contextname", agents[i]->GetContextName());
+        settings->setValue("contextengineid", agents[i]->GetContextEngineID());
+    }
+    settings->endArray();
 }
 
 void AgentProfileManager::Execute (void)
@@ -117,34 +162,8 @@ void AgentProfileManager::Execute (void)
 
     if(apw.exec() == QDialog::Accepted)
     {
-        bool v1, v2, v3;
-        settings->beginWriteArray("agents");
-        settings->remove("");
-        for (int i = 0; i < agents.size(); i++)
-        {
-            settings->setArrayIndex(i);
-            settings->setValue("name", agents[i]->GetName());
-            agents[i]->GetSupportedProtocol(&v1, &v2, &v3);
-            settings->setValue("v1", v1);
-            settings->setValue("v2", v2);
-            settings->setValue("v3", v3);
-            settings->setValue("address", agents[i]->GetAddress());
-            settings->setValue("port", agents[i]->GetPort());
-            settings->setValue("retries", agents[i]->GetRetries());
-            settings->setValue("timeout", agents[i]->GetTimeout());
-            settings->setValue("readcomm", agents[i]->GetReadComm());
-            settings->setValue("writecomm", agents[i]->GetWriteComm());
-            settings->setValue("maxrepetitions", agents[i]->GetMaxRepetitions());
-            settings->setValue("nonrepeaters", agents[i]->GetNonRepeaters());
-            settings->setValue("secname", agents[i]->GetSecName());
-            settings->setValue("seclevel", agents[i]->GetSecLevel());
-            settings->setValue("contextname", agents[i]->GetContextName());
-            settings->setValue("contextengineid", agents[i]->GetContextEngineID());
-        }
-
+        WriteConfigFile();
         emit AgentProfileListChanged();
-
-        settings->endArray();
     }
 }
 

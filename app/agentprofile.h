@@ -134,6 +134,10 @@ protected slots:
     void ContextMenu ( const QPoint & );
 
 private:
+    void ReadConfigFile(void);
+    void WriteConfigFile(void);
+
+private:
     Snmpb *s;
     Ui_AgentProfile ap;
     QDialog apw;

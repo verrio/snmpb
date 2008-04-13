@@ -54,7 +54,7 @@ Preferences::Preferences(Snmpb *snmpb)
     horizontalsplit = settings->value("horizontalsplit", false).toBool();
     p.HorizontalSplit->setCheckState((horizontalsplit == true)?
                                      Qt::Checked:Qt::Unchecked);
-    trapport = settings->value("trapport", 161).toInt();
+    trapport = settings->value("trapport", 162).toInt();
 
     char    *dir, *smipath;
     char    sep[2] = {PATH_SEPARATOR, 0};
