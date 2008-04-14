@@ -1,6 +1,7 @@
+- Fix broken discovery system on win32
 - Add support for table instance on get/get-next
 - Test/fix support of 64 bits MIB variables 
-- Fix graph plotting system
+- Fix graph plotting system (+ add configurable polling interval)
 - Add support for multiple files in editor
 - Add support for snmp SET
 - Add support for STOP operation on a walk
