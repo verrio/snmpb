@@ -17,4 +17,7 @@
 - Add auto-loading of MIB files on walk
 - Internationalize (using tr())
 - Fix tab-navigation order for gui elements
+- Add SMIv1 or SMIv2 config for MIB editor validation
+- Add download and extract MIB from RFC from ietf.org directly
 - Feature: add packet/session sniffing tab
+- Feature: support IPv6
