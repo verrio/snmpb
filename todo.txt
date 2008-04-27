@@ -16,5 +16,5 @@
 - Remove possibility to change value of tree config dialogs
 - Add auto-loading of MIB files on walk
 - Internationalize (using tr())
+- Fix tab-navigation order for gui elements
 - Feature: add packet/session sniffing tab
-
