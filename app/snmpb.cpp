@@ -42,6 +42,8 @@
 #define AGENTS_CONFIG_FILE       "agents.conf"
 #define PREFS_CONFIG_FILE        "preferences.conf"
 
+#define STANDARD_TRAP_PORT       162 
+
 char default_mib_config[] = {
 "load IF-MIB\n\
 load RFC1213-MIB\n\
@@ -58,9 +60,46 @@ static QDir SnmpbDir = QDir::homePath() + "/" + SNMPB_CONFIG_DIR;
 
 Snmpb::Snmpb(QMainWindow* mw)
 {
-    w.setupUi(mw);
+    // First thing to do is to give up root privileges and allow permission to
+    // bind on privileged ports (<1024). This is needed to bind on 
+    // the RFC-defined trap port number 162 on UNIX machines.
+    agent = new Agent(this);
+    prefs = NULL;
+
+    // If the preferences file exists, get the trap port number from it, otherwise
+    // bind to the standard trap port
+    if (QFile(GetPrefsConfigFile()).exists())
+    {
+        prefs = new Preferences(this);
+#ifndef WIN32 
+        // Allows to bind on privileged ports only if it is the standard trap port...
+        if (prefs->GetTrapPort() != STANDARD_TRAP_PORT)
+            setuid(getuid());
+#endif
+        agent->BindTrapPort(prefs->GetTrapPort());
+    }
+    else
+    {
+        // The default trap port is the standard one ...
+        agent->BindTrapPort(STANDARD_TRAP_PORT);
+    }
+#ifndef WIN32 
+    // Drop root privileges
+    if (setuid(getuid()) < 0)
+    {
+        QMessageBox::warning ( NULL, "SnmpB", 
+                               tr("Unable to drop root privileges: %m\n"),
+                               QMessageBox::Ok, Qt::NoButton);
+    }
+#endif
+    // Note: beware as anything before this point is run as root on UNIX ... 
 
     CheckForConfigFiles();
+
+    if (!prefs)
+        prefs = new Preferences(this);
+
+    w.setupUi(mw);
 
     connect(&loader, SIGNAL ( LogError(QString) ),
             w.LogOutput, SLOT ( append (QString) ));
@@ -69,9 +108,9 @@ Snmpb::Snmpb(QMainWindow* mw)
     logsnmpb = new LogSnmpb(this);
     modules = new MibModule(this);
     apm = new AgentProfileManager(this);
-    prefs = new Preferences(this);
+    prefs->Init();
     trap = new Trap(this);
-    agent = new Agent(this);
+    agent->Init();
     upm = new USMProfileManager(this);
     graph = new Graph(this);
     editor = new MibEditor(this);
@@ -150,7 +189,7 @@ void Snmpb::CheckForConfigFiles(void)
         else
         {
             // Create default mib.conf file.
-            QFile file(SnmpbDir.filePath(MIB_CONFIG_FILE));
+            QFile file(GetMibConfigFile());
             if (!file.open(QIODevice::ReadWrite))
             {
                 QString err = QString("Cannot create configuration file : %1\n")

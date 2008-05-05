@@ -28,7 +28,7 @@
 #define ASYNC_TIMER_MSEC 5
 #define TRAP_TIMER_MSEC 100
 
-/// C Callback functions for snmp++
+// C Callback functions for snmp++
 void callback_walk(int reason, Snmp *, Pdu &pdu, SnmpTarget &target, void *cd)
 {
   if (cd)
@@ -60,6 +60,50 @@ Agent::Agent(Snmpb *snmpb)
 {
     s = snmpb;
 
+    int status;
+
+    Snmp::socket_startup();  // Initialize socket subsystem
+    
+    // Create our SNMP session object
+    snmp = new Snmp(status);
+    if (status != SNMP_CLASS_SUCCESS)
+    {
+        QString err = QString("Could not create SNMP++ session:\n")
+                              .arg(Snmp::error_msg(status));
+        QMessageBox::warning ( NULL, "SnmpB", err, 
+                               QMessageBox::Ok, Qt::NoButton);
+    }
+}
+
+void Agent::BindTrapPort(int Port)
+{
+    int status;
+
+    // Bind on the SNMP trap port
+    snmp->notify_set_listen_port(Port);
+
+    OidCollection oidc;
+    TargetCollection targetc;
+
+    status = snmp->notify_register(oidc, targetc, callback_trap, this);
+    if (status != SNMP_CLASS_SUCCESS)
+    {
+        QString err = QString("Could not bind on trap port %1:\n%2\n")
+                              .arg(Port).arg(Snmp::error_msg(status));
+        QMessageBox::warning ( NULL, "SnmpB", err,
+                               QMessageBox::Ok, Qt::NoButton);
+    }
+    else
+    {
+        // Start the timer
+        timer.start(TRAP_TIMER_MSEC);
+    }
+}
+
+void Agent::Init(void)
+{
+    int status;
+
     // Connect some signals
     connect( s->MainUI()->MIBTree, SIGNAL( WalkFromOid(const QString&) ),
              this, SLOT( WalkFrom(const QString&) ) );
@@ -83,10 +127,6 @@ Agent::Agent(Snmpb *snmpb)
     // Fill-in the list of agent profiles from profiles manager
     AgentProfileListChange();
 
-    int status;
-
-    Snmp::socket_startup();  // Initialize socket subsystem
-    
     connect(&timer, SIGNAL(timeout()), this, SLOT(TimerExpired()));
     
     // get the Boot counter (you may use any own method for this)
@@ -98,7 +138,7 @@ Agent::Agent(Snmpb *snmpb)
     if ((status != SNMPv3_OK) && (status < SNMPv3_FILEOPEN_ERROR))
     {
         QString err = QString("Error loading snmpEngineBoots counter: %1\n")
-                      .arg(status);
+                              .arg(status);
         QMessageBox::warning ( NULL, "SnmpB", err, 
                                QMessageBox::Ok, Qt::NoButton);
     }
@@ -112,17 +152,7 @@ Agent::Agent(Snmpb *snmpb)
     if (status != SNMPv3_OK)
     {
         QString err = QString("Error saving snmpEngineBoots counter: %1\n")
-                      .arg(status);
-        QMessageBox::warning ( NULL, "SnmpB", err, 
-                               QMessageBox::Ok, Qt::NoButton);
-    }
-    
-    // Create our SNMP session object
-    snmp = new Snmp(status);
-    if (status != SNMP_CLASS_SUCCESS)
-    {
-        QString err = QString("Could not create SNMP++ session:\n")
-                      .arg(Snmp::error_msg(status));
+                              .arg(status);
         QMessageBox::warning ( NULL, "SnmpB", err, 
                                QMessageBox::Ok, Qt::NoButton);
     }
@@ -132,7 +162,7 @@ Agent::Agent(Snmpb *snmpb)
     if (status != SNMPv3_MP_OK)
     {
         QString err = QString("Could not create v3MP object:\n")
-                      .arg(Snmp::error_msg(status));
+                              .arg(Snmp::error_msg(status));
         QMessageBox::warning ( NULL, "SnmpB", err, 
                                QMessageBox::Ok, Qt::NoButton);
     }
@@ -142,26 +172,6 @@ Agent::Agent(Snmpb *snmpb)
     
     // Load the USM users from a file, if any
     usm->load_users(s->GetUsmUsersConfigFile().toLatin1().data());
-    
-    // Bind on the SNMP trap port
-    snmp->notify_set_listen_port(s->PreferencesObj()->GetTrapPort());
-
-    OidCollection oidc;
-    TargetCollection targetc;
-
-    status = snmp->notify_register(oidc, targetc, callback_trap, this);
-    if (status != SNMP_CLASS_SUCCESS)
-    {
-        QString err = QString("Could not bind on trap port %1:\n%2\n")
-                      .arg(s->PreferencesObj()->GetTrapPort())
-                      .arg(Snmp::error_msg(status));
-        QMessageBox::warning ( NULL, "SnmpB", err,
-                               QMessageBox::Ok, Qt::NoButton);
-        return;
-    }
-
-    // Start the timer
-    timer.start(TRAP_TIMER_MSEC);
 }
 
 void Agent::ShowAgentSettings(void)

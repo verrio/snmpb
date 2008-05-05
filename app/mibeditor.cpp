@@ -325,7 +325,14 @@ void MibEditor::MibFileSave(void)
 
     QFile file(LoadedFile);
     if (!file.open(QFile::WriteOnly))
+    {
+        QMessageBox::warning(NULL, tr("SnmpB: Save Mib File"),
+                             tr("Cannot save file %1: %2\n")
+                             .arg(file.fileName())
+                             .arg(file.errorString()));
         return;
+    }
+
     QTextStream ts(&file);
 
     ts << s->MainUI()->MIBFile->toPlainText();

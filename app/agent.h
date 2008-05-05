@@ -34,6 +34,8 @@ class Agent: public QObject
     
 public:
     Agent(Snmpb *snmpb);
+    void BindTrapPort(int Port);
+    void Init(void);
     void AsyncCallback(int reason, Pdu &pdu, 
                        SnmpTarget &target, int iswalk);
     void AsyncCallbackTrap(int reason, Pdu &pdu, SnmpTarget &target);

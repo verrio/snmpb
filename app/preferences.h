@@ -33,6 +33,7 @@ class Preferences: public QObject
     
 public:
     Preferences(Snmpb *snmpb);
+    void Init(void);
     void Execute(void);
     int GetTrapPort(void);
 

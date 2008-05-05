@@ -36,6 +36,11 @@ Preferences::Preferences(Snmpb *snmpb)
 
     settings = new QSettings(s->GetPrefsConfigFile(), QSettings::IniFormat, this);
 
+    trapport = settings->value("trapport", 162).toInt();
+}
+
+void Preferences::Init(void)
+{
     p.setupUi(&pw);
 
     // Set some properties for the Preferences TreeView
@@ -73,7 +78,6 @@ Preferences::Preferences(Snmpb *snmpb)
     horizontalsplit = settings->value("horizontalsplit", false).toBool();
     p.HorizontalSplit->setCheckState((horizontalsplit == true)?
                                      Qt::Checked:Qt::Unchecked);
-    trapport = settings->value("trapport", 162).toInt();
 
     char    *dir, *smipath;
     char    sep[2] = {PATH_SEPARATOR, 0};
@@ -94,6 +98,12 @@ void Preferences::Execute (void)
 {
     if(pw.exec() == QDialog::Accepted)
     {
+        // Warn if trap port changed ...
+        if(trapport != settings->value("trapport", 162).toInt())
+            QMessageBox::information(NULL, "SnmpB trap port changed", 
+                                     "Please restart SnmpB for the change to take effect.", 
+                                     QMessageBox::Ok, Qt::NoButton);
+
         // Save preferences
         settings->setValue("horizontalsplit", horizontalsplit);
         settings->setValue("trapport", trapport);
@@ -200,7 +210,7 @@ void Preferences::SetHorizontalSplit(bool checked)
     s->MainUI()->QuerySplitter->setOrientation(checked==true?Qt::Vertical:Qt::Horizontal);
 }
 
-void Preferences::SetTrapPort(void)
+void Preferences::SetTrapPort()
 {
     trapport = p.TrapPort->value();
 }
