@@ -93,7 +93,7 @@ endif
 
 install:
 	$(INSTALL) -v -d ${INSTALL_PREFIX}/bin ${INSTALL_PREFIX}/share/apps/snmpb/mibs ${INSTALL_PREFIX}/share/apps/snmpb/pibs
-	$(INSTALL) -v -D -s -o root app/snmpb ${INSTALL_PREFIX}/bin
+	$(INSTALL) -v -m 4755 -D -s -o root app/snmpb ${INSTALL_PREFIX}/bin
 	$(INSTALL) -v -m 444 -o root libsmi/mibs/iana/* ${INSTALL_PREFIX}/share/apps/snmpb/mibs
 	$(INSTALL) -v -m 444 -o root libsmi/mibs/ietf/* ${INSTALL_PREFIX}/share/apps/snmpb/mibs
 	$(INSTALL) -v -m 444 -o root libsmi/mibs/irtf/* ${INSTALL_PREFIX}/share/apps/snmpb/mibs
