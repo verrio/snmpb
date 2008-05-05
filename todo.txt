@@ -6,7 +6,6 @@
 - Add support for snmp SET
 - Add support for STOP operation on a walk
 - Add support for MIB autoload on walk
-- Fix trap port binding permissions on Linux/BSD (new daemon ?)
 - Clean-up code/add comments
 - Allow to save logging level settings
 - Add desktop shortcut/K menu for Linux/BSD
