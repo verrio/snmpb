@@ -881,15 +881,23 @@ void Agent::TableViewFrom(const QString& oid)
     Oid poid(oid.toLatin1().data());
     SmiNode *pnode = smiGetNodeByOID(poid.len(), (SmiSubid*)&(poid[0]));
     
-    /* Make sure the parent is a row entry ... */
-    if (pnode->nodekind != SMI_NODEKIND_ROW)
+    /* Make sure the parent is a table or row entry ... */
+    if ((pnode->nodekind != SMI_NODEKIND_ROW) && 
+        (pnode->nodekind != SMI_NODEKIND_TABLE))
     {
         delete target;
         delete pdu;
-        s->MainUI()->Query->append("<font color=red>Abort, not a row entry</font>");
+        s->MainUI()->Query->append("<font color=red>Abort, not a table or row entry</font>");
         return;
     }
-    
+   
+    /* If the oid is the table element, get the row entry element */ 
+    if (pnode->nodekind == SMI_NODEKIND_TABLE)
+    {
+        pnode = smiGetFirstChildNode(pnode);
+        poid.set_data((unsigned long *)pnode->oid, pnode->oidlen);
+    }
+
     /* Build the table header */
     msg += QString("<table border=\"1\"><tr bgcolor=yellow><td>Instance</td>");
     for (SmiNode *node = smiGetFirstChildNode(pnode); node != NULL;
