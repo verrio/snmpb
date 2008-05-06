@@ -494,14 +494,13 @@ void Discovery::AddAgentToProfiles(void)
     QList<QTreeWidgetItem *> item_list = 
                              s->MainUI()->DiscoveryOutput->selectedItems();
     char buf[30];
-    char *last = NULL;
 
     for (int i = 0; i < item_list.size(); i++)
     {
         strcpy(buf, item_list[i]->text(1).toLatin1().data());
 
         s->APManagerObj()->Add(item_list[i]->text(0).toLatin1().data(), 
-                               QString(strtok_r(buf, "/", &last)), 
+                               QString(strtok(buf, "/")), 
                                QString(strstr(item_list[i]->text(1).toLatin1().data(), "/") + 1), 
                                strstr(item_list[i]->text(2).toLatin1().data(), "V1")?true:false, 
                                strstr(item_list[i]->text(2).toLatin1().data(), "V2c")?true:false, 
