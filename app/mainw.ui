@@ -1,5 +1,5 @@
 <ui version="4.0" >
-<comment>
+ <comment>
     Copyright (C) 2004-2008  Martin Jolicoeur (snmpb1@gmail.com) 
 
     This file is part of the SnmpB project 
@@ -1175,6 +1175,9 @@
           </property>
           <property name="frameShadow" >
            <enum>QFrame::Plain</enum>
+          </property>
+          <property name="selectionMode" >
+           <enum>QAbstractItemView::ExtendedSelection</enum>
           </property>
           <property name="rootIsDecorated" >
            <bool>false</bool>

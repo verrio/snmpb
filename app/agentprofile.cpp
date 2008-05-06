@@ -330,6 +330,29 @@ void AgentProfileManager::Add(void)
     agents.append(newagent);
 }
 
+void AgentProfileManager::Add(QString name, QString address, QString port,
+                              bool isv1, bool isv2c, bool isv3, QString clonefrom)
+{
+    AgentProfile *clone;
+
+    // Protection for duplicate entries (based on agent name)
+    if (GetAgentProfile(name) || !(clone = GetAgentProfile(clonefrom)))
+        return;
+
+    // Create new agent base on parameters ...
+    AgentProfile * newagent = new AgentProfile(&ap, &name);
+    newagent->SetSupportedProtocol(isv1, isv2c, isv3);
+    newagent->SetTarget(address, port);
+
+    // Copy all other values from the clone 
+    newagent->SetRetriesTimeout(clone->GetRetries(), clone->GetTimeout());
+    newagent->SetComms(clone->GetReadComm(), clone->GetWriteComm());
+    newagent->SetBulk(clone->GetMaxRepetitions(), clone->GetNonRepeaters());
+    newagent->SetUser(clone->GetSecName(), clone->GetSecLevel());
+    newagent->SetContext(clone->GetContextName(), clone->GetContextEngineID());
+    agents.append(newagent);
+}
+
 void AgentProfileManager::Delete(void)
 {
     QTreeWidgetItem *p = NULL;

@@ -18,6 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <qmessagebox.h>
+#include <QContextMenuEvent>
 
 #include "discovery.h"
 #include "agent.h"
@@ -95,6 +96,14 @@ Discovery::Discovery(Snmpb *snmpb)
              this, SLOT( StartStop(int) ));
     connect( dt, SIGNAL( SignalProgress(int) ), 
              this, SLOT( DisplayProgress(int) ));
+
+    // Create context menu actions
+    s->MainUI()->DiscoveryOutput->setContextMenuPolicy (Qt::CustomContextMenu);
+    connect( s->MainUI()->DiscoveryOutput, 
+             SIGNAL( customContextMenuRequested ( const QPoint & ) ),
+             this, SLOT( ContextMenu ( const QPoint & ) ) );
+    addAgentAct = new QAction(tr("&Add agent(s) to profile list"), this);
+    connect(addAgentAct, SIGNAL(triggered()), this, SLOT(AddAgentToProfiles()));
 }
 
 void Discovery::ShowAgentSettings(void)
@@ -166,7 +175,7 @@ void DiscoveryThread::SendAgentInfo(Pdu pdu, UdpAddress a, snmp_version v)
     }
 
     address = a.get_printable();
-    protocol = (v == version3)?"v3": ((v == version2c)?"v2c":"v1");
+    protocol = (v == version3)?"V3": ((v == version2c)?"V2c":"V1");
 
     agent_info.clear();
     agent_info << name << address << protocol << uptime 
@@ -470,6 +479,37 @@ void Discovery::Abort(void)
 {
     dt->Abort();
 }
+
+void Discovery::ContextMenu ( const QPoint &pos )
+{    
+    QMenu menu(tr("Actions"), s->MainUI()->DiscoveryOutput);
+
+    menu.addAction(addAgentAct);
+
+    menu.exec(s->MainUI()->DiscoveryOutput->mapToGlobal(pos));
+}
+
+void Discovery::AddAgentToProfiles(void)
+{
+    QList<QTreeWidgetItem *> item_list = 
+                             s->MainUI()->DiscoveryOutput->selectedItems();
+    char buf[30];
+    char *last = NULL;
+
+    for (int i = 0; i < item_list.size(); i++)
+    {
+        strcpy(buf, item_list[i]->text(1).toLatin1().data());
+
+        s->APManagerObj()->Add(item_list[i]->text(0).toLatin1().data(), 
+                               QString(strtok_r(buf, "/", &last)), 
+                               QString(strstr(item_list[i]->text(1).toLatin1().data(), "/") + 1), 
+                               strstr(item_list[i]->text(2).toLatin1().data(), "V1")?true:false, 
+                               strstr(item_list[i]->text(2).toLatin1().data(), "V2c")?true:false, 
+                               strstr(item_list[i]->text(2).toLatin1().data(), "V3")?true:false, 
+                               s->MainUI()->DiscoveryAgentProfile->currentText());
+    }
+}
+
 
 void Discovery::Discover(void)
 {

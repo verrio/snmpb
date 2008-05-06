@@ -121,6 +121,8 @@ public:
     QStringList GetAgentsList(void);
     void SetSelectedAgent(QString a);
     AgentProfile *GetAgentProfile(QString a);
+    void Add(QString name, QString address, QString port,
+             bool isv1, bool isv2c, bool isv3, QString clonefrom);
 
 signals:
     void AgentProfileListChanged(void);

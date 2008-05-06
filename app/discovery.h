@@ -74,7 +74,7 @@ class Discovery: public QObject
     
 public:
     Discovery(Snmpb *snmpb);
-    
+
 protected slots:
     void Discover(void);
     void Abort(void);
@@ -83,10 +83,13 @@ protected slots:
     void DisplayProgress(int value);
     void ShowAgentSettings(void);
     void AgentProfileListChange(void);
+    void ContextMenu ( const QPoint &pos );
+    void AddAgentToProfiles(void);
 
 private:
     Snmpb *s;
     DiscoveryThread *dt;
+    QAction *addAgentAct;
 };
 
 #endif /* DISCOVERY_H */
