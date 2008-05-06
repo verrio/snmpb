@@ -11,7 +11,6 @@
 - Add desktop shortcut/K menu for Linux/BSD
 - Add NetBSD installer
 - Add button to create profile from discovery output
-- Allow to walk from a table as well as a table entry
 - Remove possibility to change value of tree config dialogs
 - Add auto-loading of MIB files on walk
 - Internationalize (using tr())
