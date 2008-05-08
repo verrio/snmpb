@@ -25,6 +25,10 @@
 #include "snmp_pp/snmp_pp.h"
 #include "snmp_pp/snmpmsg.h"
 
+#define DISC_SNMP_V1  "V1"
+#define DISC_SNMP_V2C "V2c"
+#define DISC_SNMP_V3  "V3"
+
 /* Internal SNMP++ routine */
 extern int receive_snmp_response(SnmpSocket sock, Snmp &snmp_session,
                                  Pdu &pdu, UdpAddress &fromaddress,
@@ -175,7 +179,8 @@ void DiscoveryThread::SendAgentInfo(Pdu pdu, UdpAddress a, snmp_version v)
     }
 
     address = a.get_printable();
-    protocol = (v == version3)?"V3": ((v == version2c)?"V2c":"V1");
+    protocol = (v == version3)?DISC_SNMP_V3: 
+               ((v == version2c)?DISC_SNMP_V2C:DISC_SNMP_V1);
 
     agent_info.clear();
     agent_info << name << address << protocol << uptime 
@@ -440,16 +445,25 @@ void DiscoveryThread::run(void)
 
 void Discovery::DisplayAgent(QStringList agent_info)
 {
+    // Check if the agent already exists in the list
     QList<QTreeWidgetItem *> laddr = 
         s->MainUI()->DiscoveryOutput->findItems(agent_info[1], 
                                                 Qt::MatchExactly, 1);
 
+    // If it exists, add the new supported protocol to its list.
     if (!laddr.isEmpty())
     {
+        if (!((agent_info[2] == DISC_SNMP_V1) && 
+              strstr(laddr[0]->text(2).toLatin1().data(), DISC_SNMP_V1)) && 
+            !((agent_info[2] == DISC_SNMP_V2C) && 
+              strstr(laddr[0]->text(2).toLatin1().data(), DISC_SNMP_V2C)) && 
+            !((agent_info[2] == DISC_SNMP_V3) && 
+              strstr(laddr[0]->text(2).toLatin1().data(), DISC_SNMP_V3)))
         laddr[0]->setText(2,  laddr[0]->text(2) + "/" + agent_info[2]);
     }
     else
     {
+        // Else add the new agent to the list, as is.
         QTreeWidgetItem *val = new QTreeWidgetItem(s->MainUI()->DiscoveryOutput,
                                                    agent_info);
         s->MainUI()->DiscoveryOutput->addTopLevelItem(val);
@@ -498,13 +512,18 @@ void Discovery::AddAgentToProfiles(void)
     for (int i = 0; i < item_list.size(); i++)
     {
         strcpy(buf, item_list[i]->text(1).toLatin1().data());
+        QString address(strtok(buf, "/"));
 
-        s->APManagerObj()->Add(item_list[i]->text(0).toLatin1().data(), 
+        s->APManagerObj()->Add(item_list[i]->text(0).isEmpty()?address:
+                               item_list[i]->text(0).toLatin1().data(), 
                                QString(strtok(buf, "/")), 
                                QString(strstr(item_list[i]->text(1).toLatin1().data(), "/") + 1), 
-                               strstr(item_list[i]->text(2).toLatin1().data(), "V1")?true:false, 
-                               strstr(item_list[i]->text(2).toLatin1().data(), "V2c")?true:false, 
-                               strstr(item_list[i]->text(2).toLatin1().data(), "V3")?true:false, 
+                               strstr(item_list[i]->text(2).toLatin1().data(), 
+                                      DISC_SNMP_V1)?true:false, 
+                               strstr(item_list[i]->text(2).toLatin1().data(), 
+                                      DISC_SNMP_V2C)?true:false, 
+                               strstr(item_list[i]->text(2).toLatin1().data(), 
+                                      DISC_SNMP_V3)?true:false, 
                                s->MainUI()->DiscoveryAgentProfile->currentText());
     }
 }

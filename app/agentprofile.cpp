@@ -339,7 +339,7 @@ void AgentProfileManager::Add(QString name, QString address, QString port,
     if (GetAgentProfile(name) || !(clone = GetAgentProfile(clonefrom)))
         return;
 
-    // Create new agent base on parameters ...
+    // Create new agent based on parameters ...
     AgentProfile * newagent = new AgentProfile(&ap, &name);
     newagent->SetSupportedProtocol(isv1, isv2c, isv3);
     newagent->SetTarget(address, port);
@@ -351,6 +351,10 @@ void AgentProfileManager::Add(QString name, QString address, QString port,
     newagent->SetUser(clone->GetSecName(), clone->GetSecLevel());
     newagent->SetContext(clone->GetContextName(), clone->GetContextEngineID());
     agents.append(newagent);
+
+    // Write to config file and notify averybody that the list changed ...
+    WriteConfigFile();
+    emit AgentProfileListChanged();
 }
 
 void AgentProfileManager::Delete(void)
