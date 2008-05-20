@@ -75,7 +75,7 @@ Discovery::Discovery(Snmpb *snmpb)
     s = snmpb;
 
     QStringList columns;
-    columns << "Name" << "Address/Port" << "Protocol" << "Up Time" 
+    columns << "Name" << "Address:Port" << "Protocol" << "Up Time" 
             << "Contact Person" << "System Location" << "System Description";
     s->MainUI()->DiscoveryOutput->setHeaderLabels(columns);
 
@@ -179,6 +179,7 @@ void DiscoveryThread::SendAgentInfo(Pdu pdu, UdpAddress a, snmp_version v)
     }
 
     address = a.get_printable();
+    address.replace('/', ':');
     protocol = (v == version3)?DISC_SNMP_V3: 
                ((v == version2c)?DISC_SNMP_V2C:DISC_SNMP_V1);
 
@@ -316,7 +317,7 @@ next_addr:
             snmpmsg = NULL;
         }
 
-        cur_address[3] = cur_address[3]++;
+        cur_address[3]++;
 
         if (aborting == true)
             return;
@@ -393,7 +394,7 @@ void DiscoveryThread::run(void)
     if (s->MainUI()->DiscoveryLocal->isChecked())
         address_str = "255.255.255.255/" + ap->GetPort();
     else
-        address_str = s->MainUI()->DiscoveryFrom->text() + "/" + ap->GetPort();
+        address_str = s->MainUI()->DiscoveryFrom->text() + ":" + ap->GetPort();
 
     UdpAddress start_address(address_str.toLatin1().data());
 
@@ -512,12 +513,12 @@ void Discovery::AddAgentToProfiles(void)
     for (int i = 0; i < item_list.size(); i++)
     {
         strcpy(buf, item_list[i]->text(1).toLatin1().data());
-        QString address(strtok(buf, "/"));
+        QString address(strtok(buf, ":"));
 
-        s->APManagerObj()->Add(item_list[i]->text(0).isEmpty()?address:
-                               item_list[i]->text(0).toLatin1().data(), 
-                               QString(strtok(buf, "/")), 
-                               QString(strstr(item_list[i]->text(1).toLatin1().data(), "/") + 1), 
+        s->APManagerObj()->Add(item_list[i]->text(0).isEmpty()?
+                               address:item_list[i]->text(0), 
+                               address, 
+                               QString(strstr(item_list[i]->text(1).toLatin1().data(), ":") + 1), 
                                strstr(item_list[i]->text(2).toLatin1().data(), 
                                       DISC_SNMP_V1)?true:false, 
                                strstr(item_list[i]->text(2).toLatin1().data(), 

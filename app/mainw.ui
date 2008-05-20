@@ -1158,6 +1158,13 @@
              </property>
             </widget>
            </item>
+           <item row="0" column="2" >
+            <widget class="QLabel" name="DiscoveryLocal2" >
+             <property name="text" >
+              <string>-> 255.255.255.255</string>
+             </property>
+            </widget>
+           </item>
            <item row="1" column="0" colspan="2" >
             <widget class="QRadioButton" name="DiscoveryNetworks" >
              <property name="text" >
