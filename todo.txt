@@ -1,4 +1,3 @@
-- Fix broken discovery system on win32
 - Add support for table instance on get/get-next
 - Test/fix support of 64 bits MIB variables 
 - Fix graph plotting system (+ add configurable polling interval)
