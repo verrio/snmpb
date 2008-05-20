@@ -36,6 +36,7 @@ public:
 
     int IsPartOfUSMProfile(QTreeWidgetItem *item);
     int SelectUSMProfile(QTreeWidgetItem * item);
+    QTreeWidgetItem *GetUserWidgetItem(void);
 
     void SetName(QString n);
     QString GetName(void);

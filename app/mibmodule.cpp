@@ -91,15 +91,15 @@ char* LoadedMibModule::GetMibLanguage(void)
     switch(module->language)
     {
     case SMI_LANGUAGE_SMIV1:
-        return "SMIv1";
+        return (char*)"SMIv1";
     case SMI_LANGUAGE_SMIV2:
-        return "SMIv2";
+        return (char*)"SMIv2";
     case SMI_LANGUAGE_SMING:
-        return "SMIng";
+        return (char*)"SMIng";
     case SMI_LANGUAGE_SPPI:
-        return "SPPI";
+        return (char*)"SPPI";
     default:
-        return "Unknown";
+        return (char*)"Unknown";
     }
 }
 
@@ -218,9 +218,9 @@ void MibModule::RebuildLoadedList(void)
         Loaded.append(lmodule);
         
         if (Wanted.contains(lmodule->name))
-            required = "no";
+            required = (char*)"no";
         else
-            required = "yes";
+            required = (char*)"yes";
     
         QStringList values;
         values << lmodule->name.toLatin1().data() << required

@@ -37,6 +37,7 @@ public:
 
     int IsPartOfAgentProfile(QTreeWidgetItem *item);
     int SelectAgentProfile(QTreeWidgetItem * item);
+    QTreeWidgetItem *GetGeneralWidgetItem(void);
     void ProtocolV1Support(bool checked);
     void ProtocolV2Support(bool checked);
     void ProtocolV3Support(bool checked);

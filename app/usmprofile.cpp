@@ -172,6 +172,11 @@ void USMProfileManager::Add(void)
     newuser->SetSecurity(0, "", 0, "");
  
     users.append(newuser);
+
+    // Select the new item and change the focus to change its name ...
+    up.ProfileTree->setCurrentItem(newuser->GetUserWidgetItem());
+    up.SecName->setFocus(Qt::OtherFocusReason);  
+    up.SecName->selectAll();  
 }
 
 void USMProfileManager::Delete(void)
@@ -309,7 +314,6 @@ USMProfile::USMProfile(Ui_USMProfile *uiup, QString *n)
     up = uiup;
 
     user = new QTreeWidgetItem(up->ProfileTree);
-    user->setFlags(user->flags() | Qt::ItemIsEditable);
 
     if (n)
     {
@@ -320,7 +324,6 @@ USMProfile::USMProfile(Ui_USMProfile *uiup, QString *n)
     {
         user->setText(0, "newuser");
         SetName("newuser");
-        up->ProfileTree->editItem(user, 0);
     }
 }
 
@@ -351,6 +354,11 @@ int USMProfile::IsPartOfUSMProfile(QTreeWidgetItem * item)
         return 1;
     else
         return 0;
+}
+
+QTreeWidgetItem *USMProfile::GetUserWidgetItem(void)
+{
+    return user;
 }
 
 void USMProfile::SetName(QString n)

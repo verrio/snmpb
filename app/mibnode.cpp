@@ -84,25 +84,25 @@ char *MibNode::GetAccess(void)
     switch (Node->access)
     {
     case SMI_ACCESS_NOT_ACCESSIBLE:
-        return "not-accessible";
+        return (char*)"not-accessible";
     case SMI_ACCESS_NOTIFY:
-        return "notify";
+        return (char*)"notify";
     case SMI_ACCESS_READ_ONLY:
-        return "read-only";
+        return (char*)"read-only";
     case SMI_ACCESS_READ_WRITE:
-        return "read-write";
+        return (char*)"read-write";
     case SMI_ACCESS_INSTALL:
-        return "install";
+        return (char*)"install";
     case SMI_ACCESS_INSTALL_NOTIFY:
-        return "install-notify";
+        return (char*)"install-notify";
     case SMI_ACCESS_REPORT_ONLY:
-        return "report-only";
+        return (char*)"report-only";
     case SMI_ACCESS_UNKNOWN:
     case SMI_ACCESS_NOT_IMPLEMENTED:
         break;
     }
 	
-    return "";
+    return (char*)"";
 }
 
 char *MibNode::GetStatus(void)
@@ -110,20 +110,20 @@ char *MibNode::GetStatus(void)
     switch (Node->status)
     {
     case SMI_STATUS_CURRENT:
-        return "current";
+        return (char*)"current";
     case SMI_STATUS_DEPRECATED:
-        return "<font color=red>deprecated</font>";
+        return (char*)"<font color=red>deprecated</font>";
     case SMI_STATUS_MANDATORY:
-        return "mandatory";
+        return (char*)"mandatory";
     case SMI_STATUS_OPTIONAL:
-        return "optional";
+        return (char*)"optional";
     case SMI_STATUS_OBSOLETE:
-        return "<font color=red>obsolete</font>";
+        return (char*)"<font color=red>obsolete</font>";
     case SMI_STATUS_UNKNOWN:
         break;
     }
 
-    return "";
+    return (char*)"";
 }
 
 char *MibNode::GetKindName(void)
@@ -131,30 +131,30 @@ char *MibNode::GetKindName(void)
     switch(Node->nodekind)
     {
     case SMI_NODEKIND_NODE:
-        return "Node";
+        return (char*)"Node";
     case SMI_NODEKIND_SCALAR:
-        return "Scalar";
+        return (char*)"Scalar";
     case SMI_NODEKIND_TABLE:
-        return "Table";
+        return (char*)"Table";
     case SMI_NODEKIND_ROW:
-        return "Row";
+        return (char*)"Row";
     case SMI_NODEKIND_COLUMN:
-        return "Column";
+        return (char*)"Column";
     case SMI_NODEKIND_NOTIFICATION:
-        return "Notification";
+        return (char*)"Notification";
     case SMI_NODEKIND_GROUP:
-        return "Group";
+        return (char*)"Group";
     case SMI_NODEKIND_COMPLIANCE:
-        return "Compliance";
+        return (char*)"Compliance";
     case SMI_NODEKIND_CAPABILITIES:
-        return "Capabilities";
+        return (char*)"Capabilities";
     case SMI_NODEKIND_UNKNOWN:
     case SMI_NODEKIND_ANY:
     default:
         break;
     }
     
-    return "";
+    return (char*)"";
 }
 
 char *MibNode::GetSmiTypeName(void)
@@ -163,44 +163,44 @@ char *MibNode::GetSmiTypeName(void)
     {    
     /* SMIv1/v2 ASN.1 statements and macros */    
     case SMI_DECL_OBJECTTYPE:
-        return "OBJECT-TYPE";
+        return (char*)"OBJECT-TYPE";
     case SMI_DECL_OBJECTIDENTITY:
-        return "OBJECT-IDENTITY";
+        return (char*)"OBJECT-IDENTITY";
     case SMI_DECL_MODULEIDENTITY:
-        return "MODULE-IDENTITY";
+        return (char*)"MODULE-IDENTITY";
     case SMI_DECL_NOTIFICATIONTYPE:
-        return "NOTIFICATION-TYPE";
+        return (char*)"NOTIFICATION-TYPE";
     case SMI_DECL_TRAPTYPE:
-        return "TRAP-TYPE";
+        return (char*)"TRAP-TYPE";
     case SMI_DECL_OBJECTGROUP:
-        return "OBJECT-GROUP";
+        return (char*)"OBJECT-GROUP";
     case SMI_DECL_NOTIFICATIONGROUP:
-        return "NOTIFICATION-GROUP";
+        return (char*)"NOTIFICATION-GROUP";
     case SMI_DECL_MODULECOMPLIANCE:
-        return "MODULE-COMPLIANCE";
+        return (char*)"MODULE-COMPLIANCE";
     case SMI_DECL_AGENTCAPABILITIES:
-        return "AGENT-CAPABILITIES";
+        return (char*)"AGENT-CAPABILITIES";
     case SMI_DECL_VALUEASSIGNMENT:
-        return "OBJECT-IDENTIFIER";
+        return (char*)"OBJECT-IDENTIFIER";
     /* SMIng statements */
     case SMI_DECL_MODULE:
-        return "module";
+        return (char*)"module";
     case SMI_DECL_NODE:
-        return "node";
+        return (char*)"node";
     case SMI_DECL_SCALAR:
-        return "scalar";
+        return (char*)"scalar";
     case SMI_DECL_TABLE:
-        return "table";
+        return (char*)"table";
     case SMI_DECL_ROW:
-        return "row";
+        return (char*)"row";
     case SMI_DECL_COLUMN:
-        return "column";
+        return (char*)"column";
     case SMI_DECL_NOTIFICATION:
-        return "notification";
+        return (char*)"notification";
     case SMI_DECL_GROUP:
-        return "group";
+        return (char*)"group";
     case SMI_DECL_COMPLIANCE:
-        return "compliance";
+        return (char*)"compliance";
         
     case SMI_DECL_IMPLICIT_TYPE:
     case SMI_DECL_TYPEASSIGNMENT:
@@ -216,7 +216,7 @@ char *MibNode::GetSmiTypeName(void)
         break;
     }
     
-    return "";
+    return (char*)"";
 }
                                   
 char *MibNode::GetTypeName(void)
@@ -287,74 +287,3 @@ void MibNode::PrintProperties(QString& text)
        text += QString("</table>");
 }
 
-
-       /* Table Indexes print
-            switch (smiNode->indexkind)
-            {
-            case SMI_INDEX_INDEX:
-            case SMI_INDEX_REORDER:
-                fprintIndex(smiNode);
-                break;
-            case SMI_INDEX_EXPAND: //TODO: we have to do more work here!
-                break;
-            case SMI_INDEX_AUGMENT:
-            case SMI_INDEX_SPARSE:
-                indexNode = smiGetRelatedNode(smiNode);
-                if (indexNode)
-                {
-                    fprintIndex(indexNode);
-                }
-                break;
-            case SMI_INDEX_UNKNOWN:
-                break;
-            }
-            
-       SmiType *smiGetNodeType(SmiNode *smiNodePtr);
-       
-       SmiElement *smiGetFirstElement(SmiNode *smiNodePtr);
-       SmiElement *smiGetNextElement(SmiElement *smiElementPtr);
-       SmiNode *smiGetElementNode(SmiElement *smiElementPtr);
- 
-       SmiOption *smiGetFirstOption(SmiNode *smiComplianceNodePtr);
-       SmiOption *smiGetNextOption(SmiOption *smiOptionPtr);
-       SmiNode *smiGetOptionNode(SmiOption *smiOptionPtr);
-      
-       SmiRefinement *smiGetFirstRefinement(SmiNode *smiComplianceNodePtr);
-       SmiRefinement *smiGetNextRefinement(SmiRefinement *smiRefinementPtr);
-       SmiNode *smiGetRefinementNode(SmiRefinement *smiRefinementPtr);
-       SmiType *smiGetRefinementType(SmiRefinement *smiRefinementPtr);
-       SmiType *smiGetRefinementWriteType(SmiRefinement *smiRefinementPtr);
-       
-       SmiType *smiGetType(SmiModule *smiModulePtr, char *type);
-       SmiType *smiGetFirstType(SmiModule *smiModulePtr);
-       SmiType *smiGetNextType(SmiType *smiTypePtr);
-       SmiType *smiGetParentType(SmiType *smiTypePtr);
-       
-       SmiRange *smiGetFirstRange(SmiType *smiTypePtr);
-       SmiRange *smiGetNextRange(SmiRange *smiRangePtr);
-       
-       SmiNamedNumber *smiGetFirstNamedNumber(SmiType *smiTypePtr);
-       SmiNamedNumber *smiGetNextNamedNumber(SmiNamedNumber *smiNamedNumberPtr);
-
-       typedef struct SmiNode {
-           
-           SmiValue            value;
-           
-           SmiIndexkind        indexkind;
-           int                 implied;
-           int                 create;
-       } SmiNode;
-
-       typedef struct SmiElement {
-           // no visible attributes
-       } SmiElement;
-
-       typedef struct SmiOption {
-           char                *description;
-       } SmiOption;
-
-       typedef struct SmiRefinement {
-           SmiAccess           access;
-           char                *description;
-       } SmiRefinement;  
-*/

@@ -130,7 +130,7 @@ void Agent::Init(void)
     connect(&timer, SIGNAL(timeout()), this, SLOT(TimerExpired()));
     
     // get the Boot counter (you may use any own method for this)
-    char *engineId = "not_needed";
+    char *engineId = (char*)"not_needed";
     unsigned int snmpEngineBoots = 0;
 
     status = getBootCounter(s->GetBootCounterConfigFile().toLatin1().data(), 

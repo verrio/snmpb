@@ -327,7 +327,13 @@ void AgentProfileManager::Add(void)
     newagent->SetBulk(10, 0);
     newagent->SetUser("", 0);
     newagent->SetContext("", "");
+
     agents.append(newagent);
+
+    // Select the new item and change the focus to change its name ...
+    ap.ProfileTree->setCurrentItem(newagent->GetGeneralWidgetItem());
+    ap.ProfileName->setFocus(Qt::OtherFocusReason);  
+    ap.ProfileName->selectAll();  
 }
 
 void AgentProfileManager::Add(QString name, QString address, QString port,
@@ -352,7 +358,7 @@ void AgentProfileManager::Add(QString name, QString address, QString port,
     newagent->SetContext(clone->GetContextName(), clone->GetContextEngineID());
     agents.append(newagent);
 
-    // Write to config file and notify averybody that the list changed ...
+    // Write to config file and notify everybody that the list changed ...
     WriteConfigFile();
     emit AgentProfileListChanged();
 }
@@ -428,7 +434,6 @@ AgentProfile::AgentProfile(Ui_AgentProfile *uiap, QString *n)
     ap = uiap;
 
     general = new QTreeWidgetItem(ap->ProfileTree);
-    general->setFlags(general->flags() | Qt::ItemIsEditable);
 
     if (n)
     {
@@ -439,7 +444,6 @@ AgentProfile::AgentProfile(Ui_AgentProfile *uiap, QString *n)
     {
         general->setText(0, "newagent");
         SetName("newagent");
-        ap->ProfileTree->editItem(general, 0);
     }
 
     v1v2c = new QTreeWidgetItem(general);
@@ -636,6 +640,11 @@ int AgentProfile::IsPartOfAgentProfile(QTreeWidgetItem * item)
         return 1;
     else
         return 0;
+}
+
+QTreeWidgetItem *AgentProfile::GetGeneralWidgetItem(void)
+{
+    return general;
 }
 
 void AgentProfile::GetSupportedProtocol(bool *v1, bool *v2, bool *v3)
