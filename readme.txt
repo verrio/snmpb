@@ -13,7 +13,6 @@ Required installed packages for compilation:
 - GNU make
 - QT4 development package
 - GNU install
-- automake 1.4 (won't work with later versions)
 - gcc
 
 External packages
@@ -32,11 +31,12 @@ Modified file(s):
 libtomcrypt/makefile
 
 Libsmi is taken from http://www.ibr.cs.tu-bs.de/projects/libsmi
-Version: 0.4.5
+Version: 0.4.8
 
 Modified file(s):
 win/Makefile.mingw
 win/config.h
+lib/smi.h "Changed parameter named 'class' to allow compilation on C++"
 lib/smi.c "Fixed a bug on paths with spaces in smiReadConfig()"
 
 QWT is taken from http://qwt.sourceforge.net

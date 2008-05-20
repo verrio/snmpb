@@ -58,7 +58,7 @@ endif
 
 libsmi/Makefile:
 	# Linux/BSD
-	cd libsmi; automake-1.4; ./configure --disable-shared --with-pathseparator=';' --with-dirseparator='/' --with-smipath=${INSTALL_PREFIX}'/share/apps/snmpb/mibs;'${INSTALL_PREFIX}'/share/apps/snmpb/pibs'
+	cd libsmi; ./configure --disable-shared --with-pathseparator=';' --with-dirseparator='/' --with-smipath=${INSTALL_PREFIX}'/share/apps/snmpb/mibs;'${INSTALL_PREFIX}'/share/apps/snmpb/pibs'
 
 qwt/lib/libqwt.a: qwt/Makefile
 	$(MAKE) -C qwt
