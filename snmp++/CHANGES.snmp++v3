@@ -1,4 +1,39 @@
 
+Changes snmp++v3.2.23
+=====================
+
+- Fixed: SNMPv3 message id creation was not thread safe.
+- Added: IPv6 utility functions to allow IPv6 for VC++
+  compiler (Ragavan Tetchinamourty).
+- Fixed: Key change algorithm now works for keys longer than
+  16 bytes.
+- Fixed: ASN parse error on 64 bit platforms.
+- Improved: Address classes can now handle IPv6 scope id.
+  Length defines for IPv6 have been renamed, see address.h
+  for new names if you get compile errors.
+- Fixed: With IPv6 disabled, transport errors could trigger IPv6
+  related warning.
+
+Changes snmp++v3.2.22
+=====================
+
+- Fixed: After a CTarget::clear() get_type() returned type_base
+  instead of type_ctarget (Lior Klibansky).
+- Fixed: The message id could be negative if engine boots is
+  greater than 0x7fff. (Wai-Kiong Choy)
+- Fixed: Removed lots of compiler warnings (-Wcast-qual, -Wshadow),
+  unused code, and other things (Jeremy Nimmer)
+- Added: User defined log class USER_LOG.
+- Fixed: Thread handle was not closed on Snmp::stop_poll_thread() on
+  WIN32 platform. (found from Stoyan Haralampiev).
+- Fixed: Possible deadlock after a call to Snmp::engine_id_discovery().
+- Fixed: debughexprintf() did not print the last output line.
+- Fixed: Check for duplicate entries in engine id table.
+- Fixed: Don't allow SNMP INFORM over SNMPv1.
+- Fixed: If a SNMPv3 response was received from a different address/port
+  than the request was sent to, no valid mapping address/port <-> enigne id
+  was stored, so no communication was possible.
+
 Changes snmp++v3.2.21
 =====================
 

@@ -2,9 +2,9 @@
   _## 
   _##  msgqueue.cpp  
   _##
-  _##  SNMP++v3.2.21
+  _##  SNMP++v3.2.23
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
+  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -78,7 +78,7 @@ extern int send_snmp_request(SnmpSocket sock, unsigned char *send_buf,
 			      size_t send_len, Address &address);
 extern int receive_snmp_response(SnmpSocket sock, Snmp &snmp_session,
                                  Pdu &pdu, UdpAddress &fromaddress,
-				 bool process_msg = true);
+				 OctetStr &engine_id, bool process_msg = true);
 
 //----[ CSNMPMessage class ]-------------------------------------------
 
@@ -477,11 +477,13 @@ int CSNMPMessageQueue::HandleEvents(const int maxfds,
     if ((FD_ISSET(fd, &snmp_readfds)) &&
 	(FD_ISSET(fd, &readfds)))
     {
+      OctetStr engine_id;
+
       tmppdu.set_request_id(0);
 
       // get the response and put it into a Pdu
       recv_status = receive_snmp_response(fd, *m_snmpSession,
-                                          tmppdu, fromaddress);
+                                          tmppdu, fromaddress, engine_id);
 
       lock();
       // find the corresponding msg in the message queue
@@ -507,6 +509,28 @@ int CSNMPMessageQueue::HandleEvents(const int maxfds,
                unlock();
                continue;
              }
+
+#ifdef _SNMPv3
+	     if (engine_id.len() > 0)
+	     {
+		 SnmpTarget *target = msg->GetTarget();
+		 if ((target->get_type() == SnmpTarget::type_utarget) &&
+		     (target->get_version() == version3))
+		 {
+		   UdpAddress addr = target->get_address();
+
+		   LOG_BEGIN(DEBUG_LOG | 14);
+		   LOG("MsgQueue: Adding engine id to table (addr) (id)");
+		   LOG(addr.get_printable());
+		   LOG(engine_id.get_printable());
+		   LOG_END;
+
+		   v3MP::I->add_to_engine_id_table(engine_id,
+			       (char*)addr.IpAddress::get_printable(),
+			       addr.get_port());
+		 }
+	     }
+#endif
 
 	     // Do the callback
              unlock();

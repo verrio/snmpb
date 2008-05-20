@@ -2,9 +2,9 @@
   _## 
   _##  snmpBulk.cpp  
   _##
-  _##  SNMP++v3.2.21
+  _##  SNMP++v3.2.23
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
+  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
   _##  
   _##########################################################################*/
 /*
@@ -76,13 +76,13 @@ int main(int argc, char **argv)
 	  cout << "Usage:\n";
 	  cout << "snmpBulk IpAddress | DNSName [Oid [Oid...]] [options]\n";
 	  cout << "Oid: sysDescr object is default\n";
-	  cout << "options: -vN , use SNMP version 1, 2 or 3, default is 1\n";
+	  cout << "options: -vN , use SNMP version 1, 2 or 3, default is 2\n";
 	  cout << "         -PPort , remote port to use\n";
 	  cout << "         -CCommunity_name, specify community default is 'public' \n";
 	  cout << "         -rN , retries default is N = 1 retry\n";
 	  cout << "         -tN , timeout in hundredths of seconds; default is N = 100\n";
 	  cout << "         -nN , non-repeaters default is N = 0\n";
-	  cout << "         -mN , max-repetitions default is  N = 1\n";
+	  cout << "         -mN , max-repetitions default is  N = 10\n";
 #ifdef _SNMPv3
           cout << "         -snSecurityName, " << endl;
           cout << "         -slN , securityLevel to use, default N = 3 = authPriv" << endl;
@@ -109,7 +109,8 @@ int main(int argc, char **argv)
    Vb vb;                                // construct a Vb object
    if ( argc >= 3) {                  // if 3 args, then use the callers Oid
 	int i=2;
-	while ((strstr(argv[i],"-")==0) && (i<argc)) {
+	while ((i<argc) && (strstr(argv[i],"-")==0))
+	{
 		Oid oid(argv[i]);
 		if ( !oid.valid()) {            // check validity of user oid
 			cout << "Invalid Oid, " << argv[2] << "\n";
@@ -127,13 +128,13 @@ int main(int argc, char **argv)
    }
 
    //---------[ determine options to use ]-----------------------------------
-   snmp_version version=version1;                  // default is v1
-   int retries=1;                                  // default retries is 1
-   int timeout=100;                                // default is 1 second
-   u_short port=161;                               // default snmp port is 161
-   OctetStr community("public");                   // community name
-   int non_reps=0;                                 // non repeaters default is 0
-   int max_reps=1;                                 // maximum repetitions default is 1
+   snmp_version version=version2c;          // default is v2c
+   int retries=1;                          // default retries is 1
+   int timeout=100;                        // default is 1 second
+   u_short port=161;                       // default snmp port is 161
+   OctetStr community("public");           // community name
+   int non_reps=0;                         // non repeaters default is 0
+   int max_reps=10;                        // maximum repetitions default is 10
 
 #ifdef _SNMPv3
    OctetStr privPassword("");

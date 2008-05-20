@@ -2,9 +2,9 @@
   _## 
   _##  target.cpp  
   _##
-  _##  SNMP++v3.2.21
+  _##  SNMP++v3.2.23
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
+  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -43,21 +43,13 @@
   derivatives based upon this software code base.
 
 
-
   T A R G E T . C P P
 
-  DESIGN + AUTHOR:
-  Peter E Mellquist
+  DESIGN + AUTHOR:  Peter E Mellquist
 
-  LANGUAGE:
-  ANSI C++
+  LANGUAGE:         ANSI C++
 
-  OPERATING SYSTEMS:
-  MS-WINDOWS WIN32
-  BSD UNIX
-
-  DESCRIPTION:
-  Target class defines target SNMP agents.
+  DESCRIPTION:      Target class defines target SNMP agents.
 
 =====================================================================*/
 char target_cpp_version[]="#(@) SNMP++ $Id$";
@@ -79,7 +71,7 @@ int SnmpTarget::default_retries = 1;
 //----------------------------------------------------------------------
 
 // get the address
-int SnmpTarget::get_address( GenAddress &address) const
+int SnmpTarget::get_address(GenAddress &address) const
 {
   if (validity == false) return FALSE;
 
@@ -88,7 +80,7 @@ int SnmpTarget::get_address( GenAddress &address) const
 }
 
 // set the address
-int SnmpTarget::set_address( const Address &address)
+int SnmpTarget::set_address(const Address &address)
 {
    my_address = address;
    if ( my_address.valid())
@@ -146,9 +138,9 @@ CTarget::CTarget( void)
 
 //-----------[ CTarget:: CTarget ]-------------------------------------
 // CTarget constructor with args
-CTarget::CTarget( const Address &address,
-                  const char *read_community_name,
-                  const char *write_community_name)
+CTarget::CTarget(const Address &address,
+                 const char *read_community_name,
+                 const char *write_community_name)
   : SnmpTarget(address),
     read_community(read_community_name), write_community(write_community_name)
 {
@@ -157,9 +149,9 @@ CTarget::CTarget( const Address &address,
 
 //-----------[ CTarget:: CTarget ]-----------------------------------
 // CTarget constructor with args
-CTarget::CTarget( const Address &address,
-		  const OctetStr& read_community_name,
-		  const OctetStr& write_community_name)
+CTarget::CTarget(const Address &address,
+		 const OctetStr& read_community_name,
+		 const OctetStr& write_community_name)
   : SnmpTarget(address),
     read_community(read_community_name), write_community(write_community_name)
 {
@@ -169,7 +161,7 @@ CTarget::CTarget( const Address &address,
 
 //-----------[ CTarget:: CTarget( Address &address) ]--------------
 // CTarget constructor with args
-CTarget::CTarget( const Address &address)
+CTarget::CTarget(const Address &address)
   : SnmpTarget(address), read_community(PUBLIC), write_community(PUBLIC)
 {
   ttype = type_ctarget; // overwrite value set in SnmpTarget()
@@ -246,6 +238,7 @@ void CTarget::clear()
   SnmpTarget::clear();
   read_community.clear();
   write_community.clear();
+  ttype = type_ctarget; // overwrite value set in SnmpTarget::clear()
 }
 
 //----------------------------------------------------------------------
@@ -388,7 +381,7 @@ UTarget& UTarget::operator=(const UTarget& target)
 
 //=============[ int operator == UTarget, UTarget ]==========================
 // equivlence operator overloaded
-int UTarget::operator==( const UTarget &rhs) const
+int UTarget::operator==(const UTarget &rhs) const
 {
   if (SnmpTarget::operator==(rhs) == 0)     return 0;
   // need to compare all the members of a UTarget

@@ -2,9 +2,9 @@
   _## 
   _##  ctr64.cpp  
   _##
-  _##  SNMP++v3.2.21
+  _##  SNMP++v3.2.23
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
+  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -57,6 +57,9 @@
 char counter64_cpp_version[]="@(#) SNMP++ $Id$";
 
 #include "snmp_pp/ctr64.h"
+#include "snmp_pp/asn1.h"
+#include "snmp_pp/v3.h"
+
 #include <stdio.h>   // for pretty printing...
 
 #ifdef SNMP_PP_NAMESPACE
@@ -332,6 +335,136 @@ int Counter64::get_asn1_length() const
     return 10;
   return 11;
 }
+
+/*
+ * asn_build_unsigned_int64 - builds an ASN object containing a 64 bit integer.
+ *  On entry, datalength is input as the number of valid bytes following
+ *   "data".  On exit, it is returned as the number of valid bytes
+ *   following the end of this object.
+ *
+ *  Returns a pointer to the first byte past the end
+ *   of this object (i.e. the start of the next object).
+ *  Returns NULL on any error.
+ */
+bool Counter64::to_asn1(unsigned char *&data,
+			int &datalength,
+			const unsigned char type)
+{
+  /*
+   * ASN.1 integer ::= 0x02 asnlength byte {byte}*
+   */
+
+  unsigned long low = smival.value.hNumber.lopart;
+  unsigned long high = smival.value.hNumber.hipart;
+  unsigned long mask = 0xFFul << (8 * (sizeof(long) - 1));
+  bool add_null_byte = false;
+  int intsize = 8;
+
+  /* mask is 0xFF000000 on a big-endian machine */
+  if ((unsigned char)((high & mask) >> (8 * (sizeof(long) - 1))) & 0x80)
+  {
+    /* if MSB is set */
+    add_null_byte = true;
+    intsize++;
+  }
+  else
+  {
+    /*
+     * Truncate "unnecessary" bytes off of the most significant end of this 2's
+     * complement integer.
+     * There should be no sequence of 9 consecutive 1's or 0's at the most
+     * significant end of the integer.
+     */
+    unsigned long mask2 = 0x1FFul << ((8 * (sizeof(long) - 1)) - 1);
+    /* mask2 is 0xFF800000 on a big-endian machine */
+    while((((high & mask2) == 0) || ((high & mask2) == mask2))
+	  && intsize > 1)
+    {
+      intsize--;
+      high = (high << 8) | ((low & mask) >> (8 * (sizeof(long) - 1)));
+      low <<= 8;
+    }
+  }
+  data = asn_build_header(data, &datalength, type, intsize);
+  if ((data == NULL) || (datalength < intsize))
+    return false;
+  datalength -= intsize;
+  if (add_null_byte)
+  {
+    *data++ = '\0';
+    intsize--;
+  }
+  while (intsize--)
+  {
+    *data++ = (unsigned char)((high & mask) >> (8 * (sizeof(long) - 1)));
+    high = (high << 8) | ((low & mask) >> (8 * (sizeof(long) - 1)));
+    low <<= 8;
+  }
+  return true;
+}
+
+/*
+ * asn_parse_unsigned_int64 - pulls a 64 bit unsigned long out of an ASN int
+ * type.
+ *  On entry, datalength is input as the number of valid bytes following
+ *   "data".  On exit, it is returned as the number of valid bytes
+ *   following the end of this object.
+ *
+ *  Returns a pointer to the first byte past the end
+ *   of this object (i.e. the start of the next object).
+ *  Returns NULL on any error.
+ */
+bool Counter64::from_asn1(unsigned char *&data, int &datalength,
+			  unsigned char &type)
+{
+  /*
+   * ASN.1 integer ::= 0x02 asnlength byte {byte}*
+   */
+  unsigned char *bufp = data;
+  unsigned long	    asn_length;
+  unsigned long low = 0, high = 0;
+  const int intsize = 4;
+
+  type = *bufp++;
+  if ((type != 0x02) && (type != 0x46))
+  {
+    ASNERROR("Wrong Type. Not an integer 64");
+    return false;
+  }
+  bufp = asn_parse_length(bufp, &asn_length);
+  if (bufp == NULL)
+  {
+    ASNERROR("bad length");
+    return false;
+  }
+  if ((asn_length + (bufp - data)) > (unsigned long)(datalength))
+  {
+    ASNERROR("overflow of message");
+    return false;
+  }
+  if (((int)asn_length > (intsize * 2 + 1)) ||
+      (((int)asn_length == (intsize * 2) + 1) && *bufp != 0x00))
+  {
+    ASNERROR("I don't support such large integers");
+    return false;
+  }
+  datalength -= (int)asn_length + SAFE_INT_CAST(bufp - data);
+  if (*bufp & 0x80)
+  {
+    low = (unsigned long) -1; // integer is negative
+    high = (unsigned long) -1;
+  }
+  while (asn_length--)
+  {
+    high = (high << 8) | ((low & 0xFF000000) >> 24);
+    low = (low << 8) | *bufp++;
+  }
+  smival.value.hNumber.lopart = low;
+  smival.value.hNumber.hipart = high;
+  data = bufp;
+  return true;
+}
+
 
 #ifdef SNMP_PP_NAMESPACE
 }; // end of namespace Snmp_pp

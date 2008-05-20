@@ -2,9 +2,9 @@
   ## 
   ##  Makefile.bcc  
   ##
-  ##  SNMP++v3.2.21
+  ##  SNMP++v3.2.23
   ##  -----------------------------------------------
-  ##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
+  ##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
   ##
   ##  This software is based on SNMP++2.6 from Hewlett Packard:
   ##  
@@ -23,7 +23,7 @@
   ##  hereby grants a royalty-free license to any and all derivatives based
   ##  upon this software code base. 
   ##  
-  ##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
+  ##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
   ##  
   ##########################################################################*
 
@@ -65,8 +65,6 @@ OBJS =	address.obj counter.obj ctr64.obj gauge.obj integer.obj octet.obj \
 	msec.obj notifyqueue.obj sha.obj v3.obj usm_v3.obj mp_v3.obj idea.obj \
 	auth_priv.obj reentrant.obj md5c.obj
 
-P1OBJ = test_app.obj
-
 #
 #  Libraries:  dependencies and produced
 #
@@ -77,7 +75,7 @@ SNMP_PP_DLL = snmp_pp.dll
 #
 #  Here for a quick sanity check upon completing a build...
 #
-PROG1 = test_app.exe
+#PROG1 = test_app.exe
 
 .SUFFIXES: .cpp .C
 
@@ -87,11 +85,7 @@ PROG1 = test_app.exe
 #
 #  Build rules
 #
-all: $(SNMP_PP_LIB) $(SNMP_PP_DLL) $(PROG1)
-
-$(PROG1): $(SNMP_PP_LIB) $(P1OBJ)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(P1OBJ) $(LIBDIR)\$(SNMP_PP_LIB) \
-	$(LIBDES) -e$(PROG1)
+all: $(SNMP_PP_LIB) $(SNMP_PP_DLL)
 
 $(SNMP_PP_LIB): $(OBJS)
 	-@if not exist $(LIBDIR) mkdir $(LIBDIR)
@@ -119,6 +113,4 @@ clean:
 #
 #  Dependency rules
 #
-$(P1OBJ): $(HEADERS)
-
 $(OBJS): $(HEADERS)

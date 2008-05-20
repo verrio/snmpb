@@ -2,9 +2,9 @@
   _## 
   _##  eventlistholder.cpp  
   _##
-  _##  SNMP++v3.2.21
+  _##  SNMP++v3.2.23
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
+  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
   _##  
   _##########################################################################*/
 
@@ -85,7 +85,7 @@ BOOL DispatchMessage( const MSG *lpmsg);
 //-------[ blocking MS-Windows Message Pump ]-------
 // Pumping messages allows other windows messages
 // to be processed.
-int yield_pump()
+static int yield_pump()
 {
 #ifdef WU_APP
   MSG msg;
@@ -206,7 +206,6 @@ int EventListHolder::SNMPProcessEvents(const int max_block_milliseconds)
   fd_set readfds;
   fd_set writefds;
   fd_set exceptfds;
-  int nfound = 0;
   struct timeval fd_timeout;
   msec now; // automatcally calls msec::refresh()
   msec sendTime;
@@ -230,7 +229,7 @@ int EventListHolder::SNMPProcessEvents(const int max_block_milliseconds)
   if ((maxfds == 0) && (fd_timeout.tv_sec > 5))
     fd_timeout.tv_sec = 5; /* sleep at max 5.99 seconds */
 
-  nfound = select(maxfds, &readfds, &writefds, &exceptfds, &fd_timeout);
+  select(maxfds, &readfds, &writefds, &exceptfds, &fd_timeout);
 
   status = SNMPProcessPendingEvents();
 

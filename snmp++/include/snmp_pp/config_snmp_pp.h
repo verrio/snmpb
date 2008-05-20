@@ -2,9 +2,9 @@
   _## 
   _##  config_snmp_pp.h  
   _##
-  _##  SNMP++v3.2.21
+  _##  SNMP++v3.2.23
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
+  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
   _##  
   _##########################################################################*/
 
@@ -38,10 +38,10 @@
 #define __unix
 #endif
 
-#define SNMP_PP_VERSION_STRING "3.2.21"
+#define SNMP_PP_VERSION_STRING "3.2.23"
 #define SNMP_PP_VERSION 3
 #define SNMP_PP_RELEASE 2
-#define SNMP_PP_PATCHLEVEL 21
+#define SNMP_PP_PATCHLEVEL 23
 
 //! The maximum size of a message that can be sent or received.
 #define MAX_SNMP_PACKET 4096
@@ -62,9 +62,7 @@
 #endif
 
 // define SNMP_PP_IPv6 if you want to use IPv6
-#if !defined WIN32 && !(defined (CPU) && CPU == PPC603)
 #define SNMP_PP_IPv6
-#endif
 
 // define SNMP_PP_NAMESPACE to enclose all library names in Snmp_pp namespace
 // #define SNMP_PP_NAMESPACE
@@ -86,8 +84,11 @@
 
 // If you do not use SNMP++ for commercial purposes or if you
 // have licensed IDEA (read README.v3) you may define the following
-// to enable IDEA support.
+// to enable IDEA support. (note this is not defined by a rfc)
 #define _USE_IDEA
+
+// Enable 3DES Privacy (note this is not defined by a rfc)
+// #define _USE_3DES_EDE
 
 // define _NO_THREADS here or in the Makefile if you do not want thread support
 // (default is to include thread support)
@@ -99,8 +100,8 @@
 
 // define _IPX_ADDRESS and/or _MAC_ADDRESS if you want to use the
 // classess IpxAddress/IpxSockAddress and/or MacAddress
-#define _IPX_ADDRESS
-#define _MAC_ADDRESS
+// #define _IPX_ADDRESS
+// #define _MAC_ADDRESS
 
 // define this if you want to send out broadcasts
 #define SNMP_BROADCAST
@@ -164,12 +165,15 @@
 #define HAVE_REENTRANT_GETHOSTBYADDR
 #endif
 
-// Enable 3DES Privacy
-// #define _USE_3DES_EDE
-
 // Define a unsigned 64 bit integer:
 #ifdef WIN32
+#ifdef SNMP_PP_IPv6
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#else
 #include <windows.h>
+#include <winsock.h>
+#endif
 #ifdef __BCPLUSPLUS__
 typedef unsigned __int64 pp_uint64;
 #else
@@ -254,6 +258,10 @@ typedef unsigned long long pp_uint64;
 
 #ifndef _THREADS
 #define _THREADS
+#endif
+
+#ifdef __APPLE__
+#define __unix
 #endif
 
 #ifndef POSIX_THREADS

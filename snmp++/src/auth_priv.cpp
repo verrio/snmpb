@@ -2,9 +2,9 @@
   _## 
   _##  auth_priv.cpp  
   _##
-  _##  SNMP++v3.2.21
+  _##  SNMP++v3.2.23
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
+  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
   _##  
   _##########################################################################*/
 char auth_priv_version[]="@(#) SNMP++ $Id$";
@@ -570,6 +570,7 @@ int AuthPriv::get_keychange_value(const int       auth_prot,
   // modifications needed to support variable length keys
   // algorithm according to USM-document textual convention KeyChange
 
+  keychange_value.clear();
   int key_len = old_key.len();
 
   Auth *a = get_auth(auth_prot);
@@ -597,23 +598,40 @@ int AuthPriv::get_keychange_value(const int       auth_prot,
   debughexcprintf(21, "random value", random.data(), random.len());
 #endif
 
-  // step 1: initialize temporary variable
+  int iterations = (key_len - 1) / a->get_hash_len();
   OctetStr tmp = old_key;
+  OctetStr delta;
 
-  // step 2: nothing to do as we only support fixed length keys ;-)
-  // step 3:
-  tmp += random;
+  for (int k = 0; k < iterations; k++)
+  {
+      unsigned char digest[SNMPv3_USM_MAX_KEY_LEN];
+      memset((char*)digest, 0, SNMPv3_USM_MAX_KEY_LEN);
+      tmp += random;
+      debughexcprintf(21, "loop tmp1", tmp.data(), tmp.len());
+      a->hash(tmp.data(), tmp.len(), digest);
+      tmp.set_data(digest, a->get_hash_len());
+      debughexcprintf(21, "loop tmp2", tmp.data(), tmp.len());
+      delta.set_len(delta.len() + a->get_hash_len());
+      for (int kk=0; kk < a->get_hash_len(); kk++)
+	  delta[k * a->get_hash_len() + kk]
+	      = tmp[kk] ^ new_key[k * a->get_hash_len() + kk];
+      debughexcprintf(21, "loop delta", delta.data(), delta.len());
+  }
+
   unsigned char digest[SNMPv3_USM_MAX_KEY_LEN];
   memset((char*)digest, 0, SNMPv3_USM_MAX_KEY_LEN);
-
+  tmp += random;
+  debughexcprintf(21, " tmp1", tmp.data(), tmp.len());
   a->hash(tmp.data(), tmp.len(), digest);
+  tmp.set_data(digest, key_len - delta.len());
+  debughexcprintf(21, " tmp2", tmp.data(), tmp.len());
+  for (unsigned int j = 0; j < tmp.len(); j++)
+      tmp[j] = tmp[j] ^ new_key[iterations * a->get_hash_len() + j];
+  debughexcprintf(21, " tmp3", tmp.data(), tmp.len());
 
-  // step 4:
   keychange_value = random;
-  keychange_value += new_key;
-  for (unsigned int j = key_len; j < keychange_value.len(); j++) {
-    keychange_value[j] = keychange_value[j] ^ digest[j - key_len];
-  }
+  keychange_value += delta;
+  keychange_value += tmp;
 
 #ifdef __DEBUG
   debughexcprintf(21, "keychange_value",

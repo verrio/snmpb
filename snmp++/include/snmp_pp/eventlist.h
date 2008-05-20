@@ -2,9 +2,9 @@
   _## 
   _##  eventlist.h  
   _##
-  _##  SNMP++v3.2.21
+  _##  SNMP++v3.2.23
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
+  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -53,23 +53,11 @@
       NETWORK MANAGEMENT SECTION
 
 
-      DESIGN + AUTHOR:
-        Tom Murray
-
-      LANGUAGE:
-        ANSI C++
-
-      OPERATING SYSTEMS:
-        DOS/WINDOWS 3.1
-        BSD UNIX
+      DESIGN + AUTHOR:         Tom Murray
 
       DESCRIPTION:
         Queue for holding all event sources (snmp messages, user
         defined input sources, user defined timeouts, etc)
-
-      COMPILER DIRECTIVES:
-        UNIX - For UNIX build
-
 =====================================================================*/
 // $Id$
 
@@ -83,10 +71,8 @@
                        //   and time.h in same order otherwise you
                        //   will get conflicting definitions of
                        //   "fd_set" resulting in link time errors.
-// CK Ng    added #ifdef WIN32
 #ifdef WIN32
 #include <time.h>
-#include <winsock.h>
 #else
 #if !(defined CPU && CPU == PPC603)
 #include <sys/time.h>  // time stuff and fd_set
@@ -94,6 +80,7 @@
 #include <float.h>
 #endif
 
+#include "snmp_pp/config_snmp_pp.h"
 #include "snmp_pp/reentrant.h"
 
 #ifdef SNMP_PP_NAMESPACE
@@ -198,7 +185,7 @@ class DLLOPT CEventList: public SnmpSynchronized {
 };
 
 #ifdef SNMP_PP_NAMESPACE
-}; // end of namespace Snmp_pp
+} // end of namespace Snmp_pp
 #endif 
 
 #endif

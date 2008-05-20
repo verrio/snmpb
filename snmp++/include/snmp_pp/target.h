@@ -2,9 +2,9 @@
   _## 
   _##  target.h  
   _##
-  _##  SNMP++v3.2.21
+  _##  SNMP++v3.2.23
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
+  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -190,7 +190,7 @@ class DLLOPT SnmpTarget
    *
    * @param t - The new default timeout value
    */
-  static void set_default_timeout( const unsigned long t)
+  static void set_default_timeout(const unsigned long t)
     { default_timeout = t; };
 
   /**
@@ -201,7 +201,7 @@ class DLLOPT SnmpTarget
    *
    * @param r - The new retries value
    */
-  static void set_default_retries( const int r) { default_retries = r; };
+  static void set_default_retries(const int r) { default_retries = r; };
 
   /**
    * Clone operator.
@@ -222,7 +222,7 @@ class DLLOPT SnmpTarget
    * @param address - GenAddress object to store the target address.
    * @return TRUE on success.
    */
-  int get_address( GenAddress &address) const;
+  int get_address(GenAddress &address) const;
 
   /**
    * Get the address object.
@@ -237,7 +237,7 @@ class DLLOPT SnmpTarget
    * @param address - The address that this target should use.
    * @return TRUE on success.
    */
-  virtual int set_address( const Address &address);
+  virtual int set_address(const Address &address);
 
   /**
    * Get the SNMP version for this target.
@@ -252,7 +252,7 @@ class DLLOPT SnmpTarget
    *
    * @param v - The SNMP version that should be used for sending messages.
    */
-  void set_version( const snmp_version v) { version = v; };
+  void set_version(const snmp_version v) { version = v; };
 
   /**
    * Overloeaded compare operator.
@@ -267,7 +267,7 @@ class DLLOPT SnmpTarget
   /**
    * Reset the object.
    */
-  void clear();
+  virtual void clear();
 
  protected:
   bool validity;         ///< Validity of the object
@@ -670,7 +670,7 @@ class DLLOPT UTarget: public SnmpTarget
 };
 
 #ifdef SNMP_PP_NAMESPACE
-}; // end of namespace Snmp_pp
+} // end of namespace Snmp_pp
 #endif 
 
 #endif //_TARGET

@@ -2,9 +2,9 @@
   _## 
   _##  asn1.h  
   _##
-  _##  SNMP++v3.2.21
+  _##  SNMP++v3.2.23
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
+  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
   _##  
   _##########################################################################*/
 // $Id$
@@ -31,12 +31,7 @@
 #ifndef _ASN1
 #define _ASN1
 
-#ifdef WIN32
-#ifndef __unix
-#include <winsock.h>
-#endif
-#endif
-
+#include "snmp_pp/config_snmp_pp.h"
 #include "snmp_pp/target.h"
 
 #ifdef SNMP_PP_NAMESPACE
@@ -439,7 +434,7 @@ DLLOPT unsigned char *asn1_build_scoped_pdu(
 
 
 #ifdef SNMP_PP_NAMESPACE
-}; // end of namespace Snmp_pp
+} // end of namespace Snmp_pp
 #endif 
 
 #endif  // _ASN1

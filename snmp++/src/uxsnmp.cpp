@@ -2,9 +2,9 @@
   _## 
   _##  uxsnmp.cpp  
   _##
-  _##  SNMP++v3.2.21
+  _##  SNMP++v3.2.23
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
+  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -47,7 +47,6 @@ char snmp_cpp_version[]="#(@) SNMP++ $Id$";
 
 //-----[ includes ]----------------------------------------------------
 #ifdef WIN32
-#include <winsock.h>
 #include <sys/types.h>     // system types
 #include <sys/timeb.h>     // _timeb and _ftime
 #else
@@ -64,12 +63,17 @@ char snmp_cpp_version[]="#(@) SNMP++ $Id$";
 #define ss_family __ss_family
 #endif
 
+#ifdef HAVE_POLL_SYSCALL
+#include <poll.h>
+#endif
+
 #include <stdlib.h>        // need for malloc
 #include <errno.h>         // ux errs
 
 #define _INCLUDE_SNMP_ERR_STRINGS
 
 //----[ snmp++ includes ]----------------------------------------------
+#include "snmp_pp/config_snmp_pp.h"
 #include "snmp_pp/uxsnmp.h"        // class def for this module
 #include "snmp_pp/oid_def.h"       // class def for well known trap oids
 #include "snmp_pp/v3.h"
@@ -79,6 +83,8 @@ char snmp_cpp_version[]="#(@) SNMP++ $Id$";
 #include "snmp_pp/eventlistholder.h"
 #include "snmp_pp/usm_v3.h"
 #include "snmp_pp/vb.h"
+#include "snmp_pp/log.h"
+#include "snmp_pp/IPv6Utility.h"
 
 #if defined (CPU) && CPU == PPC603
 #include <sockLib.h> 
@@ -256,11 +262,37 @@ DLLOPT int send_snmp_request(SnmpSocket sock, unsigned char *send_buf,
 #ifdef SNMP_PP_IPv6
     struct sockaddr_in6 agent_addr;
     memset(&agent_addr, 0, sizeof(agent_addr));
-    inet_pton(AF_INET6, ((IpAddress &)address).IpAddress::get_printable(),
-              &agent_addr.sin6_addr);
+    unsigned int scope = 0;
+    
+    OctetStr addrstr = ((IpAddress &)address).IpAddress::get_printable();
+
+    if (((IpAddress &)address).has_ipv6_scope())
+    {
+	scope = ((IpAddress &)address).get_scope();
+
+	int i = addrstr.len() - 1;
+	while ((i>0) && (addrstr[i] != '%'))
+	{
+	    addrstr.set_len(addrstr.len() - 1);
+	    i--;
+	}
+	if (addrstr[i] == '%')
+	    addrstr.set_len(addrstr.len() - 1);
+    }
+
+    if (inet_pton(AF_INET6, addrstr.get_printable(),
+		  &agent_addr.sin6_addr) < 0)
+    {
+	LOG_BEGIN(ERROR_LOG | 1);
+	LOG("Snmp transport: inet_pton returns (errno) (str)");
+	LOG(errno);
+	LOG(strerror(errno));
+	LOG_END;
+	return -1;
+    }
     agent_addr.sin6_family = AF_INET6;
     agent_addr.sin6_port = htons(((UdpAddress &)address).get_port());
-
+    agent_addr.sin6_scope_id = scope;
     send_result = sendto( sock, (char*) send_buf, send_len, 0,
                           (struct sockaddr*) &agent_addr, sizeof(agent_addr));
 #else
@@ -290,7 +322,7 @@ DLLOPT int send_snmp_request(SnmpSocket sock, unsigned char *send_buf,
 
 int receive_snmp_response(SnmpSocket sock, Snmp &snmp_session,
                           Pdu &pdu, UdpAddress &fromaddress,
-			  bool process_msg = true)
+			  OctetStr &engine_id, bool process_msg = true)
 {
   unsigned char receive_buffer[MAX_SNMP_PACKET + 1];
   long receive_buffer_len; // len of received data
@@ -346,6 +378,8 @@ int receive_snmp_response(SnmpSocket sock, Snmp &snmp_session,
 
     fromaddress = tmp_buffer;
     fromaddress.set_port(ntohs(((sockaddr_in6&)from_addr).sin6_port));
+    if (((sockaddr_in6&)from_addr).sin6_scope_id != 0)
+	fromaddress.set_scope(((sockaddr_in6&)from_addr).sin6_scope_id);
   }
 #endif // SNMP_PP_IPv6
   else
@@ -368,7 +402,6 @@ int receive_snmp_response(SnmpSocket sock, Snmp &snmp_session,
 
   OctetStr community_name;
   snmp_version version;
-  OctetStr engine_id;
   OctetStr security_name;
 
 #ifdef _SNMPv3
@@ -389,11 +422,8 @@ int receive_snmp_response(SnmpSocket sock, Snmp &snmp_session,
       return SNMP_CLASS_ERROR;
 #ifdef _SNMPv3
   }
-  if (version == version3) {
-    v3MP::I->add_to_engine_id_table(engine_id,
-			       (char*)fromaddress.IpAddress::get_printable(),
-			       fromaddress.get_port());
-
+  if (version == version3)
+  {
     debugprintf(4,"receive_snmp_response: engine_id (%s), security_name (%s), "
 		"security_model (%i), security_level (%i)",
                 engine_id.get_printable(), security_name.get_printable(),
@@ -478,6 +508,8 @@ int receive_snmp_notification(SnmpSocket sock, Snmp &snmp_session,
 
     fromaddress = tmp_buffer;
     fromaddress.set_port(ntohs(((sockaddr_in6&)from_addr).sin6_port));
+    if (((sockaddr_in6&)from_addr).sin6_scope_id != 0)
+	fromaddress.set_scope(((sockaddr_in6&)from_addr).sin6_scope_id);
   }
 #endif // SNMP_PP_IPv6
   else
@@ -528,7 +560,7 @@ int receive_snmp_notification(SnmpSocket sock, Snmp &snmp_session,
     ((UTarget*)*target)->set_security_model(security_model);
 
     v3MP::I->add_to_engine_id_table(engine_id,
-                         (char*)((IpAddress &)fromaddress).get_printable(),
+                         (char*)(fromaddress.IpAddress::get_printable()),
                          fromaddress.get_port());
 
     debugprintf(4,"receive_snmp_notification: engine_id (%s), security_name "
@@ -683,6 +715,11 @@ void Snmp::init(int& status, IpAddress *addresses[2],
                 const unsigned short port_v4,
                 const unsigned short port_v6)
 {
+#ifdef WIN32
+  m_hThread = INVALID_HANDLE_VALUE;
+  m_hThreadEndEvent = ::CreateEvent(NULL, true, false, NULL);
+#endif
+
   eventListHolder = new EventListHolder(this);
   // initialize the request_id
   eventListHolder->snmpEventList()->lock();
@@ -700,7 +737,9 @@ void Snmp::init(int& status, IpAddress *addresses[2],
 
   status = SNMP_CLASS_ERROR;
   iv_snmp_session = INVALID_SOCKET;
+#ifdef SNMP_PP_IPv6
   iv_snmp_session_ipv6 = INVALID_SOCKET;
+#endif
 
   /* Open IPv4 socket */
   if (addresses[0])
@@ -822,11 +861,39 @@ void Snmp::init(int& status, IpAddress *addresses[2],
     {
       // set up the manager socket attributes
       struct sockaddr_in6 mgr_addr;
-
       memset(&mgr_addr, 0, sizeof(mgr_addr));
-      inet_pton(AF_INET6, addresses[1]->get_printable(), &mgr_addr.sin6_addr);
+      unsigned int scope = 0;
+    
+      OctetStr addrstr = addresses[1]->get_printable();
+
+      if (addresses[1]->has_ipv6_scope())
+      {
+	scope = addresses[1]->get_scope();
+
+	int i = addrstr.len() - 1;
+	while ((i>0) && (addrstr[i] != '%'))
+	{
+	    addrstr.set_len(addrstr.len() - 1);
+	    i--;
+	}
+	if (addrstr[i] == '%')
+	    addrstr.set_len(addrstr.len() - 1);
+      }
+      if (inet_pton(AF_INET6, addrstr.get_printable(),
+		    &mgr_addr.sin6_addr) < 0)
+      {
+	LOG_BEGIN(ERROR_LOG | 1);
+	LOG("Snmp transport: inet_pton returns (errno) (str)");
+	LOG(errno);
+	LOG(strerror(errno));
+	LOG_END;
+	status = SNMP_CLASS_INVALID_ADDRESS;
+	return;
+      }
+
       mgr_addr.sin6_family = AF_INET6;
       mgr_addr.sin6_port = htons( port_v6);
+      mgr_addr.sin6_scope_id = scope;
       // bind the socket
       if (bind(iv_snmp_session_ipv6, (struct sockaddr*) &mgr_addr,
                sizeof(mgr_addr)) < 0)
@@ -885,6 +952,10 @@ Snmp::~Snmp()
 {
   stop_poll_thread();
 
+#ifdef WIN32
+  ::CloseHandle(m_hThreadEndEvent);
+#endif
+
   // if we failed during construction then don't try
   // to free stuff up that was not allocated
   if (iv_snmp_session != INVALID_SOCKET)
@@ -897,6 +968,8 @@ Snmp::~Snmp()
   }
   // if we failed during construction then don't try
   // to free stuff up that was not allocated
+
+#ifdef SNMP_PP_IPv6
   if (iv_snmp_session_ipv6 != INVALID_SOCKET)
   {
     // go through the snmpEventList and delete any outstanding
@@ -905,6 +978,7 @@ Snmp::~Snmp()
 
     close(iv_snmp_session_ipv6);    // close the dynamic socket
   }
+#endif
 
   // shut down trap reception if used
   notify_unregister();
@@ -1057,12 +1131,15 @@ int Snmp::response(Pdu &pdu,                 // pdu to use
 
 int Snmp::send_raw_data(unsigned char *send_buf,
                         size_t send_len, UdpAddress &address, SnmpSocket fd)
-  REENTRANT(
 {
+  // REENTRANT() removed because of #ifdef
+  SnmpSynchronize _synchronize(*this);
+
   if (fd != INVALID_SOCKET)
     return send_snmp_request(fd, send_buf, send_len, address);
   else
   {
+#ifdef SNMP_PP_IPv6
     if (address.get_ip_version() == Address::version_ipv4)
     {
       if (iv_snmp_session != INVALID_SOCKET)
@@ -1073,8 +1150,13 @@ int Snmp::send_raw_data(unsigned char *send_buf,
     }
     return send_snmp_request(iv_snmp_session_ipv6, send_buf,
 			     send_len, address);
+#else
+    return send_snmp_request(iv_snmp_session, send_buf,
+                             send_len, address);
+#endif
+
   }
-})
+}
 
 //-----------------------[ cancel ]--------------------------------------
 int Snmp::cancel( const unsigned long request_id)
@@ -1099,6 +1181,15 @@ int Snmp::report(Pdu &pdu,                // pdu to send
 int Snmp::inform(Pdu &pdu,                // pdu to send
                  const SnmpTarget &target)// destination target
 {
+  if (target.get_version() == version1)
+  {
+    LOG_BEGIN(ERROR_LOG | 1);
+    LOG("Snmp: Invalid Operation: Inform not defined for SNMPv1");
+    LOG_END;
+
+    return SNMP_CLASS_INVALID_OPERATION;
+  }
+
   pdu.set_type( sNMP_PDU_INFORM);
   check_notify_timestamp(pdu);
   return snmp_engine( pdu, 0, 0, target, NULL, 0);
@@ -1110,6 +1201,15 @@ int Snmp::inform(Pdu &pdu,                // pdu to send
                  const snmp_callback callback,  // callback function
                  const void * callback_data)    // callback data
 {
+  if (target.get_version() == version1)
+  {
+    LOG_BEGIN(ERROR_LOG | 1);
+    LOG("Snmp: Invalid Operation: Inform not defined for SNMPv1");
+    LOG_END;
+
+    return SNMP_CLASS_INVALID_OPERATION;
+  }
+
   pdu.set_type( sNMP_PDU_INFORM);
   check_notify_timestamp(pdu);
   return snmp_engine( pdu, 0, 0, target, callback, callback_data);
@@ -1130,18 +1230,18 @@ int Snmp::trap(Pdu &pdu,                        // pdu to send
 
   debugprintf(1, "++ SNMP++, Send a Trap");
   //---------[ make sure pdu is valid ]---------------------------------
-  if ( !pdu.valid())
-    {
-      debugprintf(0, "-- SNMP++, PDU Object Invalid");
-      return  SNMP_CLASS_INVALID_PDU;
-    }
+  if (!pdu.valid())
+  {
+    debugprintf(0, "-- SNMP++, PDU Object Invalid");
+    return  SNMP_CLASS_INVALID_PDU;
+  }
 
   //---------[ make sure target is valid ]------------------------------
-  if ( !target.valid())
-    {
-      debugprintf(0, "-- SNMP++, Target Object Invalid");
-      return SNMP_CLASS_INVALID_TARGET;
-    }
+  if (!target.valid())
+  {
+    debugprintf(0, "-- SNMP++, Target Object Invalid");
+    return SNMP_CLASS_INVALID_TARGET;
+  }
 
   CTarget* ctarget = NULL;
   UTarget* utarget = NULL;
@@ -1282,6 +1382,7 @@ int Snmp::trap(Pdu &pdu,                        // pdu to send
 
   lock();
   //------[ send the trap ]
+#ifdef SNMP_PP_IPv6
   if (udp_address.get_ip_version() == Address::version_ipv4)
   {
     if (iv_snmp_session != INVALID_SOCKET)
@@ -1300,6 +1401,10 @@ int Snmp::trap(Pdu &pdu,                        // pdu to send
     status = send_snmp_request(iv_snmp_session_ipv6,
                                snmpmsg.data(), (size_t)snmpmsg.len(),
                                udp_address);
+#else
+  status = send_snmp_request(iv_snmp_session, snmpmsg.data(),
+                             (size_t)snmpmsg.len(), udp_address);
+#endif
 
   unlock();
   if (status != 0)
@@ -1451,7 +1556,7 @@ int Snmp::snmp_engine( Pdu &pdu,              // pdu to use
 		       int reports_received)
 
 {
-  long req_id;                       // pdu request id
+  long req_id = 0;                   // pdu request id
   int status;                        // send status
 
 #ifdef _SNMPv3
@@ -1577,9 +1682,15 @@ int Snmp::snmp_engine( Pdu &pdu,              // pdu to use
       {
 #endif
         community_string = security_name;
-        if ((security_model != SecurityModel_v1) &&
-            (security_model != SecurityModel_v2)) {
-          debugprintf(0, "-- SNMP++, Target contains invalid security_model/version combination");
+        if (((version == version1) && (security_model != SecurityModel_v1)) ||
+	    ((version == version2c) && (security_model != SecurityModel_v2)))
+	{
+          LOG_BEGIN(ERROR_LOG | 1);
+          LOG("Snmp: Target does not match SNMP version: (security model) (version)");
+          LOG(security_model);
+          LOG(version);
+          LOG_END;
+
           return SNMP_CLASS_INVALID_TARGET;
         }
 #ifdef _SNMPv3
@@ -1628,6 +1739,7 @@ int Snmp::snmp_engine( Pdu &pdu,              // pdu to use
 
     if (fd == INVALID_SOCKET)
     {
+#ifdef SNMP_PP_IPv6
       if (udp_address.get_ip_version() == Address::version_ipv4)
       {
         if (iv_snmp_session != INVALID_SOCKET)
@@ -1640,6 +1752,9 @@ int Snmp::snmp_engine( Pdu &pdu,              // pdu to use
       }
       else
 	iv_session_used = iv_snmp_session_ipv6;
+#else
+      iv_session_used = iv_snmp_session;
+#endif
     }
 
     if ((pdu_action != sNMP_PDU_RESPONSE) &&
@@ -1886,6 +2001,7 @@ int Snmp::engine_id_discovery(OctetStr &engine_id,
 
   UdpAddress uaddr(addr);
 
+#ifdef SNMP_PP_IPv6
   if (uaddr.get_ip_version() == Address::version_ipv4)
   {
     if (iv_snmp_session != INVALID_SOCKET)
@@ -1898,6 +2014,9 @@ int Snmp::engine_id_discovery(OctetStr &engine_id,
   }
   else
     sock = iv_snmp_session_ipv6;
+#else
+  sock = iv_snmp_session;
+#endif
 
   lock();
   if (send_snmp_request(sock, message, message_length, uaddr) < 0)
@@ -1909,35 +2028,54 @@ int Snmp::engine_id_discovery(OctetStr &engine_id,
 
   // now wait for the responses
   Pdu dummy_pdu;
-  fd_set readfds;
   int nfound = 0;
-  struct timeval fd_timeout;
   msec end_time;
+  struct timeval fd_timeout;
 
   end_time += timeout_sec * 1000;
 
+#ifdef HAVE_POLL_SYSCALL
+  struct pollfd readfds;
+  int timeout;
+#else
+  fd_set readfds;
+#endif
+
   do
   {
-    FD_ZERO(&readfds);
-
-    FD_SET(sock, &readfds);
-
+    bool something_to_receive = false;
     end_time.GetDeltaFromNow(fd_timeout);
 
-    nfound = select((int)(sock + 1), &readfds, NULL, NULL, &fd_timeout);
+#ifdef HAVE_POLL_SYSCALL
+    memset(&readfds, 0, sizeof(struct pollfd));
+    readfds.fd = sock;
+    readfds.events = POLLIN;
+    timeout = fd_timeout.tv_sec * 1000 + fd_timeout.tv_usec / 1000;
+    nfound = poll(&readfds, 1, timeout);
+    if ((nfound > 0) && (readfds.revents & POLLIN))
+	something_to_receive = true;
+#else
+    FD_ZERO(&readfds);
+    FD_SET(sock, &readfds);
 
+    nfound = select((int)(sock + 1), &readfds, NULL, NULL, &fd_timeout);
     if ((nfound > 0) && (FD_ISSET(sock, &readfds)))
+	something_to_receive = true;
+#endif
+
+    if (something_to_receive)
     {
       // receive message
       UdpAddress from;
       int res = receive_snmp_response(sock, *this, dummy_pdu,
-				      from, true /* process_msg */);
+				      from, engine_id, true /* process_msg */);
       if ((res == SNMP_CLASS_SUCCESS) ||
 	  (res == SNMPv3_MP_UNKNOWN_PDU_HANDLERS))
       {
-	dummy_pdu.get_context_engine_id(engine_id);
+	  //dummy_pdu.get_context_engine_id(engine_id);
 	debugprintf(3, "Response received from (%s) id %s.",
 		    from.get_printable(), engine_id.get_printable());
+	unlock();
 	return SNMP_CLASS_SUCCESS;
       }
       else
@@ -2027,6 +2165,7 @@ int Snmp::broadcast_discovery(UdpAddressCollection &addresses,
 
   UdpAddress uaddr(addr);
 
+#ifdef SNMP_PP_IPv6
   if (uaddr.get_ip_version() == Address::version_ipv4)
   {
     if (iv_snmp_session != INVALID_SOCKET)
@@ -2039,6 +2178,9 @@ int Snmp::broadcast_discovery(UdpAddressCollection &addresses,
   }
   else
     sock = iv_snmp_session_ipv6;
+#else
+  sock = iv_snmp_session;
+#endif
 
   lock();
   if (send_snmp_request(sock, message, message_length, uaddr) < 0)
@@ -2050,29 +2192,48 @@ int Snmp::broadcast_discovery(UdpAddressCollection &addresses,
 
   // now wait for the responses
   Pdu dummy_pdu;
-  fd_set readfds;
+  OctetStr engine_id;
   int nfound = 0;
-  struct timeval fd_timeout;
   msec end_time;
+  struct timeval fd_timeout;
 
   end_time += timeout_sec * 1000;
 
+#ifdef HAVE_POLL_SYSCALL
+  struct pollfd readfds;
+  int timeout;
+#else
+  fd_set readfds;
+#endif
+
   do
   {
-    FD_ZERO(&readfds);
-
-    FD_SET(sock, &readfds);
-
+    bool something_to_receive = false;
     end_time.GetDeltaFromNow(fd_timeout);
 
-    nfound = select((int)(sock + 1), &readfds, NULL, NULL, &fd_timeout);
+#ifdef HAVE_POLL_SYSCALL
+    memset(&readfds, 0, sizeof(struct pollfd));
+    readfds.fd = sock;
+    readfds.events = POLLIN;
+    timeout = fd_timeout.tv_sec * 1000 + fd_timeout.tv_usec / 1000;
+    nfound = poll(&readfds, 1, timeout);
+    if ((nfound > 0) && (readfds.revents & POLLIN))
+	something_to_receive = true;
+#else
+    FD_ZERO(&readfds);
+    FD_SET(sock, &readfds);
 
+    nfound = select((int)(sock + 1), &readfds, NULL, NULL, &fd_timeout);
     if ((nfound > 0) && (FD_ISSET(sock, &readfds)))
+	something_to_receive = true;
+#endif
+
+    if (something_to_receive)
     {
       // receive message
       UdpAddress from;
       if (receive_snmp_response(sock, *this, dummy_pdu,
-				from, false /* process_msg */)
+				from, engine_id, false /* process_msg */)
 	  == SNMP_CLASS_SUCCESS)
       {
 	addresses += from;
@@ -2157,10 +2318,11 @@ void Snmp::stop_poll_thread()
 
     // Wait for the working thread to stop....
 #ifdef WIN32
-    ::WaitForSingleObject(m_hThread, INFINITE);
+    ::WaitForSingleObject(m_hThreadEndEvent, INFINITE);
+    CloseHandle(m_hThread);
 #elif defined (CPU) && CPU == PPC603
-	while (taskIdVerify(m_hThread) == OK)
-		taskDelay(10);
+    while (taskIdVerify(m_hThread) == OK)
+	taskDelay(10);
 #else
     int status;
     pthread_join(m_hThread, (void**) &status); 
@@ -2185,7 +2347,9 @@ void* Snmp::process_thread(void *arg)
     }
 
 #ifdef _THREADS
-#ifndef WIN32
+#ifdef WIN32
+    ::SetEvent(pSnmp->m_hThreadEndEvent);
+#else
 #if defined (CPU) && CPU == PPC603
 	exit(0);
 #else

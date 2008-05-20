@@ -2,9 +2,9 @@
   _## 
   _##  asn1.cpp  
   _##
-  _##  SNMP++v3.2.21
+  _##  SNMP++v3.2.23
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
+  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
   _##  
   _##########################################################################*/
 
@@ -42,8 +42,6 @@
   or implied. User hereby grants a royalty-free license to any and all
   derivatives based upon this software code base.
 
-
-
   A S N 1. C P P
 
   ASN encoder / decoder implementation
@@ -61,10 +59,6 @@ char asn1_cpp_version[]="#(@) SNMP++ $Id$";
 #endif
 
 #include /**/ <stdlib.h>
-
-#ifdef WIN32
-#include <winsock.h>
-#endif
 
 #include "snmp_pp/config_snmp_pp.h"
 #include "snmp_pp/asn1.h"
@@ -549,13 +543,7 @@ unsigned char * asn_parse_length( unsigned char *data,
     // fixed
     memcpy((char *)length, (char *)data + 1, (int)lengthbyte);
     *length = ntohl(*length);
-    // ntohl even on ALPHA (DEC/COMPAQ) 64bit platforms works on 32bit int,
-    // whereas long is 64bit - therefore:
-#ifdef __osf__
     *length >>= (8 * ((sizeof(int)) - lengthbyte));
-#else
-    *length >>= (8 * ((sizeof(long)) - lengthbyte));
-#endif
     // check for length greater than 2^31
     if (*length > 0x80000000ul) {
       ASNERROR("SNMP does not support data lengths > 2^31");
@@ -1256,12 +1244,12 @@ void snmp_add_var(struct snmp_pdu *pdu,
 }
 
 // build the authentication, works for v1 or v2c
-unsigned char *snmp_auth_build(unsigned char *data,
-                               int *length,
-                               const long int version,
-                               const unsigned char *community,
-                               const int community_len,
-                               const int messagelen)
+static unsigned char *snmp_auth_build(unsigned char *data,
+				      int *length,
+				      const long int version,
+				      const unsigned char *community,
+				      const int community_len,
+				      const int messagelen)
 {
   // 5 is 3 octets for version and 2 for community header + len
   // This assumes that community will not be longer than 0x7f chars.
@@ -1559,11 +1547,11 @@ int snmp_build(struct snmp_pdu	*pdu,
 }
 
 // parse the authentication header
-unsigned char *snmp_auth_parse(unsigned char *data,
-                               int *length,
-                               unsigned char *community,
-			       int *community_len,
-                               long	*version)
+static unsigned char *snmp_auth_parse(unsigned char *data,
+				      int *length,
+				      unsigned char *community,
+				      int *community_len,
+				      long	*version)
 {
   unsigned char type;
 
@@ -1645,7 +1633,7 @@ int snmp_parse_vb(struct snmp_pdu *pdu, unsigned char *&data, int &data_len)
 {
   unsigned char  *var_val;
   int len;
-  struct variable_list *vp;
+  struct variable_list *vp = 0;
   oid	    objid[ASN_MAX_NAME_LEN], *op;
   unsigned char type;
 

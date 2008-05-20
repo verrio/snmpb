@@ -2,9 +2,9 @@
   _## 
   _##  address.cpp  
   _##
-  _##  SNMP++v3.2.21
+  _##  SNMP++v3.2.23
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
+  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -62,6 +62,7 @@ char address_cpp_version[]="@(#) SNMP++ $Id$";
 
 #include "snmp_pp/address.h"
 #include "snmp_pp/v3.h"
+#include "snmp_pp/IPv6Utility.h"
 
 #ifdef SNMP_PP_NAMESPACE
 namespace Snmp_pp {
@@ -247,7 +248,8 @@ IpAddress::IpAddress(const char *inaddr)
 
 //-----[ IP Address copy constructor ]---------------------------------
 IpAddress::IpAddress(const IpAddress &ipaddr)
-  : iv_friendly_name_status(0), ip_version(ipaddr.ip_version)
+    : iv_friendly_name_status(0), ip_version(ipaddr.ip_version),
+      have_ipv6_scope(ipaddr.have_ipv6_scope)
 {
   ADDRESS_TRACE;
 
@@ -335,14 +337,25 @@ SnmpSyntax& IpAddress::operator=(const SnmpSyntax &val)
 	  ip_version = version_ipv4;
 	  smival.value.string.len = IPLEN;
         }
-        else if ((((IpAddress &)val).smival.value.string.len == IP6LEN) ||
-		 (((IpAddress &)val).smival.value.string.len == UDPIP6LEN))
+        else if ((((IpAddress &)val).smival.value.string.len == IP6LEN_NO_SCOPE) ||
+		 (((IpAddress &)val).smival.value.string.len == UDPIP6LEN_NO_SCOPE))
         {
 	  MEMCPY(address_buffer,
-		 ((IpAddress &)val).smival.value.string.ptr, IP6LEN);
+		 ((IpAddress &)val).smival.value.string.ptr, IP6LEN_NO_SCOPE);
 	  valid_flag = true;
 	  ip_version = version_ipv6;
-	  smival.value.string.len = IP6LEN;
+	  smival.value.string.len = IP6LEN_NO_SCOPE;
+	  have_ipv6_scope = false;
+        }
+        else if ((((IpAddress &)val).smival.value.string.len == IP6LEN_WITH_SCOPE) ||
+		 (((IpAddress &)val).smival.value.string.len == UDPIP6LEN_WITH_SCOPE))
+        {
+	  MEMCPY(address_buffer,
+		 ((IpAddress &)val).smival.value.string.ptr, IP6LEN_WITH_SCOPE);
+	  valid_flag = true;
+	  ip_version = version_ipv6;
+	  smival.value.string.len = IP6LEN_WITH_SCOPE;
+	  have_ipv6_scope = true;
         }
         break;
 
@@ -373,9 +386,20 @@ IpAddress& IpAddress::operator=(const IpAddress &ipaddr)
     }
     else
     {
-      MEMCPY(address_buffer, ipaddr.address_buffer, IP6LEN);
-      ip_version = version_ipv6;
-      smival.value.string.len = IP6LEN;
+      if (ipaddr.have_ipv6_scope)
+      {
+	MEMCPY(address_buffer, ipaddr.address_buffer, IP6LEN_WITH_SCOPE);
+	ip_version = version_ipv6;
+	smival.value.string.len = IP6LEN_WITH_SCOPE;
+	have_ipv6_scope = true;
+      }
+      else
+      {
+	MEMCPY(address_buffer, ipaddr.address_buffer, IP6LEN_NO_SCOPE);
+	ip_version = version_ipv6;
+	smival.value.string.len = IP6LEN_NO_SCOPE;
+	have_ipv6_scope = false;
+      }
     }
     strcpy(iv_friendly_name, ipaddr.iv_friendly_name);
 
@@ -498,12 +522,37 @@ int IpAddress::parse_coloned_ipstring(const char *inaddr)
   unsigned char tmp_address_buffer[ADDRBUF];
   char temp[60];  // temp buffer for destruction
 
-  // check len, an ipv6 can never be bigger than 39
+  // check len, an ipv6 can never be bigger than 39 + 11
   // 123456789012345678901234567890123456789
-  // 1BCD:2BCD:3BCD:4BCD:5BCD:6BCD:7BCD:8BCD
+  // 1BCD:2BCD:3BCD:4BCD:5BCD:6BCD:7BCD:8BCD%4123456789
   if (!inaddr || (strlen(inaddr) > 60)) return FALSE;
   strcpy(temp, inaddr);
   trim_white_space(temp);
+
+  // first check for ipv6 scope
+  unsigned int scope;
+  bool have_scope = false;
+
+  {
+      int scope_pos;
+      for (int i=strlen(temp)-1; i >=0 ; i--)
+      {
+	  if (temp[i] == '%')
+	  {
+	      scope_pos = i;
+	      have_scope = true;
+	      break;
+	  }
+	  if (!isdigit(temp[i]))
+	      break;
+      }
+      if (have_scope)
+      {
+	  temp[scope_pos] = 0;
+	  scope = atol(temp + scope_pos + 1);
+      }
+  }
+
   if (strlen(temp) > 39) return FALSE;
 
   char *in_ptr = temp;
@@ -676,7 +725,7 @@ int IpAddress::parse_coloned_ipstring(const char *inaddr)
     int len_second = SAFE_INT_CAST(out_ptr - second);
 
     int i=0;
-    for (i=0; i<IP6LEN-(len_first + len_second); i++)
+    for (i=0; i<IP6LEN_NO_SCOPE-(len_first + len_second); i++)
       *end_first_part++ = 0;
     for (i=0; i<len_second; i++)
       *end_first_part++ = second[i];
@@ -686,13 +735,25 @@ int IpAddress::parse_coloned_ipstring(const char *inaddr)
     end_first_part = out_ptr;
 
   // check for short address
-  if (end_first_part - (char*)tmp_address_buffer != IP6LEN)
+  if (end_first_part - (char*)tmp_address_buffer != IP6LEN_NO_SCOPE)
     return FALSE;
 
   ip_version = version_ipv6;
-  smival.value.string.len = IP6LEN;
+  if (have_scope)
+      smival.value.string.len = IP6LEN_WITH_SCOPE;
+  else
+      smival.value.string.len = IP6LEN_NO_SCOPE;
 
   memcpy(address_buffer, tmp_address_buffer, ADDRBUF);
+
+  if (have_scope)
+  {
+    unsigned int *scope_p = (unsigned int*)(address_buffer + IP6LEN_NO_SCOPE);
+    *scope_p = htonl(scope);
+    have_ipv6_scope = true;
+  }
+  else
+      have_ipv6_scope = false;
 
   return TRUE;
 }
@@ -715,7 +776,7 @@ bool IpAddress::parse_address(const char *inaddr)
   // parse the input char array fill up internal buffer with four ip
   // bytes set and return validity flag
 
-  char ds[48];
+  char ds[61];
 
   // intialize the friendly_name member variable
   memset(iv_friendly_name, 0, sizeof(char) * MAX_FRIENDLY_NAME);
@@ -800,7 +861,7 @@ bool IpAddress::parse_address(const char *inaddr)
                sizeof(in6_addr));
 
         // now lets check out the coloned string
-        if (!inet_ntop(AF_INET6, &ipAddr, ds, 48))
+        if (!inet_ntop(AF_INET6, &ipAddr, ds, 60))
           return FALSE;
         debugprintf(4, "from inet_ntop: %s", ds);
         if (!parse_coloned_ipstring(ds))
@@ -859,11 +920,11 @@ int IpAddress::addr_to_friendly()
 
 #if defined (CPU) && CPU == PPC603
   int lookupResult;
-	char hName[MAXHOSTNAMELEN+1];
+  char hName[MAXHOSTNAMELEN+1];
 #else
   hostent *lookupResult;
 #endif
-  char    ds[48];
+  char    ds[61];
 
   // can't look up an invalid address
   if (!valid_flag) return -1;
@@ -910,6 +971,17 @@ int IpAddress::addr_to_friendly()
   else
   {
 #ifdef SNMP_PP_IPv6
+    if (have_ipv6_scope)
+    {
+	// remove scope from ds
+	for (int i=strlen(ds); i >=0; i--)
+	    if (ds[i] == '%')
+	    {
+		ds[i] = 0;
+		break;
+	    }
+    }
+
     in6_addr ipAddr;
 
     if (inet_pton(AF_INET6, (char*)ds, &ipAddr) <= 0)
@@ -966,6 +1038,39 @@ int IpAddress::addr_to_friendly()
 #endif //PPC603
 }
 
+unsigned int IpAddress::get_scope() const
+{
+  ADDRESS_TRACE;
+
+  if (valid_flag)
+  {
+    const unsigned int *scope;
+    if ((ip_version == version_ipv6) && (have_ipv6_scope))
+      scope = (const unsigned int*)(address_buffer + IP6LEN_NO_SCOPE);
+    else
+      return (unsigned int)-1;
+
+    return ntohl(*scope);
+  }
+  return (unsigned int)-1; // don't use uninitialized memory
+}
+
+bool IpAddress::set_scope(const unsigned int scope)
+{
+  ADDRESS_TRACE;
+
+  if (!valid_flag || (ip_version != version_ipv6))
+      return false;
+
+  unsigned int *scope_ptr = (unsigned int*)(address_buffer + IP6LEN_NO_SCOPE);
+
+  *scope_ptr = htonl(scope);
+  addr_changed = true;
+  smival.value.string.len = IP6LEN_WITH_SCOPE;
+  have_ipv6_scope = true;
+  return true;
+}
+
 //----[ IP address format output ]------------------------------------
 void IpAddress::format_output() const
 {
@@ -978,15 +1083,26 @@ void IpAddress::format_output() const
       sprintf((char *) output_buffer,"%d.%d.%d.%d",address_buffer[0],
                address_buffer[1], address_buffer[2], address_buffer[3]);
     else
-      sprintf((char *) output_buffer,
-               "%02x%02x:%02x%02x:%02x%02x:%02x%02x:"
-               "%02x%02x:%02x%02x:%02x%02x:%02x%02x",
-               address_buffer[ 0], address_buffer[ 1], address_buffer[ 2],
-               address_buffer[ 3], address_buffer[ 4], address_buffer[ 5],
-               address_buffer[ 6], address_buffer[ 7], address_buffer[ 8],
-               address_buffer[ 9], address_buffer[10], address_buffer[11],
-               address_buffer[12], address_buffer[13], address_buffer[14],
-               address_buffer[15]);
+      if (have_ipv6_scope)
+	sprintf((char *) output_buffer,
+		"%02x%02x:%02x%02x:%02x%02x:%02x%02x:"
+		"%02x%02x:%02x%02x:%02x%02x:%02x%02x%%%d",
+		address_buffer[ 0], address_buffer[ 1], address_buffer[ 2],
+		address_buffer[ 3], address_buffer[ 4], address_buffer[ 5],
+		address_buffer[ 6], address_buffer[ 7], address_buffer[ 8],
+		address_buffer[ 9], address_buffer[10], address_buffer[11],
+		address_buffer[12], address_buffer[13], address_buffer[14],
+		address_buffer[15], get_scope());
+      else
+        sprintf((char *) output_buffer,
+		"%02x%02x:%02x%02x:%02x%02x:%02x%02x:"
+		"%02x%02x:%02x%02x:%02x%02x:%02x%02x",
+		address_buffer[ 0], address_buffer[ 1], address_buffer[ 2],
+		address_buffer[ 3], address_buffer[ 4], address_buffer[ 5],
+		address_buffer[ 6], address_buffer[ 7], address_buffer[ 8],
+		address_buffer[ 9], address_buffer[10], address_buffer[11],
+		address_buffer[12], address_buffer[13], address_buffer[14],
+		address_buffer[15]);
   }
   else
     *(char *)output_buffer = 0;
@@ -1003,7 +1119,7 @@ void IpAddress::mask(const IpAddress& ipaddr)
 
   if (valid() && ipaddr.valid())
   {
-    int count = (ip_version == version_ipv4) ? IPLEN : IP6LEN;
+    int count = (ip_version == version_ipv4) ? IPLEN : IP6LEN_NO_SCOPE;
 
     for (int i = 0; i < count; i++)
       address_buffer[i] = address_buffer[i] & ipaddr.address_buffer[i];
@@ -1022,7 +1138,7 @@ int IpAddress::get_match_bits(const IpAddress match_ip) const
   if (valid() && match_ip.valid() &&
       (ip_version == match_ip.ip_version))
   {
-    int count = (ip_version == version_ipv4) ? IPLEN : IP6LEN;
+    int count = (ip_version == version_ipv4) ? IPLEN : IP6LEN_NO_SCOPE;
 
     for (int i = 0; i < count; i++)
     {
@@ -1065,8 +1181,9 @@ int IpAddress::map_to_ipv6()
   address_buffer[10] = 0xff;
   address_buffer[11] = 0xff;
 
-  smival.value.string.len = IP6LEN;
+  smival.value.string.len = IP6LEN_NO_SCOPE;
   ip_version = version_ipv6;
+  have_ipv6_scope = false;
 
   addr_changed = true;
   return TRUE;
@@ -1079,6 +1196,7 @@ void IpAddress::clear()
   memset(output_buffer, 0, sizeof(output_buffer));
   iv_friendly_name_status = 0;
   ip_version = version_ipv4;
+  have_ipv6_scope = false;
   memset(iv_friendly_name, 0, sizeof(char) * MAX_FRIENDLY_NAME);
   smival.value.string.len = IPLEN;
 }
@@ -1171,18 +1289,21 @@ UdpAddress::UdpAddress(const GenAddress &genaddr) : IpAddress()
   sep = ':';
 }
 
-
 //--------[ construct a udp from an IpAddress ]--------------------------
-UdpAddress::UdpAddress(const IpAddress &ipaddr):IpAddress(ipaddr)
+UdpAddress::UdpAddress(const IpAddress &ipaddr)
+    : IpAddress(ipaddr)
 {
   ADDRESS_TRACE;
 
-  // always initialize SMI info
+   // always initialize SMI info
   smival.syntax = sNMP_SYNTAX_OCTETS;
   if (ip_version == version_ipv4)
       smival.value.string.len = UDPIPLEN;
   else
-      smival.value.string.len = UDPIP6LEN;
+      if (have_ipv6_scope)
+	  smival.value.string.len = UDPIP6LEN_WITH_SCOPE;
+      else
+	  smival.value.string.len = UDPIP6LEN_NO_SCOPE;
   smival.value.string.ptr = address_buffer;
 
   sep = ':';
@@ -1219,14 +1340,25 @@ SnmpSyntax& UdpAddress::operator=(const SnmpSyntax &val)
           ip_version = version_ipv4;
           smival.value.string.len = UDPIPLEN;
         }
-        else if (((UdpAddress &)val).smival.value.string.len == UDPIP6LEN)
+        else if (((UdpAddress &)val).smival.value.string.len == UDPIP6LEN_NO_SCOPE)
         {
           MEMCPY(address_buffer,((UdpAddress &)val).smival.value.string.ptr,
-                 UDPIP6LEN);
+                 UDPIP6LEN_NO_SCOPE);
 	  memset(iv_friendly_name, 0, sizeof(char) * MAX_FRIENDLY_NAME);
           valid_flag = true;
           ip_version = version_ipv6;
-          smival.value.string.len = UDPIP6LEN;
+          smival.value.string.len = UDPIP6LEN_NO_SCOPE;
+	  have_ipv6_scope = false;
+        }
+        else if (((UdpAddress &)val).smival.value.string.len == UDPIP6LEN_WITH_SCOPE)
+        {
+          MEMCPY(address_buffer,((UdpAddress &)val).smival.value.string.ptr,
+                 UDPIP6LEN_WITH_SCOPE);
+	  memset(iv_friendly_name, 0, sizeof(char) * MAX_FRIENDLY_NAME);
+          valid_flag = true;
+          ip_version = version_ipv6;
+          smival.value.string.len = UDPIP6LEN_WITH_SCOPE;
+	  have_ipv6_scope = true;
         }
         break;
         // NOTE: as a value add, other types could have "logical"
@@ -1247,7 +1379,10 @@ UdpAddress& UdpAddress::operator=(const UdpAddress &udpaddr)
   if (ip_version == version_ipv4)
     smival.value.string.len = UDPIPLEN;
   else
-    smival.value.string.len = UDPIP6LEN;
+      if (have_ipv6_scope)
+	  smival.value.string.len = UDPIP6LEN_WITH_SCOPE;
+      else
+	  smival.value.string.len = UDPIP6LEN_NO_SCOPE;
 
   set_port(udpaddr.get_port());        // copy to port value
   if (udpaddr.addr_changed)
@@ -1272,10 +1407,14 @@ UdpAddress& UdpAddress::operator=(const IpAddress &ipaddr)
   if (this == &ipaddr) return *this; // protect against assignment from itself
 
   (IpAddress &)*this = ipaddr; // use ancestor assignment for ipaddr value
+
   if (ip_version == version_ipv4)
     smival.value.string.len = UDPIPLEN;
   else
-    smival.value.string.len = UDPIP6LEN;
+      if (have_ipv6_scope)
+	  smival.value.string.len = UDPIP6LEN_WITH_SCOPE;
+      else
+	  smival.value.string.len = UDPIP6LEN_NO_SCOPE;
 
   set_port(0);        // copy to port value
   addr_changed = true;
@@ -1321,6 +1460,7 @@ bool UdpAddress::parse_address(const char *inaddr)
   int pos = (int)strlen(buffer) - 1; // safe to cast as max is MAX_FRIENDLY_NAME
   int do_loop = TRUE;
   int another_colon_found = FALSE;
+  bool scope_found = false;
 
   if (pos < 0)
   {
@@ -1352,10 +1492,15 @@ bool UdpAddress::parse_address(const char *inaddr)
       }
 
       for (int i=pos - 1; i >= 0 ; i--)
-        if (buffer[i] == ':')
-        {
-          another_colon_found = TRUE;
-        }
+      {
+	  if (buffer[i] == ':')
+	      another_colon_found = TRUE;
+	  if (buffer[i] == '%')
+	      scope_found = true;
+      }
+      if (scope_found) // must be ipv6, so reset colon_found
+	  another_colon_found = false;
+
       if (!another_colon_found)
       {
         sep=':';
@@ -1398,7 +1543,10 @@ bool UdpAddress::parse_address(const char *inaddr)
   if (ip_version == version_ipv4)
     smival.value.string.len = UDPIPLEN;
   else
-    smival.value.string.len = UDPIP6LEN;
+      if (have_ipv6_scope)
+	  smival.value.string.len = UDPIP6LEN_WITH_SCOPE;
+      else
+	  smival.value.string.len = UDPIP6LEN_NO_SCOPE;
 
   set_port(port);
   return result;
@@ -1414,7 +1562,10 @@ void UdpAddress::set_port(const unsigned short p)
   if (ip_version == version_ipv4)
     port_nbo = (unsigned short*)(address_buffer + IPLEN);
   else
-    port_nbo = (unsigned short*)(address_buffer + IP6LEN);
+      if (have_ipv6_scope)
+	  port_nbo = (unsigned short*)(address_buffer + IP6LEN_WITH_SCOPE);
+      else
+	  port_nbo = (unsigned short*)(address_buffer + IP6LEN_NO_SCOPE);
   *port_nbo = htons(p);
   addr_changed = true;
 }
@@ -1426,11 +1577,15 @@ unsigned short UdpAddress::get_port() const
 
   if (valid_flag)
   {
-    unsigned short *port_nbo;
+    const unsigned short *port_nbo;
     if (ip_version == version_ipv4)
-      port_nbo = (unsigned short*)(address_buffer + IPLEN);
+      port_nbo = (const unsigned short*)(address_buffer + IPLEN);
     else
-      port_nbo = (unsigned short*)(address_buffer + IP6LEN);
+	if (have_ipv6_scope)
+	    port_nbo = (const unsigned short*)(address_buffer + IP6LEN_WITH_SCOPE);
+	else
+	    port_nbo = (const unsigned short*)(address_buffer + IP6LEN_NO_SCOPE);
+
     return ntohs(*port_nbo);
   }
   return 0;// don't use uninitialized memory
@@ -1463,6 +1618,23 @@ void UdpAddress::format_output() const
   nc_this->addr_changed = false;
 }
 
+bool UdpAddress::set_scope(const unsigned int scope)
+{
+  ADDRESS_TRACE;
+
+  /* Save the port, as IpAddress::set_scope destroys it */
+  unsigned short old_port = get_port();
+ 
+  if (!IpAddress::set_scope(scope))
+      return false;
+
+  smival.value.string.len = UDPIP6LEN_WITH_SCOPE;
+
+  set_port(old_port);
+
+  return true;
+}
+
 /**
  * Map a IPv4 UDP address to a IPv6 UDP address.
  *
@@ -1480,7 +1652,7 @@ int UdpAddress::map_to_ipv6()
     return FALSE;
 
   set_port(old_port);
-  smival.value.string.len = UDPIP6LEN;
+  smival.value.string.len = UDPIP6LEN_NO_SCOPE;
   ip_version = version_ipv6;
 
   addr_changed = true;
@@ -2448,9 +2620,9 @@ SnmpSyntax& GenAddress::operator=(const SnmpSyntax &val)
         unsigned long val_len;
         val_len = ((GenAddress &)val).smival.value.string.len;
 
-        if ((val_len == UDPIPLEN) || (val_len == UDPIP6LEN))
+        if ((val_len == UDPIPLEN) || IS_UDPIP6LEN(val_len))
           address = new UdpAddress;
-        else if ((val_len == IPLEN) || (val_len == IPLEN))
+        else if ((val_len == IPLEN) || IS_IP6LEN(val_len))
           address = new IpAddress;
 #ifdef _IPX_ADDRESS
         else if (val_len == IPXLEN)

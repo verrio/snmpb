@@ -2,9 +2,9 @@
   _## 
   _##  snmpmsg.cpp  
   _##
-  _##  SNMP++v3.2.21
+  _##  SNMP++v3.2.23
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
+  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -56,17 +56,17 @@
 =====================================================================*/
 char snmpmsg_cpp_version[]="#(@) SNMP++ $Id$";
 
-#ifdef WIN32
-#include <winsock.h>
-#elif _AIX
+#if defined(_AIX)
 #include <unistd.h>
 #endif
-#include <stdio.h>                      // standard io file
+#include <stdio.h>
 
+#include "snmp_pp/config_snmp_pp.h"
 #include "snmp_pp/snmpmsg.h"                    // header file for SnmpMessage
 #include "snmp_pp/oid_def.h"                    // changed (Frank Fock)
 #include "snmp_pp/log.h"
 #include "snmp_pp/vb.h"
+#include "snmp_pp/usm_v3.h"
 
 #ifdef SNMP_PP_NAMESPACE
 namespace Snmp_pp {
@@ -476,7 +476,7 @@ int SnmpMessage::load(const Pdu &cpdu,
                          community.data(), (int) community.len());
 
   LOG_BEGIN(DEBUG_LOG | 4);
-  LOG("SNMPMessage: v3MP return value for build message");
+  LOG("SNMPMessage: return value for build message");
   LOG(status);
   LOG_END;
 
@@ -558,7 +558,7 @@ int SnmpMessage::unload(Pdu &pdu,                 // Pdu object
 #ifdef _SNMPv3
   OctetStr context_engine_id;
   OctetStr context_name;
-  long int security_level;
+  long int security_level = SNMP_SECURITY_LEVEL_NOAUTH_NOPRIV;
 
   if ((security_model) && (security_name) && (engine_id) && (snmp_session)) {
     status = v3MP::I->snmp_parse(snmp_session, raw_pdu,

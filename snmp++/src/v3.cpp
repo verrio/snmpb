@@ -2,9 +2,9 @@
   _## 
   _##  v3.cpp  
   _##
-  _##  SNMP++v3.2.21
+  _##  SNMP++v3.2.23
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
+  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
   _##  
   _##########################################################################*/
 
@@ -102,6 +102,14 @@ void debughexcprintf(int db_level, const char *comment,
 	    // reset the buf
 	    buf[0] = '\0';
 	}
+    }
+
+    if (buf[0] != '\0')
+    {
+	// print the last part of the message
+	LOG_BEGIN(DEBUG_LOG | 3);
+	LOG(buf);
+	LOG_END;
     }
 
     // and cleanup...

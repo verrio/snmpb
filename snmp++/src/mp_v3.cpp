@@ -2,9 +2,9 @@
   _## 
   _##  mp_v3.cpp  
   _##
-  _##  SNMP++v3.2.21
+  _##  SNMP++v3.2.23
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
+  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
   _##  
   _##########################################################################*/
 char mp_v3_cpp_version[]="@(#) SNMP++ $Id$";
@@ -109,11 +109,24 @@ int v3MP::EngineIdTable::add_entry(const OctetStr &engine_id,
   BEGIN_REENTRANT_CODE_BLOCK;
 
   for (int i = 0; i < entries; i++)
-    if ((table[i].port == port) &&
-        (table[i].host == host))
+    if (((table[i].port == port) &&
+         (table[i].host == host)) ||
+	(table[i].engine_id == engine_id))
     {
-      // make sure the engine_id is right
+      LOG_BEGIN(INFO_LOG | 2);
+      LOG("v3MP::EngineIdTable: replace entry (old id) (old host) (old port) (id) (host) (port)");
+      LOG(table[i].engine_id.get_printable());
+      LOG(table[i].host.get_printable());
+      LOG(table[i].port);
+      LOG(engine_id.get_printable());
+      LOG(host.get_printable());
+      LOG(port);
+      LOG_END;
+
       table[i].engine_id = engine_id;
+      table[i].host = host;
+      table[i].port = port;
+
       return SNMPv3_MP_OK;         // host is in table
     }
 
@@ -650,6 +663,9 @@ v3MP::v3MP(const OctetStr& snmpEngineID,
 
   int result;
   usm = new USM(engineBoots, snmpEngineID, this, &cur_msg_id, result);
+
+  if (cur_msg_id >= MAX_MPMSGID)
+    cur_msg_id = 1;
 
   if ((!own_engine_id) || (!usm) || (result != SNMPv3_USM_OK))
   {
@@ -1314,10 +1330,12 @@ int v3MP::snmp_build(struct snmp_pdu *pdu,
       securityModel = SecurityModel_USM;
     }
 
+    cur_msg_id_lock.lock();
     msgID = cur_msg_id;
     cur_msg_id++;
-    if (cur_msg_id == MAX_MPMSGID)
+    if (cur_msg_id >= MAX_MPMSGID)
       cur_msg_id = 1;
+    cur_msg_id_lock.unlock();
 
 #ifdef INVALID_MSGID
     LOG_BEGIN(ERROR_LOG | 1);

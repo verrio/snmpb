@@ -2,9 +2,9 @@
   _## 
   _##  usm_v3.cpp  
   _##
-  _##  SNMP++v3.2.21
+  _##  SNMP++v3.2.23
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
+  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
   _##  
   _##########################################################################*/
 char usm_v3_cpp_version[]="@(#) SNMP++ $Id$";
@@ -720,6 +720,61 @@ USM::USM(unsigned int engine_boots, const OctetStr &engine_id,
     return;
 
 #ifdef _TEST
+
+  printf("\nTesting 3DES starts\n\n");
+  OctetStr engineId = OctetStr::from_hex_string("00 00 00 00 00 00 "
+						"00 00 00 00 00 02");
+
+  OctetStr oldKey, newKey, delta;
+  oldKey.set_len(64);
+  newKey.set_len(64);
+  unsigned int key_len=64;
+
+  debughexcprintf(0,"engineID", engineId.data(), engineId.len());
+
+  auth_priv->password_to_key_priv(SNMP_AUTHPROTOCOL_HMACSHA,
+				 SNMP_PRIVPROTOCOL_3DESEDE,
+				 (unsigned char*)"maplesyrup", 10,
+				 engineId.data(), engineId.len(),
+				 oldKey.data(),
+				 &key_len);
+  oldKey.set_len(key_len);
+  key_len=64;
+  auth_priv->password_to_key_priv(SNMP_AUTHPROTOCOL_HMACSHA,
+				 SNMP_PRIVPROTOCOL_3DESEDE,
+				 (unsigned char*)"newsyrup", 8,
+				 engineId.data(), engineId.len(),
+				 newKey.data(),
+				 &key_len);
+  newKey.set_len(key_len);
+
+  OctetStr expectedKey = OctetStr::from_hex_string("78 e2 dc ce 79 d5 94 03 b5 8c 1b ba a5 bf f4 63 91 f1 cd 25 97 74 35 55 f9 fc f9 4a c3 e7 e9 22");
+
+  if (newKey != expectedKey)
+  {
+      printf("newKey != expectedKey\n");
+      printf("newKey:   %s\n", newKey.get_printable_hex());
+      printf("expected: %s\n", expectedKey.get_printable_hex());
+  }
+
+  auth_priv->get_keychange_value(SNMP_AUTHPROTOCOL_HMACSHA,
+                                 oldKey, newKey, delta);
+
+  OctetStr expectedDelta = OctetStr::from_hex_string(
+      "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 "
+      "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 "
+      "ce 13 28 fb 9a 9c 19 ce c1 51 a3 5a 77 f9 20 39 "
+      "ca ff 00 c9 b3 9b 19 a0 5e 01 75 55 94 37 6a 57");
+
+  if (delta != expectedDelta)
+  {
+      printf("delta != expectedDelta\n");
+      printf("delta:    %s\n", delta.get_printable_hex());
+      printf("expected: %s\n", expectedDelta.get_printable_hex());
+  }
+
+  printf("\nTesting 3DES finished\n\n");
+
   printf(" Testing DES:\n");
   PrivDES pd;
   pp_uint64 testsalt=0xbabec0de;
@@ -945,7 +1000,7 @@ USM::USM(unsigned int engine_boots, const OctetStr &engine_id,
   if (result != SNMPv3_USM_OK)
     return;
 
-  *msgID = (engine_boots & 0xFFFF) << 16;
+  *msgID = (engine_boots & 0x7FFF) << 16;
 }
 
 USM::~USM()

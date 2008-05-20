@@ -2,9 +2,9 @@
   _## 
   _##  address.h  
   _##
-  _##  SNMP++v3.2.21
+  _##  SNMP++v3.2.23
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
+  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
   _##  
   _##########################################################################*/
 /*
@@ -99,25 +99,22 @@ extern int h_errno;  // defined in WinSock header, but not for UX?!
 #endif
 #endif // __unix
 
-
-#ifdef WIN32
-#ifndef __unix         // __unix overrides WIN32 if both options are present
-#include <winsock.h>
-#endif
-#endif
-
 #ifdef SNMP_PP_NAMESPACE
 namespace Snmp_pp {
 #endif
 
 //----[ macros ]-------------------------------------------------------
-#define ADDRBUF 40     // worst case of address lens
+#define ADDRBUF 50     // worst case of address lens
 #define OUTBUFF 80     // worst case of output lens
 
 #define IPLEN      4
-#define IP6LEN     16
 #define UDPIPLEN   6
-#define UDPIP6LEN  18
+#define IP6LEN_NO_SCOPE   16
+#define IP6LEN_WITH_SCOPE 20
+#define UDPIP6LEN_NO_SCOPE   18
+#define UDPIP6LEN_WITH_SCOPE 22
+#define IS_IP6LEN(n) ((n==16) || (n==20))
+#define IS_UDPIP6LEN(n) ((n==18) || (n==22))
 #define IPXLEN     10
 #define IPXSOCKLEN 12
 #define MACLEN     6
@@ -331,6 +328,7 @@ class DLLOPT IpAddress : public Address
    * - hostname with or without domain ("www.agentpp.com", "printsrv")
    * - Numerical IPv4 address ("192.168.17.1")
    * - Numerical IPv6 address ("abcd:1234::a:b:1", "::abcd:1")
+   * - Numerical IPv6 address with scope ("abcd:1234::a:b:1%3", "::abcd:1%1")
    *
    * @param inaddr - Hostname or IP address
    */
@@ -421,7 +419,8 @@ class DLLOPT IpAddress : public Address
    * Get the length of the binary address (accessible through operator[]).
    */
   virtual int get_length() const
-    { return (ip_version == version_ipv4) ? IPLEN : IP6LEN; };
+    { return (ip_version == version_ipv4) ? IPLEN : 
+	     (have_ipv6_scope ? IP6LEN_WITH_SCOPE : IP6LEN_NO_SCOPE); };
 
   /**
    * Return the type of the address.
@@ -441,7 +440,7 @@ class DLLOPT IpAddress : public Address
    * Return the space needed for serialization.
    */
   virtual int get_asn1_length() const
-    { return (ip_version == version_ipv4) ? (IPLEN + 2) : (IP6LEN + 2); };
+    { return get_length() + 2; };
 
   /**
    * Return the IP version of the address.
@@ -458,9 +457,22 @@ class DLLOPT IpAddress : public Address
   virtual int map_to_ipv6();
 
   /**
+   * Get the IPv6 scope
+   */
+  virtual unsigned int get_scope() const;
+
+  /**
+   * Set the IPv6 scope
+   */
+  virtual bool set_scope(const unsigned int scope);
+
+  /**
    * Reset the object.
    */
   void clear();
+
+  bool has_ipv6_scope() const
+      { return (ip_version == version_ipv6) && have_ipv6_scope; };
 
  protected:
   SNMP_PP_MUTABLE char output_buffer[OUTBUFF];           // output buffer
@@ -489,6 +501,8 @@ class DLLOPT IpAddress : public Address
 
   // support both ipv4 and ipv6 addresses
   version_type ip_version;
+
+  bool have_ipv6_scope;
 };
 
 //------------------------------------------------------------------------
@@ -574,7 +588,7 @@ class DLLOPT UdpAddress : public IpAddress
    * Return the space needed for serialization.
    */
   virtual int get_asn1_length() const
-    { return (ip_version == version_ipv4) ? (UDPIPLEN + 2) : (UDPIP6LEN + 2);};
+    { return get_length() + 2; };
 
   /**
    * Clone this object.
@@ -617,7 +631,8 @@ class DLLOPT UdpAddress : public IpAddress
    * Get the length of the binary address (accessible through operator[]).
    */
   virtual int get_length() const
-    { return (ip_version == version_ipv4) ? UDPIPLEN : UDPIP6LEN; };
+    { return (ip_version == version_ipv4) ? UDPIPLEN : 
+             (have_ipv6_scope ? UDPIP6LEN_WITH_SCOPE : UDPIP6LEN_NO_SCOPE);};
 
   /**
    * Return the type of the address.
@@ -638,6 +653,11 @@ class DLLOPT UdpAddress : public IpAddress
    */
   void clear()
     { Address::clear(); memset(output_buffer, 0, sizeof(output_buffer)); };
+
+  /**
+   * Set the IPv6 scope
+   */
+  virtual bool set_scope(const unsigned int scope);
 
  protected:
   SNMP_PP_MUTABLE char output_buffer[OUTBUFF];           // output buffer
@@ -1134,18 +1154,12 @@ protected:
   virtual bool is_gen_address() const { return true; };
 };
 
-#if !defined (DLLOPT_TEMPL_ADDRESSCOLLECTION)
-#define DLLOPT_TEMPL_ADDRESSCOLLECTION
-//	DLLOPT_TEMPL template class DLLOPT SnmpCollection<GenAddress>;
-//	DLLOPT_TEMPL template class DLLOPT SnmpCollection<UdpAddress>;
-#endif
-
 // create AddressCollection type
 typedef SnmpCollection <GenAddress> AddressCollection;
 typedef SnmpCollection <UdpAddress> UdpAddressCollection;
 
 #ifdef SNMP_PP_NAMESPACE
-}; // end of namespace Snmp_pp
+} // end of namespace Snmp_pp
 #endif 
 
 #endif  //_ADDRESS

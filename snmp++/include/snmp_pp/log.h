@@ -2,9 +2,9 @@
   _## 
   _##  log.h  
   _##
-  _##  SNMP++v3.2.21
+  _##  SNMP++v3.2.23
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2006 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri Jun 16 17:48:57 CEST 2006 
+  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
   _##  
   _##########################################################################*/
 
@@ -52,8 +52,9 @@ namespace Snmp_pp {
 #define EVENT_LOG	0x30
 #define INFO_LOG	0x40
 #define DEBUG_LOG	0x50
+#define USER_LOG	0x60
 
-#define LOG_TYPES       5
+#define LOG_TYPES       6
 
 #ifdef _NO_LOGGING
  
@@ -85,11 +86,15 @@ namespace Snmp_pp {
 /*--------------------------- class LogEntry --------------------------*/
 
 /**
- * The LogEntry class represents log entries. An instance of LogEntry can
- * be added to a Log. Each LogEntry can be classified into the log classes
- * ERROR_LOG, WARNING_LOG, EVENT_LOG, INFO_LOG, and DEBUG_LOG with up to
- * 16 severity levels. A log entry consists of a descriptor string and
- * optional several string or numeric values. 
+ * The LogEntry class represents log entries. An instance of LogEntry can be
+ * added to a Log. Each LogEntry can be classified into the log classes
+ * ERROR_LOG, WARNING_LOG, EVENT_LOG, INFO_LOG, DEBUG_LOG and USER_LOG with up
+ * to 16 severity levels. A log entry consists of a descriptor string and
+ * optional several string or numeric values.
+ *
+ * The log class USER_LOG can be used for applications, it is not used
+ * within snmp++ and agent++.
+ *
  * @see Log
  * 
  * @author Frank Fock
