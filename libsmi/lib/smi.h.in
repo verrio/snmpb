@@ -461,7 +461,7 @@ extern SmiClass *smiGetParentClass(SmiClass *smiClassPtr);
 
 extern SmiModule *smiGetClassModule(SmiClass *smiClassPtr);
 
-extern SmiClass *smiGetClass(SmiModule *smiModulePtr,char *class);
+extern SmiClass *smiGetClass(SmiModule *smiModulePtr,char *classs);
 
 extern int smiGetClassLine(SmiClass *smiClassPtr);
 
