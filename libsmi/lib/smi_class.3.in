@@ -1,0 +1,86 @@
+.\" 
+.TH "smi_class" "3" "February 10, 2007" "" "SMI Management Information Library"
+.SH "NAME"
+.\" START OF MAN PAGE COPIES
+smiGetClass
+smiGetFirstClass,
+smiGetNextClass,
+smiGetClassModule,
+smiGetParentClass,
+smiIsClassScalar
+.\" END OF MAN PAGE COPIES
+\- SMI class
+information routines
+.SH "SYNOPSIS"
+.nf 
+.B #include <smi.h>
+.RS
+.RE
+.sp
+.BI "SmiClass *smiGetClass(SmiModule *" smiModulePtr ", char *" name );
+.RE
+.sp
+.BI "SmiClass *smiGetFirstClass(SmiModule *" smiModulePtr );
+.RE
+.sp
+.BI "SmiClass *smiGetNextClass(SmiClass *" smiClassPtr );
+.RE
+.sp
+.BI "SmiClass *smiGetParentClass(SmiClass *" smiClassPtr );
+.RE
+.sp
+.BI "SmiModule *smiGetClassModule(SmiClass *" smiClassPtr );
+.RE
+.sp
+.BI "int smiIsClassScalar(SmiClass *" smiClassPtr );
+.RE
+
+typedef struct SmiClass {
+    SmiIdentifier       name;
+    SmiDecl             decl;
+    SmiStatus           status;
+    char                *description;
+    char                *reference;
+} SmiClass;
+
+.fi 
+.SH "DESCRIPTION"
+These functions retrieve information on a SMIng class definition (SMIng).
+.PP 
+\fBsmiGetClass(SmiModule *smiModulePtr,char *name)\fP returns a
+pointer to \fBstruct SmiClass\fP that represents the class with the
+given \fIname\fP in the given module(\fIsmiModulePtr\fP ), or NULL if
+the class with the given name does not exist.
+.PP 
+\fBsmiGetFirstClass(SmiModule *smiModulePtr)\fP and
+\fBsmiGetNextClass(SmiClass *smiClassPtr)\fP are used to iterate
+through the classes of the module given by \fIsmiModulePtr\fP. They
+return a pointer to \fBstruct SmiClass\fP that represents a class or
+NULL if there are no classes left in the module, or error has
+occurred.
+.PP 
+\fBsmiGetClassModule(SmiClass *smiClassPtr)\fP returns a pointer to
+\fBstruct SmiModule\fP, of the module containing the given class.
+.PP 
+\fBsmiGetParentClass(SmiClass *smiClassPtr)\fP returns a pointer to
+\fBstruct SmiClass\fP pointing to the parent of the given
+\fIsmiClassPtr\fP, or NULL if the class is not derived.
+.PP 
+\fBsmiIsClassScalar(SmiClass *smiClassPtr)\fP returns \fBint\fP
+\fI1\fP if the class is scalar(its unique statement contains an empty
+list) or \fI0\fP otherwise. This method can be used in conjunction
+with \fBsmiGetFirstUniqueAttribute()\fP to determine whether the class
+is meant to be instantiated separately (has unique statement with
+nonempty list), or if it is meant to be used as part of another class
+(has no unique statement).
+.SH "FILES"
+.nf 
+@includedir@/smi.h    SMI library header file
+.fi 
+.SH "SEE ALSO"
+.BR libsmi "(3), "
+.BR smi_module "(3), "
+.BR smi.h
+.SH "AUTHOR"
+(C) 2007 Kaloyan Kanev, Jacobs University, Germany <k.kanev@jacobs-university.de>
+.br

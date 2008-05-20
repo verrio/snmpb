@@ -9,7 +9,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: check.c 4200 2006-05-15 13:50:39Z strauss $
+ * @(#) $Id: check.c 7640 2008-01-31 15:29:52Z schoenw $
  */
 
 #include <config.h>
@@ -677,7 +677,7 @@ smiCheckNamedNumbersOrder(Parser *parser, Type *type)
 		} else {
 		    for (ptr = type->listPtr; ptr; ptr = ptr->nextPtr) {
 			if ((!ptr->nextPtr) ||
-			    (((NamedNumber *)(ptr->nextPtr->ptr))->export.value.value.integer32 > ((NamedNumber *)(listPtr->ptr))->export.value.value.integer32)) {
+			    (((NamedNumber *)(ptr->nextPtr->ptr))->export.value.value.integer32 >= ((NamedNumber *)(listPtr->ptr))->export.value.value.integer32)) {
 			    listPtr->nextPtr = ptr->nextPtr;
 			    ptr->nextPtr = listPtr;
 			    break;
@@ -1217,7 +1217,8 @@ smiCheckTypeFormat(Parser *parser, Type *type)
     if (type->export.basetype != SMI_BASETYPE_INTEGER32
 	&& type->export.basetype != SMI_BASETYPE_INTEGER64
 	&& type->export.basetype != SMI_BASETYPE_UNSIGNED32
-	&& type->export.basetype != SMI_BASETYPE_UNSIGNED64) {
+	&& type->export.basetype != SMI_BASETYPE_UNSIGNED64
+	&& type->export.basetype != SMI_BASETYPE_OCTETSTRING) {
 	return;
     }
 
@@ -1610,6 +1611,18 @@ smiCheckTypeUsage(Parser *parserPtr, Module *modulePtr)
 					    ERR_ILLEGAL_ROWSTATUS_DEFAULT,
 					    objectPtr->line,
 					    nnPtr->export.name);
+		    }
+		}
+
+		/* check RowStatus read-create status */
+		if (objectPtr->typePtr == rowStatusPtr) {
+		    Object *entryObject
+			= objectPtr->nodePtr->parentPtr->lastObjectPtr;
+		    if (objectPtr->export.access != SMI_ACCESS_READ_WRITE
+			|| !entryObject->export.create) {
+			smiPrintErrorAtLine(parserPtr,
+					    ERR_ILLEGAL_ROWSTATUS_ACCESS,
+					    objectPtr->line);
 		    }
 		}
 		

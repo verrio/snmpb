@@ -2,7 +2,7 @@
 LIBSMI NOTES FOR NATIVE WIN32 SUPPORT
 =====================================
 
-@(#) $Id: README.win 1471 2002-11-13 19:22:15Z schoenw $
+@(#) $Id: README.win 8079 2008-04-17 18:12:48Z schoenw $
 
 This directory contains some help to compile the libsmi and associated
 tools on a Win32 platform (Windows 95, 98, 2000, NT) with the native
@@ -20,8 +20,8 @@ of gcc.
 Installation
 ============
 
-(1) Change the compiler path macro TOOLS32 in ./makefile for the
-    specific msvc installation.
+(1) Set MSVC version used in ./config.nmake. Check the compiler path
+    macro TOOLS32 in ./config.nmake for the specific msvc installation.
   
 (2) To compile simply run
 
@@ -60,6 +60,8 @@ fine) by running:
     cd lib
     make errormacros.h parser-smi.c parser-sming.c \
                 scanner-smi.c scanner-sming.c smi.h
+    cd ../tools
+    make dump-svg-script.h
 
 
 
@@ -70,7 +72,7 @@ COMMENTS:
   by their 64bit _int64 msvc counterparts. They work ok.  see related
   definitions ./config.h
 
-- The compiler path in ./makefile is hardwired (TOOLS32)
+- The compiler path in ./config.nmake is hardwired (TOOLS32)
 
 - The installation directories are hardwired in config.h.in
 

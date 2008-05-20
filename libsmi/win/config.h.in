@@ -1,4 +1,8 @@
-/* config.h.  Generated manually for windows / vc++ 6.0 */
+/*
+ * config.h.  Generated manually for windows / vc++ 6.0
+ *
+ * @(#) $Id: config.h.in 8079 2008-04-17 18:12:48Z schoenw $
+ */
 
 /* Define if the SMIv1/v2 parser shall be active. */
 #define BACKEND_SMI
@@ -44,6 +48,9 @@
 
 /* Define if dmalloc.h is present and shall be used. */
 #undef HAVE_DMALLOC_H
+
+/* Define to 1 if you have the <limits.h> header file. */
+#define HAVE_LIMITS_H 1
 
 /* Define if getopt.h (argv[] option parser) is present. */
 #undef HAVE_GETOPT_H

@@ -18,7 +18,7 @@ ianafinisherMIB MODULE-IDENTITY
                           Marina del Rey, CA 90292
 
                   Tel:    +1 310 823 9358
-                  E-Mail: iana@iana.org"
+                  E-Mail: iana&iana.org"
 
     DESCRIPTION   "This MIB module defines a set of finishing-related
                   TEXTUAL-CONVENTIONs for use in Finisher MIB (RFC 3806)

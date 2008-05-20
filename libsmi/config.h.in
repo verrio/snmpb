@@ -1,101 +1,142 @@
-/* config.h.in.  Generated automatically from configure.in by autoheader 2.13.  */
+/* config.h.in.  Generated from configure.in by autoheader.  */
 
-/* Define if you have the asnprintf function.  */
-#undef HAVE_ASNPRINTF
+/* "" */
+#undef BACKEND_SMI
 
-/* Define if you have the asprintf function.  */
-#undef HAVE_ASPRINTF
-
-/* Define if you have the snprintf function.  */
-#undef HAVE_SNPRINTF
-
-/* Define if you have the strtoll function.  */
-#undef HAVE_STRTOLL
-
-/* Define if you have the strtoq function.  */
-#undef HAVE_STRTOQ
-
-/* Define if you have the strtoull function.  */
-#undef HAVE_STRTOULL
-
-/* Define if you have the strtouq function.  */
-#undef HAVE_STRTOUQ
-
-/* Define if you have the timegm function.  */
-#undef HAVE_TIMEGM
-
-/* Define if you have the vasnprintf function.  */
-#undef HAVE_VASNPRINTF
-
-/* Define if you have the vasprintf function.  */
-#undef HAVE_VASPRINTF
-
-/* Define if you have the vsnprintf function.  */
-#undef HAVE_VSNPRINTF
-
-/* Define if you have the <dlfcn.h> header file.  */
-#undef HAVE_DLFCN_H
-
-/* Define if you have the <pwd.h> header file.  */
-#undef HAVE_PWD_H
-
-/* Define if you have the <regex.h> header file.  */
-#undef HAVE_REGEX_H
-
-/* Define if you have the <unistd.h> header file.  */
-#undef HAVE_UNISTD_H
-
-/* Name of package */
-#undef PACKAGE
-
-/* Version number of package */
-#undef VERSION
-
-/* The maximum module import recursion depth. */
-#undef MAX_LEX_DEPTH
+/* "" */
+#undef BACKEND_SMING
 
 /* The default error level at libsmi initialization. */
 #undef DEFAULT_ERRORLEVEL
 
+/* The full pathname of the global configuration file. */
+#undef DEFAULT_GLOBALCONFIG
+
 /* The default search path to lookup SMI module files. */
 #undef DEFAULT_SMIPATH
 
-/* The default path separator character. */
-#undef PATH_SEPARATOR
+/* The basename of the per-user configuration file searched in $HOME. */
+#undef DEFAULT_USERCONFIG
 
 /* The default path separator character. */
 #undef DIR_SEPARATOR
 
-/* The unsigned 64 bit integer format conversion specification string. */
-#undef UINT64_FORMAT
+/* Define to 1 if you have the `asnprintf' function. */
+#undef HAVE_ASNPRINTF
+
+/* Define to 1 if you have the `asprintf' function. */
+#undef HAVE_ASPRINTF
+
+/* Define to 1 if you have the <dlfcn.h> header file. */
+#undef HAVE_DLFCN_H
+
+/* "" */
+#undef HAVE_DMALLOC_H
+
+/* Define to 1 if you have the <inttypes.h> header file. */
+#undef HAVE_INTTYPES_H
+
+/* Define to 1 if you have the <limits.h> header file. */
+#undef HAVE_LIMITS_H
+
+/* Define to 1 if you have the <memory.h> header file. */
+#undef HAVE_MEMORY_H
+
+/* Define to 1 if you have the <pwd.h> header file. */
+#undef HAVE_PWD_H
+
+/* Define to 1 if you have the <regex.h> header file. */
+#undef HAVE_REGEX_H
+
+/* Define to 1 if you have the `snprintf' function. */
+#undef HAVE_SNPRINTF
+
+/* Define to 1 if you have the <stdint.h> header file. */
+#undef HAVE_STDINT_H
+
+/* Define to 1 if you have the <stdlib.h> header file. */
+#undef HAVE_STDLIB_H
+
+/* Define to 1 if you have the <strings.h> header file. */
+#undef HAVE_STRINGS_H
+
+/* Define to 1 if you have the <string.h> header file. */
+#undef HAVE_STRING_H
+
+/* Define to 1 if you have the `strtoll' function. */
+#undef HAVE_STRTOLL
+
+/* Define to 1 if you have the `strtoq' function. */
+#undef HAVE_STRTOQ
+
+/* Define to 1 if you have the `strtoull' function. */
+#undef HAVE_STRTOULL
+
+/* Define to 1 if you have the `strtouq' function. */
+#undef HAVE_STRTOUQ
+
+/* Define to 1 if you have the <sys/stat.h> header file. */
+#undef HAVE_SYS_STAT_H
+
+/* Define to 1 if you have the <sys/types.h> header file. */
+#undef HAVE_SYS_TYPES_H
+
+/* Define to 1 if you have the `timegm' function. */
+#undef HAVE_TIMEGM
+
+/* Define to 1 if you have the <unistd.h> header file. */
+#undef HAVE_UNISTD_H
+
+/* Define to 1 if you have the `vasnprintf' function. */
+#undef HAVE_VASNPRINTF
+
+/* Define to 1 if you have the `vasprintf' function. */
+#undef HAVE_VASPRINTF
+
+/* Define to 1 if you have the `vsnprintf' function. */
+#undef HAVE_VSNPRINTF
 
 /* The signed 64 bit integer format conversion specification string. */
 #undef INT64_FORMAT
 
-/* The unsigned 64 bit integer maximum value. */
-#undef LIBSMI_UINT64_MAX
+/* The signed 64 bit integer maximum value. */
+#undef LIBSMI_INT64_MAX
 
 /* The unsigned 64 bit integer minimum value. */
 #undef LIBSMI_INT64_MIN
 
-/* The signed 64 bit integer maximum value. */
-#undef LIBSMI_INT64_MAX
+/* The unsigned 64 bit integer maximum value. */
+#undef LIBSMI_UINT64_MAX
 
-/*  */
-#undef HAVE_DMALLOC_H
+/* The maximum module import recursion depth. */
+#undef MAX_LEX_DEPTH
 
-/*  */
-#undef BACKEND_SMI
+/* Name of package */
+#undef PACKAGE
 
-/*  */
-#undef BACKEND_SMI
+/* Define to the address where bug reports for this package should be sent. */
+#undef PACKAGE_BUGREPORT
 
-/*  */
-#undef BACKEND_SMING
+/* Define to the full name of this package. */
+#undef PACKAGE_NAME
 
-/* The full pathname of the global configuration file. */
-#undef DEFAULT_GLOBALCONFIG
+/* Define to the full name and version of this package. */
+#undef PACKAGE_STRING
 
-/* The basename of the per-user configuration file searched in /home/strauss. */
-#undef DEFAULT_USERCONFIG
+/* Define to the one symbol short name of this package. */
+#undef PACKAGE_TARNAME
 
+/* Define to the version of this package. */
+#undef PACKAGE_VERSION
+
+/* The default path separator character. */
+#undef PATH_SEPARATOR
+
+/* Define to 1 if you have the ANSI C header files. */
+#undef STDC_HEADERS
+
+/* The unsigned 64 bit integer format conversion specification string. */
+#undef UINT64_FORMAT
+
+/* Version number of package */
+#undef VERSION

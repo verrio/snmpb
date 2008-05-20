@@ -8,7 +8,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: dump-smi.c 2013 2004-11-29 15:45:59Z strauss $
+ * @(#) $Id: dump-smi.c 8090 2008-04-18 12:56:29Z strauss $
  */
 
 #include <config.h>
@@ -649,22 +649,17 @@ static void freeImportList(void)
 static void fprint(FILE *f, char *fmt, ...)
 {
     va_list ap;
-    char    s[200];
+    char    *s;
     char    *p;
     
     va_start(ap, fmt);
-#ifdef HAVE_VSNPRINTF
-    current_column += vsnprintf(s, sizeof(s), fmt, ap);
-#else
-    current_column += vsprintf(s, fmt, ap);	/* buffer overwrite */
-#endif
+    current_column += smiVasprintf(&s, fmt, ap);
     va_end(ap);
-
     fputs(s, f);
-    
     if ((p = strrchr(s, '\n'))) {
 	current_column = strlen(p) - 1;
     }
+    free(s);
 }
 
 
@@ -747,7 +742,7 @@ static void fprintMultilineString2(FILE *f, const char *s, const int comment)
 
 static char *getValueString(SmiValue *valuePtr, SmiType *typePtr)
 {
-    static char    s[100];
+    static char    s[1024];
     char           ss[9];
     int		   n;
     unsigned int   i;
@@ -828,6 +823,8 @@ static char *getValueString(SmiValue *valuePtr, SmiType *typePtr)
 	break;
     case SMI_BASETYPE_UNKNOWN:
 	break;
+    case SMI_BASETYPE_POINTER:
+	break;
     case SMI_BASETYPE_OBJECTIDENTIFIER:
 	nodePtr = smiGetNodeByOID(valuePtr->len, valuePtr->value.oid);
 	if (nodePtr) {
@@ -852,7 +849,7 @@ static void fprintSubtype(FILE *f, SmiType *smiType, const int comment)
 {
     SmiRange       *range;
     SmiNamedNumber *nn;
-    char	   s[100];
+    char	   s[1024];
     int		   i, c = comment;
 
     if (pibtomib && ((smiType->basetype == SMI_BASETYPE_UNSIGNED64) ||
@@ -1089,24 +1086,128 @@ static void fprintModuleIdentity(FILE *f, SmiModule *smiModule)
 
 
 
+static void fprintTypeDefinition(FILE *f, SmiType *smiType)
+{
+    int		 invalid;
+
+    if (smiType->status == SMI_STATUS_UNKNOWN) {
+	invalid = invalidType(smiType->basetype);
+	if (invalid) {
+	    fprint(f, "-- %s ::=\n", smiType->name);
+	} else {
+	    fprint(f, "%s ::=\n", smiType->name);
+	}
+	fprintSegment(f, INDENT, "", 0, invalid);
+	fprint(f, "%s", getTypeString(smiType->basetype,
+				      smiGetParentType(smiType)));
+	fprintSubtype(f, smiType, invalid);
+	fprint(f, "\n\n");
+    }
+}
+
+
+
 static void fprintTypeDefinitions(FILE *f, SmiModule *smiModule)
 {
     SmiType	 *smiType;
-    int		 invalid;
 
     for(smiType = smiGetFirstType(smiModule);
 	smiType; smiType = smiGetNextType(smiType)) {
-	if (smiType->status == SMI_STATUS_UNKNOWN) {
-	    invalid = invalidType(smiType->basetype);
-	    if (invalid) {
-		fprint(f, "-- %s ::=\n", smiType->name);
-	    } else {
-		fprint(f, "%s ::=\n", smiType->name);
-	    }
+	fprintTypeDefinition(f, smiType);
+    }
+}
+
+
+
+static void fprintTextualConvention(FILE *f, SmiType *smiType)
+{
+    SmiType      *baseType;
+    SmiModule    *baseModule;
+    int		 i, invalid;
+
+    char *smiv2basetypes[] = {
+	"SNMPv2-SMI", "IpAddress",
+	"SNMPv2-SMI", "Counter32",
+	"SNMPv2-SMI", "Gauge32",
+	"SNMPv2-SMI", "TimeTicks",    
+	"SNMPv2-SMI", "Counter64",
+	NULL, NULL
+    };
+    
+    if (smiType->status != SMI_STATUS_UNKNOWN) {
+	invalid = invalidType(smiType->basetype);
+	if (smiv1 && !invalid) {
+	    fprint(f, "%s ::=\n", smiType->name);
 	    fprintSegment(f, INDENT, "", 0, invalid);
 	    fprint(f, "%s", getTypeString(smiType->basetype,
 					  smiGetParentType(smiType)));
 	    fprintSubtype(f, smiType, invalid);
+	    fprint(f, "\n\n");
+	}
+	
+	if (! smiv1 || ! silent) {
+	    
+	    if (smiv1 || invalid) {
+		fprint(f, "-- %s ::= TEXTUAL-CONVENTION\n", smiType->name);
+	    } else {
+		fprint(f, "%s ::= TEXTUAL-CONVENTION\n", smiType->name);
+	    }
+	    
+	    if (smiType->format) {
+		fprintSegment(f, INDENT, "DISPLAY-HINT", INDENTVALUE,
+			      smiv1 || invalid);
+		fprint(f, "\"%s\"\n", smiType->format);
+	    }
+	    
+	    fprintSegment(f, INDENT, "STATUS", INDENTVALUE,
+			  smiv1 || invalid);
+	    fprint(f, "%s\n", getStatusString(smiType->status));
+	    
+	    fprintSegment(f, INDENT, "DESCRIPTION", INDENTVALUE,
+			  smiv1 || invalid);
+	    fprint(f, "\n");
+	    if (smiType->description) {
+		fprintMultilineString(f, smiType->description,
+				      smiv1 || invalid);
+	    } else {
+		fprintMultilineString(f, "...", smiv1 || invalid);
+	    }
+	    fprint(f, "\n");
+	    
+	    if (smiType->reference) {
+		fprintSegment(f, INDENT, "REFERENCE", INDENTVALUE,
+			      smiv1 || invalid);
+		fprint(f, "\n");
+		fprintMultilineString(f, smiType->reference,
+				      smiv1 || invalid);
+		fprint(f, "\n");
+	    }
+	    
+	    for (baseType = smiGetParentType(smiType);
+		 baseType;
+		 baseType = smiGetParentType(baseType)) {
+		SmiType *parent = smiGetParentType(baseType);
+
+		baseModule = smiGetTypeModule(baseType);
+		if (baseModule && baseModule->name) {
+		    for (i = 0; smiv2basetypes[i]; i += 2) {
+			if (strcmp(smiv2basetypes[i+1], baseType->name) == 0
+			    && strcmp(smiv2basetypes[i], baseModule->name) == 0) {
+			    parent = NULL;
+			}
+		    }
+		}
+		
+		fprintSegment(f, INDENT, "SYNTAX", INDENTVALUE,
+			      smiv1 || invalid || parent);
+		fprint(f, "%s",
+		       getTypeString(baseType->basetype, baseType));
+		fprintSubtype(f, smiType, smiv1 || invalid || parent);
+		if (parent) {
+		    fprintf(f, "\n");
+		}
+		if (!parent) break;
+	    }
 	    fprint(f, "\n\n");
 	}
     }
@@ -1117,67 +1218,10 @@ static void fprintTypeDefinitions(FILE *f, SmiModule *smiModule)
 static void fprintTextualConventions(FILE *f, SmiModule *smiModule)
 {
     SmiType	 *smiType;
-    int		 invalid;
     
     for(smiType = smiGetFirstType(smiModule);
 	smiType; smiType = smiGetNextType(smiType)) {
-	if (smiType->status != SMI_STATUS_UNKNOWN) {
-	    invalid = invalidType(smiType->basetype);
-	    if (smiv1 && !invalid) {
-		fprint(f, "%s ::=\n", smiType->name);
-		fprintSegment(f, INDENT, "", 0, invalid);
-		fprint(f, "%s", getTypeString(smiType->basetype,
-					      smiGetParentType(smiType)));
-		fprintSubtype(f, smiType, invalid);
-		fprint(f, "\n\n");
-	    }
-
-	    if (! smiv1 || ! silent) {
-
-		if (smiv1 || invalid) {
-		    fprint(f, "-- %s ::= TEXTUAL-CONVENTION\n", smiType->name);
-		} else {
-		    fprint(f, "%s ::= TEXTUAL-CONVENTION\n", smiType->name);
-		}
-
-		if (smiType->format) {
-		    fprintSegment(f, INDENT, "DISPLAY-HINT", INDENTVALUE,
-				  smiv1 || invalid);
-		    fprint(f, "\"%s\"\n", smiType->format);
-		}
-	    
-		fprintSegment(f, INDENT, "STATUS", INDENTVALUE,
-			      smiv1 || invalid);
-		fprint(f, "%s\n", getStatusString(smiType->status));
-		
-		fprintSegment(f, INDENT, "DESCRIPTION", INDENTVALUE,
-			      smiv1 || invalid);
-		fprint(f, "\n");
-		if (smiType->description) {
-		    fprintMultilineString(f, smiType->description,
-					  smiv1 || invalid);
-		} else {
-		    fprintMultilineString(f, "...", smiv1 || invalid);
-		}
-		fprint(f, "\n");
-		
-		if (smiType->reference) {
-		    fprintSegment(f, INDENT, "REFERENCE", INDENTVALUE,
-				  smiv1 || invalid);
-		    fprint(f, "\n");
-		    fprintMultilineString(f, smiType->reference,
-					  smiv1 || invalid);
-		    fprint(f, "\n");
-		}
-		fprintSegment(f, INDENT, "SYNTAX", INDENTVALUE,
-			      smiv1 || invalid);
-		fprint(f, "%s",
-		       getTypeString(smiType->basetype,
-				     smiGetParentType(smiType)));
-		fprintSubtype(f, smiType, smiv1 || invalid);
-		fprint(f, "\n\n");
-	    }
-	}
+	fprintTextualConvention(f, smiType);
     }
 }
 
@@ -1674,7 +1718,7 @@ static void fprintModuleCompliances(FILE *f, SmiModule *smiModule)
     SmiElement    *smiElement;
     char	  *module;
     char	  *done = NULL; /* "+" separated list of module names */
-    char	  s[100];
+    char	  s[1024];
     int		  j;
 
     for (smiNode = smiGetFirstNode(smiModule, SMI_NODEKIND_COMPLIANCE);
@@ -1867,7 +1911,7 @@ static void fprintModuleCompliances(FILE *f, SmiModule *smiModule)
 
 
 
-static void dumpSmi(FILE *f, SmiModule *smiModule)
+static void dumpSmi(FILE *f, SmiModule *smiModule, int flags)
 {
     if (smiModule->language == SMI_LANGUAGE_SPPI) /* PIB to MIB conversion */
         pibtomib = 1;
@@ -1886,6 +1930,10 @@ static void dumpSmi(FILE *f, SmiModule *smiModule)
           "supported.\n");
         fprint(f, "-- Expect flawed output.\n");
         fprint(f, "--\n\n");
+    }
+    if (! (flags & SMIDUMP_FLAG_SILENT) && (flags & SMIDUMP_FLAG_ERROR)) {
+	fprintf(f, "--\n-- WARNING: this output may be incorrect due to "
+		"significant parse errors\n--\n\n");
     }
     fprint(f, "%s%s DEFINITIONS ::= BEGIN\n\n", smiModule->name,
            (pibtomib ? "-MIB" : ""));
@@ -1924,7 +1972,7 @@ static void dumpSmiV1(int modc, SmiModule **modv, int flags, char *output)
     }
 
     for (i = 0; i < modc; i++) {
-	dumpSmi(f, modv[i]);
+	dumpSmi(f, modv[i], flags);
 	if (fflush(f) || ferror(f)) {
 	    perror("smidump: write error");
 	    exit(1);
@@ -1955,7 +2003,7 @@ static void dumpSmiV2(int modc, SmiModule **modv, int flags, char *output)
     }
 
     for (i = 0; i < modc; i++) {
-	dumpSmi(f, modv[i]);
+	dumpSmi(f, modv[i], flags);
     }
     
     if (fflush(f) || ferror(f)) {

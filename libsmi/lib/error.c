@@ -8,7 +8,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: error.c 4200 2006-05-15 13:50:39Z strauss $
+ * @(#) $Id: error.c 7734 2008-02-15 07:49:14Z schoenw $
  */
 
 #include <config.h>
@@ -225,6 +225,28 @@ static Error errors[] = {
       "Object identifier element `%s' name only allowed as first element", NULL},
     { 2, ERR_UNKNOWN_TYPE, "type-unknown", 
       "unknown type `%s'", NULL},
+    { 2, ERR_UNKNOWN_CLASS, "class-unknown", 
+      "unknown class `%s'", NULL},
+    { 2, ERR_UNKNOWN_TYPE_OR_CLASS, "type-or-class-unknown", 
+      "unknown type or class `%s' in attribute statement", NULL},
+    { 2, ERR_ATTRIBUTE_CLASS_ACCESS, "class-refference-access-statement", 
+      "attribute `%s' refferences class and must not have access statement", NULL},
+    { 2, ERR_ATTRIBUTE_MISSING_ACCESS, "type-refference-missing-access-statement", 
+      "attribute `%s' refferences type and must have access statement", NULL},
+    { 2, ERR_ATTRIBUTE_CLASS_DEFAULT, "class-refference-default-statement", 
+      "attribute `%s' refferences class and must not have default statement", NULL},
+    { 2, ERR_ATTRIBUTE_CLASS_FORMAT, "class-refference-format-statement", 
+      "attribute `%s' refferences class and must not have format statement", NULL},
+    { 2, ERR_ATTRIBUTE_CLASS_UNITS, "class-refference-unit-statement", 
+      "attribute `%s' refferences class and must not have units statement", NULL},
+    { 2, ERR_DUPLICATE_TYPE_NAME, "duplicate-type-name", 
+      "type name `%s' already used in this module", NULL},
+    { 2, ERR_ATTRIBUTE_NOT_FOUND, "unknown-attribute-name", 
+      "attribute name `%s' is not defined in this class", NULL},
+    { 2, ERR_DUPLICATE_ATTRIBUTE_NAME, "duplicate-attribute-name", 
+      "attribute name `%s' already used in this class", NULL},
+    { 2, ERR_DUPLICATE_CLASS_NAME, "duplicate-class-name", 
+      "class name `%s' already used in this module", NULL},
     { 2, ERR_ILLEGAL_RANGE_FOR_COUNTER, "counter-range-illegal", 
       "illegal range restriction for counter type `%s'", NULL},
     { 2, ERR_ILLEGAL_RANGE_FOR_PARENT_TYPE, "range-illegal", 
@@ -241,6 +263,8 @@ static Error errors[] = {
       "Integer32 value `%u' is too large", NULL},
     { 1, ERR_UNEXPECTED_VALUETYPE, "type-not-matching", 
       "type of value does not match declaration", NULL},
+    { 1, ERR_FLOAT_OVERFLOW, "under-or-overflow-float", 
+      "float value `%s' cannot be stored as it causes over or underflow", NULL},
     { 1, ERR_SMI_NOT_SUPPORTED, "smi-not-supported", 
       "file `%s' seems to be SMIv1 or SMIv2 which is not supported", NULL},
     { 1, ERR_SMING_NOT_SUPPORTED, "sming-not-supported", 
@@ -320,6 +344,8 @@ static Error errors[] = {
       "use Integer32 instead of INTEGER in SMIv2", NULL},
     { 5, ERR_MODULE_ALREADY_LOADED, "module-already-loaded", 
       "module `%s' is already loaded, aborting parser on this file", NULL},
+    { 5, ERR_IDENTITY_PARENT_NOT_FOUND, "sming-identity-parent-not-found", 
+      "sming identity parent `%s' could not be found, or is forward reference", NULL},
     { 2, ERR_SMIV2_BASETYPE_NOT_IMPORTED, "basetype-not-imported", 
       "SMIv2 base type `%s' must be imported from SNMPv2-SMI", NULL},
     { 2, ERR_BASETYPE_UNKNOWN, "basetype-unknown", 
@@ -356,12 +382,16 @@ static Error errors[] = {
       "redefinition of name `%s' in number enumeration", NULL},
     { 2, ERR_ENUM_NUMBER_REDEFINITION, "enum-number-redefinition", 
       "redefinition of number `%d' in number enumeration", NULL},
+    { 2, ERR_ENUM_NAME_NOT_DEFINED, "enum-name-not-defined", 
+      "enumeration name `%s' not defined in this scope ", NULL},
     { 2, ERR_ENUM_ZERO, "enum-zero", 
       "number enumeration contains zero value in SMIv1 MIB", NULL},
     { 2, ERR_BITS_NAME_REDEFINITION, "bits-name-redefinition", 
       "redefinition of name `%s' in named bits list", NULL},
     { 2, ERR_BITS_NUMBER_REDEFINITION, "bits-number-redefinition", 
       "redefinition of number `%u' in named bits list", NULL},
+    { 2, ERR_BITS_NUMBER_NEGATIVE, "bits-number-negative", 
+      "there is negative number in bits definition", NULL},
     { 2, ERR_BITS_NUMBER_TOO_LARGE, "bits-number-too-large", 
       "named bit `%s(%u)' exceeds maximum bit position", NULL},
     { 4, ERR_BITS_NUMBER_LARGE, "bits-number-large", 
@@ -388,7 +418,7 @@ static Error errors[] = {
       "index element `%s' of row `%s' must have a range restriction", NULL},
     { 2, ERR_INDEX_NO_RANGE_MOD, "index-element-no-range",
       "index element `%s::%s' of row `%s' must have a range restriction", NULL},
-    { 1, ERR_INDEX_STRING_NO_SIZE, "index-element-no-size",
+    { 3, ERR_INDEX_STRING_NO_SIZE, "index-element-no-size",
       "index element `%s' of row `%s' must have a size restriction",
       "Object identifiers are restricted in size to have at most 128\n"
       "sub-identifiers. This implies that index elements used to form\n"
@@ -396,7 +426,7 @@ static Error errors[] = {
       "that the 128 sub-identifier constraint is kept intact for any\n"
       "possible combination of the index elements' values (RFC 2578,\n"
       "Section 3.5)."},
-    { 1, ERR_INDEX_STRING_NO_SIZE_MOD, "index-element-no-size",
+    { 3, ERR_INDEX_STRING_NO_SIZE_MOD, "index-element-no-size",
       "index element `%s::%s' of row `%s' must have a size restriction",
       "Object identifiers are restricted in size to have at most 128\n"
       "sub-identifiers. This implies that index elements used to form\n"
@@ -404,7 +434,7 @@ static Error errors[] = {
       "that the 128 sub-identifier constraint is kept intact for any\n"
       "possible combination of the index elements' values (RFC 2578,\n"
       "Section 3.5)."},
-    { 6, ERR_INDEX_OID_NO_SIZE, "index-element-no-size",
+    { 3, ERR_INDEX_OID_NO_SIZE, "index-element-no-size",
       "index element `%s' of row `%s' should but cannot have a size restriction",
       "Object identifiers are restricted in size to have at most 128\n"
       "sub-identifiers. This implies that all index elements used to form\n"
@@ -474,6 +504,8 @@ static Error errors[] = {
       "SEQUENCE of `%s' is missing columnar object `%s'", NULL},
     { 4, ERR_ILLEGAL_ROWSTATUS_DEFAULT, "rowstatus-default", 
       "illegal `RowStatus' default value `%s'", NULL},
+    { 4, ERR_ILLEGAL_ROWSTATUS_ACCESS, "rowstatus-access", 
+      "illegal `RowStatus' access value", NULL},
     { 4, ERR_ILLEGAL_STORAGETYPE_DEFAULT, "storagetype-default", 
       "illegal `StorageType' default value `%s'", NULL},
     { 2, ERR_DEFVAL_OUT_OF_BASETYPE, "defval-basetype", 
@@ -552,10 +584,14 @@ static Error errors[] = {
       "number `%s' is out of range for SPPI 64bit signed numbers", NULL},
     { 1, ERR_SPPI_UNSIGNED64_NUMBER_RANGE, "out-of-range-unsigned64", 
       "number `%s' is out of range for SPPI 64bit unsigned numbers", NULL},
-    { 0, ERR_SMI_CONSTRUCT_IN_PIB, "keyword-illegal-in-pib", 
+    { 1, ERR_SMI_CONSTRUCT_IN_PIB, "keyword-illegal-in-pib", 
       "the SMI construct/keyword `%s' may not be used in a PIB", NULL},
-    { 0, ERR_SPPI_CONSTRUCT_IN_MIB, "keyword-illegal-in-mib", 
+    { 5, ERR_SMI_TYPE_IN_PIB, "smi-type-in-pib", 
+      "`%s' is a base type in SMI", NULL},
+    { 1, ERR_SPPI_CONSTRUCT_IN_MIB, "keyword-illegal-in-mib", 
       "the SPPI construct/keyword `%s' may not be used in a MIB", NULL},
+    { 5, ERR_SPPI_TYPE_IN_MIB, "sppi-type-in-mib", 
+      "`%s' is a base type in SPPI", NULL},
     { 2, ERR_POLICY_ACCESS_IN_PIB, "policy-access",
       "the PIB uses POLICY-ACCESS where PIB-ACCESS is required", NULL},
     { 2, ERR_INVALID_SPPI_ACCESS, "access-invalid-sppi", 

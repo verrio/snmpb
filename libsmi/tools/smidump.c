@@ -9,7 +9,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: smidump.c 3012 2005-11-14 16:23:17Z schoenw $
+ * @(#) $Id: smidump.c 7870 2008-03-11 19:29:58Z schoenw $
  */
 
 #include <config.h>
@@ -44,6 +44,7 @@ static void format(char *form);
 static int flags;
 static int mFlag = 0;	/* show the name for error messages */
 static int sFlag = 0;	/* show the severity for error messages */
+static int kFlag = 0;	/* keep going after severe errors */
 static SmidumpDriver *driver;
 static SmidumpDriver *firstDriver;
 static SmidumpDriver *lastDriver;
@@ -66,6 +67,7 @@ static optStruct genericOpt[] = {
     { 'u', "unified",        OPT_FLAG,   unified,       OPT_CALLFUNC },
     { 'f', "format",         OPT_STRING, format,        OPT_CALLFUNC },
     { 'o', "output",         OPT_STRING, &output,       0            },
+    { 'k', "keep-going",     OPT_FLAG,	 &kFlag,	0 },
     { 0, 0, OPT_END, 0, 0 }  /* no more options */
 };
 
@@ -78,6 +80,7 @@ void *xmalloc(size_t size)
 	fprintf(stderr, "smidump: malloc failed - running out of memory\n");
 	exit(1);
     }
+
     return m;
 }
 
@@ -88,6 +91,18 @@ void *xrealloc(void *ptr, size_t size)
     char *m = realloc(ptr, size);
     if (! m) {
 	fprintf(stderr, "smidump: realloc failed - running out of memory\n");
+	exit(1);
+    }
+    return m;
+}
+
+
+
+void *xcalloc(size_t nmemb, size_t size)
+{
+    char *m = calloc(nmemb, size);
+    if (! m) {
+	fprintf(stderr, "smidump: calloc failed - running out of memory\n");
 	exit(1);
     }
     return m;
@@ -160,6 +175,18 @@ static void usage()
     int i;
     SmidumpDriver *driver;
     char *value = NULL;
+#ifdef _MSC_VER
+    #if _MSC_VER >= 1400
+/*
+   %n in printf is a security vulnerability. Ref:
+   http://en.wikipedia.org/wiki/Format_string_vulnerabilities
+   MS decided it was important enough to disble it by default. Ref:
+   "ms-help://MS.VSCC.v80/MS.MSDN.v80/MS.VisualStudio.v80.en/dv_vccrt/html/77a854ae-5b48-4865-89f4-f2dc5cf80f52.htm
+   Calling _set_printf_count_output() stops an invalid parameter crash.
+*/
+    int printf_state;
+    #endif
+#endif
     
     fprintf(stderr,
 	    "Usage: smidump [options] [module or path ...]\n"
@@ -173,7 +200,8 @@ static void usage()
 	    "  -s, --severity       print the severity of errors in brackets\n"
 	    "  -f, --format=format  use <format> when dumping (default %s)\n"
 	    "  -o, --output=name    use <name> when creating names for output files\n"
-	    "  -u, --unified        print a single unified output of all modules\n\n",
+	    "  -u, --unified        print a single unified output of all modules\n"
+	    "  -k, --keep-going     continue after serious parse errors\n\n",
 	    defaultDriver ? defaultDriver->name : "none");
 
     fprintf(stderr, "Supported formats are:\n");
@@ -200,11 +228,21 @@ static void usage()
 		value = "number";
 		break;
 	    }
+#ifdef _MSC_VER
+    #if _MSC_VER >= 1400
+	    printf_state=_set_printf_count_output(1);
+    #endif
+#endif
 	    fprintf(stderr, "  --%s-%s%s%s%n",
 		    driver->name, driver->opt[i].name,
 		    value ? "=" : "",
 		    value ? value : "",
 		    &n);
+#ifdef _MSC_VER
+    #if _MSC_VER >= 1400
+	    (void)_set_printf_count_output(printf_state);
+    #endif
+#endif
 	    fprintf(stderr, "%*s%s\n",
 		    30-n, "",
 		    driver->opt[i].descr ? driver->opt[i].descr : "...");
@@ -299,9 +337,6 @@ int main(int argc, char *argv[])
     initPython();
     initSming();
     initSmi();                defaultDriver = lastDriver;
-#if 0
-    initSmiv3();
-#endif
     initSppi();
 #if 0
     initSql();
@@ -314,6 +349,8 @@ int main(int argc, char *argv[])
     initXml();
     initXsd();
     initCompliances();
+    initYang();
+    initBoilerplate();
     
     for (i = 1; i < argc; i++)
 	if ((strstr(argv[i], "-c") == argv[i]) ||
@@ -363,6 +400,7 @@ int main(int argc, char *argv[])
 	smiModule = modulename ? smiGetModule(modulename) : NULL;
 	if (smiModule) {
 	    if ((smiModule->conformance) && (smiModule->conformance < 3)) {
+		flags |= SMIDUMP_FLAG_ERROR;
 		if (! (flags & SMIDUMP_FLAG_SILENT)) {
 		    fprintf(stderr,
 			    "smidump: module `%s' contains errors, "
@@ -377,7 +415,15 @@ int main(int argc, char *argv[])
 	}
     }
 
-    (driver->func)(modc, modv, flags, output);
+    if (! (flags & SMIDUMP_FLAG_ERROR) || kFlag) {
+	(driver->func)(modc, modv, flags, output);
+    } else {
+	if (! (flags & SMIDUMP_FLAG_SILENT)) {
+	    fprintf(stderr,
+		    "smidump: aborting due to severe parsing errors\n"
+		    "smidump: use the -k option to force continuation\n");
+	}
+    }
 
     smiExit();
 

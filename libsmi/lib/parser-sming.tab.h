@@ -1,7 +1,9 @@
-/* A Bison parser, made by GNU Bison 1.875d.  */
+/* A Bison parser, made by GNU Bison 2.3.  */
 
-/* Skeleton parser for Yacc-like parsing with Bison,
-   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004 Free Software Foundation, Inc.
+/* Skeleton interface for Bison's Yacc-like parsers in C
+
+   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
+   Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -15,13 +17,21 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   Foundation, Inc., 51 Franklin Street, Fifth Floor,
+   Boston, MA 02110-1301, USA.  */
 
-/* As a special exception, when this file is copied by Bison into a
-   Bison output file, you may use that output file without restriction.
-   This special exception was added by the Free Software Foundation
-   in version 1.24 of Bison.  */
+/* As a special exception, you may create a larger work that contains
+   part or all of the Bison parser skeleton and distribute that work
+   under terms of your choice, so long as that work isn't itself a
+   parser generator using the skeleton or a modified version thereof
+   as a parser skeleton.  Alternatively, if you modify or redistribute
+   the parser skeleton itself, you may (at your option) remove this
+   special exception, which will cause the skeleton and the resulting
+   Bison output files to be licensed under the GNU General Public
+   License without this special exception.
+
+   This special exception was added by the Free Software Foundation in
+   version 2.2 of Bison.  */
 
 /* Tokens.  */
 #ifndef YYTOKENTYPE
@@ -29,149 +39,155 @@
    /* Put the tokens into the symbol table, so that GDB and other debuggers
       know about them.  */
    enum yytokentype {
-     DOT_DOT = 258,
-     COLON_COLON = 259,
-     ucIdentifier = 260,
-     lcIdentifier = 261,
-     floatValue = 262,
-     textSegment = 263,
-     decimalNumber = 264,
-     hexadecimalNumber = 265,
-     moduleKeyword = 266,
-     importKeyword = 267,
-     revisionKeyword = 268,
-     identityKeyword = 269,
-     oidKeyword = 270,
-     dateKeyword = 271,
-     organizationKeyword = 272,
-     contactKeyword = 273,
-     descriptionKeyword = 274,
-     referenceKeyword = 275,
-     extensionKeyword = 276,
-     typedefKeyword = 277,
-     typeKeyword = 278,
-     writetypeKeyword = 279,
-     nodeKeyword = 280,
-     scalarKeyword = 281,
-     tableKeyword = 282,
-     columnKeyword = 283,
-     rowKeyword = 284,
-     notificationKeyword = 285,
-     groupKeyword = 286,
-     complianceKeyword = 287,
-     formatKeyword = 288,
-     unitsKeyword = 289,
-     statusKeyword = 290,
-     accessKeyword = 291,
-     defaultKeyword = 292,
-     impliedKeyword = 293,
-     indexKeyword = 294,
-     augmentsKeyword = 295,
-     reordersKeyword = 296,
-     sparseKeyword = 297,
-     expandsKeyword = 298,
-     createKeyword = 299,
-     membersKeyword = 300,
-     objectsKeyword = 301,
-     mandatoryKeyword = 302,
-     optionalKeyword = 303,
-     refineKeyword = 304,
-     abnfKeyword = 305,
-     OctetStringKeyword = 306,
-     ObjectIdentifierKeyword = 307,
-     Integer32Keyword = 308,
-     Unsigned32Keyword = 309,
-     Integer64Keyword = 310,
-     Unsigned64Keyword = 311,
-     Float32Keyword = 312,
-     Float64Keyword = 313,
-     Float128Keyword = 314,
-     BitsKeyword = 315,
-     EnumerationKeyword = 316,
-     currentKeyword = 317,
-     deprecatedKeyword = 318,
-     obsoleteKeyword = 319,
-     noaccessKeyword = 320,
-     notifyonlyKeyword = 321,
-     readonlyKeyword = 322,
-     readwriteKeyword = 323,
-     readcreateKeyword = 324
+     DOT = 258,
+     DOT_DOT = 259,
+     COLON_COLON = 260,
+     ucIdentifier = 261,
+     lcIdentifier = 262,
+     floatValue = 263,
+     textSegment = 264,
+     decimalNumber = 265,
+     hexadecimalNumber = 266,
+     OID = 267,
+     moduleKeyword = 268,
+     importKeyword = 269,
+     revisionKeyword = 270,
+     identityKeyword = 271,
+     oidKeyword = 272,
+     dateKeyword = 273,
+     organizationKeyword = 274,
+     contactKeyword = 275,
+     descriptionKeyword = 276,
+     referenceKeyword = 277,
+     extensionKeyword = 278,
+     typedefKeyword = 279,
+     typeKeyword = 280,
+     formatKeyword = 281,
+     unitsKeyword = 282,
+     statusKeyword = 283,
+     accessKeyword = 284,
+     defaultKeyword = 285,
+     impliedKeyword = 286,
+     indexKeyword = 287,
+     augmentsKeyword = 288,
+     reordersKeyword = 289,
+     sparseKeyword = 290,
+     expandsKeyword = 291,
+     createKeyword = 292,
+     membersKeyword = 293,
+     objectsKeyword = 294,
+     mandatoryKeyword = 295,
+     optionalKeyword = 296,
+     refineKeyword = 297,
+     abnfKeyword = 298,
+     OctetStringKeyword = 299,
+     ObjectIdentifierKeyword = 300,
+     Integer32Keyword = 301,
+     Unsigned32Keyword = 302,
+     Integer64Keyword = 303,
+     Unsigned64Keyword = 304,
+     Float32Keyword = 305,
+     Float64Keyword = 306,
+     Float128Keyword = 307,
+     BitsKeyword = 308,
+     EnumerationKeyword = 309,
+     currentKeyword = 310,
+     deprecatedKeyword = 311,
+     obsoleteKeyword = 312,
+     readonlyKeyword = 313,
+     readwriteKeyword = 314,
+     parentKeyword = 315,
+     classKeyword = 316,
+     extendsKeyword = 317,
+     attributeKeyword = 318,
+     uniqueKeyword = 319,
+     eventKeyword = 320,
+     PointerKeyword = 321,
+     eventonlyKeyword = 322,
+     neginfKeyword = 323,
+     posinfKeyword = 324,
+     snanKeyword = 325,
+     qnanKeyword = 326
    };
 #endif
-#define DOT_DOT 258
-#define COLON_COLON 259
-#define ucIdentifier 260
-#define lcIdentifier 261
-#define floatValue 262
-#define textSegment 263
-#define decimalNumber 264
-#define hexadecimalNumber 265
-#define moduleKeyword 266
-#define importKeyword 267
-#define revisionKeyword 268
-#define identityKeyword 269
-#define oidKeyword 270
-#define dateKeyword 271
-#define organizationKeyword 272
-#define contactKeyword 273
-#define descriptionKeyword 274
-#define referenceKeyword 275
-#define extensionKeyword 276
-#define typedefKeyword 277
-#define typeKeyword 278
-#define writetypeKeyword 279
-#define nodeKeyword 280
-#define scalarKeyword 281
-#define tableKeyword 282
-#define columnKeyword 283
-#define rowKeyword 284
-#define notificationKeyword 285
-#define groupKeyword 286
-#define complianceKeyword 287
-#define formatKeyword 288
-#define unitsKeyword 289
-#define statusKeyword 290
-#define accessKeyword 291
-#define defaultKeyword 292
-#define impliedKeyword 293
-#define indexKeyword 294
-#define augmentsKeyword 295
-#define reordersKeyword 296
-#define sparseKeyword 297
-#define expandsKeyword 298
-#define createKeyword 299
-#define membersKeyword 300
-#define objectsKeyword 301
-#define mandatoryKeyword 302
-#define optionalKeyword 303
-#define refineKeyword 304
-#define abnfKeyword 305
-#define OctetStringKeyword 306
-#define ObjectIdentifierKeyword 307
-#define Integer32Keyword 308
-#define Unsigned32Keyword 309
-#define Integer64Keyword 310
-#define Unsigned64Keyword 311
-#define Float32Keyword 312
-#define Float64Keyword 313
-#define Float128Keyword 314
-#define BitsKeyword 315
-#define EnumerationKeyword 316
-#define currentKeyword 317
-#define deprecatedKeyword 318
-#define obsoleteKeyword 319
-#define noaccessKeyword 320
-#define notifyonlyKeyword 321
-#define readonlyKeyword 322
-#define readwriteKeyword 323
-#define readcreateKeyword 324
+/* Tokens.  */
+#define DOT 258
+#define DOT_DOT 259
+#define COLON_COLON 260
+#define ucIdentifier 261
+#define lcIdentifier 262
+#define floatValue 263
+#define textSegment 264
+#define decimalNumber 265
+#define hexadecimalNumber 266
+#define OID 267
+#define moduleKeyword 268
+#define importKeyword 269
+#define revisionKeyword 270
+#define identityKeyword 271
+#define oidKeyword 272
+#define dateKeyword 273
+#define organizationKeyword 274
+#define contactKeyword 275
+#define descriptionKeyword 276
+#define referenceKeyword 277
+#define extensionKeyword 278
+#define typedefKeyword 279
+#define typeKeyword 280
+#define formatKeyword 281
+#define unitsKeyword 282
+#define statusKeyword 283
+#define accessKeyword 284
+#define defaultKeyword 285
+#define impliedKeyword 286
+#define indexKeyword 287
+#define augmentsKeyword 288
+#define reordersKeyword 289
+#define sparseKeyword 290
+#define expandsKeyword 291
+#define createKeyword 292
+#define membersKeyword 293
+#define objectsKeyword 294
+#define mandatoryKeyword 295
+#define optionalKeyword 296
+#define refineKeyword 297
+#define abnfKeyword 298
+#define OctetStringKeyword 299
+#define ObjectIdentifierKeyword 300
+#define Integer32Keyword 301
+#define Unsigned32Keyword 302
+#define Integer64Keyword 303
+#define Unsigned64Keyword 304
+#define Float32Keyword 305
+#define Float64Keyword 306
+#define Float128Keyword 307
+#define BitsKeyword 308
+#define EnumerationKeyword 309
+#define currentKeyword 310
+#define deprecatedKeyword 311
+#define obsoleteKeyword 312
+#define readonlyKeyword 313
+#define readwriteKeyword 314
+#define parentKeyword 315
+#define classKeyword 316
+#define extendsKeyword 317
+#define attributeKeyword 318
+#define uniqueKeyword 319
+#define eventKeyword 320
+#define PointerKeyword 321
+#define eventonlyKeyword 322
+#define neginfKeyword 323
+#define posinfKeyword 324
+#define snanKeyword 325
+#define qnanKeyword 326
 
 
 
 
-#if ! defined (YYSTYPE) && ! defined (YYSTYPE_IS_DECLARED)
-#line 385 "parser-sming.y"
-typedef union YYSTYPE {
+#if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
+typedef union YYSTYPE
+#line 360 "parser-sming.y"
+{
     char           *id;				/* identifier name           */
     int            rc;				/* >=0: ok, <0: error        */
     time_t	   date;			/* a date value		     */
@@ -179,8 +195,12 @@ typedef union YYSTYPE {
     Module	   *modulePtr;
     Node	   *nodePtr;
     Object	   *objectPtr;
+    Identity   *identityPtr;
     Macro	   *macroPtr;
     Type	   *typePtr;
+    Class	   *classPtr;
+    Attribute  *attributePtr;
+    Event	   *eventPtr;
     Index	   index;
     Option	   *optionPtr;
     Refinement	   *refinementPtr;
@@ -191,15 +211,14 @@ typedef union YYSTYPE {
     SmiValue	   *valuePtr;
     List	   *listPtr;
     Revision	   *revisionPtr;
-} YYSTYPE;
-/* Line 1285 of yacc.c.  */
-#line 197 "parser-sming.tab.h"
+}
+/* Line 1489 of yacc.c.  */
+#line 217 "parser-sming.tab.h"
+	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
 # define YYSTYPE_IS_TRIVIAL 1
 #endif
-
-
 
 
 

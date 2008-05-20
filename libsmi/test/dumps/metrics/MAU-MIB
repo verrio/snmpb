@@ -4,20 +4,21 @@ MODULE   LANGUAGE SIZE REVISION DATE
 MAU-MIB        -     -     0    1993-09-30
 MAU-MIB        -     -     1    1997-10-31
 MAU-MIB        -     -     2    1999-08-24
-MAU-MIB    SMIv2    48     3    2003-09-19
+MAU-MIB        -     -     3    2003-09-19
+MAU-MIB    SMIv2    48     4    2007-04-21
 
 # The following table shows the status distribution of various
 # definitions contained in the set of loaded MIB modules.
 
 CATEGORY          TOTAL  CURRENT  DEPRECATED  OBSOLETE
-Types:                1   100.0%        0.0%      0.0%
+Types:                1     0.0%      100.0%      0.0%
 Tables:               6    83.3%       16.7%      0.0%
 Columns:             45    80.0%       20.0%      0.0%
 Scalars:              0     0.0%        0.0%      0.0%
 Notifications:        2   100.0%        0.0%      0.0%
 Groups:              14    78.6%       21.4%      0.0%
 Compliances:          5    40.0%       60.0%      0.0%
-Summary:             73    78.1%       21.9%      0.0%
+Summary:             73    76.7%       23.3%      0.0%
 
 # The following table shows the access mode distribution of all scalar
 # or column definitions contained in the set of loaded MIB modules.
@@ -60,12 +61,12 @@ Summary:             60       100.0%      66.7%     0.0%     0.0%
 # bytes) of all definitions contained in the set of loaded MIB modules.
 
 CATEGORY          TOTAL  DESCRIPTION  REFERENCE     UNIT   FORMAT
-Types:                1         68.0        0.0      0.0      0.0
-Tables:               6        178.3        0.0      0.0      0.0
-Columns:             45        567.3       60.9      0.0      0.0
+Types:                1        170.0        0.0      0.0      0.0
+Tables:               6        178.8        0.0      0.0      0.0
+Columns:             45        434.9       55.7      0.0      0.0
 Scalars:              0          0.0        0.0      0.0      0.0
-Notifications:        2        204.5       51.0      0.0      0.0
-Summary:             60        460.0       60.4      0.0      0.0
+Notifications:        2        204.5       46.0      0.0      0.0
+Summary:             60        362.4       55.2      0.0      0.0
 
 # The following table shows the basetype usage distribution in the
 # set of loaded MIB modules.
@@ -90,37 +91,44 @@ Summary:             43       94
 # to defined types (including base types) in the set of loaded MIB
 # modules.
 
-MODULE     TYPE             USAGE
-           Integer32        41.0%
-           Enumeration      21.3%
-IF-MIB     InterfaceIndex    9.8%
-SNMPv2-SMI Counter32         9.8%
-           Bits              6.6%
-SNMPv2-TC  AutonomousType    4.9%
-MAU-MIB    JackType          3.3%
-SNMPv2-SMI Counter64         1.6%
-SNMPv2-TC  TruthValue        1.6%
+MODULE       TYPE                      USAGE
+             Integer32                 41.0%
+             Enumeration               18.0%
+IF-MIB       InterfaceIndex             9.8%
+SNMPv2-SMI   Counter32                  9.8%
+IANA-MAU-MIB IANAifMauAutoNegCapBits    4.9%
+SNMPv2-TC    AutonomousType             4.9%
+IANA-MAU-MIB IANAifJackType             3.3%
+IANA-MAU-MIB IANAifMauMediaAvailable    3.3%
+IANA-MAU-MIB IANAifMauTypeListBits      1.6%
+SNMPv2-SMI   Counter64                  1.6%
+SNMPv2-TC    TruthValue                 1.6%
 
 # The following table shows the distribution of the number of references
 # to externally defined types (excluding base types) in the set of loaded
 # MIB modules.
 
-MODULE     TYPE           EXT-USAGE
-SNMPv2-SMI Counter32        46.2%
-SNMPv2-TC  AutonomousType   23.1%
-IF-MIB     InterfaceIndex   15.4%
-SNMPv2-SMI Counter64         7.7%
-SNMPv2-TC  TruthValue        7.7%
+MODULE       TYPE                    EXT-USAGE
+SNMPv2-SMI   Counter32                 28.6%
+IANA-MAU-MIB IANAifMauAutoNegCapBits   14.3%
+SNMPv2-TC    AutonomousType            14.3%
+IANA-MAU-MIB IANAifJackType             9.5%
+IANA-MAU-MIB IANAifMauMediaAvailable    9.5%
+IF-MIB       InterfaceIndex             9.5%
+IANA-MAU-MIB IANAifMauTypeListBits      4.8%
+SNMPv2-SMI   Counter64                  4.8%
+SNMPv2-TC    TruthValue                 4.8%
 
 
 # The following table shows the distribution of the number of references
 # to externally defined items (such as types or objects) accumulated by
 # the defining MIB module in the set of loaded MIB modules.
 
-MODULE     EXT-USAGE
-SNMPv2-SMI   53.8%
-SNMPv2-TC    30.8%
-IF-MIB       15.4%
+MODULE       EXT-USAGE
+IANA-MAU-MIB   38.1%
+SNMPv2-SMI     33.3%
+SNMPv2-TC      19.0%
+IF-MIB          9.5%
 
 # The following table shows the distribution of the index complexity
 # in the set of loaded MIB modules.

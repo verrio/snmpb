@@ -8,7 +8,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: scanner-sming.l 1667 2004-08-09 14:00:46Z strauss $
+ * @(#) $Id: scanner-sming.l 7734 2008-02-15 07:49:14Z schoenw $
  */
 
 %option noyywrap
@@ -143,6 +143,10 @@ SP		" "
     return DOT_DOT;
 }
 
+<INITIAL>"."/[^\.] {
+    return DOT;
+}
+
 <INITIAL>"::" {
     return COLON_COLON;
 }
@@ -175,16 +179,6 @@ SP		" "
 <INITIAL>revision/{delim} {
     yylval.id = yytext;
     return revisionKeyword;
-}
-
-<INITIAL>identity/{delim} {
-    yylval.id = yytext;
-    return identityKeyword;
-}
-
-<INITIAL>oid/{delim} {
-    yylval.id = yytext;
-    return oidKeyword;
 }
 
 <INITIAL>date/{delim} {
@@ -227,49 +221,39 @@ SP		" "
     return typeKeyword;
 }
 
-<INITIAL>writetype/{delim} {
+<INITIAL>parent/{delim} {
     yylval.id = yytext;
-    return writetypeKeyword;
+    return parentKeyword;
 }
 
-<INITIAL>node/{delim} {
+<INITIAL>identity/{delim} {
     yylval.id = yytext;
-    return nodeKeyword;
+    return identityKeyword;
 }
 
-<INITIAL>scalar/{delim} {
+<INITIAL>class/{delim} {
     yylval.id = yytext;
-    return scalarKeyword;
+    return classKeyword;
 }
 
-<INITIAL>table/{delim} {
+<INITIAL>extends/{delim} {
     yylval.id = yytext;
-    return tableKeyword;
+    return extendsKeyword;
 }
 
-<INITIAL>column/{delim} {
+<INITIAL>attribute/{delim} {
     yylval.id = yytext;
-    return columnKeyword;
+    return attributeKeyword;
 }
 
-<INITIAL>row/{delim} {
+<INITIAL>unique/{delim} {
     yylval.id = yytext;
-    return rowKeyword;
+    return uniqueKeyword;
 }
 
-<INITIAL>notification/{delim} {
+<INITIAL>event/{delim} {
     yylval.id = yytext;
-    return notificationKeyword;
-}
-
-<INITIAL>group/{delim} {
-    yylval.id = yytext;
-    return groupKeyword;
-}
-
-<INITIAL>compliance/{delim} {
-    yylval.id = yytext;
-    return complianceKeyword;
+    return eventKeyword;
 }
 
 <INITIAL>format/{delim} {
@@ -297,74 +281,23 @@ SP		" "
     return defaultKeyword;
 }
 
-<INITIAL>implied/{delim} {
-    yylval.id = yytext;
-    return impliedKeyword;
-}
-
-<INITIAL>index/{delim} {
-    yylval.id = yytext;
-    return indexKeyword;
-}
-
-<INITIAL>augments/{delim} {
-    yylval.id = yytext;
-    return augmentsKeyword;
-}
-
-<INITIAL>reorders/{delim} {
-    yylval.id = yytext;
-    return reordersKeyword;
-}
-
-<INITIAL>sparse/{delim} {
-    yylval.id = yytext;
-    return sparseKeyword;
-}
-
-<INITIAL>expands/{delim} {
-    yylval.id = yytext;
-    return expandsKeyword;
-}
-
-<INITIAL>create/{delim} {
-    yylval.id = yytext;
-    return createKeyword;
-}
-
-<INITIAL>members/{delim} {
-    yylval.id = yytext;
-    return membersKeyword;
-}
-
-<INITIAL>objects/{delim} {
-    yylval.id = yytext;
-    return objectsKeyword;
-}
-
-<INITIAL>mandatory/{delim} {
-    yylval.id = yytext;
-    return mandatoryKeyword;
-}
-
-<INITIAL>optional/{delim} {
-    yylval.id = yytext;
-    return optionalKeyword;
-}
-
-<INITIAL>refine/{delim} {
-    yylval.id = yytext;
-    return refineKeyword;
-}
-
 <INITIAL>abnf/{delim} {
     yylval.id = yytext;
     return abnfKeyword;
 }
 
+
+ /*
+  *Base types keywords
+  */
 <INITIAL>OctetString/{delim} {
     yylval.id = yytext;
     return OctetStringKeyword;
+}
+
+<INITIAL>Pointer/{delim} {
+    yylval.id = yytext;
+    return PointerKeyword;
 }
 
 <INITIAL>ObjectIdentifier/{delim} {
@@ -377,14 +310,14 @@ SP		" "
     return Integer32Keyword;
 }
 
-<INITIAL>Unsigned32/{delim} {
-    yylval.id = yytext;
-    return Unsigned32Keyword;
-}
-
 <INITIAL>Integer64/{delim} {
     yylval.id = yytext;
     return Integer64Keyword;
+}
+
+<INITIAL>Unsigned32/{delim} {
+    yylval.id = yytext;
+    return Unsigned32Keyword;
 }
 
 <INITIAL>Unsigned64/{delim} {
@@ -417,6 +350,10 @@ SP		" "
     return EnumerationKeyword;
 }
 
+ /*
+  *Status keywords
+  */
+
 <INITIAL>current/{delim} {
     yylval.id = yytext;
     return currentKeyword;
@@ -432,14 +369,13 @@ SP		" "
     return obsoleteKeyword;
 }
 
-<INITIAL>noaccess/{delim} {
-    yylval.id = yytext;
-    return noaccessKeyword;
-}
+ /*
+  *Access keywords
+  */
 
-<INITIAL>notifyonly/{delim} {
+<INITIAL>eventonly/{delim} {
     yylval.id = yytext;
-    return notifyonlyKeyword;
+    return eventonlyKeyword;
 }
 
 <INITIAL>readonly/{delim} {
@@ -451,6 +387,32 @@ SP		" "
     yylval.id = yytext;
     return readwriteKeyword;
 }
+
+ /*
+  *Special floating point values' keywords
+  */
+
+<INITIAL>neginf/{delim} {
+    yylval.id = yytext;
+    return neginfKeyword;
+}
+
+<INITIAL>posinf/{delim} {
+    yylval.id = yytext;
+    return posinfKeyword;
+}
+
+<INITIAL>snan/{delim} {
+    yylval.id = yytext;
+    return snanKeyword;
+}
+
+<INITIAL>qnan/{delim} {
+    yylval.id = yytext;
+    return qnanKeyword;
+}
+
+
 
  /*
   * Lex rules for identifiers.
@@ -517,17 +479,26 @@ SP		" "
   * Lex rules for floating point values.
   */
 
-<INITIAL>0.00/{delim} {
-    /* TODO */
+<INITIAL>([0-9]*\.[0-9]+([eE][+-]?[0-9]+)?)/[^0-9] {
     yylval.text = yytext;
     return floatValue;
 }
 
  /*
+  * Lex rules for OID's.
+  */
+  
+<INITIAL>([0-9A-Za-z]-?)+\.([0-9A-Za-z]-?)+\.([0-9A-Za-z]-?)+(\.([0-9A-Za-z]-?)+)*/([^0-9A-Za-z]) {
+    yylval.text = yytext;
+    return OID;
+}
+
+
+ /*
   * Lex rules for textSegments.
   */
 
-<INITIAL>\"[^\"]*\" {
+<INITIAL>\"([^\"]|(\\\"))*\" {
     char *s, *d;		/* the source and destination pointer */
     int column = 0;		/* the current column */
     int newlineflag = 0;	/* we have just passed a newline */

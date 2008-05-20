@@ -1,0 +1,74 @@
+.TH "smi_identity" "3" "February 10, 2007" "" "SMI Management Information Library"
+.SH "NAME"
+.\" START OF MAN PAGE COPIES
+smiGetIdentity,
+smiGetFirstIdentity,
+smiGetNextIdentity,
+smiGetParentIdentity,
+smiGetIdentityModule
+.\" END OF MAN PAGE COPIES
+\- SMI identity
+information routines
+.SH "SYNOPSIS"
+.nf 
+.B #include <smi.h>
+.RS
+.RE
+.sp
+.BI "SmiIdentity *smiGetIdentity(SmiModule *" smiModulePtr ", char *" name);
+.RE
+.sp
+.BI "SmiIdentity *smiGetFirstIdentity(SmiModule *" smiModulePtr );
+.RE
+.sp
+.BI "SmiIdentity *smiGetNextIdentity(SmiIdentity *" smiIdentityPtr );
+.RE
+.sp
+.BI "SmiIdentity *smiGetParentIdentity(SmiIdentity *" smiIdentityPtr );
+.RE
+.sp
+.BI "SmiModule *smiGetIdentityModule(SmiType *" smiIdentityPtr );
+.RE
+
+typedef struct SmiIdentity {
+    SmiIdentifier       name;
+    SmiDecl             decl;
+    SmiStatus           status;
+    char                *description;
+    char                *reference;
+} SmiIdentity;
+
+.fi 
+.SH "DESCRIPTION"
+These functions retrieve information on a SMIng identity definition (SMIng).
+.PP 
+\fBsmiGetIdentity(SmiModule *smiModulePtr,char *name)\fP returns a
+pointer to \fBstruct SmiIdentity\fP for the identity with the given
+\fIname\fP in the given module(\fIsmiModulePtr\fP), or NULL if the
+idenity with the given name does not exist
+.PP 
+\fBsmiGetFirstIdentity(SmiModule *smiModulePtr)\fP and
+\fBsmiGetNextIdentity(SmiIdentity *smiIdentityPtr)\fP are used to
+iterate through the identities of the module given by
+\fIsmiModulePtr\fP. They return a pointer to \fBstruct SmiIdentity\fP
+hat represents an identity or NULL if there are no identities left in
+the module, or error has occurred.
+.PP 
+\fBsmiGetIdentityModule(SmiIdentity *smiIdentityPtr)\fP returns a
+pointer to \fBstruct SmiModule\fP, of the module containing the given
+identity.
+.PP 
+\fBsmiGetParentIdentity(SmiIdentity *smiIdentityPtr)\fP returns a
+pointer to \fBstruct SmiIdentity\fP pointing to the parent of the
+given \fIsmiIdentityPtr\fP, or NULL if the Identity is not derived.
+.SH "FILES"
+.nf 
+${prefix}/include/smi.h    SMI library header file
+.fi 
+.SH "SEE ALSO"
+.BR libsmi "(3), "
+.BR smi_module "(3), "
+.BR smi.h
+.SH "AUTHOR"
+(C) 2007 Kaloyan Kanev, Jacobs University, Germany <k.kanev@jacobs-university.de>
+.br

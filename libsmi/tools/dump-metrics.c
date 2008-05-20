@@ -11,7 +11,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: dump-metrics.c 1885 2004-10-14 11:09:43Z schoenw $
+ * @(#) $Id: dump-metrics.c 8090 2008-04-18 12:56:29Z strauss $
  */
 
 /*
@@ -49,6 +49,7 @@ typedef struct BasetypeCounter {
     unsigned long float128;
     unsigned long enums;
     unsigned long bits;
+    unsigned long pointer;
 } BasetypeCounter;
 
 
@@ -206,102 +207,6 @@ language(SmiLanguage language)
 	(language == SMI_LANGUAGE_SMIV2)      ? "SMIv2" :
 	(language == SMI_LANGUAGE_SMING)      ? "SMIng" :
 						"-";
-}
-
-
-
-static unsigned long
-getMinSize(SmiType *smiType)
-{
-    SmiRange *smiRange;
-    SmiType  *parentType;
-    unsigned int min = 65535, size;
-    
-    switch (smiType->basetype) {
-    case SMI_BASETYPE_BITS:
-	return 0;
-    case SMI_BASETYPE_OCTETSTRING:
-    case SMI_BASETYPE_OBJECTIDENTIFIER:
-	size = 0;
-	break;
-    default:
-	return 0;
-    }
-
-    for (smiRange = smiGetFirstRange(smiType);
-	 smiRange ; smiRange = smiGetNextRange(smiRange)) {
-	if (smiRange->minValue.value.unsigned32 < min) {
-	    min = smiRange->minValue.value.unsigned32;
-	}
-    }
-    if (min < 65535 && min > size) {
-	size = min;
-    }
-
-    parentType = smiGetParentType(smiType);
-    if (parentType) {
-	unsigned int psize = getMinSize(parentType);
-	if (psize > size) {
-	    size = psize;
-	}
-    }
-
-    return size;
-}
-
-
-
-static unsigned long
-getMaxSize(SmiType *smiType)
-{
-    SmiRange *smiRange;
-    SmiType  *parentType;
-    SmiNamedNumber *nn;
-    unsigned int max = 0, size;
-    
-    switch (smiType->basetype) {
-    case SMI_BASETYPE_BITS:
-    case SMI_BASETYPE_OCTETSTRING:
-	size = 65535;
-	break;
-    case SMI_BASETYPE_OBJECTIDENTIFIER:
-	size = 128;
-	break;
-    default:
-	return 0xffffffff;
-    }
-
-    if (smiType->basetype == SMI_BASETYPE_BITS) {
-	for (nn = smiGetFirstNamedNumber(smiType);
-	     nn;
-	     nn = smiGetNextNamedNumber(nn)) {
-	    if (nn->value.value.unsigned32 > max) {
-		max = nn->value.value.unsigned32;
-	    }
-	}
-	size = (max / 8) + 1;
-	return size;
-    }
-
-    for (smiRange = smiGetFirstRange(smiType);
-	 smiRange ; smiRange = smiGetNextRange(smiRange)) {
-	if (smiRange->maxValue.value.unsigned32 > max) {
-	    max = smiRange->maxValue.value.unsigned32;
-	}
-    }
-    if (max > 0 && max < size) {
-	size = max;
-    }
-
-    parentType = smiGetParentType(smiType);
-    if (parentType) {
-	unsigned int psize = getMaxSize(parentType);
-	if (psize < size) {
-	    size = psize;
-	}
-    }
-
-    return size;
 }
 
 
@@ -896,6 +801,9 @@ incrBasetypeCounter(BasetypeCounter *basetypeCounter, SmiNode *smiNode)
 	case SMI_BASETYPE_BITS:
 	    basetypeCounter->bits++;
 	    break;
+	case SMI_BASETYPE_POINTER:
+	    basetypeCounter->pointer++;
+	    break;
 	}
     }
 }
@@ -947,6 +855,7 @@ incrAccessCounter(AccessCounter *cnt, SmiAccess smiAccess)
     case SMI_ACCESS_REPORT_ONLY:
     case SMI_ACCESS_UNKNOWN:
     case SMI_ACCESS_NOT_IMPLEMENTED:
+    case SMI_ACCESS_EVENT_ONLY:
 	break;
     }
 }
@@ -1001,19 +910,6 @@ incrTableLenCounter(TableLenCounter *cnt, int len)
 	cnt->length[len]++;
     } else {
 	fprintf(stderr, "smidump: table len overflow: %d\n", len);
-    }
-}
-
-
-
-static void
-incrScalarLenCounter(ScalarLenCounter *cnt, int len)
-{
-    cnt->total++;
-    if (len < sizeof(cnt->length)/sizeof(cnt->length[0])) {
-	cnt->length[len]++;
-    } else {
-	fprintf(stderr, "smidump: scalar group len overflow: %d\n", len);
     }
 }
 
@@ -1122,8 +1018,8 @@ complexity(FILE *f, SmiNode *row, SmiNode *col, void *data)
     case SMI_BASETYPE_OBJECTIDENTIFIER:
     case SMI_BASETYPE_BITS:
 	*cmplx += 2;
-	min = getMinSize(smiType);
-	max = getMaxSize(smiType);
+	min = smiGetMinSize(smiType);
+	max = smiGetMaxSize(smiType);
 	if (min != max) {
 	    *cmplx += 1;
 	}
@@ -1194,13 +1090,13 @@ addMetrics(Metrics *metrics, SmiModule *smiModule)
 		incrIndexComplexityCounter(smiModule, smiNode, cmplx);
 		incrIndexComplexityMetric(&metrics->indexComplexity, cmplx);
 	    }
-	    // count the childs ...
+	    /* count the childs ... */
 	    {
 		    SmiModule *smiModule = smiGetModule("SNMPv2-TC");
 		    SmiNode *childNode;
 		    SmiType *rowStatus = smiGetType(smiModule, "RowStatus");
 		    SmiType *storageType = smiGetType(smiModule, "StorageType");
-		    // include index elements not in table
+		    /* include index elements not in table */
 		    int n = 0;
 		    for (childNode = smiGetFirstChildNode(smiNode);
 			 childNode;

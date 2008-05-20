@@ -8,7 +8,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: smi.c 2128 2005-04-25 22:36:46Z schoenw $
+ * @(#) $Id: smi.c 8071 2008-04-17 11:14:46Z schoenw $
  */
 
 #include <config.h>
@@ -734,7 +734,8 @@ SmiNamedNumber *smiGetFirstNamedNumber(SmiType *smiTypePtr)
     
     if ((!typePtr) || (!typePtr->listPtr) ||
 	((typePtr->export.basetype != SMI_BASETYPE_ENUM) &&
-	 (typePtr->export.basetype != SMI_BASETYPE_BITS))) {
+	 (typePtr->export.basetype != SMI_BASETYPE_BITS) && 
+	 (typePtr->export.basetype != SMI_BASETYPE_POINTER))) {
 	return NULL;
     }
     
@@ -774,7 +775,54 @@ SmiNamedNumber *smiGetNextNamedNumber(SmiNamedNumber *smiNamedNumberPtr)
     return &((NamedNumber *)listPtr->nextPtr->ptr)->export;
 }
 
+SmiNamedNumber *smiGetAttributeFirstNamedNumber(SmiAttribute *smiAttributePtr)
+{
+    Attribute    *attributePtr;
 
+    attributePtr = (Attribute *)smiAttributePtr;
+    
+    if ((!attributePtr) || (!attributePtr->listPtr) ||
+	((attributePtr->export.basetype != SMI_BASETYPE_ENUM) &&
+	 (attributePtr->export.basetype != SMI_BASETYPE_BITS) && 
+	 (attributePtr->export.basetype != SMI_BASETYPE_POINTER))) {
+	return NULL;
+    }
+    
+    return &((NamedNumber *)attributePtr->listPtr->ptr)->export;
+}
+
+
+
+SmiNamedNumber *smiGetAttributeNextNamedNumber(SmiNamedNumber *smiNamedNumberPtr)
+{
+    Attribute  *attributePtr;
+    List  *listPtr;
+    
+    if (!smiNamedNumberPtr) {
+	return NULL;
+    }
+    
+    attributePtr = (Attribute*)(((NamedNumber *)smiNamedNumberPtr)->typePtr);
+
+    
+    if ((!attributePtr) || (!attributePtr->listPtr) ||
+	((attributePtr->export.basetype != SMI_BASETYPE_ENUM) &&
+	 (attributePtr->export.basetype != SMI_BASETYPE_BITS))) {
+	return NULL;
+    }
+
+    for (listPtr = attributePtr->listPtr; listPtr; listPtr = listPtr->nextPtr) {
+	if (((NamedNumber *)(listPtr->ptr))->export.name ==
+	                                               smiNamedNumberPtr->name)
+	    break;
+    }
+
+    if ((!listPtr) || (!listPtr->nextPtr)) {
+	return NULL;
+    }
+	
+    return &((NamedNumber *)listPtr->nextPtr->ptr)->export;
+}
 
 SmiRange *smiGetFirstRange(SmiType *smiTypePtr)
 {
@@ -823,7 +871,354 @@ SmiRange *smiGetNextRange(SmiRange *smiRangePtr)
     return &((Range *)listPtr->nextPtr->ptr)->export;
 }
 
+SmiRange *smiGetAttributeFirstRange(SmiAttribute *smiAttributePtr)
+{
+    Attribute    *attributePtr;
 
+    attributePtr = (Attribute *)smiAttributePtr;
+    
+    if ((!attributePtr) || (!attributePtr->listPtr) ||
+	(attributePtr->export.basetype == SMI_BASETYPE_ENUM) ||
+	(attributePtr->export.basetype == SMI_BASETYPE_BITS)) {
+	return NULL;
+    }
+
+    return &((Range *)attributePtr->listPtr->ptr)->export;
+}
+
+
+
+SmiRange *smiGetAttributeNextRange(SmiRange *smiRangePtr)
+{
+    Attribute  *attributePtr;
+    List  *listPtr;
+
+    if (!smiRangePtr) {
+	return NULL;
+    }
+    
+    attributePtr = (Attribute*)((Range *)smiRangePtr)->typePtr;
+
+    if ((!attributePtr) || (!attributePtr->listPtr) ||
+	(attributePtr->export.basetype == SMI_BASETYPE_ENUM) ||
+	(attributePtr->export.basetype == SMI_BASETYPE_BITS)) {
+	return NULL;
+    }
+ 
+    for (listPtr = attributePtr->listPtr; listPtr; listPtr = listPtr->nextPtr) {
+	if (!memcmp(&((Range *)listPtr->ptr)->export.minValue,
+		    &smiRangePtr->minValue, sizeof(struct SmiValue)))
+	    break;
+    }
+
+    if ((!listPtr) || (!listPtr->nextPtr)) {
+	return NULL;
+    }
+	
+    return &((Range *)listPtr->nextPtr->ptr)->export;
+}
+
+
+SmiIdentity *smiGetFirstIdentity(SmiModule *smiModulePtr)
+{
+	if (!smiModulePtr) {
+	return NULL;
+    }
+    
+    return ((Module *)smiModulePtr)->firstIdentityPtr ?
+	&((Module *)smiModulePtr)->firstIdentityPtr->export : NULL;
+    
+}
+
+SmiIdentity *smiGetNextIdentity(SmiIdentity *smiIdentityPtr)
+{
+    if (!smiIdentityPtr) {
+	return NULL;
+    }
+
+    return ((Identity *)smiIdentityPtr)->nextPtr ?
+	&((Identity *)smiIdentityPtr)->nextPtr->export : NULL;
+}
+
+SmiModule *smiGetIdentityModule(SmiIdentity *smiIdentityPtr)
+{
+    return &((Identity *)smiIdentityPtr)->modulePtr->export;
+}
+
+SmiIdentity *smiGetParentIdentity(SmiIdentity *smiIdentityPtr)
+{
+    return (SmiIdentity*)(((Identity *)smiIdentityPtr)->parentPtr);
+}
+
+SmiIdentity *smiGetIdentity(SmiModule *smiModulePtr, char *identity)
+{
+	
+	if (!smiModulePtr) {
+	return NULL;
+    }
+    else
+    {
+    	SmiIdentity *ide; 
+    	
+    	for(ide = smiGetFirstIdentity(smiModulePtr); 
+    		ide;
+    		ide = smiGetNextIdentity(ide))
+    			if(!strncmp(ide->name,identity,64))return ide;
+    		
+    	return NULL;
+    }
+    
+}
+
+int smiGetIdentityLine(SmiIdentity *smiIdentityPtr)
+{
+    return ((Identity *)smiIdentityPtr)->line;
+}
+
+	
+SmiClass *smiGetFirstClass(SmiModule *smiModulePtr)
+{
+	if (!smiModulePtr) {
+	return NULL;
+    }
+    
+    return ((Module *)smiModulePtr)->firstClassPtr ?
+	&((Module *)smiModulePtr)->firstClassPtr->export : NULL;
+    
+}
+
+SmiClass *smiGetNextClass(SmiClass *smiClassPtr)
+{
+    if (!smiClassPtr) {
+	return NULL;
+    }
+
+    return ((Class *)smiClassPtr)->nextPtr ?
+	&((Class *)smiClassPtr)->nextPtr->export : NULL;
+}
+
+SmiModule *smiGetClassModule(SmiClass *smiClassPtr)
+{
+    return &((Class *)smiClassPtr)->modulePtr->export;
+}
+
+SmiClass *smiGetParentClass(SmiClass *smiClassPtr)
+{
+    return (SmiClass*)(((Class *)smiClassPtr)->parentPtr);
+}
+
+SmiClass *smiGetClass(SmiModule *smiModulePtr, char *class)
+{
+	
+	if (!smiModulePtr) {
+	return NULL;
+    }
+    else
+    {
+    	SmiClass *cl; 
+    	
+    	for(cl = smiGetFirstClass(smiModulePtr); 
+    		cl;
+    		cl = smiGetNextClass(cl))
+    			if(!strncmp(cl->name,class,64))return cl;
+    		
+    	return NULL;
+    }
+    
+}
+
+int smiGetClassLine(SmiClass *smiClassPtr)
+{
+    return ((Class *)smiClassPtr)->line;
+}
+
+SmiAttribute *smiGetFirstAttribute(SmiClass *smiClassPtr)
+{
+    Attribute *attributePtr;
+    
+    if (!smiClassPtr) {
+	return NULL;
+    }
+    
+  	attributePtr = ((Class *)smiClassPtr)->firstAttributePtr;
+    
+    return &attributePtr->export;
+}
+
+ SmiAttribute *smiGetNextAttribute( SmiAttribute *smiTypePtr)
+{
+    Attribute *attributePtr;
+
+    if (!smiTypePtr) {
+	return NULL;
+    }
+
+    attributePtr = ((Attribute *)smiTypePtr)->nextPtr;
+    
+    return &attributePtr->export;
+}
+
+SmiAttribute *smiGetAttribute(SmiClass *smiClassPtr, char *attribute)
+{
+    Attribute *attributePtr;
+    
+    if (! smiClassPtr) {
+	return NULL;
+    }
+    
+    attributePtr = ((Class *)smiClassPtr)->firstAttributePtr;
+    
+    for (attributePtr = ((Class *)smiClassPtr)->firstAttributePtr; 
+	 attributePtr; attributePtr = attributePtr->nextPtr)
+    {
+	if (!strncmp(attributePtr->export.name, attribute,64)) {
+	    return &attributePtr->export;
+	}
+    }
+    
+    /*
+     * attribute might belong to the parent so check parent if
+     * attribute not found
+     */
+    
+    smiClassPtr = smiGetParentClass(smiClassPtr);
+    attributePtr = (Attribute*)smiGetAttribute(smiClassPtr , attribute);
+  		
+    return &attributePtr->export;
+}
+
+SmiType *smiGetAttributeParentType(SmiAttribute *smiAttributePtr)
+{
+    Type *parentTypePtr;
+    
+    if (! smiAttributePtr) {
+	return NULL;
+    }
+    
+    parentTypePtr = ((Attribute*)smiAttributePtr)->parentTypePtr;
+    
+    return (parentTypePtr) ? &parentTypePtr->export : NULL;
+}
+
+SmiClass *smiGetAttributeParentClass( SmiAttribute *smiAttributePtr)
+{
+    Class *parentClassPtr;
+    
+    if (! smiAttributePtr) {
+	return NULL;
+    }
+    
+    parentClassPtr = ((Attribute*)smiAttributePtr)->parentClassPtr;
+
+    return parentClassPtr ? &parentClassPtr->export : NULL;
+}
+
+SmiAttribute *smiGetFirstUniqueAttribute(SmiClass *smiClassPtr)
+{
+    Class *classPtr;
+    
+    if (! smiClassPtr) {
+	return NULL;
+    }
+	
+    classPtr = (Class*)smiClassPtr;
+	
+    if (! classPtr->uniqueList) {
+	return NULL;
+    }
+    
+    if (classPtr->uniqueList->ptr == classPtr) {
+	return NULL; /* scalar class */
+    }
+
+    return (SmiAttribute*)(classPtr->uniqueList->ptr);
+}
+
+SmiAttribute *smiGetNextUniqueAttribute( SmiAttribute *smiTypePtr)
+{
+    Class *classPtr;
+    List  *listPtr; 
+    
+    if (! smiTypePtr) {
+	return NULL;
+    }
+	
+    classPtr = ((Attribute*)smiTypePtr)->classPtr;
+    
+    if (classPtr && classPtr->uniqueList) {
+	for (listPtr=classPtr->uniqueList;listPtr; listPtr=listPtr->nextPtr) {
+	    if (&((Attribute*)(listPtr->ptr))->export ==  smiTypePtr) {	
+		if (listPtr->nextPtr) {
+		    return &((Attribute*)(listPtr->nextPtr->ptr))->export;
+		}
+	    }
+	}
+    }
+    return NULL;
+}
+
+
+
+int smiGetAttributeLine(SmiAttribute *smiAttributePtr)
+{
+    return ((Attribute *)smiAttributePtr)->line;
+}
+
+
+
+int smiIsClassScalar(SmiClass *smiClassPtr)
+{
+    Class *classPtr;
+    
+    if (! smiClassPtr) {
+	return 0;
+    }
+	
+    classPtr = (Class*)smiClassPtr;
+    
+    if (! classPtr->uniqueList) {
+	return 0;
+    }
+
+    return (classPtr->uniqueList->ptr == classPtr);
+}
+
+
+
+SmiEvent *smiGetFirstEvent(SmiClass *smiClassPtr)
+{
+    Event *eventPtr;
+    
+    if (! smiClassPtr) {
+	return NULL;
+    }
+    
+    eventPtr = ((Class *)smiClassPtr)->firstEventPtr;
+    return &(eventPtr->export);
+}
+
+
+
+SmiEvent *smiGetNextEvent(SmiEvent *smiEventPtr)
+{
+    Event *eventPtr;
+
+    if (! smiEventPtr) {
+	return NULL;
+    }
+
+    eventPtr = ((Event *)smiEventPtr)->nextPtr;
+    return &eventPtr->export;
+}
+
+
+
+int smiGetEventLine(SmiEvent *smiEventPtr)
+{
+    return ((Event *)smiEventPtr)->line;
+}
+
+	
 
 SmiMacro *smiGetMacro(SmiModule *smiModulePtr, char *macro)
 {
@@ -885,6 +1280,12 @@ SmiMacro *smiGetNextMacro(SmiMacro *smiMacroPtr)
 SmiModule *smiGetMacroModule(SmiMacro *smiMacroPtr)
 {
     return &((Macro *)smiMacroPtr)->modulePtr->export;
+}
+
+
+int smiGetMacroLine(SmiMacro *smiMacroPtr)
+{
+    return ((Macro *)smiMacroPtr)->line;
 }
 
 
@@ -1461,7 +1862,7 @@ SmiElement *smiGetFirstUniquenessElement(SmiNode *smiNodePtr)
 
 char *smiRenderOID(unsigned int oidlen, SmiSubid *oid, int flags)
 {
-    SmiNode *nodePtr;
+    SmiNode *nodePtr = NULL;
     SmiModule *modulePtr = NULL;
     unsigned int i = 0;
     char *ss, *s = NULL;
@@ -1476,8 +1877,12 @@ char *smiRenderOID(unsigned int oidlen, SmiSubid *oid, int flags)
     }
     
     if (flags & (SMI_RENDER_NAME | SMI_RENDER_QUALIFIED)) {
-	nodePtr = smiGetNodeByOID(oidlen, oid);
-	if (nodePtr) {
+	int len;
+	for (len = oidlen; len; len--) {
+	    nodePtr = smiGetNodeByOID(len, oid);
+	    if (! nodePtr || nodePtr->name) break;
+	}
+	if (nodePtr && nodePtr->name) {
 	    i = nodePtr->oidlen;
 	    if (flags & SMI_RENDER_QUALIFIED) {
 		modulePtr = smiGetNodeModule(nodePtr);
@@ -1508,7 +1913,8 @@ char *smiRenderOID(unsigned int oidlen, SmiSubid *oid, int flags)
 
 char *smiRenderValue(SmiValue *smiValuePtr, SmiType *smiTypePtr, int flags)
 {
-    int i, j, k, n, pfx, have_pfx;
+    unsigned int i, pfx;
+    int j, k, n, have_pfx;
     char *last_fmt, *fmt;
     SmiUnsigned64 vv;
     int xlen;
@@ -1978,6 +2384,177 @@ char *smiRenderType(SmiType *smiTypePtr, int flags)
 
 
 
+unsigned int smiGetMinSize(SmiType *smiType)
+{
+    SmiRange *smiRange;
+    SmiType  *parentType;
+    unsigned int min = 65535, size;
+    
+    switch (smiType->basetype) {
+    case SMI_BASETYPE_BITS:
+	return 0;
+    case SMI_BASETYPE_OCTETSTRING:
+    case SMI_BASETYPE_OBJECTIDENTIFIER:
+	size = 0;
+	break;
+    default:
+	return 0;
+    }
+
+    for (smiRange = smiGetFirstRange(smiType);
+	 smiRange ; smiRange = smiGetNextRange(smiRange)) {
+	if (smiRange->minValue.value.unsigned32 < min) {
+	    min = smiRange->minValue.value.unsigned32;
+	}
+    }
+    if (min < 65535 && min > size) {
+	size = min;
+    }
+
+    parentType = smiGetParentType(smiType);
+    if (parentType) {
+	unsigned int psize = smiGetMinSize(parentType);
+	if (psize > size) {
+	    size = psize;
+	}
+    }
+
+    return size;
+}
+
+
+
+unsigned int smiGetMaxSize(SmiType *smiType)
+{
+    SmiRange *smiRange;
+    SmiType  *parentType;
+    SmiNamedNumber *nn;
+    unsigned int max = 0, size;
+    
+    switch (smiType->basetype) {
+    case SMI_BASETYPE_BITS:
+    case SMI_BASETYPE_OCTETSTRING:
+	size = 65535;
+	break;
+    case SMI_BASETYPE_OBJECTIDENTIFIER:
+	size = 128;
+	break;
+    default:
+	return 0xffffffff;
+    }
+
+    if (smiType->basetype == SMI_BASETYPE_BITS) {
+	for (nn = smiGetFirstNamedNumber(smiType);
+	     nn;
+	     nn = smiGetNextNamedNumber(nn)) {
+	    if (nn->value.value.unsigned32 > max) {
+		max = nn->value.value.unsigned32;
+	    }
+	}
+	size = (max / 8) + 1;
+	return size;
+    }
+
+    for (smiRange = smiGetFirstRange(smiType);
+	 smiRange ; smiRange = smiGetNextRange(smiRange)) {
+	if (smiRange->maxValue.value.unsigned32 > max) {
+	    max = smiRange->maxValue.value.unsigned32;
+	}
+    }
+    if (max > 0 && max < size) {
+	size = max;
+    }
+
+    parentType = smiGetParentType(smiType);
+    if (parentType) {
+	unsigned int psize = smiGetMaxSize(parentType);
+	if (psize < size) {
+	    size = psize;
+	}
+    }
+
+    return size;
+}
+
+
+
+int smiUnpack(SmiNode *row, SmiSubid *oid, unsigned int oidlen,
+	      SmiValue **vals, int *valslen)
+{
+    SmiNode *indexNode = NULL;
+    SmiElement *smiElement;
+    SmiNode *iNode;
+    SmiType *iType; 
+    int i, j, last = 0;
+   
+    if (!vals || !valslen || !row || !oid) {
+	return 0;
+    }
+
+    switch (row->indexkind) {
+    case SMI_INDEX_INDEX:
+    case SMI_INDEX_REORDER:
+	indexNode = row;
+	break;
+    case SMI_INDEX_EXPAND:	/* TODO: we have to do more work here! */
+	indexNode = NULL;
+	break;
+    case SMI_INDEX_AUGMENT:
+    case SMI_INDEX_SPARSE:
+	indexNode = smiGetRelatedNode(row);
+	break;
+    case SMI_INDEX_UNKNOWN:
+	indexNode = NULL;
+	break;
+    }
+
+    *valslen = 0;
+    for (smiElement = smiGetFirstElement(indexNode);
+	 smiElement; smiElement = smiGetNextElement(smiElement)) {
+	iNode = smiGetElementNode(smiElement);
+	if (iNode) {
+	    iType = smiGetNodeType(iNode);
+	    if (! iType) break;
+	    (*valslen)++;
+	}
+    }
+    if (smiElement) {
+	return 0;
+    }
+
+    *vals = smiMalloc(*valslen * sizeof(SmiValue));
+
+    for (smiElement = smiGetFirstElement(indexNode), i = 0, j = 0;
+	 smiElement; smiElement = smiGetNextElement(smiElement), i++) {
+	iNode = smiGetElementNode(smiElement);
+	last = (smiGetNextElement(smiElement) == NULL);
+	iType = smiGetNodeType(iNode);
+	fprintf(stderr, "** %s (%s)\n", iNode->name, iType->name);
+	(*vals)[i].basetype = iType->basetype;
+	switch (iType->basetype) {
+	case SMI_BASETYPE_ENUM:
+	case SMI_BASETYPE_INTEGER32:
+	    (*vals)[i].value.integer32 = oid[j]; j++;
+	    break;
+	case SMI_BASETYPE_UNSIGNED32:
+	    (*vals)[i].value.unsigned32 = oid[j]; j++;
+	    break;
+	case SMI_BASETYPE_OCTETSTRING:
+	    /* need to know whether implied/fixed length or not */
+	    break;
+	case SMI_BASETYPE_OBJECTIDENTIFIER:
+	    /* need to know whether implied/fixed length or not */
+	    break;
+	default:
+	    return 0;
+	}
+    }
+
+    return *valslen;
+}
+
+
+
 int smiAsprintf(char **strp, const char *format, ...)
 {
     int rc;
@@ -2005,3 +2582,86 @@ int smiVasprintf(char **strp, const char *format, va_list ap)
     return rc;
 }
 
+
+int smiGetMinMaxRange(SmiType *smiType, SmiValue *min, SmiValue *max)
+{
+    SmiBasetype    basetype = SMI_BASETYPE_UNKNOWN;
+    SmiRange       *range;
+
+    min->basetype = max->basetype = SMI_BASETYPE_UNKNOWN;
+    min->len = max->len = 0;
+
+    range = smiGetFirstRange(smiType);
+    if (!range) {
+	return 0;
+    }
+
+    basetype = range->minValue.basetype;
+    min->basetype = max->basetype = basetype;
+
+    switch (basetype) {
+    case SMI_BASETYPE_INTEGER32:
+	min->value.integer32 = SMI_BASETYPE_INTEGER32_MAX;
+	max->value.integer32 = SMI_BASETYPE_INTEGER32_MIN;
+	break;
+    case SMI_BASETYPE_INTEGER64:
+	min->value.integer64 = SMI_BASETYPE_INTEGER64_MAX;
+	max->value.integer64 = SMI_BASETYPE_INTEGER64_MIN;
+	break;
+    case SMI_BASETYPE_UNSIGNED32:
+	min->value.unsigned32 = SMI_BASETYPE_UNSIGNED32_MAX;
+	max->value.unsigned32 = SMI_BASETYPE_UNSIGNED32_MIN;
+	break;
+    case SMI_BASETYPE_UNSIGNED64:
+	min->value.unsigned64 = SMI_BASETYPE_UNSIGNED64_MAX;
+	max->value.unsigned64 = SMI_BASETYPE_UNSIGNED32_MIN;
+	break;
+    default:
+	fprintf(stderr, "smidump: unexpected basetype %d\n", basetype);
+	return -1;
+    }
+
+    for (range = smiGetFirstRange(smiType);
+	 range;
+	 range = smiGetNextRange(range)) {
+	switch (basetype) {
+	case SMI_BASETYPE_INTEGER32:
+	    if (range->minValue.value.integer32 < min->value.integer32) {
+		min->value.integer32 = range->minValue.value.integer32;
+	    }
+	    if (range->maxValue.value.integer32 > max->value.integer32) {
+		max->value.integer32 = range->maxValue.value.integer32;
+	    }
+	    break;
+	case SMI_BASETYPE_INTEGER64:
+	    if (range->minValue.value.integer64 < min->value.integer64) {
+		min->value.integer64 = range->minValue.value.integer64;
+	    }
+	    if (range->maxValue.value.integer64 > max->value.integer64) {
+		max->value.integer64 = range->maxValue.value.integer64;
+	    }
+	    break;
+	case SMI_BASETYPE_UNSIGNED32:
+	    if (range->minValue.value.unsigned32 < min->value.unsigned32) {
+		min->value.unsigned32 = range->minValue.value.unsigned32;
+	    }
+	    if (range->maxValue.value.unsigned32 > max->value.unsigned32) {
+		max->value.unsigned32 = range->maxValue.value.unsigned32;
+	    }
+	    break;
+	case SMI_BASETYPE_UNSIGNED64:
+	    if (range->minValue.value.unsigned64 < min->value.unsigned64) {
+		min->value.unsigned64 = range->minValue.value.unsigned64;
+	    }
+	    if (range->maxValue.value.unsigned64 > max->value.unsigned64) {
+		max->value.unsigned64 = range->maxValue.value.unsigned64;
+	    }
+	    break;
+	default:
+	    fprintf(stderr, "smidump: unexpected basetype %d\n", basetype);
+	    return -1;
+	}
+    }
+
+    return 0;
+}

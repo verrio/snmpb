@@ -9,10 +9,11 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: dump-cm.c 2078 2005-03-03 15:17:55Z sperner $
+ * @(#) $Id: rea.h 7382 2007-10-19 23:40:24Z schoenw $
  */
 
-
+#ifndef _REA_H
+#define _REA_H
 
 #include <config.h>
 
@@ -146,7 +147,7 @@ extern int SHOW_DEPRECATED;
 extern int SHOW_DEPR_OBSOLETE;
 extern int STATIC_OUTPUT;
 extern int XPLAIN;
-extern int DEBUG;
+extern int XPLAIN_DEBUG;
 extern int SUPPRESS_DEPRECATED;
 extern int PRINT_DETAILED_ATTR;
 extern int IGNORE_IMPORTED_NODES;
@@ -220,3 +221,6 @@ extern void algConnectLonelyNodes();
 extern void algCheckForDependency();
 
 extern void algCheckForPointerRels();
+
+#endif
+

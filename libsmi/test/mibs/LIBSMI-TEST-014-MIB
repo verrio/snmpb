@@ -41,7 +41,7 @@ LIBSMI-TEST-014-MIB:102: warning: index of row `barEntry' can exceed OID size li
 LIBSMI-TEST-014-MIB:186: warning: index of row `barImpliedEntry' can exceed OID size limit by 1 subidentifier(s)
 LIBSMI-TEST-014-MIB:251: index element `fooStringName' of row `fooStringEntry' must have a size restriction
 LIBSMI-TEST-014-MIB:230: warning: index of row `fooStringEntry' can exceed OID size limit by 65427 subidentifier(s)
-LIBSMI-TEST-014-MIB:294: info: index element `fooOidName' of row `fooOidEntry' should but cannot have a size restriction
+LIBSMI-TEST-014-MIB:294: index element `fooOidName' of row `fooOidEntry' should but cannot have a size restriction
 LIBSMI-TEST-014-MIB:273: warning: index of row `fooOidEntry' can exceed OID size limit by 20 subidentifier(s)
 LIBSMI-TEST-014-MIB:309: warning: current group `fooOidBarGroup' is not referenced in this module
 	    "

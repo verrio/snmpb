@@ -8,7 +8,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: dump-sizes.c 2003 2004-11-15 12:29:58Z schoenw $
+ * @(#) $Id: dump-sizes.c 8090 2008-04-18 12:56:29Z strauss $
  */
 
 #include <config.h>
@@ -59,7 +59,7 @@ static SmiInteger32
 getAbsMinEnum(SmiType *smiType)
 {
      SmiNamedNumber *nn;
-     SmiInteger32 min = 2147483647;
+     SmiInteger32 min = SMI_BASETYPE_INTEGER32_MAX;
 
      for (nn = smiGetFirstNamedNumber(smiType);
 	  nn;
@@ -96,7 +96,7 @@ getAbsMinInteger32(SmiType *smiType)
 {
      SmiType *parent;
      SmiRange *range;
-     SmiInteger32 min = 2147483647;
+     SmiInteger32 min = SMI_BASETYPE_INTEGER32_MAX;
 
      range = smiGetFirstRange(smiType);
      if (! range) {
@@ -119,12 +119,13 @@ getAbsMaxInteger32(SmiType *smiType)
 {
      SmiType *parent;
      SmiRange *range;
-     SmiInteger32 max = 0;
+     SmiInteger32 max = SMI_BASETYPE_INTEGER32_MIN;
 
      range = smiGetFirstRange(smiType);
      if (! range) {
 	  parent = smiGetParentType(smiType);
-	  return parent ? getAbsMaxInteger32(parent) : 2147483647;
+	  return parent
+	      ? getAbsMaxInteger32(parent) : SMI_BASETYPE_INTEGER32_MAX;
      }
 
      for (; range; range = smiGetNextRange(range)) {
@@ -188,7 +189,7 @@ getAbsMinInteger64(SmiType *smiType)
 {
      SmiType *parent;
      SmiRange *range;
-     SmiInteger64 min = LIBSMI_INT64_MAX;
+     SmiInteger64 min = SMI_BASETYPE_INTEGER64_MAX;
 
      range = smiGetFirstRange(smiType);
      if (! range) {
@@ -211,7 +212,7 @@ getAbsMaxInteger64(SmiType *smiType)
 {
      SmiType *parent;
      SmiRange *range;
-     SmiInteger64 max = 0;
+     SmiInteger64 max = SMI_BASETYPE_INTEGER64_MIN;
 
      range = smiGetFirstRange(smiType);
      if (! range) {
@@ -234,7 +235,7 @@ getMinUnsigned64(SmiType *smiType)
 {
      SmiType *parent;
      SmiRange *range;
-     SmiInteger64 min = LIBSMI_UINT64_MAX;
+     SmiInteger64 min = SMI_BASETYPE_UNSIGNED64_MAX;
 
      range = smiGetFirstRange(smiType);
      if (! range) {
@@ -257,7 +258,7 @@ getMaxUnsigned64(SmiType *smiType)
 {
      SmiType *parent;
      SmiRange *range;
-     SmiUnsigned64 max = 0;
+     SmiUnsigned64 max = SMI_BASETYPE_UNSIGNED64_MIN;
 
      range = smiGetFirstRange(smiType);
      if (! range) {
@@ -271,102 +272,6 @@ getMaxUnsigned64(SmiType *smiType)
 	  }
      }
      return max;
-}
-
-
-
-static unsigned int
-getMinSize(SmiType *smiType)
-{
-    SmiRange *smiRange;
-    SmiType  *parentType;
-    unsigned int min = 65535, size;
-    
-    switch (smiType->basetype) {
-    case SMI_BASETYPE_BITS:
-	return 0;
-    case SMI_BASETYPE_OCTETSTRING:
-    case SMI_BASETYPE_OBJECTIDENTIFIER:
-	size = 0;
-	break;
-    default:
-	return 0;
-    }
-
-    for (smiRange = smiGetFirstRange(smiType);
-	 smiRange ; smiRange = smiGetNextRange(smiRange)) {
-	if (smiRange->minValue.value.unsigned32 < min) {
-	    min = smiRange->minValue.value.unsigned32;
-	}
-    }
-    if (min < 65535 && min > size) {
-	size = min;
-    }
-
-    parentType = smiGetParentType(smiType);
-    if (parentType) {
-	unsigned int psize = getMinSize(parentType);
-	if (psize > size) {
-	    size = psize;
-	}
-    }
-
-    return size;
-}
-
-
-
-static unsigned int
-getMaxSize(SmiType *smiType)
-{
-    SmiRange *smiRange;
-    SmiType  *parentType;
-    SmiNamedNumber *nn;
-    unsigned int max = 0, size;
-    
-    switch (smiType->basetype) {
-    case SMI_BASETYPE_BITS:
-    case SMI_BASETYPE_OCTETSTRING:
-	size = 65535;
-	break;
-    case SMI_BASETYPE_OBJECTIDENTIFIER:
-	size = 128;
-	break;
-    default:
-	return 0xffffffff;
-    }
-
-    if (smiType->basetype == SMI_BASETYPE_BITS) {
-	for (nn = smiGetFirstNamedNumber(smiType);
-	     nn;
-	     nn = smiGetNextNamedNumber(nn)) {
-	    if (nn->value.value.unsigned32 > max) {
-		max = nn->value.value.unsigned32;
-	    }
-	}
-	size = (max / 8) + 1;
-	return size;
-    }
-
-    for (smiRange = smiGetFirstRange(smiType);
-	 smiRange ; smiRange = smiGetNextRange(smiRange)) {
-	if (smiRange->maxValue.value.unsigned32 > max) {
-	    max = smiRange->maxValue.value.unsigned32;
-	}
-    }
-    if (max > 0 && max < size) {
-	size = max;
-    }
-
-    parentType = smiGetParentType(smiType);
-    if (parentType) {
-	unsigned int psize = getMaxSize(parentType);
-	if (psize < size) {
-	    size = psize;
-	}
-    }
-
-    return size;
 }
 
 
@@ -578,13 +483,13 @@ ber_len_val_octs(SmiType *smiType, len_type flags)
 
     switch (flags) {
     case len_max:
-	len = getMaxSize(smiType);
+	len = smiGetMaxSize(smiType);
 	break;
     case len_mean:
-	len = (getMaxSize(smiType) + getMinSize(smiType)) / 2;
+	len = (smiGetMaxSize(smiType) + smiGetMinSize(smiType)) / 2;
 	break;
     case len_min:
-	len = getMinSize(smiType);
+	len = smiGetMinSize(smiType);
 	break;
     }
     return len;
@@ -599,13 +504,13 @@ ber_len_val_bits(SmiType *smiType, len_type flags)
 
     switch (flags) {
     case len_max:
-	len = getMaxSize(smiType);
+	len = smiGetMaxSize(smiType);
 	break;
     case len_mean:
-	len = (getMaxSize(smiType) + getMinSize(smiType)) / 2;
+	len = (smiGetMaxSize(smiType) + smiGetMinSize(smiType)) / 2;
 	break;
     case len_min:
-	len = getMinSize(smiType);
+	len = smiGetMinSize(smiType);
 	break;
     }
     return len;
@@ -815,13 +720,13 @@ append_index(SmiSubid *oid, unsigned int *oidlen,
      case SMI_BASETYPE_BITS:
 	 switch (flags) {
 	 case len_max:
-	     len = getMaxSize(indexType);
+	     len = smiGetMaxSize(indexType);
 	     break;
 	 case len_mean:
-	     len = (getMaxSize(indexType) + getMinSize(indexType) / 2);
+	     len = (smiGetMaxSize(indexType) + smiGetMinSize(indexType) / 2);
 	     break;
 	 case len_min:
-	     len = getMinSize(indexType);
+	     len = smiGetMinSize(indexType);
 	     break;
 	 }
 
@@ -925,6 +830,7 @@ append_index(SmiSubid *oid, unsigned int *oidlen,
      case SMI_BASETYPE_FLOAT32:
      case SMI_BASETYPE_FLOAT64:
      case SMI_BASETYPE_FLOAT128:
+     case SMI_BASETYPE_POINTER:
 	 /* should never really get here */
 	 break;
      }
@@ -1430,7 +1336,7 @@ initSizes()
 	dumpSizes,
 	SMI_FLAG_NODESCR,
 	0,
-	"SNMP PDU sizes (RFC 3416)",
+	"RFC 3416 PDU sizes excluding message / transport headers",
 	opt,
 	NULL
     };

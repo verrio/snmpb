@@ -3,26 +3,29 @@ LMP-MIB DEFINITIONS ::= BEGIN
 IMPORTS
    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,
    transmission, Unsigned32, Counter32, TimeTicks
-      FROM SNMPv2-SMI              -- [RFC2578]
+      FROM SNMPv2-SMI              -- RFC 2578
 
    MODULE-COMPLIANCE, OBJECT-GROUP, NOTIFICATION-GROUP
-      FROM SNMPv2-CONF             -- [RFC2580]
+      FROM SNMPv2-CONF             -- RFC 2580
 
    TEXTUAL-CONVENTION, TruthValue, RowStatus, StorageType,
    TimeStamp
-      FROM SNMPv2-TC               -- [RFC2579]
+
+
+
+      FROM SNMPv2-TC               -- RFC 2579
 
    InterfaceIndexOrZero, ifIndex
-      FROM IF-MIB                  -- [RFC2863]
+      FROM IF-MIB                  -- RFC 2863
 
    InetAddressType, InetAddress
-      FROM INET-ADDRESS-MIB        -- [RFC4001]
+      FROM INET-ADDRESS-MIB        -- RFC 4001
 
    teLinkRemoteIpAddr, teLinkIncomingIfId, TeLinkEncodingType
-      FROM TE-LINK-STD-MIB;        -- [RFC4220]
+      FROM TE-LINK-STD-MIB;        -- RFC 4220
 
 lmpMIB MODULE-IDENTITY
-   LAST-UPDATED "200601110000Z"  -- 11 January 2006
+   LAST-UPDATED "200608140000Z"  -- 14 August 2006
    ORGANIZATION "Common Control and Measurement Protocols (CCAMP)
                  Working Group"
    CONTACT-INFO
@@ -36,15 +39,14 @@ lmpMIB MODULE-IDENTITY
         Email:  jplang@ieee.org
 
                 Evan McGinnis
-        Email:  emcginnis@hammerheadsystems.com"
+        Email:  emcginnis@hammerheadsystems.com
 
+                Adrian Farrel
+        Email:  adrian@olddog.co.uk"
 
    DESCRIPTION
-
-
-
        "Copyright (C) 2006 The Internet Society.  This version of
-        the MIB module is part of RFC 4327; see the RFC itself
+        the MIB module is part of RFC 4631; see the RFC itself
         for full legal notices.
 
         This MIB module contains managed object definitions for
@@ -52,6 +54,17 @@ lmpMIB MODULE-IDENTITY
         defined in 'Link Management Protocol'."
 
    -- Revision history.
+   REVISION
+       "200608140000Z"  -- 14 August 2006
+   DESCRIPTION
+       "Revised version:
+        - Fixes textual descriptions of TruthValue settings such that
+          True is always 1 and False is always 2.
+        - Adds punctuation to REFERENCE clauses.
+
+
+
+        This revision published as RFC 4631"
    REVISION
        "200601110000Z"  -- 11 January 2006
    DESCRIPTION
@@ -64,7 +77,7 @@ LmpInterval ::= TEXTUAL-CONVENTION
    DISPLAY-HINT "d"
    STATUS        current
    DESCRIPTION
-       "The interval delay in milliseconds."
+       "The interval delay, in milliseconds."
    SYNTAX        Unsigned32 (1..65535)
 
 LmpRetransmitInterval ::= TEXTUAL-CONVENTION
@@ -81,9 +94,8 @@ LmpNodeId ::= TEXTUAL-CONVENTION
        "Represents a Node ID in network byte order.  Node ID is an
         address of type IPv4."
    REFERENCE
-       "Section 1.1 of Link Management Protocol, RFC 4204"
+       "Section 1.1 of Link Management Protocol, RFC 4204."
    SYNTAX        OCTET STRING(SIZE(4))
-
 
 -- Top level components of this MIB
 
@@ -91,12 +103,8 @@ LmpNodeId ::= TEXTUAL-CONVENTION
 lmpNotifications OBJECT IDENTIFIER ::= { lmpMIB 0 }
 -- Tables, Scalars
 lmpObjects       OBJECT IDENTIFIER ::= { lmpMIB 1 }
-
-
-
 -- Conformance
 lmpConformance   OBJECT IDENTIFIER ::= { lmpMIB 2 }
-
 
 lmpAdminStatus OBJECT-TYPE
    SYNTAX        INTEGER { up(1), down(2) }
@@ -104,8 +112,12 @@ lmpAdminStatus OBJECT-TYPE
    STATUS        current
    DESCRIPTION
        "The desired operational status of LMP on the node.
+
+
+
         Implementations should save the value of this object in
         persistent memory so that it survives restarts or reboot."
+
    DEFVAL        { up }
    ::= { lmpObjects 1 }
 
@@ -116,7 +128,6 @@ lmpOperStatus OBJECT-TYPE
    DESCRIPTION
        "The actual operational status of LMP on the node."
    ::= { lmpObjects 2 }
-
 
 -- LMP Neighbor Table
 
@@ -142,9 +153,6 @@ lmpNbrEntry OBJECT-TYPE
 LmpNbrEntry ::= SEQUENCE {
   lmpNbrNodeId              LmpNodeId,
   lmpNbrRetransmitInterval  LmpRetransmitInterval,
-
-
-
   lmpNbrRetryLimit          Unsigned32,
   lmpNbrRetransmitDelta     Unsigned32,
   lmpNbrAdminStatus         INTEGER,
@@ -155,6 +163,9 @@ LmpNbrEntry ::= SEQUENCE {
 
 lmpNbrNodeId OBJECT-TYPE
    SYNTAX        LmpNodeId
+
+
+
    MAX-ACCESS    not-accessible
    STATUS        current
    DESCRIPTION
@@ -169,9 +180,9 @@ lmpNbrRetransmitInterval OBJECT-TYPE
    DESCRIPTION
        "This object specifies the initial retransmission interval that
         is used for the retransmission of messages that require
-        acknowledgement.  This object along with lmpNbrRetryLimit is
-        used to implement congestion-handling mechanism as defined in
-        Section 10 of the Link Management Protocol specification,
+        acknowledgement.  This object, along with lmpNbrRetryLimit,
+        is used to implement the congestion-handling mechanism defined
+        in Section 10 of the Link Management Protocol specification,
         which is based on RFC 2914."
    REFERENCE
        "Link Management Protocol, RFC 4204.
@@ -188,16 +199,12 @@ lmpNbrRetryLimit OBJECT-TYPE
        "This object specifies the maximum number of times a message
         is transmitted without being acknowledged.  A value of 0 is used
         to indicate that a node should never stop retransmission.
-        This object along with lmpNbrRetransmitInterval is
-        used to implement congestion-handling mechanism as defined in
-        Section 10 of the Link Management Protocol specification,
+        This object, along with lmpNbrRetransmitInterval, is
+        used to implement the congestion-handling mechanism as defined
+        in Section 10 of the Link Management Protocol specification,
         which is based on RFC 2914."
    REFERENCE
-
-
-
        "Link Management Protocol, RFC 4204.
-
         Congestion Control Principles, RFC 2914."
    DEFVAL        { 3 }
    ::= { lmpNbrEntry 3 }
@@ -207,15 +214,17 @@ lmpNbrRetransmitDelta OBJECT-TYPE
    MAX-ACCESS    read-create
    STATUS        current
    DESCRIPTION
+
+
+
        "This object governs the speed with which the sender increases
-        the retransmission interval as explained in section 10 of the
+        the retransmission interval, as explained in Section 10 of the
         Link Management Protocol specification, which is based on
         RFC 2914.  This value is a power used to express the
         exponential backoff.  The ratio of two successive retransmission
         intervals is (1 + Delta)."
    REFERENCE
        "Link Management Protocol, RFC 4204.
-
         Congestion Control Principles, RFC 2914."
    DEFVAL        { 1 }
    ::= { lmpNbrEntry 4 }
@@ -244,9 +253,6 @@ lmpNbrRowStatus OBJECT-TYPE
        "This variable is used to create, modify, and/or
         delete a row in this table.  None of the writable objects
         in a row can be changed if the status is active(1).
-
-
-
         All read-create objects must have valid and consistent
         values before the row can be activated."
    ::= { lmpNbrEntry 7 }
@@ -259,12 +265,14 @@ lmpNbrStorageType OBJECT-TYPE
        "The storage type for this conceptual row in the
         lmpNbrTable.  Conceptual rows having the value
         'permanent' need not allow write-access to any
+
+
+
         columnar object in the row."
    DEFVAL        { nonVolatile }
    ::= { lmpNbrEntry 8 }
 
 -- End of lmpNbrTable
-
 
 lmpCcHelloIntervalDefault OBJECT-TYPE
    SYNTAX        LmpInterval
@@ -274,11 +282,11 @@ lmpCcHelloIntervalDefault OBJECT-TYPE
        "This object specifies the default value for the HelloInterval
         parameter used in the Hello protocol keep-alive phase.  It
         indicates how frequently LMP Hello messages will be sent.  It
-        is used a the default value for lmpCcHelloInterval.
+        is used as the default value for lmpCcHelloInterval.
         Implementations should save the value of this object in
         persistent memory so that it survives restarts or reboot."
    REFERENCE
-       "Link Management Protocol, RFC 4204"
+       "Link Management Protocol, RFC 4204."
    ::= { lmpObjects 4 }
 
 lmpCcHelloIntervalDefaultMin OBJECT-TYPE
@@ -295,9 +303,6 @@ lmpCcHelloIntervalDefaultMin OBJECT-TYPE
 
 lmpCcHelloIntervalDefaultMax OBJECT-TYPE
    SYNTAX        LmpInterval
-
-
-
    MAX-ACCESS    read-write
    STATUS        current
    DESCRIPTION
@@ -311,6 +316,9 @@ lmpCcHelloIntervalDefaultMax OBJECT-TYPE
 lmpCcHelloDeadIntervalDefault OBJECT-TYPE
    SYNTAX        LmpInterval
    MAX-ACCESS    read-write
+
+
+
    STATUS        current
    DESCRIPTION
        "This object specifies the default HelloDeadInterval parameter
@@ -322,7 +330,7 @@ lmpCcHelloDeadIntervalDefault OBJECT-TYPE
         should save the value of this object in persistent memory so
         that it survives restarts or reboot."
    REFERENCE
-       "Link Management Protocol, RFC 4204"
+       "Link Management Protocol, RFC 4204."
    ::= { lmpObjects 7 }
 
 lmpCcHelloDeadIntervalDefaultMin OBJECT-TYPE
@@ -346,12 +354,8 @@ lmpCcHelloDeadIntervalDefaultMax OBJECT-TYPE
         HelloDeadInterval parameter.  It is used as a default value
         for lmpCcHelloDeadIntervalMax.  Implementations should save the
         value of this object in persistent memory so that it survives
-
-
-
         restarts or reboot."
    ::= { lmpObjects 9 }
-
 
 -- LMP Control Channel Table
 
@@ -363,14 +367,17 @@ lmpControlChannelTable OBJECT-TYPE
        "This table specifies LMP control channel information."
    ::= { lmpObjects 10 }
 
+
+
+
 lmpControlChannelEntry OBJECT-TYPE
    SYNTAX        LmpControlChannelEntry
    MAX-ACCESS    not-accessible
    STATUS        current
    DESCRIPTION
-       "An entry in this table is created by a LMP-enabled device for
+       "An entry in this table is created by an LMP-enabled device for
         every control channel.  Whenever a new entry is created with
-        lmpCcIsIf set to true(2), then a corresponding entry is
+        lmpCcIsIf set to true(1), a corresponding entry is
         created in ifTable as well (see RFC 2863)."
    INDEX         { lmpCcId }
    ::= { lmpControlChannelTable 1 }
@@ -397,9 +404,6 @@ LmpControlChannelEntry ::= SEQUENCE {
   lmpCcAdminStatus                   INTEGER,
   lmpCcOperStatus                    INTEGER,
   lmpCcRowStatus                     RowStatus,
-
-
-
   lmpCcStorageType                   StorageType
 }
 
@@ -414,19 +418,22 @@ lmpCcId OBJECT-TYPE
 
 lmpCcUnderlyingIfIndex OBJECT-TYPE
    SYNTAX        InterfaceIndexOrZero
+
+
+
    MAX-ACCESS    read-create
    STATUS        current
    DESCRIPTION
        "If lmpCcIsIf is set to true(1), this object carries the
         index into the ifTable of the entry that represents the
         LMP interface over which LMP will transmit its traffic.
-        If this object is set to zero, but lmpCcIsIf is set to
+        If this object is set to zero but lmpCcIsIf is set to
         true(1), the control channel is not currently associated
-        with any underlying interface and the control channel's
-        operational status must not be up(1), nor should the
+        with any underlying interface, and the control channel's
+        operational status must not be up(1); nor should the
         control channel forward or receive traffic.
         If lmpCcIsIf is set to false(2), this object should be set
-        to zero and should be ignored."
+        to zero and ignored."
    ::= { lmpControlChannelEntry 2 }
 
 lmpCcIsIf OBJECT-TYPE
@@ -435,22 +442,19 @@ lmpCcIsIf OBJECT-TYPE
    STATUS        current
    DESCRIPTION
        "In implementations where the control channels are modeled
-        as interfaces, the value of this object is true(1) and
+        as interfaces, the value of this object is true(1), and
         this control channel is represented by an interface in
         the interfaces group table as indicated by the value of
         lmpCcUnderlyingIfIndex.  If control channels are not
         modeled as interfaces, the value of this object is
-        false(2) and there is no corresponding interface for
-        this control channel in the interfaces group table,
-        and the value of lmpCcUnderlyingIfIndex should be
+        false(2), and there is no corresponding interface for
+        this control channel in the interfaces group table;
+        the value of lmpCcUnderlyingIfIndex should be
         ignored."
    ::= { lmpControlChannelEntry 3 }
 
 lmpCcNbrNodeId OBJECT-TYPE
    SYNTAX        LmpNodeId
-
-
-
    MAX-ACCESS    read-create
    STATUS        current
    DESCRIPTION
@@ -465,10 +469,13 @@ lmpCcRemoteId OBJECT-TYPE
    MAX-ACCESS    read-only
    STATUS        current
    DESCRIPTION
+
+
+
        "This value represents the remote control channel identifier
         (32-bit number).  It is determined during the negotiation
         phase.  A value of zero means that the remote control channel
-        identifier has not yet been learnt."
+        identifier has not yet been learned."
    ::= { lmpControlChannelEntry 5 }
 
 lmpCcRemoteAddressType OBJECT-TYPE
@@ -489,9 +496,9 @@ lmpCcRemoteIpAddr OBJECT-TYPE
        "This value represents the remote control channel Internet
         address for numbered control channel.  The type of this
         address is determined by lmpCcRemoteAddressType.
-        Control channel must be numbered on non-point-to-point
+        The control channel must be numbered on non-point-to-point
         configuration.  For point-to-point configuration, the
-        remote control channel address can be of type unknown
+        remote control channel address can be of type unknown,
         in which case this object must be a zero-length string.  The
         lmpCcRemoteId object then identifies the unnumbered
         address."
@@ -499,9 +506,6 @@ lmpCcRemoteIpAddr OBJECT-TYPE
 
 lmpCcSetupRole OBJECT-TYPE
    SYNTAX        INTEGER { active(1), passive(2) }
-
-
-
    MAX-ACCESS    read-create
    STATUS        current
    DESCRIPTION
@@ -516,12 +520,15 @@ lmpCcSetupRole OBJECT-TYPE
 lmpCcAuthentication OBJECT-TYPE
    SYNTAX        TruthValue
    MAX-ACCESS    read-create
+
+
+
    STATUS        current
    DESCRIPTION
        "This object indicates whether the control channel must use
         authentication."
    REFERENCE
-       "Link Management Protocol, RFC 4204"
+       "Link Management Protocol, RFC 4204."
    ::= { lmpControlChannelEntry 9 }
 
 lmpCcHelloInterval OBJECT-TYPE
@@ -550,9 +557,6 @@ lmpCcHelloIntervalMax OBJECT-TYPE
    STATUS        current
    DESCRIPTION
        "This object specifies the maximum value for the
-
-
-
         HelloInterval parameter.  The default value for this
         object should be set to lmpCcHelloIntervalMaxDefault."
    ::= { lmpControlChannelEntry 12 }
@@ -567,6 +571,9 @@ lmpCcHelloIntervalNegotiated OBJECT-TYPE
    ::= { lmpControlChannelEntry 13 }
 
 lmpCcHelloDeadInterval OBJECT-TYPE
+
+
+
    SYNTAX        LmpInterval
    MAX-ACCESS    read-create
    STATUS        current
@@ -601,9 +608,6 @@ lmpCcHelloDeadIntervalNegotiated OBJECT-TYPE
    MAX-ACCESS    read-only
    STATUS        current
    DESCRIPTION
-
-
-
        "Once the control channel is active, this object represents
         the negotiated HelloDeadInterval value."
    ::= { lmpControlChannelEntry 17 }
@@ -618,6 +622,9 @@ lmpCcLastChange OBJECT-TYPE
         entered prior to the last re-initialization of the local
         network management subsystem, then this object contains a
         zero value."
+
+
+
    ::= { lmpControlChannelEntry 18 }
 
 lmpCcAdminStatus OBJECT-TYPE
@@ -652,9 +659,6 @@ lmpCcRowStatus OBJECT-TYPE
         delete a row in this table.  None of the writable objects
         in a row can be changed if the status is active(1).
         All read-create objects must have valid and consistent
-
-
-
         values before the row can be activated."
    ::= { lmpControlChannelEntry 21 }
 
@@ -667,7 +671,11 @@ lmpCcStorageType OBJECT-TYPE
         lmpControlChannelTable.  Conceptual rows having the value
         'permanent' need not allow write-access to any
         columnar object in the row."
+
    DEFVAL        { nonVolatile }
+
+
+
    ::= { lmpControlChannelEntry 22 }
 
 -- End of lmpControlChannelTable
@@ -703,9 +711,6 @@ LmpControlChannelPerfEntry ::= SEQUENCE {
   lmpCcOutOctets                   Counter32,
   lmpCcOutDiscards                 Counter32,
   lmpCcOutErrors                   Counter32,
-
-
-
   lmpCcConfigReceived              Counter32,
   lmpCcConfigSent                  Counter32,
   lmpCcConfigRetransmit            Counter32,
@@ -719,6 +724,9 @@ LmpControlChannelPerfEntry ::= SEQUENCE {
   lmpCcBeginVerifySent             Counter32,
   lmpCcBeginVerifyRetransmit       Counter32,
   lmpCcBeginVerifyAckReceived      Counter32,
+
+
+
   lmpCcBeginVerifyAckSent          Counter32,
   lmpCcBeginVerifyNackReceived     Counter32,
   lmpCcBeginVerifyNackSent         Counter32,
@@ -755,8 +763,6 @@ LmpControlChannelPerfEntry ::= SEQUENCE {
   lmpCcCounterDiscontinuityTime    TimeStamp
 }
 
-
-
 lmpCcInOctets OBJECT-TYPE
     SYNTAX      Counter32
     MAX-ACCESS  read-only
@@ -769,6 +775,9 @@ lmpCcInOctets OBJECT-TYPE
 lmpCcInDiscards OBJECT-TYPE
     SYNTAX      Counter32
     MAX-ACCESS  read-only
+
+
+
     STATUS      current
     DESCRIPTION
             "The number of inbound packets that were chosen to be
@@ -805,9 +814,6 @@ lmpCcOutDiscards OBJECT-TYPE
              prevent their being transmitted.  One possible reason
              for discarding such a packet could be to free up buffer
              space."
-
-
-
     ::= { lmpControlChannelPerfEntry 5 }
 
 lmpCcOutErrors OBJECT-TYPE
@@ -820,6 +826,9 @@ lmpCcOutErrors OBJECT-TYPE
     ::= { lmpControlChannelPerfEntry 6 }
 
 lmpCcConfigReceived OBJECT-TYPE
+
+
+
    SYNTAX        Counter32
    MAX-ACCESS    read-only
    STATUS        current
@@ -856,9 +865,6 @@ lmpCcConfigAckReceived OBJECT-TYPE
    ::= { lmpControlChannelPerfEntry 10 }
 
 lmpCcConfigAckSent OBJECT-TYPE
-
-
-
    SYNTAX        Counter32
    MAX-ACCESS    read-only
    STATUS        current
@@ -871,6 +877,9 @@ lmpCcConfigNackReceived OBJECT-TYPE
    SYNTAX        Counter32
    MAX-ACCESS    read-only
    STATUS        current
+
+
+
    DESCRIPTION
        "This object counts the number of ConfigNack messages that have
         been received on this control channel."
@@ -907,9 +916,6 @@ lmpCcBeginVerifyReceived OBJECT-TYPE
    SYNTAX        Counter32
    MAX-ACCESS    read-only
    STATUS        current
-
-
-
    DESCRIPTION
        "This object counts the number of BeginVerify messages that have
         been received on this control channel."
@@ -922,6 +928,9 @@ lmpCcBeginVerifySent OBJECT-TYPE
    DESCRIPTION
        "This object counts the number of BeginVerify messages that have
         been sent on this control channel."
+
+
+
    ::= { lmpControlChannelPerfEntry 17 }
 
 lmpCcBeginVerifyRetransmit OBJECT-TYPE
@@ -958,9 +967,6 @@ lmpCcBeginVerifyNackReceived OBJECT-TYPE
    DESCRIPTION
        "This object counts the number of BeginVerifyNack messages that
         have been received on this control channel."
-
-
-
    ::= { lmpControlChannelPerfEntry 21 }
 
 lmpCcBeginVerifyNackSent OBJECT-TYPE
@@ -973,6 +979,9 @@ lmpCcBeginVerifyNackSent OBJECT-TYPE
    ::= { lmpControlChannelPerfEntry 22 }
 
 lmpCcEndVerifyReceived OBJECT-TYPE
+
+
+
    SYNTAX        Counter32
    MAX-ACCESS    read-only
    STATUS        current
@@ -1009,9 +1018,6 @@ lmpCcEndVerifyAckReceived OBJECT-TYPE
    ::= { lmpControlChannelPerfEntry 26 }
 
 lmpCcEndVerifyAckSent OBJECT-TYPE
-
-
-
    SYNTAX        Counter32
    MAX-ACCESS    read-only
    STATUS        current
@@ -1024,6 +1030,9 @@ lmpCcTestStatusSuccessReceived OBJECT-TYPE
    SYNTAX        Counter32
    MAX-ACCESS    read-only
    STATUS        current
+
+
+
    DESCRIPTION
        "This object counts the number of TestStatusSuccess messages
         that have been received on this control channel."
@@ -1060,9 +1069,6 @@ lmpCcTestStatusFailureSent OBJECT-TYPE
    SYNTAX        Counter32
    MAX-ACCESS    read-only
    STATUS        current
-
-
-
    DESCRIPTION
        "This object counts the number of TestStatusFailure messages
         that have been sent on this control channel."
@@ -1075,6 +1081,9 @@ lmpCcTestStatusFailureRetransmit OBJECT-TYPE
    DESCRIPTION
        "This object counts the number of TestStatusFailure messages
         that have been retransmitted over this control channel."
+
+
+
    ::= { lmpControlChannelPerfEntry 33 }
 
 lmpCcTestStatusAckReceived OBJECT-TYPE
@@ -1111,9 +1120,6 @@ lmpCcLinkSummarySent OBJECT-TYPE
    DESCRIPTION
        "This object counts the number of LinkSummary messages
         that have been sent on this control channel."
-
-
-
    ::= { lmpControlChannelPerfEntry 37 }
 
 lmpCcLinkSummaryRetransmit OBJECT-TYPE
@@ -1126,6 +1132,9 @@ lmpCcLinkSummaryRetransmit OBJECT-TYPE
    ::= { lmpControlChannelPerfEntry 38 }
 
 lmpCcLinkSummaryAckReceived OBJECT-TYPE
+
+
+
    SYNTAX        Counter32
    MAX-ACCESS    read-only
    STATUS        current
@@ -1162,9 +1171,6 @@ lmpCcLinkSummaryNackSent OBJECT-TYPE
    ::= { lmpControlChannelPerfEntry 42 }
 
 lmpCcChannelStatusReceived OBJECT-TYPE
-
-
-
    SYNTAX        Counter32
    MAX-ACCESS    read-only
    STATUS        current
@@ -1177,6 +1183,9 @@ lmpCcChannelStatusSent OBJECT-TYPE
    SYNTAX        Counter32
    MAX-ACCESS    read-only
    STATUS        current
+
+
+
    DESCRIPTION
        "This object counts the number of ChannelStatus messages
         that have been sent on this control channel."
@@ -1213,9 +1222,6 @@ lmpCcChannelStatusReqReceived OBJECT-TYPE
    SYNTAX        Counter32
    MAX-ACCESS    read-only
    STATUS        current
-
-
-
    DESCRIPTION
        "This object counts the number of ChannelStatusRequest messages
         that have been received on this control channel."
@@ -1228,6 +1234,9 @@ lmpCcChannelStatusReqSent OBJECT-TYPE
    DESCRIPTION
        "This object counts the number of ChannelStatusRequest messages
         that have been sent on this control channel."
+
+
+
    ::= { lmpControlChannelPerfEntry 49 }
 
 lmpCcChannelStatusReqRetransmit OBJECT-TYPE
@@ -1263,10 +1272,7 @@ lmpCcCounterDiscontinuityTime OBJECT-TYPE
     STATUS       current
     DESCRIPTION
         "The value of sysUpTime on the most recent occasion at which
-         any one or more of this control channel's counters suffered a
-
-
-
+         one or more of this control channel's counters suffered a
          discontinuity.  The relevant counters are the specific
          instances associated with this control channel of any
          Counter32 object contained in the lmpControlChannelPerfTable.
@@ -1277,8 +1283,10 @@ lmpCcCounterDiscontinuityTime OBJECT-TYPE
 
 -- End of lmpControlChannelPerfTable
 
-
 -- LMP TE Link Table
+
+
+
 
 lmpTeLinkTable OBJECT-TYPE
    SYNTAX        SEQUENCE OF LmpTeLinkEntry
@@ -1306,8 +1314,8 @@ lmpTeLinkEntry OBJECT-TYPE
         administrative status value is controlled from the ifEntry.
         Setting the administrative status to testing prompts LMP to
         start link verification on the TE link.  Information about the
-        TE link that is not LMP specific is contained in teLinkTable of
-        the TE-LINK-STD-MIB MIB module."
+        TE link that is not LMP specific is contained in the
+        teLinkTable of the TE-LINK-STD-MIB MIB module."
    INDEX         { ifIndex }
    ::= { lmpTeLinkTable 1 }
 
@@ -1315,9 +1323,6 @@ LmpTeLinkEntry ::= SEQUENCE {
   lmpTeLinkNbrRemoteNodeId  LmpNodeId,
   lmpTeLinkVerification     TruthValue,
   lmpTeLinkFaultManagement  TruthValue,
-
-
-
   lmpTeLinkDwdm             TruthValue,
   lmpTeLinkOperStatus       INTEGER,
   lmpTeLinkRowStatus        RowStatus,
@@ -1330,7 +1335,10 @@ lmpTeLinkNbrRemoteNodeId OBJECT-TYPE
    STATUS        current
    DESCRIPTION
        "This is the Node ID of the TE link remote node.  This value
-        may be learned during control channel parameter negotiation
+        may be learned during the control channel parameter negotiation
+
+
+
         phase (in the Config message).  Node ID is an address whose
         type must be IPv4."
    ::= { lmpTeLinkEntry 1 }
@@ -1340,10 +1348,10 @@ lmpTeLinkVerification OBJECT-TYPE
    MAX-ACCESS    read-create
    STATUS        current
    DESCRIPTION
-       "This object indicates if the LMP link verification procedure
-        is enabled for this TE link."
+       "This object indicates whether the LMP link verification
+        procedure is enabled for this TE link."
    REFERENCE
-       "Link Management Protocol, RFC 4204"
+       "Link Management Protocol, RFC 4204."
    ::= { lmpTeLinkEntry 2 }
 
 lmpTeLinkFaultManagement OBJECT-TYPE
@@ -1351,10 +1359,10 @@ lmpTeLinkFaultManagement OBJECT-TYPE
    MAX-ACCESS    read-create
    STATUS        current
    DESCRIPTION
-       "This object indicates if the LMP fault management procedure
+       "This object indicates whether the LMP fault management procedure
         is enabled on this TE link."
    REFERENCE
-       "Link Management Protocol, RFC 4204"
+       "Link Management Protocol, RFC 4204."
    ::= { lmpTeLinkEntry 3 }
 
 lmpTeLinkDwdm OBJECT-TYPE
@@ -1362,14 +1370,11 @@ lmpTeLinkDwdm OBJECT-TYPE
    MAX-ACCESS    read-create
    STATUS        current
    DESCRIPTION
-       "This object indicates if the LMP DWDM procedure is enabled
+       "This object indicates whether the LMP DWDM procedure is enabled
         on this TE link."
    REFERENCE
        "Link Management Protocol (LMP) for Dense Wavelength Division
-
-
-
-        Multiplexing (DWDM) Optical Line Systems, RFC 4209"
+        Multiplexing (DWDM) Optical Line Systems, RFC 4209."
    ::= { lmpTeLinkEntry 4 }
 
 lmpTeLinkOperStatus OBJECT-TYPE
@@ -1382,8 +1387,11 @@ lmpTeLinkOperStatus OBJECT-TYPE
        "The actual operational status of this TE link.  The status
         is set to testing when the TE link is performing link
         verification.  A degraded state indicates that there is
+
+
+
         no active control channel between the pair of nodes that
-        form the endpoints of the TE link, but yet at least one
+        form the endpoints of the TE link, but that at least one
         data-bearing link on the TE link is allocated."
    ::= { lmpTeLinkEntry 5 }
 
@@ -1417,9 +1425,6 @@ lmpTeLinkStorageType OBJECT-TYPE
 lmpGlobalLinkVerificationInterval OBJECT-TYPE
    SYNTAX        Unsigned32
    UNITS         "milliseconds"
-
-
-
    MAX-ACCESS    read-write
    STATUS        current
    DESCRIPTION
@@ -1433,6 +1438,7 @@ lmpGlobalLinkVerificationInterval OBJECT-TYPE
         Implementations should save the value of this object in
         persistent memory so that it survives restarts or reboot."
    ::= { lmpObjects 13 }
+
 
 
 -- LMP Link Verification Table
@@ -1468,9 +1474,6 @@ LmpLinkVerificationEntry ::= SEQUENCE {
   lmpLinkVerifyStorageType        StorageType
 }
 
-
-
-
 lmpLinkVerifyInterval OBJECT-TYPE
    SYNTAX        LmpInterval
    MAX-ACCESS    read-create
@@ -1480,12 +1483,15 @@ lmpLinkVerifyInterval OBJECT-TYPE
         in the LMP link verification process.  It indicates the
         interval at which the Test messages are sent."
    REFERENCE
-       "Link Management Protocol, RFC 4204"
+       "Link Management Protocol, RFC 4204."
    ::= { lmpLinkVerificationEntry 1 }
 
 lmpLinkVerifyDeadInterval OBJECT-TYPE
    SYNTAX        LmpInterval
    MAX-ACCESS    read-create
+
+
+
    STATUS        current
    DESCRIPTION
        "This object specifies the VerifyDeadInterval parameter used
@@ -1493,7 +1499,7 @@ lmpLinkVerifyDeadInterval OBJECT-TYPE
         bearing links.  It specifies the observation period used to
         detect a Test message at the remote node."
    REFERENCE
-       "Link Management Protocol, RFC 4204"
+       "Link Management Protocol, RFC 4204."
    ::= { lmpLinkVerificationEntry 2 }
 
 lmpLinkVerifyTransportMechanism OBJECT-TYPE
@@ -1518,13 +1524,9 @@ lmpLinkVerifyTransportMechanism OBJECT-TYPE
         BeginVerifyAck message."
    REFERENCE
        "Link Management Protocol, RFC 4204
-
-
-
-
         Synchronous Optical Network (SONET)/Synchronous Digital
         Hierarchy (SDH) Encoding for Link Management Protocol (LMP)
-        Test Messages, RFC 4207"
+        Test Messages, RFC 4207."
    ::= { lmpLinkVerificationEntry 3 }
 
 lmpLinkVerifyAllLinks OBJECT-TYPE
@@ -1532,11 +1534,14 @@ lmpLinkVerifyAllLinks OBJECT-TYPE
    MAX-ACCESS    read-create
    STATUS        current
    DESCRIPTION
-       "A value of true(2) for this object indicates that the
-        verification process checks all unallocated links, otherwise
+       "A value of true(1) for this object indicates that the
+        verification process checks all unallocated links; otherwise,
         only the new ports or component links that have been added to
         this TE link are verified."
    ::= { lmpLinkVerificationEntry 4 }
+
+
+
 
 lmpLinkVerifyTransmissionRate OBJECT-TYPE
    SYNTAX        Unsigned32
@@ -1548,7 +1553,7 @@ lmpLinkVerifyTransmissionRate OBJECT-TYPE
         the Test messages will be transmitted and is expressed in
         bytes per second."
    REFERENCE
-       "Link Management Protocol, RFC 4204"
+       "Link Management Protocol, RFC 4204."
    ::= { lmpLinkVerificationEntry 5 }
 
 lmpLinkVerifyWavelength OBJECT-TYPE
@@ -1563,16 +1568,13 @@ lmpLinkVerifyWavelength OBJECT-TYPE
         corresponds to a separate wavelength, then this value should
         be set to 0."
    REFERENCE
-       "Link Management Protocol, RFC 4204"
+       "Link Management Protocol, RFC 4204."
    ::= { lmpLinkVerificationEntry 6 }
 
 lmpLinkVerifyRowStatus OBJECT-TYPE
    SYNTAX        RowStatus
    MAX-ACCESS    read-create
    STATUS        current
-
-
-
    DESCRIPTION
        "This variable is used to create, modify, and/or
         delete a row in this table.  None of the writable objects
@@ -1589,6 +1591,9 @@ lmpLinkVerifyStorageType OBJECT-TYPE
        "The storage type for this conceptual row in the
         lmpLinkVerificationTable.  Conceptual rows having the value
         'permanent' need not allow write-access to any
+
+
+
         columnar object in the row."
    DEFVAL        { nonVolatile }
    ::= { lmpLinkVerificationEntry 8 }
@@ -1621,9 +1626,6 @@ lmpTeLinkPerfEntry OBJECT-TYPE
 LmpTeLinkPerfEntry ::= SEQUENCE {
   lmpTeInOctets                    Counter32,
   lmpTeOutOctets                   Counter32,
-
-
-
   lmpTeBeginVerifyReceived         Counter32,
   lmpTeBeginVerifySent             Counter32,
   lmpTeBeginVerifyRetransmit       Counter32,
@@ -1640,6 +1642,9 @@ LmpTeLinkPerfEntry ::= SEQUENCE {
   lmpTeTestStatusSuccessSent       Counter32,
   lmpTeTestStatusSuccessRetransmit Counter32,
   lmpTeTestStatusFailureReceived   Counter32,
+
+
+
   lmpTeTestStatusFailureSent       Counter32,
   lmpTeTestStatusFailureRetransmit Counter32,
   lmpTeTestStatusAckReceived       Counter32,
@@ -1673,8 +1678,6 @@ lmpTeInOctets OBJECT-TYPE
              this TE link."
     ::= { lmpTeLinkPerfEntry 1 }
 
-
-
 lmpTeOutOctets OBJECT-TYPE
     SYNTAX       Counter32
     MAX-ACCESS   read-only
@@ -1690,6 +1693,9 @@ lmpTeBeginVerifyReceived OBJECT-TYPE
    STATUS        current
    DESCRIPTION
        "This object counts the number of BeginVerify messages that have
+
+
+
         been received for this TE link."
    ::= { lmpTeLinkPerfEntry 3 }
 
@@ -1723,9 +1729,6 @@ lmpTeBeginVerifyAckReceived OBJECT-TYPE
 lmpTeBeginVerifyAckSent OBJECT-TYPE
    SYNTAX        Counter32
    MAX-ACCESS    read-only
-
-
-
    STATUS        current
    DESCRIPTION
        "This object counts the number of BeginVerifyAck messages that
@@ -1740,6 +1743,9 @@ lmpTeBeginVerifyNackReceived OBJECT-TYPE
        "This object counts the number of BeginVerifyNack messages that
         have been received for this TE link."
    ::= { lmpTeLinkPerfEntry 8 }
+
+
+
 
 lmpTeBeginVerifyNackSent OBJECT-TYPE
    SYNTAX        Counter32
@@ -1774,9 +1780,6 @@ lmpTeEndVerifyRetransmit OBJECT-TYPE
    STATUS        current
    DESCRIPTION
        "This object counts the number of EndVerify messages that
-
-
-
         have been retransmitted over this control channel."
    ::= { lmpTeLinkPerfEntry 12 }
 
@@ -1792,6 +1795,9 @@ lmpTeEndVerifyAckReceived OBJECT-TYPE
 lmpTeEndVerifyAckSent OBJECT-TYPE
    SYNTAX        Counter32
    MAX-ACCESS    read-only
+
+
+
    STATUS        current
    DESCRIPTION
        "This object counts the number of EndVerifyAck messages that
@@ -1825,9 +1831,6 @@ lmpTeTestStatusSuccessRetransmit OBJECT-TYPE
         that have been retransmitted for this TE link."
    ::= { lmpTeLinkPerfEntry 17 }
 
-
-
-
 lmpTeTestStatusFailureReceived OBJECT-TYPE
    SYNTAX        Counter32
    MAX-ACCESS    read-only
@@ -1843,6 +1846,9 @@ lmpTeTestStatusFailureSent OBJECT-TYPE
    STATUS        current
    DESCRIPTION
        "This object counts the number of TestStatusFailure messages
+
+
+
         that have been sent for this TE link."
    ::= { lmpTeLinkPerfEntry 19 }
 
@@ -1876,9 +1882,6 @@ lmpTeTestStatusAckSent OBJECT-TYPE
 lmpTeLinkSummaryReceived OBJECT-TYPE
    SYNTAX        Counter32
    MAX-ACCESS    read-only
-
-
-
    STATUS        current
    DESCRIPTION
        "This object counts the number of LinkSummary messages that
@@ -1893,6 +1896,9 @@ lmpTeLinkSummarySent OBJECT-TYPE
        "This object counts the number of LinkSummary messages that
         have been sent for this TE link."
    ::= { lmpTeLinkPerfEntry 24 }
+
+
+
 
 lmpTeLinkSummaryRetransmit OBJECT-TYPE
    SYNTAX        Counter32
@@ -1927,9 +1933,6 @@ lmpTeLinkSummaryNackReceived OBJECT-TYPE
    STATUS        current
    DESCRIPTION
        "This object counts the number of LinkSummaryNack messages that
-
-
-
         have been received for this TE link."
    ::= { lmpTeLinkPerfEntry 28 }
 
@@ -1945,6 +1948,9 @@ lmpTeLinkSummaryNackSent OBJECT-TYPE
 lmpTeChannelStatusReceived OBJECT-TYPE
    SYNTAX        Counter32
    MAX-ACCESS    read-only
+
+
+
    STATUS        current
    DESCRIPTION
        "This object counts the number of ChannelStatus messages that
@@ -1978,9 +1984,6 @@ lmpTeChannelStatusAckReceived OBJECT-TYPE
         that have been received for this TE link."
    ::= { lmpTeLinkPerfEntry 33 }
 
-
-
-
 lmpTeChannelStatusAckSent OBJECT-TYPE
    SYNTAX        Counter32
    MAX-ACCESS    read-only
@@ -1996,6 +1999,9 @@ lmpTeChannelStatusReqReceived OBJECT-TYPE
    STATUS        current
    DESCRIPTION
        "This object counts the number of ChannelStatusRequest messages
+
+
+
         that have been received for this TE link."
    ::= { lmpTeLinkPerfEntry 35 }
 
@@ -2029,9 +2035,6 @@ lmpTeChannelStatusRspReceived OBJECT-TYPE
 lmpTeChannelStatusRspSent OBJECT-TYPE
    SYNTAX        Counter32
    MAX-ACCESS    read-only
-
-
-
    STATUS        current
    DESCRIPTION
        "This object counts the number of ChannelStatusResponse messages
@@ -2044,9 +2047,12 @@ lmpTeCounterDiscontinuityTime OBJECT-TYPE
     STATUS       current
     DESCRIPTION
         "The value of sysUpTime on the most recent occasion at which
-         any one or more of this TE link's counters suffered a
+         one or more of this TE link's counters suffered a
          discontinuity.  The relevant counters are the specific
          instances associated with this TE link of any Counter32
+
+
+
          object contained in the lmpTeLinkPerfTable.  If
          no such discontinuities have occurred since the last re-
          initialization of the local management subsystem, then this
@@ -2080,9 +2086,6 @@ lmpDataLinkEntry OBJECT-TYPE
         lmpDataLinkTable.  The administrative status value is
         controlled from the ifEntry.  The index to this table is also
         used to get information in the componentLinkTable
-
-
-
         of the TE-LINK-STD-MIB MIB module."
    INDEX         { ifIndex }
    ::= { lmpDataLinkTable 1 }
@@ -2098,6 +2101,9 @@ LmpDataLinkEntry ::= SEQUENCE {
   lmpDataLinkPassiveOperStatus  INTEGER,
   lmpDataLinkRowStatus          RowStatus,
   lmpDataLinkStorageType        StorageType
+
+
+
 }
 
 lmpDataLinkType OBJECT-TYPE
@@ -2109,10 +2115,10 @@ lmpDataLinkType OBJECT-TYPE
    STATUS        current
    DESCRIPTION
        "This attribute specifies whether this data-bearing link is
-        a port or a component link.  Component link are multiplex
+        a port or a component link.  Component links are multiplex
         capable, whereas ports are not multiplex capable."
    REFERENCE
-       "Link Management Protocol, RFC 4204"
+       "Link Management Protocol, RFC 4204."
    ::= { lmpDataLinkEntry 1 }
 
 lmpDataLinkAddressType OBJECT-TYPE
@@ -2131,17 +2137,14 @@ lmpDataLinkIpAddr OBJECT-TYPE
    STATUS        current
    DESCRIPTION
        "The local Internet address for numbered links.  The type
-
-
-
         of this address is determined by the value of
         lmpDataLinkAddressType object.
 
         For IPv4 and IPv6 numbered links, this object represents
         the local IP address associated with the data-bearing
         link.  For an unnumbered link, the local address is
-        of type unknown and this object is set to the zero-length
-        string and the ifIndex object then identifies the
+        of type unknown, and this object is set to the zero-length
+        string; the ifIndex object then identifies the
         unnumbered address."
    ::= { lmpDataLinkEntry 3 }
 
@@ -2149,6 +2152,9 @@ lmpDataLinkRemoteIpAddress OBJECT-TYPE
    SYNTAX        InetAddress
    MAX-ACCESS    read-create
    STATUS        current
+
+
+
    DESCRIPTION
        "The remote Internet address for numbered data-bearing links.
         The type of this address is determined by the
@@ -2156,8 +2162,8 @@ lmpDataLinkRemoteIpAddress OBJECT-TYPE
 
         For IPv4 and IPv6 numbered links, this object represents the
         remote IP address associated with the data-bearing link.  For
-        an unnumbered link, the remote address is of type unknown
-        and this object is set to the zero-length string and the
+        an unnumbered link, the remote address is of type unknown,
+        and this object is set to the zero-length string; the
         lmpDataLinkRemoteIfId object then identifies the unnumbered
         address.
 
@@ -2182,12 +2188,9 @@ lmpDataLinkEncodingType OBJECT-TYPE
    MAX-ACCESS    read-create
    STATUS        current
    DESCRIPTION
-
-
-
        "The encoding type of the data-bearing link."
    REFERENCE
-       "Generalized MPLS Signaling Functional Description, RFC 3471"
+       "Generalized MPLS Signaling Functional Description, RFC 3471."
    ::= { lmpDataLinkEntry 6 }
 
 lmpDataLinkActiveOperStatus OBJECT-TYPE
@@ -2200,9 +2203,12 @@ lmpDataLinkActiveOperStatus OBJECT-TYPE
    STATUS        current
    DESCRIPTION
        "The actual operational status of this data-bearing link
+
+
+
         (active FSM)."
    REFERENCE
-       "Link Management Protocol, RFC 4204"
+       "Link Management Protocol, RFC 4204."
    ::= { lmpDataLinkEntry 7 }
 
 lmpDataLinkPassiveOperStatus OBJECT-TYPE
@@ -2217,7 +2223,7 @@ lmpDataLinkPassiveOperStatus OBJECT-TYPE
        "The actual operational status of this data-bearing link
         (passive FSM)."
    REFERENCE
-       "Link Management Protocol, RFC 4204"
+       "Link Management Protocol, RFC 4204."
    ::= { lmpDataLinkEntry 8 }
 
 lmpDataLinkRowStatus OBJECT-TYPE
@@ -2233,9 +2239,6 @@ lmpDataLinkRowStatus OBJECT-TYPE
    ::= { lmpDataLinkEntry 9 }
 
 lmpDataLinkStorageType OBJECT-TYPE
-
-
-
    SYNTAX        StorageType
    MAX-ACCESS    read-create
    STATUS        current
@@ -2251,6 +2254,8 @@ lmpDataLinkStorageType OBJECT-TYPE
 
 
 -- LMP Data Link Performance Table
+
+
 
 lmpDataLinkPerfTable OBJECT-TYPE
    SYNTAX        SEQUENCE OF LmpDataLinkPerfEntry
@@ -2284,9 +2289,6 @@ LmpDataLinkPerfEntry ::= SEQUENCE {
 }
 
 lmpDataLinkTestReceived OBJECT-TYPE
-
-
-
    SYNTAX        Counter32
    MAX-ACCESS    read-only
    STATUS        current
@@ -2303,6 +2305,8 @@ lmpDataLinkTestSent OBJECT-TYPE
        "This object counts the number of Test messages that have
         been sent on this data-bearing link."
    ::= { lmpDataLinkPerfEntry 2 }
+
+
 
 lmpDataLinkActiveTestSuccess OBJECT-TYPE
    SYNTAX        Counter32
@@ -2335,9 +2339,6 @@ lmpDataLinkPassiveTestSuccess OBJECT-TYPE
 
 lmpDataLinkPassiveTestFailure OBJECT-TYPE
    SYNTAX        Counter32
-
-
-
    MAX-ACCESS    read-only
    STATUS        current
    DESCRIPTION
@@ -2351,10 +2352,13 @@ lmpDataLinkDiscontinuityTime OBJECT-TYPE
     STATUS       current
     DESCRIPTION
         "The value of sysUpTime on the most recent occasion at which
-         any one or more of this data-bearing link's counters suffered
+         one or more of this data-bearing link's counters suffered
          a discontinuity.  The relevant counters are the specific
          instances associated with this data-bearing link of any
          Counter32 object contained in the lmpDataLinkPerfTable.  If
+
+
+
          no such discontinuities have occurred since the last re-
          initialization of the local management subsystem, then this
          object contains a zero value."
@@ -2374,11 +2378,11 @@ lmpNotificationMaxRate OBJECT-TYPE
         the type of links, the network configuration, the
         reliability of the network, etc.
 
-        When designing this MIB, care has been taken to minimize the
+        When this MIB was designed, care was taken to minimize the
         amount of notifications generated for LMP purposes.  Wherever
-        possible, notifications are state driven, meaning the
+        possible, notifications are state driven, meaning that the
         notifications are sent only when the system changes state.
-        The only notifications that are repeated and could cause a
+        The only notifications that are repeated and that could cause a
         problem as far as congestion is concerned are the ones
         associated with data link verification.
         Without any considerations to handling of these
@@ -2386,14 +2390,11 @@ lmpNotificationMaxRate OBJECT-TYPE
         links is high.  Since the data link verification notifications
         can happen only once per data link per link verification
         interval, the notification rate should be sustainable if one
-
-
-
         chooses an appropriate link verification interval for a given
         network configuration.  For instance, a network of 100 nodes
         with 5 links of 128 wavelengths each and a link verification
-        of 1 minute with no more than 10% of the links failed at any
-        given time would have 1 notification per second sent from
+        of 1 minute, where no more than 10% of the links failed at any
+        given time, would have 1 notification per second sent from
         each node, or 100 notifications per second for the whole
         network.  The rest of the notifications are negligible
         compared to this number.
@@ -2406,9 +2407,12 @@ lmpNotificationMaxRate OBJECT-TYPE
         This variable indicates the maximum number of
         notifications issued per minute.  If events occur
         more rapidly, the implementation may simply fail to
-        emit these notifications during that period, or may
+
+
+
+        emit these notifications during that period or may
         queue them until an appropriate time.  A value of 0
-        means no throttling is applied and events may be
+        means that no throttling is applied and events may be
         notified at the rate at which they occur.
         Implementations should save the value of this object in
         persistent memory so that it survives restarts or reboot."
@@ -2419,10 +2423,10 @@ lmpLinkPropertyNotificationsEnabled OBJECT-TYPE
    MAX-ACCESS    read-write
    STATUS        current
    DESCRIPTION
-       "If this object is true, then it enables the
+       "If this object is true(1), then it enables the
         generation of lmpTeLinkPropertyMismatch
-        and lmpDataLinkPropertyMismatch notifications,
-        otherwise these notifications are not emitted.
+        and lmpDataLinkPropertyMismatch notifications;
+        otherwise, these notifications are not emitted.
         Implementations should save the value of this object in
         persistent memory so that it survives restarts or reboot."
    DEFVAL        { false }
@@ -2433,13 +2437,10 @@ lmpUnprotectedNotificationsEnabled OBJECT-TYPE
    MAX-ACCESS    read-write
    STATUS        current
    DESCRIPTION
-       "If this object is true, then it enables the
-        generation of lmpUnprotected notifications,
-        otherwise these notifications are not emitted.
+       "If this object is true(1), then it enables the
+        generation of lmpUnprotected notifications;
+        otherwise, these notifications are not emitted.
         Implementations should save the value of this object in
-
-
-
         persistent memory so that it survives restarts or reboot."
    DEFVAL        { false }
    ::= { lmpObjects 20 }
@@ -2449,22 +2450,25 @@ lmpCcUpDownNotificationsEnabled OBJECT-TYPE
    MAX-ACCESS    read-write
    STATUS        current
    DESCRIPTION
-       "If this object is true, then it enables the generation of
-        lmpControlChannelUp and lmpControlChannelDown notifications,
-        otherwise these notifications are not emitted.
+       "If this object is true(1), then it enables the generation of
+        lmpControlChannelUp and lmpControlChannelDown notifications;
+        otherwise, these notifications are not emitted.
         Implementations should save the value of this object in
         persistent memory so that it survives restarts or reboot."
    DEFVAL        { false }
    ::= { lmpObjects 21 }
+
+
+
 
 lmpTeLinkNotificationsEnabled OBJECT-TYPE
    SYNTAX        TruthValue
    MAX-ACCESS    read-write
    STATUS        current
    DESCRIPTION
-       "If this object is true, then it enables the
+       "If this object is true(1), then it enables the
         generation of lmpTeLinkDegraded and lmpTeLinkNotDegraded
-        notifications, otherwise these notifications are not emitted.
+        notifications; otherwise, these notifications are not emitted.
         Implementations should save the value of this object in
         persistent memory so that it survives restarts or reboot."
    DEFVAL        { false }
@@ -2475,9 +2479,9 @@ lmpDataLinkNotificationsEnabled OBJECT-TYPE
    MAX-ACCESS    read-write
    STATUS        current
    DESCRIPTION
-       "If this object is true, then it enables the
+       "If this object is true(1), then it enables the
         generation of lmpDataLinkVerificationFailure
-        notification, otherwise these notifications are not emitted.
+        notification; otherwise, these notifications are not emitted.
         Implementations should save the value of this object in
         persistent memory so that it survives restarts or reboot."
    DEFVAL        { false }
@@ -2488,9 +2492,6 @@ lmpDataLinkNotificationsEnabled OBJECT-TYPE
 
 -- Link Property Mismatch Notifications
 
-
-
-
 lmpTeLinkPropertyMismatch NOTIFICATION-TYPE
    OBJECTS       { teLinkRemoteIpAddr,
                    teLinkIncomingIfId }
@@ -2499,14 +2500,17 @@ lmpTeLinkPropertyMismatch NOTIFICATION-TYPE
        "This notification is generated when a TE link property
         mismatch is detected on the node.  The received remote TE link
         ID of the misconfigured TE link is represented by either
-        teLinkRemoteIpAddr or teLinkIncomingIfId depending on whether
+        teLinkRemoteIpAddr or teLinkIncomingIfId, depending on whether
         the TE link is numbered or unnumbered.  This notification
         should not be sent unless lmpLinkPropertyNotificationsEnabled
-        is true.  It is recommended that this notification be reported
-        only the first time a mismatch is detected.  Otherwise, for a
-        given TE link, this notification can occur no more than once
-        per verification interval (lmpGlobalLinkVerificationInterval)."
+        is true(1).  It is recommended that this notification be
+        reported only the first time a mismatch is detected.
+        Otherwise, for a given TE link, this notification can occur
+        no more than once per verification interval
+        (lmpGlobalLinkVerificationInterval)."
    ::= { lmpNotifications 1 }
+
+
 
 lmpDataLinkPropertyMismatch NOTIFICATION-TYPE
    OBJECTS       { lmpDataLinkType, lmpDataLinkRemoteIfId }
@@ -2515,13 +2519,13 @@ lmpDataLinkPropertyMismatch NOTIFICATION-TYPE
        "This notification is generated when a data-bearing link
         property mismatch is detected on the node.  lmpDataLinkType
         is used to identify the local identifiers associated with
-        the data link (the data link interface index can be used
-        to determine the TE link interface index as this
-        relationship is captured in the interface stack table).
+        the data link.  (The data link interface index can be used
+        to determine the TE link interface index, as this
+        relationship is captured in the interface stack table.)
         The remote entity interface ID is the remote entity
         interface ID received in the LinkSummary message.
         This notification should not be sent unless
-        lmpLinkPropertyNotificationsEnabled is true.  It is
+        lmpLinkPropertyNotificationsEnabled is true(1).  It is
         recommended that this notification be reported only the
         first time a mismatch is detected.  Otherwise, for a given
         data link, this notification can occur no more than once
@@ -2534,17 +2538,14 @@ lmpUnprotected NOTIFICATION-TYPE
    OBJECTS       { lmpCcNbrNodeId }
    STATUS        current
    DESCRIPTION
-       "This notification is generated when there are more than one
-        control channels between LMP neighbors and the last redundant
+       "This notification is generated when there is more than one
+        control channel between LMP neighbors and the last redundant
         control channel has failed.  If the remaining operational
         control channel fails, then there will be no more control
         channels between the pair of nodes and all the TE links
-
-
-
-        between the pair of nodes will go to degraded state.  This
+        between the pair of nodes, will go to degraded state.  This
         notification should not be sent unless
-        lmpUnprotectedNotificationsEnabled is set to true."
+        lmpUnprotectedNotificationsEnabled is set to true(1)."
    ::= { lmpNotifications 3 }
 
 -- Control Channel Notifications
@@ -2556,8 +2557,11 @@ lmpControlChannelUp NOTIFICATION-TYPE
        "This notification is generated when a control
         channel transitions to the up operational state.  This
         notification should not be sent unless
-        lmpCcUpDownNotificationsEnabled is true."
+        lmpCcUpDownNotificationsEnabled is true(1)."
    ::= { lmpNotifications 4 }
+
+
+
 
 lmpControlChannelDown NOTIFICATION-TYPE
    OBJECTS       { lmpCcAdminStatus, lmpCcOperStatus }
@@ -2566,7 +2570,7 @@ lmpControlChannelDown NOTIFICATION-TYPE
        "This notification is generated when a control channel
         transitions out of the up operational state.  This
         notification should not be sent unless
-        lmpCcUpDownNotificationsEnabled is true."
+        lmpCcUpDownNotificationsEnabled is true(1)."
    ::= { lmpNotifications 5 }
 
 -- TE Link Notification
@@ -2578,7 +2582,7 @@ lmpTeLinkDegraded NOTIFICATION-TYPE
        "This notification is generated when a lmpTeLinkOperStatus
         object for a TE link enters the degraded state.  This
         notification should not be sent unless
-        lmpTeLinkNotificationsEnabled is true."
+        lmpTeLinkNotificationsEnabled is true(1)."
    ::= { lmpNotifications 6 }
 
 lmpTeLinkNotDegraded NOTIFICATION-TYPE
@@ -2588,10 +2592,8 @@ lmpTeLinkNotDegraded NOTIFICATION-TYPE
        "This notification is generated when a lmpTeLinkOperStatus
         object for a TE link leaves the degraded state.  This
         notification should not be sent unless
-        lmpTeLinkNotificationsEnabled is true."
+        lmpTeLinkNotificationsEnabled is true(1)."
    ::= { lmpNotifications 7 }
-
-
 
 -- Data-bearing Link Notification
 
@@ -2602,12 +2604,14 @@ lmpDataLinkVerificationFailure NOTIFICATION-TYPE
    DESCRIPTION
        "This notification is generated when a data-bearing
         link verification fails.  This notification should not be sent
-        unless lmpDataLinkNotificationsEnabled is true.  For a given
+        unless lmpDataLinkNotificationsEnabled is true(1).  For a given
         data link, this notification can occur no more than once per
         verification interval (lmpGlobalLinkVerificationInterval)."
    ::= { lmpNotifications 8 }
 
 -- End of notifications
+
+
 
 
 -- Module compliance
@@ -2636,18 +2640,15 @@ lmpModuleFullCompliance MODULE-COMPLIANCE
       DESCRIPTION
           "This group is mandatory for devices that support
            control channels that are not interfaces, in addition to
-           lmpControlChannelGroup.  The following constraints apply:
-           lmpCcIsIf must at least be read-only returning false(1)."
+           lmpControlChannelGroup.  The following constraint applies:
+           lmpCcIsIf must at least be read-only, returning false(2)."
 
       GROUP lmpCcIsInterfaceGroup
       DESCRIPTION
-
-
-
           "This group is mandatory for devices that support
            control channels that are interfaces, in addition to
-           lmpControlChannelGroup.  The following constraints apply:
-           lmpCcIsIf must at least be read-only returning true(2)."
+           lmpControlChannelGroup.  The following constraint applies:
+           lmpCcIsIf must at least be read-only, returning true(1)."
 
       GROUP lmpLinkVerificationGroup
       DESCRIPTION
@@ -2661,6 +2662,9 @@ lmpModuleFullCompliance MODULE-COMPLIANCE
       -- lmpNbrTable
 
       OBJECT      lmpNbrRowStatus
+
+
+
       SYNTAX      RowStatus { active(1), notInService(2) }
       WRITE-SYNTAX RowStatus { active(1), notInService(2),
                                createAndGo(4), destroy(6) }
@@ -2692,10 +2696,7 @@ lmpModuleFullCompliance MODULE-COMPLIANCE
       OBJECT      lmpCcOperStatus
       SYNTAX      INTEGER { up(1), down(2) }
       DESCRIPTION
-
-
-
-          "A value of configSnd(3), configRcv(4), active(5),
+          "A value of configSnd(3), configRcv(4), active(5), or
            goingDown(6) need not be supported."
 
       -- lmpTeLinkTable
@@ -2713,13 +2714,14 @@ lmpModuleFullCompliance MODULE-COMPLIANCE
           "Support for notReady(3) and createAndWait(5) is
            not required."
 
+
+
       -- lmpDataLinkTable
 
       OBJECT      lmpDataLinkActiveOperStatus
       SYNTAX      INTEGER { upAlloc(1), upFree(2), down(3) }
       DESCRIPTION
           "A value of testing(4) need not be supported."
-
       OBJECT      lmpDataLinkPassiveOperStatus
       SYNTAX      INTEGER { upAlloc(1), upFree(2), down(3) }
       DESCRIPTION
@@ -2743,9 +2745,6 @@ lmpModuleReadOnlyCompliance MODULE-COMPLIANCE
    MODULE -- this module
 
       -- The mandatory groups have to be implemented
-
-
-
       -- by all LMP-enabled devices.  However, they may all be supported
       -- as read-only objects in the case where manual
       -- configuration is not supported.
@@ -2761,15 +2760,18 @@ lmpModuleReadOnlyCompliance MODULE-COMPLIANCE
       DESCRIPTION
           "This group is mandatory for devices that support
            control channels that are not interfaces, in addition to
-           lmpControlChannelGroup.  The following constraints apply:
-           lmpCcIsIf must at least be read-only returning false(1)."
+           lmpControlChannelGroup.  The following constraint applies:
+           lmpCcIsIf must at least be read-only, returning false(2)."
 
       GROUP lmpCcIsInterfaceGroup
+
+
+
       DESCRIPTION
           "This group is mandatory for devices that support
            control channels that are interfaces, in addition to
-           lmpControlChannelGroup.  The following constraints apply:
-           lmpCcIsIf must at least be read-only returning true(2)."
+           lmpControlChannelGroup.  The following constraint applies:
+           lmpCcIsIf must at least be read-only, returning true(1)."
 
       GROUP lmpLinkVerificationGroup
       DESCRIPTION
@@ -2794,9 +2796,6 @@ lmpModuleReadOnlyCompliance MODULE-COMPLIANCE
 
       OBJECT      lmpCcHelloIntervalDefault
       MIN-ACCESS  read-only
-
-
-
       DESCRIPTION
           "Write access is not required."
 
@@ -2816,6 +2815,9 @@ lmpModuleReadOnlyCompliance MODULE-COMPLIANCE
           "Write access is not required."
 
       OBJECT      lmpCcHelloDeadIntervalDefaultMin
+
+
+
       MIN-ACCESS  read-only
       DESCRIPTION
           "Write access is not required."
@@ -2845,9 +2847,6 @@ lmpModuleReadOnlyCompliance MODULE-COMPLIANCE
       OBJECT      lmpNbrRetransmitDelta
       MIN-ACCESS  read-only
       DESCRIPTION
-
-
-
           "Write access is not required."
 
       OBJECT      lmpNbrRowStatus
@@ -2867,6 +2866,9 @@ lmpModuleReadOnlyCompliance MODULE-COMPLIANCE
       OBJECT      lmpCcUnderlyingIfIndex
       MIN-ACCESS  read-only
       DESCRIPTION
+
+
+
           "Write access is not required."
 
       OBJECT      lmpCcIsIf
@@ -2897,8 +2899,6 @@ lmpModuleReadOnlyCompliance MODULE-COMPLIANCE
       DESCRIPTION
           "Write access is not required."
 
-
-
       OBJECT      lmpCcAuthentication
       MIN-ACCESS  read-only
       DESCRIPTION
@@ -2917,6 +2917,9 @@ lmpModuleReadOnlyCompliance MODULE-COMPLIANCE
       OBJECT      lmpCcHelloDeadIntervalMin
       MIN-ACCESS  read-only
       DESCRIPTION
+
+
+
           "Write access is not required."
 
       OBJECT      lmpCcHelloDeadIntervalMax
@@ -2934,7 +2937,7 @@ lmpModuleReadOnlyCompliance MODULE-COMPLIANCE
       OBJECT      lmpCcOperStatus
       SYNTAX      INTEGER { up(1), down(2) }
       DESCRIPTION
-          "A value of configSnd(3), configRcv(4), active(5),
+          "A value of configSnd(3), configRcv(4), active(5), or
            goingDown(6) need not be supported."
 
       OBJECT      lmpCcStorageType
@@ -2947,9 +2950,6 @@ lmpModuleReadOnlyCompliance MODULE-COMPLIANCE
       OBJECT      lmpLinkVerifyInterval
       MIN-ACCESS  read-only
       DESCRIPTION
-
-
-
           "Write access is not required."
 
       OBJECT      lmpLinkVerifyDeadInterval
@@ -2968,6 +2968,9 @@ lmpModuleReadOnlyCompliance MODULE-COMPLIANCE
       MIN-ACCESS  read-only
       DESCRIPTION
           "Write access is not required if the link verification
+
+
+
            procedure is enabled."
 
       OBJECT      lmpTeLinkVerification
@@ -2998,9 +3001,6 @@ lmpModuleReadOnlyCompliance MODULE-COMPLIANCE
            only status that needs to be supported."
 
       OBJECT      lmpTeLinkStorageType
-
-
-
       MIN-ACCESS  read-only
       DESCRIPTION
           "Write access is not required."
@@ -3019,6 +3019,9 @@ lmpModuleReadOnlyCompliance MODULE-COMPLIANCE
 
       OBJECT      lmpLinkVerifyRowStatus
       SYNTAX      RowStatus { active(1) }
+
+
+
       MIN-ACCESS  read-only
       DESCRIPTION
           "Write access is not required, and active(1) is the
@@ -3043,15 +3046,13 @@ lmpModuleReadOnlyCompliance MODULE-COMPLIANCE
       SYNTAX      InetAddress (SIZE(0|4|16))
       MIN-ACCESS  read-only
       DESCRIPTION
-          "Size of data-bearing link IP address depends on type
-           of data-bearing link.  Data-bearing link IP address size
-           is zero if link is unnumbered, four if link IP address is
-           IPv4, and sixteen if link IP address is IPv6."
+          "The size of the data-bearing link IP address depends on
+           the type of data-bearing link.  Data-bearing link IP
+           address size is zero if the link is unnumbered, four if
+           the link IP address is IPv4, and sixteen if the link IP
+           address is IPv6."
 
       OBJECT      lmpDataLinkRemoteIpAddress
-
-
-
       SYNTAX      InetAddress (SIZE(0|4|16))
       MIN-ACCESS  read-only
       DESCRIPTION
@@ -3068,6 +3069,9 @@ lmpModuleReadOnlyCompliance MODULE-COMPLIANCE
       MIN-ACCESS  read-only
       DESCRIPTION
           "Write access is not required."
+
+
+
 
       OBJECT      lmpDataLinkActiveOperStatus
       SYNTAX      INTEGER { upAlloc(1), upFree(2), down(3) }
@@ -3100,9 +3104,6 @@ lmpNodeGroup OBJECT-GROUP
              lmpOperStatus,
              lmpNbrAdminStatus,
              lmpNbrOperStatus,
-
-
-
              lmpNbrRowStatus,
              lmpNbrStorageType,
              lmpUnprotectedNotificationsEnabled,
@@ -3120,6 +3121,9 @@ lmpControlChannelGroup OBJECT-GROUP
              lmpNbrRetryLimit,
              lmpNbrRetransmitDelta,
              lmpNbrAdminStatus,
+
+
+
              lmpNbrOperStatus,
              lmpNbrRowStatus,
              lmpNbrStorageType,
@@ -3151,9 +3155,6 @@ lmpControlChannelGroup OBJECT-GROUP
    STATUS  current
    DESCRIPTION
           "Objects that can be used to configure LMP interface."
-
-
-
    ::= { lmpGroups 2 }
 
 lmpCcIsInterfaceGroup OBJECT-GROUP
@@ -3171,6 +3172,9 @@ lmpCcIsNotInterfaceGroup OBJECT-GROUP
              lmpCcAdminStatus
            }
    STATUS  current
+
+
+
    DESCRIPTION
           "Objects that can be used to configure control channels
            that are not interfaces."
@@ -3202,9 +3206,6 @@ lmpLinkVerificationGroup OBJECT-GROUP
            verification procedure configuration."
    ::= { lmpGroups 6 }
 
-
-
-
 lmpPerfGroup OBJECT-GROUP
    OBJECTS { lmpCcInOctets,
              lmpCcInDiscards,
@@ -3222,6 +3223,9 @@ lmpPerfGroup OBJECT-GROUP
              lmpCcHelloReceived,
              lmpCcHelloSent,
              lmpCcBeginVerifyReceived,
+
+
+
              lmpCcBeginVerifySent,
              lmpCcBeginVerifyRetransmit,
              lmpCcBeginVerifyAckReceived,
@@ -3253,9 +3257,6 @@ lmpPerfGroup OBJECT-GROUP
              lmpCcChannelStatusRetransmit,
              lmpCcChannelStatusAckReceived,
              lmpCcChannelStatusAckSent,
-
-
-
              lmpCcChannelStatusReqReceived,
              lmpCcChannelStatusReqSent,
              lmpCcChannelStatusReqRetransmit,
@@ -3273,6 +3274,9 @@ lmpPerfGroup OBJECT-GROUP
              lmpTeBeginVerifyNackSent,
              lmpTeEndVerifyReceived,
              lmpTeEndVerifySent,
+
+
+
              lmpTeEndVerifyRetransmit,
              lmpTeEndVerifyAckReceived,
              lmpTeEndVerifyAckSent,
@@ -3304,9 +3308,6 @@ lmpPerfGroup OBJECT-GROUP
              lmpTeCounterDiscontinuityTime,
              lmpDataLinkTestReceived,
              lmpDataLinkTestSent,
-
-
-
              lmpDataLinkActiveTestSuccess,
              lmpDataLinkActiveTestFailure,
              lmpDataLinkPassiveTestSuccess,
@@ -3324,6 +3325,9 @@ lmpTeLinkGroup OBJECT-GROUP
              lmpTeLinkVerification,
              lmpTeLinkFaultManagement,
              lmpTeLinkDwdm,
+
+
+
              lmpTeLinkOperStatus,
              lmpTeLinkRowStatus,
              lmpTeLinkStorageType,
@@ -3355,9 +3359,6 @@ lmpDataLinkGroup OBJECT-GROUP
 lmpNotificationGroup NOTIFICATION-GROUP
    NOTIFICATIONS { lmpTeLinkPropertyMismatch,
                    lmpDataLinkPropertyMismatch,
-
-
-
                    lmpUnprotected,
                    lmpControlChannelUp,
                    lmpControlChannelDown,

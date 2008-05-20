@@ -6,11 +6,12 @@
  * Copyright (c) 2001 J. Schoenwaelder, Technical University of Braunschweig.
  *           (c) 2002 T. Klie, Technical University of Braunschweig.
  *           (c) 2002 F. Strauss, Technical University of Braunschweig.
+ *           (c) 2007 T. Klie, Technical University of Braunschweig.
  *
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: dump-xsd.c 2609 2005-07-12 07:44:57Z strauss $
+ * @(#) $Id: dump-xsd.c 8090 2008-04-18 12:56:29Z strauss $
  */
 
 #include <config.h>
@@ -27,8 +28,8 @@
 
 #include "smi.h"
 #include "smidump.h"
+#include "fortopat.h"
 
-extern int smiAsprintf(char **strp, const char *format, ...);
 
 #define  INDENT		2    /* indent factor */
 
@@ -63,16 +64,6 @@ typedef struct TypePrefix {
 } TypePrefix;
 
 static TypePrefix *typePrefixes = NULL;
-
-/* part of a display hint */
-typedef struct DH {
-    unsigned int number;
-/*    int repeat;    //  repeat not yet supported */
-    char type;
-    char separator;
-/*    char repTerm;  // repeat not yet supported */
-    struct DH *next;
-} DH;
 
 
 
@@ -142,7 +133,7 @@ static char* getStringAccess( SmiAccess smiAccess )
 static char
 *getStringValue(SmiValue *valuePtr, SmiType *typePtr)
 {
-    static char    s[100];
+    static char    s[1024];
     char           ss[9];
     int		   n;
     unsigned int   i;
@@ -235,7 +226,7 @@ static char
 }
 #endif /* 0 */
 
-static int pow( int base, unsigned int exponent )
+static int smiPow( int base, unsigned int exponent )
 {
   unsigned int i;
   int ret = 1;
@@ -249,19 +240,6 @@ static int pow( int base, unsigned int exponent )
   }
   return ret;
 }
-
-static unsigned int numDigits( unsigned int val )
-{
-    int ret  = 1;
-
-    for(; val / 10; val = val / 10 ) {
-	ret++;
-    }
-    
-    return ret;
-}
-
-
 
 static void fprintSegment(FILE *f, int relindent, char *fmt, ...)
 {
@@ -383,355 +361,6 @@ static void fprintHexOrAsciiType( FILE *f, SmiType *parent,
 }
 
 
-static void initDH( struct DH *dh )
-{
-    	/* init with NULLs */
-	dh->number = 0;
-	/*dh->repeat = 0; repeat not yet supported */
-	dh->type = 0;
-	dh->separator = '\0';
-	/* dh->repTerm = '\0'; repeat not yet supported */
-	dh->next = NULL;
-}
-
-/* parse a display hint and create a list of DHs */
-static struct DH *parseDH( const char *hint )
-{
-    struct DH *iterDH = (struct DH *)malloc( sizeof( struct DH ) );
-    struct DH *ret = iterDH;
-    struct DH *oldIterDH = iterDH;
-    unsigned int pos = 0;
-    
-    if( !ret ) {
-	return NULL;
-    }
-
-    initDH( iterDH );
-    while( pos < strlen( hint ) ) {
-
-	if( ! iterDH ) {
-	    iterDH = (struct DH *)malloc( sizeof( struct DH ) );
-	    if( ! iterDH ) return NULL;
-	    initDH( iterDH );
-	    oldIterDH->next = iterDH;
-	    oldIterDH = iterDH;
-	}
-
-	switch( hint[ pos ] ) {
-	    
-	case '0':
-	case '1':
-	case '2':
-	case '3':
-	case '4':
-	case '5':
-	case '6':
-	case '7':
-	case '8':
-	case '9': {
-	    unsigned int endPos;
-	    char *strNum;
-	    
-	    /* find end of number */
-	    for( endPos = pos; isdigit( hint[ endPos ] ); endPos++ );
-	    
-	    /* parse number */
-	    strNum = (char *)malloc( endPos - pos );
-	    strncpy( strNum, &hint[ pos ], endPos - pos );
-	    strNum[ endPos - pos ] = '\0';
-	    iterDH->number = atoi( strNum );
-	    free( strNum );
-	    
-	    /* forward the position pointer */
-	    pos = endPos;
-	    break;
-	}
-	
-	case 'a':
-	case 'b':
-	case 'd':
-	case 'o':
-	case 't':
-	case 'x':
-	    iterDH->type = hint[ pos++ ];
-	    if( isdigit( hint[ pos ] ) || hint[ pos ] == '*' ) {
-		iterDH = iterDH->next;
-	    }
-	    break;
-	    
-	case '*':
-	    /* repeat not supported */
-	    return NULL;
-	    
-	default:
-	    if( iterDH->separator ) {
-		/* iterDH->repTerm = hint[ pos++ ]; // repeat not supported */
-	    }
-	    else {
-		iterDH->separator = hint[ pos++ ];
-	    }
-	    if( isdigit( hint[ pos ] ) || hint[ pos ] == '*' ) {
-		iterDH = iterDH->next;
-	    }
-	    break;
-	}	
-    }
-    return ret;
-}
-
-
-/* build a regexp from this display hint */
-static char* getStrDHType( char *hint,
-			   SmiUnsigned32 *lengths, unsigned int numSubranges  )
-{
-    unsigned int i = 0;
-    char *ret = lengths[ i ] ? "(" : "((";
-    DH *dh = parseDH( hint );
-
-    if(! dh ) return NULL;
-
-    do {
-	unsigned int octetsUsed = 0;
-	DH *iterDH;
-	
-	for( iterDH = dh; iterDH; iterDH = iterDH->next ) {
-	    char *baseRegexp = NULL;
-
-	    switch( iterDH->type ) {
-
-	    case 'a':
-	    case 't':
-		/* ascii character */
-		baseRegexp = "(\\p{IsBasicLatin})";
-		break;
-
-	    case 'b':
-		/* binary number */
-		baseRegexp = "((0|1){8})";
-		break;
-
-	    case 'd':
-		/* decimal number */
-		baseRegexp = "([0-9]{3})";
-		break;
-
-	    case 'o':
-		/* octal number */
-		baseRegexp = "([0-7]{3})";
-		break;
-
-	    case 'x':
-		/* hexadecimal number */
-		baseRegexp = "([0-9A-Fa-f]{2})";
-		break;
-
-	    default:
-		fputs( "smidump: Warning: unknown type of display-hint",
-		       stderr );
-	    }	   
-	    
-
-	    if( iterDH->number < lengths[ i ] ) {
-		/* there are more octets to come */
-		if( iterDH->type == 'd' ) {
-		    /* decimal number needs to be treated differently */
-		   if( iterDH->next ){
-		
-		       smiAsprintf( &ret, "%s(0|[1-9](([0-9]){0,%d}))",
-				    ret,
-				    numDigits( pow( 255,
-						    iterDH->number ) ) - 1 );
-			octetsUsed += iterDH->number;
-			if( octetsUsed >= lengths[ i + 1 ] ) {
-			/* maximum number of octets used,
-			   we must exit the loop */			    
-			    break;
-			}
-
-			if( iterDH->separator ) {
-			    smiAsprintf( &ret, "%s%c",
-					 ret, iterDH->separator );
-			}
-		    }
-		    else {		
-			smiAsprintf( &ret, "%s((0|[1-9](([0-9]){0,%d})",
-				     ret,
-				     numDigits( pow( 255,
-						     iterDH->number ) ) - 1 );
-			
-			if( iterDH->separator ) {
-			    switch( iterDH->separator ) {
-
-			    case '.': 
-				smiAsprintf( &ret, "%s\\.", ret );
-				break;
-			    default:
-				smiAsprintf( &ret, "%s%c",
-					 ret, iterDH->separator );
-				break;
-			    }
-			}
-
-			if( lengths[ i+1 ] - 1 - octetsUsed ) {
-			    smiAsprintf( &ret,
-					 "%s){%u,%u})(0|[1-9](([0-9]){0,%d}))",
-					 ret, lengths[ i ] - 1 - octetsUsed,
-					 lengths[ i+1 ] - 1 - octetsUsed,
-					 numDigits(
-					     pow( 255, iterDH->number )
-					     ) - 1 );
-			}
-			else {
-			    smiAsprintf( &ret, "%s)", ret );
-			}
-			octetsUsed += iterDH->number;
-			if( octetsUsed >= lengths[ i + 1 ] ) {
-			    /* maximum number of octets used,
-			       we must exit the loop */			    
-			    break;
-			}
-		    }
-		}
-		else {
-		    if( iterDH->next ){
-			smiAsprintf( &ret, "%s(%s{%d})",
-				     ret,
-				     baseRegexp, iterDH->number );
-
-			octetsUsed += iterDH->number;
-			if( octetsUsed >= lengths[ i + 1 ] ) {
-			/* maximum number of octets used,
-			   we must exit the loop */			    
-			    break;
-			}
-
-			if( iterDH->separator ) {
-			    smiAsprintf( &ret, "%s%c", ret, iterDH->separator );
-			}
-		    }
-		    else {			
-			smiAsprintf( &ret, "%s(%s",
-				  ret, baseRegexp );
-
-			if( iterDH->separator ) {
-			    smiAsprintf( &ret, "%s%c", ret, iterDH->separator );
-			}
-
-			smiAsprintf( &ret, "(%s){%u,%u})%s",
-				     ret, lengths[ i ] - 1, lengths[ i+1 ] - 1,
-				     baseRegexp );
-			
-			octetsUsed += iterDH->number;
-			if( octetsUsed >= lengths[ i + 1 ] ) {
-			    /* maximum number of octets used,
-			       we must exit the loop */			    
-			    break;
-			}
-		    }
-		}
-	    }
-	    else {
-		/* might be the last one */
-
-		if( iterDH->type == 'd' ) {
-		    /* decimal number needs to be treated differently */
-		    if( iterDH->number < lengths[ i+1 ] ) {
-			smiAsprintf( &ret, "%s(0|[1-9]([0-9]{0,%d}))",
-				     ret,
-				     numDigits( pow( 255, iterDH->number ) ) );
-
-			octetsUsed += lengths[ i ];
-			if( octetsUsed >= lengths[ i + 1 ] ) {
-			    /* the maximum number of octets have been reached,
-			       we must exit the loop */
-			    break;
-			}
-
-			if( iterDH->separator ) {
-			    smiAsprintf( &ret, "%s%c", ret, iterDH->separator );
-			}						
-		    }
-		    else {
-			smiAsprintf( &ret, "%s(0|[1-9]([0-9]{0,%d})",
-				     ret,
-				     numDigits( pow( 255, lengths[ i+1 ] ) ) );
-		    }
-		}
-		else {
-		    smiAsprintf( &ret, "%s(%s",  ret, baseRegexp );
-		    if( iterDH->next ) {
-			if( iterDH->separator ) {
-			    smiAsprintf( &ret, "%s%c", ret, iterDH->separator );
-			}
-			if( ! lengths[ i ] && lengths[ i+1 ] == 65535 ) {
-			    smiAsprintf( &ret, "%s)*",ret );
-			}
-			else{
-			    smiAsprintf( &ret, "%s){%u,%u}",ret, lengths[ i ],
-					 MIN( iterDH->number,
-					      lengths[ i + 1] ) - 1 );
-			}
-			octetsUsed += lengths[ i ];
-			if( octetsUsed >= lengths[ i + 1 ] ) {
-			    /* the maximum number of octets have been reached,
-			       we must exit the loop */
-			    break;
-			}						
-		    }
-		    else {
-			octetsUsed += lengths[ i ];
-			if( iterDH->separator &&
-			    octetsUsed < lengths[ i + 1 ] ) {
-
-			    if( ! lengths[ i ] && lengths[ i+1 ] == 65535 ) {
-				smiAsprintf( &ret, "%s%c)*%s",
-					     ret, iterDH->separator, baseRegexp );
-			    }
-			    else {
-				smiAsprintf( &ret, "%s%c){%u,%u}%s",
-					     ret, iterDH->separator,
-					     lengths[ i ], lengths[ i + 1] - 1,
-					     baseRegexp );
-			    }
-			}
-			else {
-			    if( ! lengths[ i ] && lengths[ i+1 ] == 65535 ) {
-				smiAsprintf( &ret, "%s)*%c",
-					     ret, iterDH->separator );
-			    }
-			    else {
-				smiAsprintf( &ret, "%s){%u,%u}%c",
-					     ret, lengths[ i ],
-					     lengths[ i + 1],
-					     iterDH->separator );
- 			    }			    
-			}
-		    }
-		}
-		
-		if( octetsUsed >= lengths[ i + 1 ] ) {
-		    /* the maximum number of octets have been reached,
-		       we must exit the loop */
-		    break;
-		}
-	    }
-	}
-	i += 2;
-
-	if( i < numSubranges  * 2 ) {
-	    smiAsprintf( &ret, "%s)|(", ret );
-	}
-	else {
-	    smiAsprintf( &ret, "%s)", ret );
-	    if( ! lengths[ i - 2 ] ) {
-		smiAsprintf( &ret, "%s){0,1}", ret );
-	    }
-	}
-    } while( i < numSubranges * 2 );
-    
-    return ret;
-}
-
 static int dhInParent( SmiType *smiType )
 {
     SmiType *parent = smiGetParentType( smiType );
@@ -786,8 +415,9 @@ static void fprintRestriction(FILE *f, SmiType *smiType)
 
     case SMI_BASETYPE_INTEGER32:
     {
-	SmiInteger32 min = -2147483647, max = 2147483646;
-	int offset, useDecPoint = 0;
+	SmiInteger32 min = SMI_BASETYPE_INTEGER32_MIN;
+	SmiInteger32 max = SMI_BASETYPE_INTEGER32_MAX;
+	int offset = 0, useDecPoint = 0;
 
 	if( smiType->format ) {
 	  /* we have a display hint here, so check if we have to use
@@ -799,7 +429,7 @@ static void fprintRestriction(FILE *f, SmiType *smiType)
 
 	if( useDecPoint ) {
 	  fprintSegment( f, 1, "<xsd:restriction base=\"xsd:decimal\">\n");
-	  fprintSegment( f, 0, "<xsd:fractionDigits=\"%d\"/>\n", offset );
+	  fprintSegment( f, 0, "<xsd:fractionDigits value=\"%d\"/>\n", offset );
 	}
 	else {
 	  fprintStdRestHead( f, smiType );
@@ -807,11 +437,11 @@ static void fprintRestriction(FILE *f, SmiType *smiType)
 
 	smiRange = smiGetFirstRange( smiType );
 	while( smiRange ) {
-	    if( min == -2147483647 ||
+	    if( min == SMI_BASETYPE_INTEGER32_MIN ||
 		smiRange->minValue.value.integer32 < min ) {
 		min = smiRange->minValue.value.integer32;
 	    }
-	    if( max == 2147483646 ||
+	    if( max == SMI_BASETYPE_INTEGER32_MAX ||
 		smiRange->maxValue.value.integer32 > max ) {
 		max = smiRange->maxValue.value.integer32;
 	    }
@@ -821,8 +451,8 @@ static void fprintRestriction(FILE *f, SmiType *smiType)
 	/* print minimu value */
 	if( useDecPoint ) {
 	    fprintSegment( f, 0, "<xsd:minInclusive value=\"%d.%d\"/>\n", 
-			   (int)min / pow( 10, offset ), 
-			   abs( (int)min % pow( 10, offset ) ) );
+			   (int)min / smiPow( 10, offset ), 
+			   abs( (int)min % smiPow( 10, offset ) ) );
 	} else {
 	    fprintSegment( f, 0, "<xsd:minInclusive value=\"%d\"/>\n",
 			   (int)min );
@@ -831,8 +461,8 @@ static void fprintRestriction(FILE *f, SmiType *smiType)
 	/* print maximum value */
 	if( useDecPoint ) {
 	    fprintSegment( f, 0, "<xsd:maxInclusive value=\"%d.%d\"/>\n", 
-			   (int)max / pow( 10, offset ), 
-			   abs( (int)max % pow( 10, offset ) ) );
+			   (int)max / smiPow( 10, offset ), 
+			   abs( (int)max % smiPow( 10, offset ) ) );
 	} else {
 	    fprintSegment( f, 0, "<xsd:maxInclusive value=\"%d\"/>\n",
 			   (int)max );
@@ -874,43 +504,22 @@ static void fprintRestriction(FILE *f, SmiType *smiType)
 	    fprintStringUnion( f, indent, smiType,
 			       minLength, maxLength, 0, NULL );
 	    */
-	    SmiUnsigned32 *lengths;
-	    char *dh;
-	    if( numSubRanges ) {
-		unsigned int lp = 0;
-		SmiRange *smiRange;
-		lengths = xmalloc( 2 * sizeof( SmiUnsigned32 ) *
-				   numSubRanges );
-				
-		/* write subtype lengths to the array */
-		for( smiRange = smiGetFirstRange( smiType );
-		     smiRange;
-		     smiRange = smiGetNextRange( smiRange ) ) {
-		    lengths[ lp++ ] = smiRange->minValue.value.unsigned32;
-		    lengths[ lp++ ] = smiRange->maxValue.value.unsigned32;
-		}
-	    }
-	    else {
-		lengths = xmalloc( 2 * sizeof( SmiUnsigned32 ) );
-		lengths[0] = 0;
-		lengths[1] = 65535;
-	    }
+	    char *pattern;
 	    
 	    fprintSegment( f, 1, "<xsd:restriction base=\"xsd:string\">\n" );
 
 	    /* create regexp */
-	    dh = getStrDHType( smiType->format, lengths, numSubRanges );
-
-	    if( dh ) {
-		fprintSegment( f, 0, "<xsd:pattern value=\"%s\"/>\n", dh );
+	    pattern = smiFormatToPattern(smiType->format,
+					 smiGetFirstRange(smiType));
+	    if (pattern) {
+		fprintSegment( f, 0, "<xsd:pattern value=\"%s\"/>\n", pattern);
+		xfree(pattern);
 	    }
 	    else {
 		fprintf( f, "<!-- Warning: repeat in display hint. "
-		            "This feature is not supported. -->\n" );
+			 "This feature is not supported. -->\n" );
 	    }
 	    fprintSegment( f, -1, "</xsd:restriction>\n");
-	    
-	    xfree( lengths );
 	}
 	else {
 	    SmiType *parent = smiGetParentType( smiType );
@@ -921,26 +530,17 @@ static void fprintRestriction(FILE *f, SmiType *smiType)
 	    */
 	    if( parent ) {
 		if(  parent->format ) {
+		    char *pattern;
 
-		    SmiUnsigned32 *lengths =
-			xmalloc( 2 * sizeof( SmiUnsigned32 ) * numSubRanges );
-		    unsigned int lp = 0;
-		    SmiRange *smiRange;
-		    
-		    /* write subtype lengths to the array */
-		    for( smiRange = smiGetFirstRange( smiType );
-			 smiRange;
-			 smiRange = smiGetNextRange( smiRange ) ) {
-			lengths[ lp++ ] = smiRange->minValue.value.unsigned32;
-			lengths[ lp++ ] = smiRange->maxValue.value.unsigned32;
+		    pattern = smiFormatToPattern(parent->format,
+						 smiGetFirstRange(smiType));
+		    if (pattern) {
+			fprintSegment( f, 1, "<xsd:restriction base=\"xsd:string\">\n" );
+			fprintSegment(f, 0, "<xsd:pattern value=\"%s\"/>\n",
+				      pattern);
+			fprintSegment( f, -1, "</xsd:restriction>\n");
+			xfree(pattern);
 		    }
-		    
-		    fprintSegment( f, 1, "<xsd:restriction base=\"xsd:string\">\n" );
-		    fprintSegment( f, 0, "<xsd:pattern value=\"%s\"/>\n",
-				   getStrDHType( parent->format,
-						 lengths, numSubRanges ) );
-		    fprintSegment( f, -1, "</xsd:restriction>\n");
-		    xfree( lengths );
 		}
 		
 		
@@ -1026,8 +626,8 @@ static void fprintRestriction(FILE *f, SmiType *smiType)
     {
 	SmiUnsigned64 min, max;
 
-	min = 0;
-	max = LIBSMI_UINT64_MAX;
+	min = SMI_BASETYPE_UNSIGNED64_MIN;
+	max = SMI_BASETYPE_UNSIGNED64_MAX;
 
 	fprintStdRestHead( f, smiType );
 	
@@ -1104,6 +704,9 @@ static void fprintRestriction(FILE *f, SmiType *smiType)
 	break;
     case SMI_BASETYPE_UNKNOWN:
 	/* should not occur */
+	break;
+    case SMI_BASETYPE_POINTER:
+	/* TODO */
 	break;
     }
 }
@@ -1189,14 +792,14 @@ static void fprintSubRangeType( FILE *f,
     case SMI_BASETYPE_INTEGER32: {
 	SmiInteger32 min, max;
 
-	min = -2147483647;
-	max = 2147483646;
+	min = SMI_BASETYPE_INTEGER32_MIN;
+	max = SMI_BASETYPE_INTEGER32_MAX;
 
-	if( min == -2147483647 ||
+	if( min == SMI_BASETYPE_INTEGER32_MIN ||
 	    smiRange->minValue.value.integer32 < min ) {
 	    min = smiRange->minValue.value.integer32;
 	}
-	if( max == 2147483646 ||
+	if( max == SMI_BASETYPE_INTEGER32_MAX ||
 	    smiRange->maxValue.value.integer32 > max ) {
 	    max = smiRange->maxValue.value.integer32;
 	}
@@ -1263,8 +866,8 @@ static void fprintSubRangeType( FILE *f,
     {
 	SmiUnsigned64 min, max;
 
-	min = 0;
-	max = LIBSMI_UINT64_MAX;
+	min = SMI_BASETYPE_UNSIGNED64_MIN;
+	max = SMI_BASETYPE_UNSIGNED64_MAX;
 
 	if( smiRange->minValue.value.unsigned64 < min ) {
 	    min = smiRange->minValue.value.unsigned64;
@@ -1291,6 +894,7 @@ static void fprintSubRangeType( FILE *f,
     case SMI_BASETYPE_BITS:
     case SMI_BASETYPE_OBJECTIDENTIFIER:
     case SMI_BASETYPE_UNKNOWN:
+    case SMI_BASETYPE_POINTER:
 	/* should not occur */
 	break;
 	
@@ -1302,32 +906,22 @@ static void fprintDisplayHint( FILE *f, char *format )
     fprintSegment( f, 0, "<displayHint>%s</displayHint>\n", format );
 }
 
-static void fprintLengths( FILE *f, SmiType *smiType )
+static void fprintLengths(FILE *f, SmiType *smiType)
 {
-    SmiRange *smiRange = smiGetFirstRange( smiType );
-    unsigned int numSubRanges = getNumSubRanges( smiType ),
-	lp = 0;
-    SmiUnsigned32 *lengths = xmalloc(  2 * numSubRanges * 4 );
-    
-    /* write lengths to the array */
-    for( smiRange = smiGetFirstRange( smiType );
-	 smiRange;
-	 smiRange = smiGetNextRange( smiRange ) ) {
-	lengths[ lp++ ] = smiRange->minValue.value.unsigned32;
-	lengths[ lp++ ] = smiRange->maxValue.value.unsigned32;
+    SmiRange *smiRange = smiGetFirstRange(smiType);
+
+    if (! smiRange) {
+	return;
     }
     
-    if( numSubRanges ) {
-	fprintSegment( f, 1, "<lengths>\n" );
+    fprintSegment(f, 1, "<lengths>\n");
+    for (smiRange = smiGetFirstRange(smiType);
+	 smiRange; smiRange = smiGetNextRange(smiRange)) {
+	fprintSegment(f, 0, "<length min=\"%u\" max=\"%u\"/>\n",
+		      smiRange->minValue.value.unsigned32,
+		      smiRange->maxValue.value.unsigned32);
     }
-    for( lp = 0; lp < numSubRanges * 2; lp = lp + 2 ) {
-	fprintSegment( f, 0, "<length min=\"%u\" max=\"%u\"/>\n",
-		       lengths[ lp ], lengths[ lp + 1 ] );
-    } 
-    if( numSubRanges ) {
-	fprintSegment( f, -1, "</lengths>\n" );
-	xfree( lengths );
-    }
+    fprintSegment( f, -1, "</lengths>\n");
 }
 
 
@@ -1474,20 +1068,8 @@ static int hasChildren( SmiNode *smiNode, SmiNodekind nodekind )
 static void
 fprintTypeWithHint( FILE *f, SmiNode *smiNode, SmiType *smiType, char *hint )
 {
-    unsigned int numSubRanges = getNumSubRanges( smiType ),
-	lp = 0;
-    SmiRange *smiRange;
-    SmiUnsigned32 *lengths = xmalloc(  2 * numSubRanges * 4 );
+    char *pattern;
     
-/*    fprintAnnotationElem( f, smiNode );*/
-    
-    /* write subtype lengths to the array */
-    for( smiRange = smiGetFirstRange( smiType );
-	 smiRange;
-	 smiRange = smiGetNextRange( smiRange ) ) {
-	lengths[ lp++ ] = smiRange->minValue.value.unsigned32;
-	lengths[ lp++ ] = smiRange->maxValue.value.unsigned32;
-    }		    
     fprintSegment( f, 1, "<xsd:simpleType>\n");
     fprintSegment( f, 1, "<xsd:annotation>\n");
     fprintSegment( f, 1, "<xsd:appinfo>\n");
@@ -1495,11 +1077,14 @@ fprintTypeWithHint( FILE *f, SmiNode *smiNode, SmiType *smiType, char *hint )
     fprintSegment( f, -1, "</xsd:appinfo>\n");
     fprintSegment( f, -1, "</xsd:annotation>\n");
     fprintSegment( f, 1, "<xsd:restriction base=\"xsd:string\">\n");
-    fprintSegment( f, 0, "<xsd:pattern value=\"%s\"/>\n",
-		   getStrDHType( hint, lengths, numSubRanges));
+
+    pattern = smiFormatToPattern(hint, smiGetFirstRange(smiType));
+    if (pattern) {
+        fprintSegment( f, 0, "<xsd:pattern value=\"%s\"/>\n", pattern);
+	xfree(pattern);
+    }
     fprintSegment( f, -1, "</xsd:restriction>\n");
     fprintSegment( f, -1, "</xsd:simpleType>\n");
-    xfree( lengths );
 }
 
 
@@ -1551,8 +1136,8 @@ static void fprintIndexAttr( FILE *f, SmiNode *smiNode, SmiNode *augments )
 	    
 	    fprintSegment( f, 1, "<xsd:attribute name=\"%s\" "
 			   "use=\"required\">\n", smiNode->name );
+	    fprintAnnotationElem( f, smiNode );
 	    if( ! hint ) {
-		fprintAnnotationElem( f, smiNode );
 		fprintTypedef( f, smiType, NULL );
 	    }
 	    else {

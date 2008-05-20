@@ -8,7 +8,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: data.c 2011 2004-11-29 10:54:16Z strauss $
+ * @(#) $Id: data.c 7822 2008-03-01 13:22:42Z schoenw $
  */
 
 #include <config.h>
@@ -2288,6 +2288,10 @@ Object *findObjectByModulenameAndName(const char *modulename,
 Object *findObjectByModuleAndName(Module *modulePtr, const char *objectname)
 {
     Object	  *objectPtr;
+
+    if (! objectname) {
+	return NULL;
+    }
     
     if (modulePtr) {
 	for (objectPtr = modulePtr->firstObjectPtr; objectPtr;
@@ -2455,7 +2459,7 @@ Type *setTypeName(Type *typePtr, char *name)
     if (typePtr->export.name) {
 	smiFree(typePtr->export.name);
     }
-    typePtr->export.name = name;
+    typePtr->export.name = smiStrdup(name);
 
     if (! typePtr->export.name) {
 	return typePtr;
@@ -3033,6 +3037,817 @@ NamedNumber *findTypeNamedNumber(Type *typePtr,
 /*
  *----------------------------------------------------------------------
  *
+ * addIdentity --
+ *
+ *      Create a new Identity structure.
+ *
+ * Results:
+ *      A pointer to the new Identity structure or
+ *	NULL if terminated due to an error.
+ *
+ * Side effects:
+ *      None.
+ *
+ *---------------------------------------------------------------------- */
+
+Identity *addIdentity(char *identityname, Parser *parserPtr)
+{
+	Identity  *identityPtr;
+    Module	  *modulePtr;
+    
+    modulePtr = parserPtr->modulePtr;
+    
+    identityPtr = (Identity*) smiMalloc(sizeof(Identity));
+    
+    identityPtr->export.name = identityname;
+    identityPtr->export.status      = SMI_STATUS_UNKNOWN;
+    identityPtr->export.description = NULL;
+    identityPtr->export.reference   = NULL;
+	identityPtr->parentPtr   = NULL;
+	
+    identityPtr->modulePtr   	 	= parserPtr->modulePtr;
+    identityPtr->line	  	 		= parserPtr ? parserPtr->line : -1;
+    
+    identityPtr->nextPtr			= NULL;
+    identityPtr->prevPtr			= modulePtr->lastIdentityPtr;
+    if (!modulePtr->firstIdentityPtr)
+		modulePtr->firstIdentityPtr	= identityPtr;
+    if (modulePtr->lastIdentityPtr)
+		modulePtr->lastIdentityPtr->nextPtr	= identityPtr;
+    modulePtr->lastIdentityPtr		= identityPtr;
+    
+    return (identityPtr);
+    
+}
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * setIdentityDecl --
+ *
+ *      Set the declaring macro of a given Identity.
+ *
+ * Results:
+ *	None.
+ *
+ * Side effects:
+ *      None.
+ *
+ *----------------------------------------------------------------------
+ */
+
+void setIdentityDecl(Identity *identityPtr, SmiDecl decl)
+{
+    identityPtr->export.decl = decl;
+}
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * setIdentityStatus --
+ *
+ *      Set the status of a given Identity.
+ *
+ * Results:
+ *	None.
+ *
+ * Side effects:
+ *      None.
+ *
+ *----------------------------------------------------------------------
+ */
+
+void setIdentityStatus(Identity *identityPtr, SmiStatus status)
+{
+    identityPtr->export.status = status;
+}
+
+
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * setIdentityDescription --
+ *
+ *      Set the description of a given Identity.
+ *
+ * Results:
+ *	None.
+ *
+ * Side effects:
+ *      None.
+ *
+ *----------------------------------------------------------------------
+ */
+
+void setIdentityDescription(Identity *identityPtr, char *description, Parser *parserPtr)
+{
+    if (identityPtr->export.description) smiFree(identityPtr->export.description);
+    if (parserPtr->flags & SMI_FLAG_NODESCR) {
+	smiFree(description);
+	identityPtr->export.description = NULL;
+    } else {
+	identityPtr->export.description = description;
+    }
+}
+
+
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * setIdentityReference --
+ *
+ *      Set the reference of a given Identity.
+ *
+ * Results:
+ *	None.
+ *
+ * Side effects:
+ *      None.
+ *
+ *----------------------------------------------------------------------
+ */
+
+void setIdentityReference(Identity *identityPtr, char *reference, Parser *parserPtr)
+{
+    if (identityPtr->export.reference)
+	smiFree(identityPtr->export.reference);
+    if (parserPtr->flags & SMI_FLAG_NODESCR) {
+	smiFree(reference);
+	identityPtr->export.reference = NULL;
+    } else {
+	identityPtr->export.reference = reference;
+    }
+}
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * setIdentityParent --
+ *
+ *      Set the parent of a given Identity to given Identity pointer.
+ *
+ * Results:
+ *	None.
+ *
+ * Side effects:
+ *      None.
+ *
+ *----------------------------------------------------------------------
+ */
+
+void setIdentityParent(Identity *identityPtr, Identity *parentPtr)
+{
+    if(identityPtr) identityPtr->parentPtr = parentPtr;
+}
+
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * findIdentityByName --
+ *
+ *      Lookup a Identity by a given name.
+ *
+ * Results:
+ *      A pointer to the Identity structure or
+ *	NULL if it is not found.
+ *
+ * Side effects:
+ *      None.
+ *
+ *----------------------------------------------------------------------
+ */
+
+Identity *findIdentityByName(const char *identityname)
+{
+    Module *modulePtr;
+    Identity   *identityPtr;
+    
+    for (modulePtr = smiHandle->firstModulePtr; modulePtr;
+	 modulePtr = modulePtr->nextPtr) {
+	for (identityPtr = modulePtr->firstIdentityPtr; identityPtr;
+	     identityPtr = identityPtr->nextPtr) {
+	    if ((identityPtr->export.name) &&
+		!strcmp(identityPtr->export.name, identityname)) {
+		return (identityPtr);
+	    }
+	}
+    }
+
+    return (NULL);
+}
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * findIdentityByModuleAndName --
+ *
+ *      Lookup a Identity by a given name and Module.
+ *
+ * Results:
+ *      A pointer to the Identity structure or
+ *	NULL if it is not found.
+ *
+ * Side effects:
+ *      None.
+ *
+ *----------------------------------------------------------------------
+ */
+
+Identity *findIdentityByModuleAndName(Module *modulePtr,
+									const char *identityname)
+{
+    Identity   *identityPtr;
+    
+    
+	for (identityPtr = modulePtr->firstIdentityPtr; identityPtr;
+	     identityPtr = identityPtr->nextPtr) {
+	    if ((identityPtr->export.name) &&
+		!strcmp(identityPtr->export.name, identityname)) {
+		return (identityPtr);
+	    }
+	}
+
+
+    return (NULL);
+}
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * findIdentityByModulenameAndName --
+ *
+ *      Lookup a Identity by a given Module and name.
+ *
+ * Results:
+ *      A pointer to the Identity structure or
+ *	NULL if it is not found.
+ *
+ * Side effects:
+ *      None.
+ *
+ *----------------------------------------------------------------------
+ */
+
+Identity *findIdentityByModulenameAndName(const char *modulename,
+				  const char *identity_name)
+{
+    Identity       *identityPtr;
+    Module     *modulePtr;
+
+    modulePtr = findModuleByName(modulename);
+
+    if (modulePtr) {
+	for (identityPtr = modulePtr->firstIdentityPtr; identityPtr;
+	     identityPtr = identityPtr->nextPtr) {
+	    if ((identityPtr->export.name) && !strcmp(identityPtr->export.name, identity_name)) {
+		return (identityPtr);
+	    }
+	}
+    }
+	
+    return (NULL);
+}
+
+
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * addClass --
+ *
+ *      Create a new Class structure.
+ *
+ * Results:
+ *      A pointer to the new Class structure or
+ *	NULL if terminated due to an error.
+ *
+ * Side effects:
+ *      None.
+ *
+ *---------------------------------------------------------------------- */
+
+Class *addClass(char *classname, Parser *parserPtr)
+{
+	Class  *classPtr;
+    Module	  *modulePtr;
+    
+    modulePtr = parserPtr->modulePtr;
+    
+    classPtr = (Class*) smiMalloc(sizeof(Class));
+    
+    classPtr->export.name = classname;
+    classPtr->export.status      = SMI_STATUS_UNKNOWN;
+    classPtr->export.description = NULL;
+    classPtr->export.reference   = NULL;
+   
+    classPtr->modulePtr   	 	= parserPtr->modulePtr;
+    classPtr->line	  	 		= parserPtr ? parserPtr->line : -1;
+    
+    classPtr->parentPtr			= NULL;
+    classPtr->firstAttributePtr = NULL;
+    classPtr->lastAttributePtr  = NULL;
+    classPtr->firstEventPtr 	= NULL;
+    classPtr->lastEventPtr 		= NULL;
+    
+    classPtr->nextPtr			= NULL;
+    classPtr->prevPtr			= modulePtr->lastClassPtr;
+    if (!modulePtr->firstClassPtr)
+		modulePtr->firstClassPtr	= classPtr;
+    if (modulePtr->lastClassPtr)
+		modulePtr->lastClassPtr->nextPtr	= classPtr;
+    modulePtr->lastClassPtr		= classPtr;
+    
+    return (classPtr);
+    
+}
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * setClassDecl --
+ *
+ *      Set the declaring macro of a given Class.
+ *
+ * Results:
+ *	None.
+ *
+ * Side effects:
+ *      None.
+ *
+ *----------------------------------------------------------------------
+ */
+
+void setClassDecl(Class *classPtr, SmiDecl decl)
+{
+    classPtr->export.decl = decl;
+}
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * setClassStatus --
+ *
+ *      Set the status of a given Class.
+ *
+ * Results:
+ *	None.
+ *
+ * Side effects:
+ *      None.
+ *
+ *----------------------------------------------------------------------
+ */
+
+void setClassStatus(Class *classPtr, SmiStatus status)
+{
+    classPtr->export.status = status;
+}
+
+
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * setClassDescription --
+ *
+ *      Set the description of a given Class.
+ *
+ * Results:
+ *	None.
+ *
+ * Side effects:
+ *      None.
+ *
+ *----------------------------------------------------------------------
+ */
+
+void setClassDescription(Class *classPtr, char *description, Parser *parserPtr)
+{
+    if (classPtr->export.description) smiFree(classPtr->export.description);
+    if (parserPtr->flags & SMI_FLAG_NODESCR) {
+	smiFree(description);
+	classPtr->export.description = NULL;
+    } else {
+	classPtr->export.description = description;
+    }
+}
+
+
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * setClassReference --
+ *
+ *      Set the reference of a given Class.
+ *
+ * Results:
+ *	None.
+ *
+ * Side effects:
+ *      None.
+ *
+ *----------------------------------------------------------------------
+ */
+
+void setClassReference(Class *classPtr, char *reference, Parser *parserPtr)
+{
+    if (classPtr->export.reference)
+	smiFree(classPtr->export.reference);
+    if (parserPtr->flags & SMI_FLAG_NODESCR) {
+	smiFree(reference);
+	classPtr->export.reference = NULL;
+    } else {
+	classPtr->export.reference = reference;
+    }
+}
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * setClassParent --
+ *
+ *      Set the parent of a given Class to given Class pointer.
+ *
+ * Results:
+ *	None.
+ *
+ * Side effects:
+ *      None.
+ *
+ *----------------------------------------------------------------------
+ */
+
+void setClassParent(Class *classPtr, Class *parentPtr)
+{
+    if(classPtr) classPtr->parentPtr = parentPtr;
+}
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * findClassByModuleAndName --
+ *
+ *      Lookup a Class by a given name.
+ *
+ * Results:
+ *      A pointer to the Class structure or
+ *	NULL if it is not found.
+ *
+ * Side effects:
+ *      None.
+ *
+ *----------------------------------------------------------------------
+ */
+Class *findClassByModuleAndName(Module *modulePtr,char *name)
+{
+    Class   *classPtr;
+    
+	for (classPtr = modulePtr->firstClassPtr; classPtr;
+	     classPtr = classPtr->nextPtr) {
+	    if ((classPtr->export.name) &&
+		!strcmp(classPtr->export.name, name)) {
+		return (classPtr);
+	    }
+	}
+
+    return NULL;
+}
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * findClassByModulenameAndName --
+ *
+ *      Lookup a Class by a given Module and name.
+ *
+ * Results:
+ *      A pointer to the Class structure or
+ *	NULL if it is not found.
+ *
+ * Side effects:
+ *      None.
+ *
+ *----------------------------------------------------------------------
+ */
+
+Class *findClassByModulenameAndName(const char *modulename,
+				  const char *class_name)
+{
+    Class       *classPtr;
+    Module     *modulePtr;
+
+    modulePtr = findModuleByName(modulename);
+
+    if (modulePtr) {
+	for (classPtr = modulePtr->firstClassPtr; classPtr;
+	     classPtr = classPtr->nextPtr) {
+	    if ((classPtr->export.name) && !strcmp(classPtr->export.name, class_name)) {
+		return (classPtr);
+	    }
+	}
+    }
+	
+    return (NULL);
+}
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * duplicateTypeToAttribute --
+ *
+ *      Create a new Attribute as a duplicate of a given type but with
+ *      an affiliation to the given Class.
+ *
+ * Results:
+ *      A pointer to the new Attribute structure or
+ *	NULL if terminated due to an error.
+ *
+ * Side effects:
+ *      None.
+ *
+ *----------------------------------------------------------------------
+ */
+
+Attribute *duplicateTypeToAttribute(Type *templatePtr, Class *classPtr, Parser *parserPtr)
+{
+    Attribute		  *attributePtr;
+    
+    if(!classPtr) return NULL;
+    
+    attributePtr = (Attribute *) smiMalloc(sizeof(Attribute));
+
+    
+    attributePtr->export.name	        = NULL;
+    attributePtr->export.basetype		= templatePtr->export.basetype;
+    attributePtr->export.decl		= SMI_DECL_ATTRIBUTE;
+    attributePtr->export.format		= NULL;
+    attributePtr->export.value.basetype	= templatePtr->export.basetype;
+    attributePtr->export.units		= NULL;
+    attributePtr->export.status		= templatePtr->export.status;
+    attributePtr->export.description		= NULL;
+    attributePtr->export.reference		= NULL;
+
+    attributePtr->classPtr			= classPtr;
+    attributePtr->listPtr			= NULL;
+    attributePtr->line			= parserPtr ? parserPtr->line : -1;
+
+    attributePtr->nextPtr			= NULL;
+    attributePtr->prevPtr			= classPtr->lastAttributePtr;
+    if (!classPtr->firstAttributePtr)
+	classPtr->firstAttributePtr		= attributePtr;
+    if (classPtr->lastAttributePtr)
+	classPtr->lastAttributePtr->nextPtr	= attributePtr;
+    classPtr->lastAttributePtr		= attributePtr;
+
+    setAttributeParentType(attributePtr, templatePtr);
+    
+    return (attributePtr);
+}
+
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * addAttribute --
+ *
+ *      Create a new Attribute structure and tie it to the given Class.
+ *
+ * Results:
+ *      A pointer to the new Attribute structure or
+ *	NULL if terminated due to an error.
+ *
+ * Side effects:
+ *      None.
+ *
+ *----------------------------------------------------------------------
+ */
+
+Attribute *addAttribute(char *attribute_name,
+	      Class *classPtr, Parser *parserPtr)
+{
+    Attribute	   *attributePtr;
+    
+    attributePtr = smiMalloc(sizeof(Attribute));
+
+    attributePtr->export.name	        = attribute_name;
+   	attributePtr->export.basetype		= SMI_BASETYPE_UNKNOWN;
+    attributePtr->export.decl		= SMI_DECL_UNKNOWN;
+    attributePtr->export.format		= NULL;
+    attributePtr->export.value.basetype	= SMI_BASETYPE_UNKNOWN;
+    attributePtr->export.units		= NULL;
+    attributePtr->export.status		= SMI_STATUS_UNKNOWN;
+    attributePtr->export.description		= NULL;
+    attributePtr->export.reference		= NULL;
+
+    attributePtr->classPtr			= classPtr;
+    attributePtr->listPtr			= NULL;
+    attributePtr->parentTypePtr     = NULL;
+    attributePtr->parentClassPtr    = NULL;
+    attributePtr->line			= parserPtr ? parserPtr->line : -1;
+    
+    attributePtr->nextPtr			= NULL;
+    if (classPtr) {
+	attributePtr->prevPtr		= classPtr->lastAttributePtr;
+	if (!classPtr->firstAttributePtr)
+	    classPtr->firstAttributePtr	= attributePtr;
+	if (classPtr->lastAttributePtr)
+	    classPtr->lastAttributePtr->nextPtr = attributePtr;
+	classPtr->lastAttributePtr		= attributePtr;
+    } else {
+	attributePtr->prevPtr		= NULL;
+    }
+	
+    return (attributePtr);
+}
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * setAttributeDecl --
+ *
+ *      Set the declaring macro of a given Attribute.
+ *
+ * Results:
+ *	None.
+ *
+ * Side effects:
+ *      None.
+ *
+ *----------------------------------------------------------------------
+ */
+
+void setAttributeDecl(Attribute *attributePtr, SmiDecl decl)
+{
+    attributePtr->export.decl = decl;
+}
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * setAttributeParentType --
+ *
+ *      Set the parent of a given attribute.
+ *
+ * Results:
+ *	None.
+ *
+ * Side effects:
+ *      None.
+ *
+ *----------------------------------------------------------------------
+ */
+
+void setAttributeParentType(Attribute *attributePtr, Type *parentPtr)
+{
+    attributePtr->parentTypePtr = parentPtr;
+}
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * setAttributeParentClass --
+ *
+ *      Set the parent Class of a given attribute.
+ *
+ * Results:
+ *	None.
+ *
+ * Side effects:
+ *      None.
+ *
+ *----------------------------------------------------------------------
+ */
+
+void setAttributeParentClass(Attribute *attributePtr, Class *parentPtr)
+{
+    attributePtr->parentClassPtr = parentPtr;
+}
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * setAttributeList --
+ *
+ *      Set the pointer to a struct list. This used for
+ *	- enumeration items of an enumeration integer type,
+ *	- min-max pair items of a range restricted type,
+ *	- min-max pars items of a size restricted type.
+ *
+ * Results:
+ *	None.
+ *
+ * Side effects:
+ *      None.
+ *
+ *----------------------------------------------------------------------
+ */
+
+void setAttributeList(Attribute *attributePtr, List *listPtr)
+{
+    if (!attributePtr->listPtr) {
+	attributePtr->listPtr  = listPtr;
+    }
+}
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * setAttributeName --
+ *
+ *      Set the name of a given Attribute. 
+ *
+ * Results:
+ *	None.
+ *
+ * Side effects:
+ *      None.
+ *
+ *----------------------------------------------------------------------
+ */
+
+void setAttributeName(Attribute *attributePtr, char *name)
+{
+    
+    attributePtr->export.name = smiStrdup(name);
+}
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * setAttributeAccess --
+ *
+ *      Set the access of a given Attribute. 
+ *
+ * Results:
+ *	None.
+ *
+ * Side effects:
+ *      None.
+ *
+ *----------------------------------------------------------------------
+ */
+void setAttributeAccess(Attribute *attributePtr,SmiAccess access)
+{
+	attributePtr->export.access = access;
+}
+
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * addEvent --
+ *
+ *      Create a new Event structure and tie it to the given Class.
+ *
+ * Results:
+ *      A pointer to the new Event structure or
+ *	NULL if terminated due to an error.
+ *
+ * Side effects:
+ *      None.
+ *
+ *----------------------------------------------------------------------
+ */
+Event *addEvent(char *eventname, Class *classPtr, 
+		             Parser *parserPtr)
+{
+    Event	   *eventPtr;
+    
+   eventPtr = smiMalloc(sizeof(Event));
+
+   	eventPtr->export.name	    = eventname;
+    eventPtr->export.decl		= SMI_DECL_EVENT;
+    eventPtr->export.status	= SMI_STATUS_UNKNOWN;
+    eventPtr->export.description		= NULL;
+    eventPtr->export.reference		= NULL;
+
+    eventPtr->classPtr			= classPtr;
+    eventPtr->line			= parserPtr ? parserPtr->line : -1;
+    
+    eventPtr->nextPtr			= NULL;
+    if (classPtr) {
+	eventPtr->prevPtr		= classPtr->lastEventPtr;
+	if (!classPtr->firstEventPtr)
+	    classPtr->firstEventPtr	= eventPtr;
+	if (classPtr->lastEventPtr)
+	    classPtr->lastEventPtr->nextPtr = eventPtr;
+	classPtr->lastEventPtr		= eventPtr;
+    } else {
+	eventPtr->prevPtr		= NULL;
+    }
+	
+    return (eventPtr);
+}
+
+
+
+/*
+ *----------------------------------------------------------------------
+ *
  * addMacro --
  *
  *      Create a new Macro structure.
@@ -3156,6 +3971,34 @@ void setMacroReference(Macro *macroPtr, char *reference, Parser *parserPtr)
 	macroPtr->export.reference = NULL;
     } else {
 	macroPtr->export.reference = reference;
+    }
+}
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * setMacroAbnf --
+ *
+ *      Set the abnf string of a given extension(SMIng only).
+ *
+ * Results:
+ *	None.
+ *
+ * Side effects:
+ *      None.
+ *
+ *----------------------------------------------------------------------
+ */
+
+void setMacroAbnf(Macro *macroPtr, char *abnf, Parser *parserPtr)
+{
+    if (macroPtr->export.abnf)
+	smiFree(macroPtr->export.abnf);
+    if (parserPtr->flags & SMI_FLAG_NODESCR) {
+	smiFree(abnf);
+	macroPtr->export.abnf = NULL;
+    } else {
+	macroPtr->export.abnf = abnf;
     }
 }
 
@@ -3287,12 +4130,12 @@ Macro *findMacroByModuleAndName(Module *modulePtr, const char *macroname)
 /*
  *----------------------------------------------------------------------
  *
- * findMacroByModulenameAndName --
+ * findNamedNumberByName --
  *
- *      Lookup a Macro by a given Module and name.
+ *      Lookup the value of a namev nuber in a given typ.
  *
  * Results:
- *      A pointer to the Macro structure or
+ *      A pointer to the NamedNumber structure or
  *	NULL if it is not found.
  *
  * Side effects:
@@ -3301,25 +4144,24 @@ Macro *findMacroByModuleAndName(Module *modulePtr, const char *macroname)
  *----------------------------------------------------------------------
  */
 
-Macro *findMacroByModulenameAndName(const char *modulename,
-				    const char *macroname)
+NamedNumber *findNamedNumberByName(Type *typePtr,const char *name)
 {
-    Module     *modulePtr;
-    Macro      *macroPtr;
-
-    modulePtr = findModuleByName(modulename);
-	
-    if (modulePtr) {
-	for (macroPtr = modulePtr->firstMacroPtr; macroPtr;
-	     macroPtr = macroPtr->nextPtr) {
-	    if (!strcmp(macroPtr->export.name, macroname)) {
-		return (macroPtr);
-	    }
-	}
+	List *listPtr;
+    
+    if(typePtr->export.basetype != SMI_BASETYPE_ENUM && 
+    	typePtr->export.basetype != SMI_BASETYPE_BITS) return NULL;
+    	
+    for (listPtr = typePtr->listPtr;
+	 listPtr; listPtr = listPtr->nextPtr) {
+	if (!strcmp(((NamedNumber *)(listPtr->ptr))->export.name 
+	    , name))
+	    return (NamedNumber *)(listPtr->ptr);
     }
 
-    return (NULL);
+    return NULL;
 }
+
+
 
 
 
@@ -3428,6 +4270,9 @@ int smiInitData()
     smiHandle->typeBitsPtr =
 	addType(smiStrdup("Bits"),
 		SMI_BASETYPE_BITS, 0, &parser);
+	smiHandle->typePointerPtr =
+	addType(smiStrdup("Pointer"),
+		SMI_BASETYPE_POINTER, 0, &parser);
 
     return (0);
 }
@@ -3493,9 +4338,13 @@ void smiFreeData()
     Macro      *macroPtr, *nextMacroPtr;
     Module     *modulePtr, *nextModulePtr;
     Import     *importPtr, *nextImportPtr;
+    Identity     *identityPtr, *nextIdentityPtr;
     Revision   *revisionPtr, *nextRevisionPtr;
     List       *listPtr, *nextListPtr;
     Type       *typePtr, *nextTypePtr;
+    Class	   *classPtr, *nextClassPtr;
+    Attribute  *attributePtr, *nextAttributePtr;
+    Event 	   *eventPtr,	*nextEventPtr;
     Object     *objectPtr, *nextObjectPtr;
 
     for (viewPtr = smiHandle->firstViewPtr; viewPtr; viewPtr = nextViewPtr) {
@@ -3526,16 +4375,29 @@ void smiFreeData()
 	    smiFree(revisionPtr->export.description);
 	    smiFree(revisionPtr);
 	}
-
+	
 	for (macroPtr = modulePtr->firstMacroPtr; macroPtr;
 	     macroPtr = nextMacroPtr) {
 	    nextMacroPtr = macroPtr->nextPtr;
 	    smiFree(macroPtr->export.name);
+	    smiFree(macroPtr->export.abnf);
+	    smiFree(macroPtr->export.reference);
+	    smiFree(macroPtr->export.description);
 	    smiFree(macroPtr);
+	    
+	}
+	for (identityPtr = modulePtr->firstIdentityPtr; identityPtr;
+	     identityPtr = nextIdentityPtr) {
+	    nextIdentityPtr = identityPtr->nextPtr;
+	    smiFree(identityPtr->export.name);
+	    smiFree(identityPtr->export.reference);
+	    smiFree(identityPtr->export.description);
+	    smiFree(identityPtr);
 	}
 
 	for (objectPtr = modulePtr->firstObjectPtr; objectPtr;
 	     objectPtr = nextObjectPtr) {
+
 	    nextObjectPtr = objectPtr->nextPtr;
 	    smiFree(objectPtr->export.name);
 	    smiFree(objectPtr->export.description);
@@ -3576,6 +4438,71 @@ void smiFreeData()
 		
 	    }
 	    smiFree(objectPtr);
+	    
+	    
+	    
+	    
+	}
+	
+
+	for (classPtr = modulePtr->firstClassPtr; classPtr;
+	     classPtr = nextClassPtr) {
+
+	    nextClassPtr = classPtr->nextPtr;
+	   	for (attributePtr = classPtr->firstAttributePtr; attributePtr;
+	     attributePtr = nextAttributePtr) {
+
+	    nextAttributePtr = attributePtr->nextPtr;
+	    
+	    for (listPtr = attributePtr->listPtr; listPtr;
+		 listPtr = nextListPtr) {
+		nextListPtr = listPtr->nextPtr;
+		if ((attributePtr->export.basetype == SMI_BASETYPE_BITS) ||
+		    (attributePtr->export.basetype == SMI_BASETYPE_ENUM)) {
+		    smiFree(((NamedNumber *)(listPtr->ptr))->export.name);
+		    smiFree((NamedNumber *)(listPtr->ptr));
+		} else if ((attributePtr->export.basetype == SMI_BASETYPE_INTEGER32) ||
+			   (attributePtr->export.basetype == SMI_BASETYPE_INTEGER64) ||
+			   (attributePtr->export.basetype == SMI_BASETYPE_UNSIGNED32) ||
+			   (attributePtr->export.basetype == SMI_BASETYPE_UNSIGNED64) ||
+			   (attributePtr->export.basetype == SMI_BASETYPE_FLOAT32) ||
+			   (attributePtr->export.basetype == SMI_BASETYPE_FLOAT64) ||
+			   (attributePtr->export.basetype == SMI_BASETYPE_FLOAT128) ||
+			   (attributePtr->export.basetype == SMI_BASETYPE_OCTETSTRING)) {
+		    smiFree((Range *)(listPtr->ptr));
+		}
+		smiFree(listPtr);
+	    }
+	    smiFree(attributePtr->export.name);
+	    smiFree(attributePtr->export.format);
+	    smiFree(attributePtr->export.units);
+	    smiFree(attributePtr->export.description);
+	    smiFree(attributePtr->export.reference);
+	    smiFree(attributePtr);
+	    
+	    }
+	    
+	    for (eventPtr = classPtr->firstEventPtr; eventPtr;
+	     eventPtr = nextEventPtr) {
+	     
+		nextEventPtr = eventPtr->nextPtr;
+		smiFree(eventPtr->export.name);
+	    smiFree(eventPtr->export.reference);
+	    smiFree(eventPtr->export.description);
+	    }
+	   
+	   	
+	    for (listPtr = classPtr->uniqueList; listPtr;
+		 listPtr = nextListPtr) {
+		nextListPtr = listPtr->nextPtr;
+			smiFree(listPtr);
+	    }
+	    
+	    smiFree(classPtr->export.name);
+	    smiFree(classPtr->export.description);
+	    smiFree(classPtr->export.reference);
+	    smiFree(classPtr);
+	
 	}
     }
 
@@ -3602,6 +4529,9 @@ void smiFreeData()
 			   (typePtr->export.basetype == SMI_BASETYPE_INTEGER64) ||
 			   (typePtr->export.basetype == SMI_BASETYPE_UNSIGNED32) ||
 			   (typePtr->export.basetype == SMI_BASETYPE_UNSIGNED64) ||
+			   (typePtr->export.basetype == SMI_BASETYPE_FLOAT32) ||
+			   (typePtr->export.basetype == SMI_BASETYPE_FLOAT64) ||
+			   (typePtr->export.basetype == SMI_BASETYPE_FLOAT128) ||
 			   (typePtr->export.basetype == SMI_BASETYPE_OCTETSTRING)) {
 		    smiFree((Range *)(listPtr->ptr));
 		}

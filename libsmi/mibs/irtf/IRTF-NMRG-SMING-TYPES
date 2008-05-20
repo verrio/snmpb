@@ -2,9 +2,9 @@ module IRTF-NMRG-SMING-TYPES {
 
 //
 // $RCSfile: IRTF-NMRG-SMING-TYPES,v $
-// $Revision: 1003 $
-// $Author: strauss $
-// $Date: 2000-10-19 18:15:10 +0200 (Thu, 19 Oct 2000) $
+// $Revision: 7606 $
+// $Author: schoenw $
+// $Date: 2008-01-22 13:38:03 +0100 (Tue, 22 Jan 2008) $
 //
 
     organization    "IRTF Network Management Research Group (NMRG),
@@ -916,9 +916,9 @@ value         |              |      see 1|          ->C|          ->D
 
          Some possible values, such as snmpUDPDomain, are defined
          in the SNMPv2-TM MIB module.  Other possible values are
-         defined in other MIB modules."
+         defined in other MIB modules.";
         reference
-        "The SNMPv2-TM MIB module is defined in RFC 1906."
+        "The SNMPv2-TM MIB module is defined in RFC 1906.";
     };
 
     typedef TAddressOrZero {
@@ -936,9 +936,9 @@ value         |              |      see 1|          ->C|          ->D
          other MIB modules.
 
          A zero-length TAddress value denotes an unknown transport
-         service address."
+         service address.";
         reference
-        "The SNMPv2-TM MIB module is defined in RFC 1906."
+        "The SNMPv2-TM MIB module is defined in RFC 1906.";
     };
 
     typedef TAddress {
@@ -946,7 +946,7 @@ value         |              |      see 1|          ->C|          ->D
         description
         "Denotes a transport service address.
 
-         This type does not allow a zero-length TAddress value."
+         This type does not allow a zero-length TAddress value.";
     };
 
 };

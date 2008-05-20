@@ -1,0 +1,84 @@
+.\"
+.\" $Id: smixlate.1.in 1676 2004-08-10 10:58:12Z strauss $
+.\"
+.TH smixlate 1  "June 18, 2006" "IUB" "SMI Tools"
+.SH NAME
+smixlate \- translate SMI/SPPI identifiers
+.SH SYNOPSIS
+.B smixlate
+[
+.B "-Vhm"
+] [
+.BI "-c " file
+] [
+.BI "-p " module
+] [
+.BI "-l " level
+]
+.I "module(s)"
+.SH DESCRIPTION
+
+The \fBsmixlate\fP program is used to translate identifiers and
+especially OIDs into a more human readable format.
+.SH OPTIONS
+.TP
+\fB-V, --version\fP
+Show the smixlate version and exit.
+.TP
+\fB-h, --help\fP
+Show a help text and exit.
+.TP
+\fB-r, --recursive\fP
+Report errors and warnings also for recursively imported modules. 
+.TP
+\fB-c \fIfile\fB, --config=\fIfile\fP
+Read \fIfile\fP instead of any other (global and user)
+configuration file.
+.TP
+\fB-p \fImodule\fB, --preload=\fImodule\fP
+Preload the module \fImodule\fP before reading the main
+module(s). This may be helpful if an incomplete main module misses to
+import some definitions.
+.TP
+\fB-l \fIlevel\fB, --level=\fIlevel\fP
+Report errors and warnings up to the given severity \fIlevel\fP. See
+the smilint(1) manual page for a description of the error levels. The
+default error level is 3.
+.TP
+\fB-a, --all\fP
+Replace all OIDs including OID prefixes. Without this option, smixlate
+will only translate OIDs with a corresponding notification, scalar,
+column, row, or table definition.
+.TP
+\fB-f, --format\fP
+Preserve the input format as much as possible by inserting/removing
+white space characters.
+.TP
+.I module(s)
+These are the modules to be loaded for the subsequent translation. If
+a module argument represents a path name (identified by containing at
+least one dot or slash character), this is assumed to be the exact
+file to read. Otherwise, if a module is identified by its plain module
+name, it is searched according to libsmi internal rules. See
+\fBsmi_config(3)\fP for more details.
+.SH "EXAMPLE"
+This example translates numeric OIDs in the input text into a more
+human readable format.
+.nf
+
+  $ echo "what is this oid? 1.3.6.1.2.1.2.2.1.3" | \    
+    ./smixlate -l 0 /usr/local/share/mibs/ietf/*
+  what is this oid? ifType
+  $
+
+.fi
+.SH "SEE ALSO"
+The 
+.BR libsmi (3)
+project is documented at
+.BR "http://www.ibr.cs.tu-bs.de/projects/libsmi/" "."
+.SH "AUTHORS"
+(C) 2006-2006 J. Schoenwaelder, International University Bremen, Germany
+.br
+and contributions by many other people.
+.br

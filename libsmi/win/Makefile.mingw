@@ -6,7 +6,7 @@
 # See the file "COPYING" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# @(#) $Id: Makefile.mingw 3226 2006-02-27 21:48:23Z schoenw $
+# @(#) $Id: Makefile.mingw 7949 2008-03-22 16:19:33Z schoenw $
 #
 
 ##
@@ -41,19 +41,19 @@ LIBDIR = $(INSTROOT)/lib
 ##
 ## Debian Linux mingw cross-compiler version:
 ##
-CC	= gcc -mno-cygwin
+CC	= gcc -mno-cygwin 
 CP	= cp
 RM	= rm -f
-AR	= ar
+AR	= ar 
 MKDIR	= -mkdir
-FLEX    = flex
-BISON   = bison
+FLEX = flex
+BISON = bison
 
 ##
 ## Definitions:
 ##
 CFLAGS = -O2 -Wall
-INCLUDES = -I. -I../lib
+INCLUDES = -I. -I../lib -I../tools
 
 ## 
 ## Global Makefile settings
@@ -76,8 +76,12 @@ TOOLSOBJS = \
 	smilint.o \
 	smidump.o \
 	smidiff.o \
+	smixlate.o \
 	shhopt.o \
+	fprint.o \
+	fortopat.o \
 	rea.o \
+ 	dstring.o \
 	dump-sming.o \
 	dump-smi.o \
 	dump-imports.o \
@@ -98,7 +102,9 @@ TOOLSOBJS = \
 	dump-sppi.o \
 	dump-sizes.o \
 	dump-svg.o \
-	dump-compliance.o
+	dump-compliance.o \
+	dump-yang.o \
+	dump-boilerplate.o
 #	dump-smiv3.o
 #	dump-fig.o
 
@@ -122,7 +128,7 @@ libs:	$(SMILIB)
 $(SMILIB):	$(LIBSMIOBJS)
 	$(AR) -ruv $(SMILIB) $(LIBSMIOBJS)
 
-tools:	smiquery.exe smilint.exe smidump.exe smidiff.exe
+tools:	smiquery.exe smilint.exe smidump.exe smidiff.exe smixlate.exe
 
 smiquery.exe:	$(TOOLSOBJS) $(SMILIB)
 	$(CC) $(CFLAGS) -o smiquery.exe smiquery.o shhopt.o $(SMILIB)
@@ -137,10 +143,14 @@ smidump.exe:	$(TOOLSOBJS) $(SMILIB)
 		dump-corba.o dump-netsnmp.o dump-cm.o dump-jax.o dump-xml.o \
 		dump-identifiers.o dump-metrics.o dump-python.o dump-perl.o \
 		dump-scli.o dump-xsd.o dump-sppi.o dump-sizes.o dump-svg.o \
-		dump-compliance.o shhopt.o rea.o $(SMILIB)
+		dump-compliance.o dump-yang.o dump-boilerplate.o \
+		shhopt.o fprint.o fortopat.o rea.o $(SMILIB)
 
 smidiff.exe:	$(TOOLSOBJS) $(SMILIB)
 	$(CC) $(CFLAGS) -o smidiff.exe smidiff.o shhopt.o $(SMILIB)
+
+smixlate.exe:	$(TOOLSOBJS) $(SMILIB)
+	$(CC) $(CFLAGS) -o smixlate.exe smixlate.o shhopt.o dstring.o $(SMILIB)
 
 parser-smi.c parser-smi.tab.h: ../lib/parser-smi.y ../lib/scanner-smi.h ../lib/parser-smi.h
 	$(BISON) --defines=parser-smi.tab.h -t -psmi -o parser-smi.c ../lib/parser-smi.y
@@ -204,5 +214,8 @@ install-pibs:
 	-$(CP) ../pibs/tubs/* $(PIBDIR)/tubs
 	$(MKDIR) $(PIBDIR)/site
 	-$(CP) ../pibs/site/* $(PIBDIR)/site
+
+zip: install
+	(cd c; zip -r ../libsmi.zip .)
 
 ##

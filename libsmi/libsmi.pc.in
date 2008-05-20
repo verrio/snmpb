@@ -8,5 +8,5 @@ Description: SMI parser library
 Requires:
 Version: @VERSION@
 Libs: -L${libdir} -lsmi
-Cflags: -I${includedir}/libsmi.h
+Cflags: -I${includedir}
 

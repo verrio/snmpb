@@ -5,7 +5,7 @@
 ../dumps/smiv2/RMON2-MIB:5294: warning: redefinition of identifier `RMON-MIB::rmonConformance'
 ../../mibs/ietf/RMON-MIB:211: info: previous definition of `rmonConformance'
 ../dumps/smiv2/RMON2-MIB:1069: warning: index of row `protocolDirEntry' can exceed OID size limit by 45 subidentifier(s)
-../dumps/smiv2/RMON2-MIB:1834: info: index element `addressMapSource' of row `addressMapEntry' should but cannot have a size restriction
+../dumps/smiv2/RMON2-MIB:1834: index element `addressMapSource' of row `addressMapEntry' should but cannot have a size restriction
 ../dumps/smiv2/RMON2-MIB:1775: warning: index of row `addressMapEntry' can exceed OID size limit by 270 subidentifier(s)
 ../dumps/smiv2/RMON2-MIB:2211: warning: index of row `nlHostEntry' can exceed OID size limit by 142 subidentifier(s)
 ../dumps/smiv2/RMON2-MIB:2694: warning: index of row `nlMatrixSDEntry' can exceed OID size limit by 398 subidentifier(s)
@@ -18,3 +18,4 @@
 ../dumps/smiv2/RMON2-MIB:156: warning: type `ZeroBasedCounter32' has no format specification
 ../dumps/smiv2/RMON2-MIB:177: warning: type `LastCreateTime' has no format specification
 ../dumps/smiv2/RMON2-MIB:197: warning: type `TimeFilter' has no format specification
+../dumps/smiv2/RMON2-MIB:428: warning: type `ControlString' has no format specification

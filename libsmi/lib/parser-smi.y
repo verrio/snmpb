@@ -8,7 +8,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: parser-smi.y 4200 2006-05-15 13:50:39Z strauss $
+ * @(#) $Id: parser-smi.y 8090 2008-04-18 12:56:29Z strauss $
  */
 
 %{
@@ -78,10 +78,6 @@ static int	   indexFlag;
 #define INDEXFLAG_AUGMENTS 2
 #define INDEXFLAG_EXTENDS  3
  
-#define MAX_UNSIGNED32		4294967295
-#define MIN_UNSIGNED32		0
-#define MAX_INTEGER32		2147483647
-#define MIN_INTEGER32		-2147483648
 
 #define SMI_EPOCH	631152000	/* 01 Jan 1990 00:00:00 */ 
 
@@ -1838,7 +1834,7 @@ importedKeyword:	importedSMIKeyword
         |               importedSPPIKeyword
                         {
                             if (thisParserPtr->modulePtr->export.language != SMI_LANGUAGE_SPPI)
-                              smiPrintError(thisParserPtr, ERR_SPPI_CONSTRUCT_IN_MIB, $1);
+				smiPrintError(thisParserPtr, ERR_SPPI_TYPE_IN_MIB, $1);
                             $$ = $1;
                         }
         |               BITS
@@ -2191,7 +2187,7 @@ typeDeclaration:	typeName
 					((Range *)$4->listPtr->ptr)->export.minValue.basetype = SMI_BASETYPE_UNSIGNED64;
 					((Range *)$4->listPtr->ptr)->export.minValue.value.unsigned64 = 0;
 					((Range *)$4->listPtr->ptr)->export.maxValue.basetype = SMI_BASETYPE_UNSIGNED64;
-					((Range *)$4->listPtr->ptr)->export.maxValue.value.unsigned64 = LIBSMI_UINT64_MAX;
+					((Range *)$4->listPtr->ptr)->export.maxValue.value.unsigned64 = SMI_BASETYPE_UNSIGNED64_MAX;
 				    }
 				    setTypeParent($4, smiHandle->typeUnsigned64Ptr);
 				}
@@ -2265,16 +2261,16 @@ typeDeclaration:	typeName
 					((Range *)$4->listPtr->ptr)->export.minValue.basetype = SMI_BASETYPE_UNSIGNED64;
 					((Range *)$4->listPtr->ptr)->export.minValue.value.unsigned64 = 0;
 					((Range *)$4->listPtr->ptr)->export.maxValue.basetype = SMI_BASETYPE_UNSIGNED64;
-					((Range *)$4->listPtr->ptr)->export.maxValue.value.unsigned64 = LIBSMI_UINT64_MAX;
+					((Range *)$4->listPtr->ptr)->export.maxValue.value.unsigned64 = SMI_BASETYPE_UNSIGNED64_MAX;
 				    }
 				    setTypeParent($4, smiHandle->typeUnsigned64Ptr);
 				} else if (!strcmp($1, "Integer64")) {
 				    $4->export.basetype = SMI_BASETYPE_INTEGER64;
 				    if ($4->listPtr) {
 					((Range *)$4->listPtr->ptr)->export.minValue.basetype = SMI_BASETYPE_INTEGER64;
-					((Range *)$4->listPtr->ptr)->export.minValue.value.integer64 = LIBSMI_INT64_MIN;
+					((Range *)$4->listPtr->ptr)->export.minValue.value.integer64 = SMI_BASETYPE_INTEGER64_MIN;
 					((Range *)$4->listPtr->ptr)->export.maxValue.basetype = SMI_BASETYPE_INTEGER64;
-					((Range *)$4->listPtr->ptr)->export.maxValue.value.integer64 = LIBSMI_INT64_MAX;
+					((Range *)$4->listPtr->ptr)->export.maxValue.value.integer64 = SMI_BASETYPE_INTEGER64_MAX;
 				    }
 				    setTypeParent($4, smiHandle->typeInteger64Ptr);
 				}
@@ -4302,14 +4298,14 @@ valueofSimpleSyntax:	NUMBER			/* 0..2147483647 */
 			    } else {
 				$$->basetype = defaultBasetype;
 				$$->len = -1;  /* indicates unresolved ptr */
-				$$->value.ptr = (unsigned char *)$1; /* JS: needs strdup? */
+				$$->value.ptr = $1; /* JS: needs strdup? */
 			    }
 			}
 	|		QUOTED_STRING		/* an OCTET STRING */
 			{
 			    $$ = smiMalloc(sizeof(SmiValue));
 			    $$->basetype = SMI_BASETYPE_OCTETSTRING;
-			    $$->value.ptr = (unsigned char *)smiStrdup($1);
+			    $$->value.ptr = smiStrdup($1);
 			    $$->len = strlen($1);
 			}
 			/* NOTE: If the value is an OBJECT IDENTIFIER, then
@@ -5394,7 +5390,7 @@ enumItem:		LOWERCASE_IDENTIFIER
 
 enumNumber:		NUMBER
 			{
-			    if ($1 > MAX_INTEGER32) {
+			    if ($1 > SMI_BASETYPE_INTEGER32_MAX) {
 				smiPrintError(thisParserPtr,
 					      ERR_INTEGER32_TOO_LARGE, $1);
 			    }
@@ -5721,7 +5717,19 @@ Entry:			ObjectName
         ;
 
 DefValPart:		DEFVAL '{' Value '}'
-			{ $$ = $3; }
+			{
+			    $$ = $3;
+			    if ((defaultBasetype == SMI_BASETYPE_BITS) &&
+				($$->basetype != SMI_BASETYPE_BITS)) {
+				smiPrintError(thisParserPtr,
+					      ERR_DEFVAL_SYNTAX);
+				if ($$->basetype == SMI_BASETYPE_OCTETSTRING) {
+				    smiFree($$->value.ptr);
+				}
+				smiFree($$);
+				$$ = NULL;
+			    }
+			}
 	|		/* empty */
 			{ $$ = NULL; }
 			/* TODO: different for DefValPart in AgentCaps ? */
@@ -6214,6 +6222,7 @@ subidentifier:
 				thisParserPtr->parentNodePtr = $$->nodePtr;
 			    } else if (oldNodePtr &&
 				       oldNodePtr->lastObjectPtr &&
+				       oldNodePtr->lastObjectPtr->export.name &&
 				       strcmp(oldNodePtr->lastObjectPtr->export.name, $1)) {
 				smiPrintError(thisParserPtr,
 					      ERR_OIDLABEL_CHANGED,

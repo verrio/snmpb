@@ -8,7 +8,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: scanner-smi.l 1561 2003-05-16 11:22:50Z strauss $
+ * @(#) $Id: scanner-smi.l 6539 2007-02-01 08:23:54Z strauss $
  */
 
 %option noyywrap
@@ -103,7 +103,7 @@ smiLeaveLexRecursion()
  */
 delim		([^a-zA-Z0-9-])|--
 enddelim	([^a-zA-Z0-9-])|--|""
-eol             ("\n"|"\n\015"|"\015\n")
+eol             ("\n"|"\n\015"|"\015\n"|"\015")
 
 
 
@@ -223,7 +223,7 @@ eol             ("\n"|"\n\015"|"\015\n")
     BEGIN(INITIAL);
 }
 
-<Comment>[^-\n]* {
+<Comment>[^-\n\015]* {
 }
 <Comment>"-" {
 }
@@ -841,7 +841,7 @@ eol             ("\n"|"\n\015"|"\015\n")
 	    newlineflag = 1;
 	    column = 0;
 	    if (cutoffcolumn < 0) cutoffcolumn = 0;
-	} else if (s[0] == '\n') {		/* simple newline */
+	} else if (s[0] == '\n' || s[0] == '\r') {	/* simple newline */
 	    thisParser.line++;
 	    d[0] = '\n';
 	    newlineflag = 1;

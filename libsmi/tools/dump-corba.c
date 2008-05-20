@@ -12,7 +12,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: dump-corba.c 1656 2004-07-21 08:00:25Z schoenw $
+ * @(#) $Id: dump-corba.c 8090 2008-04-18 12:56:29Z strauss $
  */
 
 #include <config.h>
@@ -354,6 +354,8 @@ static char *getBaseTypeString(SmiBasetype basetype)
     switch(basetype) {
     case SMI_BASETYPE_UNKNOWN:
 	return "ASN1_Null";
+    case SMI_BASETYPE_POINTER:
+	return "ASN1_Null";
     case SMI_BASETYPE_INTEGER32:
     case SMI_BASETYPE_ENUM:
 	return "ASN1_Integer";
@@ -405,7 +407,7 @@ static char *getIdlAnyTypeName(SmiNode *smiNode, SmiType *smiType)
 
 static char *getValueString(SmiValue *valuePtr, SmiType *typePtr)
 {
-    static char    s[100];
+    static char    s[1024];
     char           ss[9];
     int		   n;
     unsigned int   i;
@@ -477,6 +479,8 @@ static char *getValueString(SmiValue *valuePtr, SmiType *typePtr)
 	sprintf(&s[strlen(s)], "}");
 	break;
     case SMI_BASETYPE_UNKNOWN:
+	break;
+    case SMI_BASETYPE_POINTER:
 	break;
     case SMI_BASETYPE_OBJECTIDENTIFIER:
 	/* TODO */
@@ -599,22 +603,17 @@ static void freeImportList(void)
 static void fprint(FILE *f, char *fmt, ...)
 {
     va_list ap;
-    char    s[200];
+    char    *s;
     char    *p;
     
     va_start(ap, fmt);
-#ifdef HAVE_VSNPRINTF
-    current_column += vsnprintf(s, sizeof(s), fmt, ap);
-#else
-    current_column += vsprintf(s, fmt, ap);	/* buffer overwrite */
-#endif
+    current_column += smiVasprintf(&s, fmt, ap);
     va_end(ap);
-
     fputs(s, f);
-
     if ((p = strrchr(s, '\n'))) {
-	current_column = strlen(p) - 1;
+        current_column = strlen(p) - 1;
     }
+    free(s);
 }
 
 

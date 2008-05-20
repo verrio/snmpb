@@ -2,7 +2,7 @@
 LIBSMI NOTES FOR NATIVE WIN32 SUPPORT USING MINGW
 =================================================
 
-@(#) $Id: README.mingw 1578 2003-08-14 11:10:52Z schoenw $
+@(#) $Id: README.mingw 7800 2008-02-27 13:55:53Z schoenw $
 
 Mingw32 is a gcc based environment allowing to build free Win32
 executables.
@@ -26,7 +26,9 @@ To compile simply run
 	make -f Makefile.mingw
 and to install a
 	make -f Makefile.mingw install
-should do what you expect.
+should do what you expect and 
+	make -f Makefile.mingw zip
+creates libsmi.zip ready to upload on the FTP server.
 
 Default path's are c:/smi/mibs/... for the MIB-files and c:/smi/bin
 for the tools (smidump.exe, ...).

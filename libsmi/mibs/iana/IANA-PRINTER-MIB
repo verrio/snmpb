@@ -18,7 +18,7 @@ ianaPrinterMIB MODULE-IDENTITY
                           Marina del Rey, CA 90292
 
                   Tel:    +1 310 823 9358
-                  E-Mail: iana@iana.org"
+                  E-Mail: iana&iana.org"
 
     DESCRIPTION   "This MIB module defines a set of printing-related
                   TEXTUAL-CONVENTIONs for use in Printer MIB (RFC 3805),
@@ -355,7 +355,7 @@ PrtChannelTypeTC ::= TEXTUAL-CONVENTION
                       -- application protocol available on
                       -- multiple transport protocols.
                       -- Underscore, Inc.
-                      -- Contact: info@underscore.com
+                      -- Contact: info&underscore.com
                   chAppleTalkADSP(40),  -- Not in RFC 1759
                       -- AppleTalk Data Stream Protocol.
                       -- ADSP is part of the AppleTalk

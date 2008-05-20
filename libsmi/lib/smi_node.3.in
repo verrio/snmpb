@@ -1,5 +1,5 @@
 .\"
-.\" $Id: smi_node.3.in 4432 2006-05-29 16:21:11Z strauss $
+.\" $Id: smi_node.3.in 5762 2006-08-17 08:10:17Z schoenw $
 .\"
 .TH smi_node 3  "March 30, 2004" "IBR" "SMI Management Information Library"
 .SH NAME
@@ -39,7 +39,7 @@ information routines
 .BI "SmiNode *smiGetNode(SmiModule *" smiModulePtr ", char *" node );
 .RE
 .sp
-.BI "SmiNode *smiGetNodeByOID(unsigned int " oidlen ", Subid " oid[] );
+.BI "SmiNode *smiGetNodeByOID(unsigned int " oidlen ", SmiSubid " oid[] );
 .RE
 .sp
 .BI "SmiNode *smiGetFirstNode(SmiModule *" smiModulePtr ", SmiNodekind " kinds );

@@ -11,7 +11,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: smidiff.c 3209 2006-02-18 22:38:16Z schoenw $ 
+ * @(#) $Id: smidiff.c 8090 2008-04-18 12:56:29Z strauss $ 
  */
 
 /*
@@ -839,7 +839,8 @@ findTypeWithRange(SmiType *smiType)
 static int 
 cmpSmiValues( SmiValue a, SmiValue b )
 {
-    int i, changed = 0;
+    unsigned int i;
+    int changed = 0;
 
     switch (a.basetype) {
     case SMI_BASETYPE_INTEGER32:
@@ -876,6 +877,7 @@ cmpSmiValues( SmiValue a, SmiValue b )
 	}
 	break;
     case SMI_BASETYPE_UNKNOWN:
+    case SMI_BASETYPE_POINTER:
 	/* this should not occur */
 	break;
     }
@@ -947,7 +949,7 @@ iterateTypeImports(char *typeName,
 
 static char *getValueString(SmiValue *valuePtr, SmiType *typePtr)
 {
-    static char    s[100];
+    static char    s[1024];
     char           ss[9];
     int		   n;
     unsigned int   i;
@@ -1020,6 +1022,7 @@ static char *getValueString(SmiValue *valuePtr, SmiType *typePtr)
 	sprintf(&s[strlen(s)], "}");
 	break;
     case SMI_BASETYPE_UNKNOWN:
+    case SMI_BASETYPE_POINTER:
 	break;
     case SMI_BASETYPE_OBJECTIDENTIFIER:
 	nodePtr = smiGetNodeByOID(valuePtr->len, valuePtr->value.oid);
@@ -1040,7 +1043,7 @@ static char *getValueString(SmiValue *valuePtr, SmiType *typePtr)
 }
 
 static char*
-getStringSubrange( SmiRange *range, SmiType *smiType )
+getStringSubrange(SmiRange *range, SmiType *smiType)
 {
     char *minStr, *maxStr, *str;
     minStr = strdup( getValueString(&range->minValue, smiType) );
@@ -1061,7 +1064,7 @@ getStringSubrange( SmiRange *range, SmiType *smiType )
 
 
 static char*
-getStringRange( SmiType *smiType )
+getStringRange(SmiType *smiType)
 {
     SmiRange *range;
     int i;

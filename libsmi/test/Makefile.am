@@ -8,7 +8,7 @@
 # See the file "COPYING" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# @(#) $Id: Makefile.am 1438 2002-08-08 11:46:06Z strauss $
+# @(#) $Id: Makefile.am 7381 2007-10-19 22:33:28Z schoenw $
 #
 
 TESTMIBTOPDIR		= ../../mibs
@@ -21,6 +21,7 @@ TESTS			= smilint-smiv2.test \
 			  smidump-smiv1.test \
 			  smidump-smiv2.test \
 			  smidump-sming.test \
+			  smidump-yang.test \
 			  smidump-mosy.test \
 			  smidump-tree.test \
 			  smidump-types.test \

@@ -1,4 +1,116 @@
-2005-05-29  Frank Strauss  <strauss@ibr.cs.tu-bs.de>
+
+2008-04-18  Frank Strauss  <strauss@ibr.cs.tu-bs.de>
+
+	* test/*: updated a couple of checks.
+	* tools/*: fixed a couple of minor compiler warnings.
+	* mibs/ietf/PKTC-IETF-SIG-MIB: added (RFC 5098).
+	* mibs/ietf/MIDCOM-MIB: added (RFC 5190).
+	* libsmi-0.4.8.tar.gz: released version 0.4.8.
+
+2008-02-27  Frank Strauss  <strauss@ibr.cs.tu-bs.de>
+
+	* tools/Makefile.am: added missing files to the distribution.
+	* libsmi-0.4.7.tar.gz: released version 0.4.7.
+
+2008-02-27  Frank Strauss  <strauss@ibr.cs.tu-bs.de>
+
+	* mibs/ietf/URI-TC-MIB: added (RFC 5017).
+	* mibs/ietf/PIM-STD-MIB: added (RFC 5060).
+	* mibs/ietf/IF-CAP-STACK-MIB,EFM-CU-MIB: added (RFC 5066).
+	* mibs/ietf/UDPLITE-MIB: added (RFC 5097).
+	* mibs/ietf/LANGTAG-TC-MIB: added (RFC 5131).
+	* mibs/ietf/IPMCAST-MIB: added (RFC 5132).
+	* updated IANA MIBs.
+	* libsmi-0.4.6.tar.gz: released version 0.4.6.
+
+2007-09-03  Frank Strauss  <strauss@ibr.cs.tu-bs.de>
+
+	* mibs/ietf/T11-FC-RSCN-MIB: added (RFC 4983).
+
+2007-08-08  Frank Strauss  <strauss@ibr.cs.tu-bs.de>
+
+	* mibs/ietf/T11-FC-FABRIC-CONFIG-SERVER-MIB: added (RFC 4935).
+	* mibs/ietf/T11-FC-FABRIC-LOCK-MIB,T11-FC-ZONE-SERVER-MIB: added
+	  (RFC 4936).
+	* mibs/ietf/ISNS-MIB: added (RFC 4939).
+
+2007-07-19  Frank Strauss  <strauss@ibr.cs.tu-bs.de>
+
+	* mibs/ietf/DOT3-EPON-MIB: added (RFC 4837).
+	* mibs/ietf/DOT3-OAM-MIB: added (RFC 4878).
+
+2007-06-08  Frank Strauss  <strauss@ibr.cs.tu-bs.de>
+
+	* mibs/ietf/TCP-ESTATS-MIB: added (RFC 4898).
+
+2007-05-08  Frank Strauss  <strauss@ibr.cs.tu-bs.de>
+
+	* mibs/ietf/SIP-{UA,TC,COMMON,SERVER}-MIB: added (RFC 4780).
+	* mibs/ietf/MAU-MIB: updated (RFC 4836).
+
+2007-03-05  Frank Strauss  <strauss@ibr.cs.tu-bs.de>
+
+	* mibs/ietf/DS1-MIB: updated (RFC 4805).
+	* mibs/ietf/IPSEC-SPD-MIB: added (RFC 4807).
+
+2007-03-05  Frank Strauss  <strauss@ibr.cs.tu-bs.de>
+
+	* mibs/iana/IANA-GMPLS-TC-MIB,IANA-IPPM-METRICS-REGISTRY-MIB,
+	  IANA-ITU-ALARM-TC-MIB,IANA-MAU-MIB: added.
+	* mibs/iana/IANA-CHARSET-MIB,IANA-ADDRESS-FAMILY-NUMBERS-MIB,
+	  IANAifType-MIB: added.
+	* mibs/ietf/GMPLS-TC-STD-MIB (RFC 4801): added.
+	* mibs/ietf/GMPLS-TE-STD-MIB (RFC 4802): added.
+	* mibs/ietf/GMPLS-LSR-STD-MIB,GMPLS-LABEL-STD-MIB (RFC 4803): added.
+
+2007-02-01  Frank Strauss  <strauss@ibr.cs.tu-bs.de>
+
+	* mibs/ietf/MSDP-MIB: added (RFC 4624).
+	* mibs/ietf/PKTC-IETF-MTA-MIB: added (RFC 4682).
+	* mibs/ietf/ADSL2-LINE-MIB,ADSL2-LINE-TC-MIB: added (RFC 4706).
+	* mibs/ietf/RAQMON-MIB: added (RFC 4711).
+	* mibs/ietf/T11-FC-VIRTUAL-FABRIC-MIB: added (RFC 4747).
+	* mibs/ietf/DOCS-CABLE-DEVICE-MIB: updated (RFC 4639).
+	* mibs/ietf/OSPF-MIB,OSPF-TRAP-MIB: updated (RFC 4750).
+	* lib/scanner-smi.l: accept also \r as end-of-line.
+
+2006-10-04  Frank Strauss  <strauss@ibr.cs.tu-bs.de>
+
+	* mibs/ietf/T11-FC-ROUTE-MIB: added (RFC 4625).
+	* mibs/ietf/T11-FC-FSPF-MIB: added (RFC 4626).
+	* mibs/ietf/LMP-MIB: updated (RFC 4631).
+	* mibs/ietf/RADIUS-DYNAUTH-CLIENT-MIB: added (RFC 4672).
+	* mibs/ietf/RADIUS-DYNAUTH-SERVER-MIB: added (RFC 4673).
+
+2006-09-06  Frank Strauss  <strauss@ibr.cs.tu-bs.de>
+
+	* autogen.sh: Use glibtool instead of libtool on Darwin.
+	Thanks to Sebastian.
+
+2006-08-30  Frank Strauss  <strauss@ibr.cs.tu-bs.de>
+
+	* mibs/ietf/RADIUS-AUTH-CLIENT-MIB: updated (RFC 4668).
+	* mibs/ietf/RADIUS-AUTH-SERVER-MIB: updated (RFC 4669).
+	* mibs/ietf/RADIUS-ACC-CLIENT-MIB: updated (RFC 4670).
+	* mibs/ietf/RADIUS-ACC-SERVER-MIB: updated (RFC 4671).
+
+2006-07-15  Frank Strauss  <strauss@ibr.cs.tu-bs.de>
+
+	* mibs/ietf/DOCS-IF-MIB: updated (RFC 4546).
+	* mibs/ietf/DOCS-IETF-CABLE-DEVICE-NOTIFICATION-MIB: added (RFC 4547).
+	* mibs/ietf/DISMAN-NSLOOKUP-MIB,DISMAN-PING-MIB,DISMAN-TRACEROUTE-MIB:
+	  updated (RFC 4560).
+
+2006-06-12  Frank Strauss  <strauss@ibr.cs.tu-bs.de>
+
+	* mibs/ietf/ISCSI-MIB: added (RFC 4544).
+	* mibs/ietf/IPS-AUTH-MIB: added (RFC 4545).
+
+2006-05-30  Frank Strauss  <strauss@ibr.cs.tu-bs.de>
+
+	* mibs/ietf/SNMP-USM-AES-MIB: updated (RFC 3826).
+
+2006-05-29  Frank Strauss  <strauss@ibr.cs.tu-bs.de>
 
 	* mibs/ietf/BGP4-MIB: updated (RFC 4273).
 	* mibs/ietf/IP-FORWARD-MIB: updated (RFC 4292).

@@ -8,7 +8,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: parser-sming.y 1631 2004-03-13 22:21:32Z schoenw $
+ * @(#) $Id: parser-sming.y 7966 2008-03-27 21:25:52Z schoenw $
  */
 
 %{
@@ -17,6 +17,7 @@
     
 #ifdef BACKEND_SMING
 
+#define _ISOC99_SOURCE
 #include <stdio.h>
 #include <errno.h>
 #include <stdlib.h>
@@ -24,9 +25,14 @@
 #include <ctype.h>
 #include <time.h>
 #include <limits.h>
+#include <float.h>
 
 #if defined(_MSC_VER)
 #include <malloc.h>
+#endif
+
+#ifdef HAVE_WIN_H
+#include "win.h"
 #endif
 
 #include "smi.h"
@@ -40,7 +46,6 @@
 #ifdef HAVE_DMALLOC_H
 #include <dmalloc.h>
 #endif
-
 
 
 /*
@@ -65,33 +70,30 @@ extern int yylex(void *lvalp, Parser *parserPtr);
 
 
 
-static char *typeIdentifier, *macroIdentifier, *nodeIdentifier,
-	    *scalarIdentifier, *tableIdentifier, *rowIdentifier,
-	    *columnIdentifier, *notificationIdentifier,
-	    *groupIdentifier, *complianceIdentifier;
+static char *typeIdentifier, *macroIdentifier, *identityIdentifier, 
+	    *classIdentifier, *attributeIdentifier;
 static char *importModulename = NULL;
-static Object *moduleObjectPtr = NULL;
-static Object *nodeObjectPtr = NULL;
-static Object *scalarObjectPtr = NULL;
-static Object *tableObjectPtr = NULL;
-static Object *rowObjectPtr = NULL;
-static Object *columnObjectPtr = NULL;
-static Object *notificationObjectPtr = NULL;
-static Object *groupObjectPtr = NULL;
-static Object *complianceObjectPtr = NULL;
 static Type *typePtr = NULL;
 static Macro *macroPtr = NULL;
+static Identity *identityPtr = NULL;
+static Class	*classPtr = NULL;
+static Attribute *attributePtr = NULL;
+static Event *eventPtr = NULL;
 static SmiBasetype defaultBasetype = SMI_BASETYPE_UNKNOWN;
+static NamedNumber *namedNumberPtr = NULL;
+static int bitsFlag = 0; /* used to differentiate bits definition from enum*/
+static int attributeFlag = 0; /* 
+							   *Used to differentiate between attribute and
+							   *and typedef to tie the type statement
+							   *respectively to class or module.
+							   */
 
 
 #define SMI_EPOCH	631152000	/* 01 Jan 1990 00:00:00 */ 
  
 
 static Type *
-findType(spec, parserPtr, modulePtr)
-    char *spec;
-    Parser *parserPtr;
-    Module *modulePtr;
+findType(char *spec, Parser *parserPtr, Module *modulePtr)
 {
     Type *typePtr;
     Import *importPtr;
@@ -115,146 +117,56 @@ findType(spec, parserPtr, modulePtr)
     return typePtr;
 }
  
-
-			    
-static Object *
-findObject(spec, parserPtr, modulePtr)
-    char *spec;
-    Parser *parserPtr;
-    Module *modulePtr;
+ 
+static Identity *
+findIdentity(char *spec, Parser *parserPtr, Module *modulePtr)
 {
-    Object *objectPtr;
+    Identity *identityPtr;
     Import *importPtr;
-    char *module, *object;
+    char *module, *identity;
 
-    object = strstr(spec, "::");
-    if (!object) {
-	objectPtr = findObjectByModuleAndName(modulePtr, spec);
-	if (!objectPtr) {
+    identity = strstr(spec, "::");
+    if (!identity) {
+	identityPtr = findIdentityByModuleAndName(modulePtr, spec);
+	if (!identityPtr) {
 	    importPtr = findImportByName(spec, modulePtr);
 	    if (importPtr) {
-	     objectPtr = findObjectByModulenameAndName(importPtr->export.module,
-							  spec);
+		identityPtr = findIdentityByModulenameAndName(importPtr->export.module,
+						      spec);
 	    }
 	}
     } else {
 	module = strtok(spec, ":");
-	object = &object[2];
-	objectPtr = findObjectByModulenameAndName(module, object);
+	identity = &identity[2];
+	identityPtr = findIdentityByModulenameAndName(module, identity);
     }
-    return objectPtr;
+    return identityPtr;
 }
 
-
-
-static void
-checkObjects(Parser *parserPtr, Module *modulePtr)
+static Class *
+findClass(char *spec, Parser *parserPtr, Module *modulePtr)
 {
-    Object *objectPtr;
-    Node *nodePtr;
-    int i;
+    Class *classPtr;
+    Import *importPtr;
+    char *module, *class;
 
-    for (objectPtr = modulePtr->firstObjectPtr;
-	 objectPtr; objectPtr = objectPtr->nextPtr) {
-
-	/*
-	 * Check whether groups only contain scalars, columns and
-	 * notifications.
-	 */
-
-	if (objectPtr->export.nodekind == SMI_NODEKIND_GROUP) {
-	    smiCheckGroupMembers(parserPtr, objectPtr);
-	}
-
-	/*
-	 * Complain about empty description clauses.
-	 */
-
-	if (! parserPtr->flags & SMI_FLAG_NODESCR
-	    && objectPtr->export.nodekind != SMI_NODEKIND_UNKNOWN
-	    && objectPtr->export.nodekind != SMI_NODEKIND_NODE
-	    && (! objectPtr->export.description
-		|| ! objectPtr->export.description[0])) {
-	    smiPrintErrorAtLine(parserPtr, ERR_EMPTY_DESCRIPTION,
-				objectPtr->line, objectPtr->export.name);
-	}
-
-	/*
-	 * Check table linkage constraints for row objects.
-	 */
-
-	if (objectPtr->export.nodekind == SMI_NODEKIND_ROW) {
-	    switch (objectPtr->export.indexkind) {
-	    case SMI_INDEX_INDEX:
-		smiCheckIndex(parserPtr, objectPtr);
-		break;
-	    case SMI_INDEX_AUGMENT:
-		smiCheckAugment(parserPtr, objectPtr);
-		break;
-	    case SMI_INDEX_REORDER:	/* TODO */
-		break;
-	    case SMI_INDEX_SPARSE:	/* TODO */
-		break;
-	    case SMI_INDEX_EXPAND:	/* TODO */
-		break;
-	    default:
-		break;
+    class = strstr(spec, "::");
+    if (!class) {
+	classPtr = findClassByModuleAndName(modulePtr, spec);
+	if (!classPtr) {
+	    importPtr = findImportByName(spec, modulePtr);
+	    if (importPtr) {
+		classPtr = findClassByModulenameAndName(importPtr->export.module,
+						      spec);
 	    }
 	}
-	
-	/*
-	 * Set the oidlen/oid values that are not yet correct.
-	 */
-				
-	if (objectPtr->export.oidlen == 0) {
-	    if (objectPtr->nodePtr->oidlen == 0) {
-		for (nodePtr = objectPtr->nodePtr, i = 1;
-		     nodePtr->parentPtr != smiHandle->rootNodePtr;
-		     nodePtr = nodePtr->parentPtr, i++);
-		objectPtr->nodePtr->oid = smiMalloc(i * sizeof(SmiSubid));
-		objectPtr->nodePtr->oidlen = i;
-		for (nodePtr = objectPtr->nodePtr; i > 0; i--) {
-		    objectPtr->nodePtr->oid[i-1] = nodePtr->subid;
-		    nodePtr = nodePtr->parentPtr;
-		}
-	    }
-	    objectPtr->export.oidlen = objectPtr->nodePtr->oidlen;
-	    objectPtr->export.oid = objectPtr->nodePtr->oid;
-	}
-	
-	/*
-	 * Determine the longest common OID prefix of all nodes.
-	 */
-	
-	if (!thisModulePtr->prefixNodePtr) {
-	    thisModulePtr->prefixNodePtr = objectPtr->nodePtr;
-	} else {
-	    for (i = 0; i < thisModulePtr->prefixNodePtr->oidlen; i++) {
-		if (thisModulePtr->prefixNodePtr->oid[i] !=
-		    objectPtr->nodePtr->oid[i]) {
-		    thisModulePtr->prefixNodePtr =
-			findNodeByOid(i, thisModulePtr->prefixNodePtr->oid);
-		    break;
-		}
-	    }
-	}
+    } else {
+	module = strtok(spec, ":");
+	class = &class[2];
+	classPtr = findClassByModulenameAndName(module, class);
     }
-
-    for (objectPtr = modulePtr->firstObjectPtr;
-	 objectPtr; objectPtr = objectPtr->nextPtr) {
-
-	smiCheckDefault(parserPtr, objectPtr);
-	
-    	/*
-	 * Check whether all objects and notifications arecontained in at
-	 * least one conformance group (RFC 2580 3.3 and 4.1).
-	 */
-
-	smiCheckGroupMembership(parserPtr, objectPtr);
-    }
+    return classPtr;
 }
-
-
 
 static void
 checkTypes(Parser *parserPtr, Module *modulePtr)
@@ -361,6 +273,69 @@ checkDate(Parser *parserPtr, char *date)
     return (anytime == (time_t) -1) ? 0 : anytime;
 }
 
+static char *hexToStr(char *hexStr, int len)
+{
+   union{
+   	char ch;
+   	long l;
+   } hex2char;
+   
+   char* res =(char*)malloc(sizeof(char)*len/2+1);
+   char* tmp =(char*)malloc(sizeof(char)*3);
+   int i,j = 0;
+
+   tmp[2]=0;
+   for(i=2; i+1<len; i+=2)
+   {
+   	tmp[0]= hexStr[i];
+   	tmp[1]= hexStr[i+1];
+   	
+   	hex2char.l = strtol(tmp,NULL,16);
+   	res[j] = hex2char.ch;
+   	
+   	j++;
+   }
+   
+   smiFree(tmp);
+   
+   res[j]=0;
+   return res;
+}
+
+static void createBitsValue(SmiValue *valuePtr, Type *typePtr)
+{
+    List *bitsListPtr, *valueListPtr, *p, *pp, *nextPtr;
+    int nBits, bit;
+    
+    if (valuePtr->basetype != SMI_BASETYPE_BITS)
+	return;
+	
+	bitsListPtr = typePtr->listPtr;
+	valueListPtr = (void *)valuePtr->value.ptr;
+	for (nBits = 0, p = bitsListPtr; p; p = p->nextPtr) {
+	    if (nBits < 1+((NamedNumber *)(p->ptr))->export.value.value.unsigned64) {
+		nBits = 1+((NamedNumber *)(p->ptr))->export.value.value.unsigned64;
+	    }
+	}
+	valuePtr->value.ptr = smiMalloc((nBits+7)/8);
+	memset(valuePtr->value.ptr, 0, (nBits+7)/8);
+	valuePtr->len = (nBits+7)/8;
+	for (p = valueListPtr; p;) {
+	    for (pp = bitsListPtr; pp; pp = pp->nextPtr) {
+		if (!strcmp(p->ptr,
+			    ((NamedNumber *)(pp->ptr))->export.name)) {
+		    bit = (int)(((NamedNumber *)(pp->ptr))->export.value.value.unsigned64);
+		    valuePtr->value.ptr[bit/8] |=
+			1 << (7-(bit%8));
+		}
+	    }
+	    smiFree(p->ptr);
+	    nextPtr = p->nextPtr;
+	    smiFree(p);
+	    p = nextPtr;
+	}
+}
+
 			    
 %}
 
@@ -390,8 +365,12 @@ checkDate(Parser *parserPtr, char *date)
     Module	   *modulePtr;
     Node	   *nodePtr;
     Object	   *objectPtr;
+    Identity   *identityPtr;
     Macro	   *macroPtr;
     Type	   *typePtr;
+    Class	   *classPtr;
+    Attribute  *attributePtr;
+    Event	   *eventPtr;
     Index	   index;
     Option	   *optionPtr;
     Refinement	   *refinementPtr;
@@ -409,6 +388,7 @@ checkDate(Parser *parserPtr, char *date)
 /*
  * Tokens and their attributes.
  */
+%token DOT
 %token DOT_DOT
 %token COLON_COLON
 
@@ -419,6 +399,7 @@ checkDate(Parser *parserPtr, char *date)
 %token <text>textSegment
 %token <text>decimalNumber
 %token <text>hexadecimalNumber
+%token <text>OID
 
 %token <rc>moduleKeyword
 %token <rc>importKeyword
@@ -433,15 +414,6 @@ checkDate(Parser *parserPtr, char *date)
 %token <rc>extensionKeyword
 %token <rc>typedefKeyword
 %token <rc>typeKeyword
-%token <rc>writetypeKeyword
-%token <rc>nodeKeyword
-%token <rc>scalarKeyword
-%token <rc>tableKeyword
-%token <rc>columnKeyword
-%token <rc>rowKeyword
-%token <rc>notificationKeyword
-%token <rc>groupKeyword
-%token <rc>complianceKeyword
 %token <rc>formatKeyword
 %token <rc>unitsKeyword
 %token <rc>statusKeyword
@@ -474,11 +446,21 @@ checkDate(Parser *parserPtr, char *date)
 %token <rc>currentKeyword
 %token <rc>deprecatedKeyword
 %token <rc>obsoleteKeyword
-%token <rc>noaccessKeyword
-%token <rc>notifyonlyKeyword
 %token <rc>readonlyKeyword
 %token <rc>readwriteKeyword
-%token <rc>readcreateKeyword
+
+%token <rc>parentKeyword
+%token <rc>classKeyword
+%token <rc>extendsKeyword
+%token <rc>attributeKeyword
+%token <rc>uniqueKeyword
+%token <rc>eventKeyword
+%token <rc>PointerKeyword
+%token <rc>eventonlyKeyword
+%token <rc>neginfKeyword
+%token <rc>posinfKeyword
+%token <rc>snanKeyword
+%token <rc>qnanKeyword
 
 
 /*
@@ -494,33 +476,30 @@ checkDate(Parser *parserPtr, char *date)
 %type <rc>extensionStatement_stmtsep_1n
 %type <rc>extensionStatement_stmtsep
 %type <macroPtr>extensionStatement
+%type <rc>identityStatement_stmtsep_0n
+%type <rc>identityStatement_stmtsep_1n
+%type <rc>identityStatement_stmtsep
+%type <identityPtr>identityStatement
+%type <identityPtr>parentStatement_stmtsep_01
+%type <identityPtr>parentStatement
 %type <rc>typedefStatement_stmtsep_0n
 %type <rc>typedefStatement_stmtsep_1n
 %type <rc>typedefStatement_stmtsep
 %type <typePtr>typedefStatement
-%type <rc>anyObjectStatement_stmtsep_0n
-%type <rc>anyObjectStatement_stmtsep_1n
-%type <rc>anyObjectStatement_stmtsep
-%type <objectPtr>anyObjectStatement
-%type <objectPtr>nodeStatement
-%type <objectPtr>scalarStatement
-%type <objectPtr>tableStatement
-%type <objectPtr>rowStatement
-%type <rc>columnStatement_stmtsep_1n
-%type <rc>columnStatement_stmtsep
-%type <objectPtr>columnStatement
-%type <rc>notificationStatement_stmtsep_0n
-%type <rc>notificationStatement_stmtsep_1n
-%type <rc>notificationStatement_stmtsep
-%type <objectPtr>notificationStatement
-%type <rc>groupStatement_stmtsep_0n
-%type <rc>groupStatement_stmtsep_1n
-%type <rc>groupStatement_stmtsep
-%type <objectPtr>groupStatement
-%type <rc>complianceStatement_stmtsep_0n
-%type <rc>complianceStatement_stmtsep_1n
-%type <rc>complianceStatement_stmtsep
-%type <objectPtr>complianceStatement
+%type <rc>attributeStatement_stmtsep_0n
+%type <rc>attributeStatement_stmtsep_1n
+%type <rc>attributeStatement_stmtsep
+%type <attributePtr>attributeStatement
+%type <rc>eventStatement_stmtsep_0n
+%type <rc>eventStatement_stmtsep_1n
+%type <rc>eventStatement_stmtsep
+%type <eventPtr>eventStatement
+%type <rc>classStatement_stmtsep_0n
+%type <rc>classStatement_stmtsep_1n
+%type <rc>classStatement_stmtsep
+%type <classPtr>classStatement
+%type <classPtr>extendsStatement_stmtsep_01
+%type <classPtr>extendsStatement
 %type <rc>importStatement_stmtsep_0n
 %type <rc>importStatement_stmtsep_1n
 %type <rc>importStatement_stmtsep
@@ -529,23 +508,8 @@ checkDate(Parser *parserPtr, char *date)
 %type <rc>revisionStatement_stmtsep_1n
 %type <rc>revisionStatement_stmtsep
 %type <revisionPtr>revisionStatement
-%type <rc>identityStatement_stmtsep_01
-%type <rc>identityStatement
 %type <typePtr>typedefTypeStatement
-%type <typePtr>typeStatement_stmtsep_01
-%type <typePtr>typeStatement
-%type <typePtr>writetypeStatement_stmtsep_01
-%type <typePtr>writetypeStatement
-%type <index>anyIndexStatement
-%type <index>indexStatement
-%type <index>augmentsStatement
-%type <index>reordersStatement
-%type <index>sparseStatement
-%type <index>expandsStatement
-%type <rc>sep_impliedKeyword_01
-%type <rc>createStatement_stmtsep_01
-%type <rc>createStatement
-%type <nodePtr>oidStatement
+%type <attributePtr>attributeTypeStatement
 %type <date>dateStatement
 %type <text>organizationStatement
 %type <text>contactStatement
@@ -555,32 +519,23 @@ checkDate(Parser *parserPtr, char *date)
 %type <text>unitsStatement
 %type <status>statusStatement_stmtsep_01
 %type <status>statusStatement
-%type <access>accessStatement_stmtsep_01
-%type <access>accessStatement
 %type <valuePtr>defaultStatement_stmtsep_01
 %type <valuePtr>defaultStatement
+%type <access>accessStatement_stmtsep_01
+%type <access>accessStatement
+%type <access>access
 %type <text>descriptionStatement_stmtsep_01
 %type <text>descriptionStatement
 %type <text>referenceStatement_stmtsep_01
 %type <text>referenceStatement
 %type <text>abnfStatement_stmtsep_01
 %type <text>abnfStatement
-%type <listPtr>membersStatement
-%type <listPtr>objectsStatement_stmtsep_01
-%type <listPtr>objectsStatement
-%type <listPtr>mandatoryStatement_stmtsep_01
-%type <listPtr>mandatoryStatement
-%type <listPtr>optionalStatement_stmtsep_0n
-%type <listPtr>optionalStatement_stmtsep_1n
-%type <optionPtr>optionalStatement_stmtsep
-%type <optionPtr>optionalStatement
-%type <listPtr>refineStatement_stmtsep_0n
-%type <listPtr>refineStatement_stmtsep_1n
-%type <refinementPtr>refineStatement_stmtsep
-%type <refinementPtr>refineStatement
 %type <typePtr>refinedBaseType_refinedType
 %type <typePtr>refinedBaseType
 %type <typePtr>refinedType
+%type <attributePtr>attribute_refinedBaseType_refinedType
+%type <attributePtr>attribute_refinedBaseType
+%type <attributePtr>attribute_refinedType
 %type <listPtr>optsep_anySpec_01
 %type <listPtr>anySpec
 %type <listPtr>optsep_numberSpec_01
@@ -599,6 +554,9 @@ checkDate(Parser *parserPtr, char *date)
 %type <rangePtr>floatElement
 %type <text>floatUpperLimit_01
 %type <text>floatUpperLimit
+%type <text>specialFloatValue
+%type <listPtr>optsep_pointerRestr_01
+%type <text>pointerRestr
 %type <listPtr>bitsOrEnumerationSpec
 %type <listPtr>bitsOrEnumerationList
 %type <listPtr>furtherBitsOrEnumerationItem_0n
@@ -609,21 +567,15 @@ checkDate(Parser *parserPtr, char *date)
 %type <listPtr>furtherIdentifier_0n
 %type <listPtr>furtherIdentifier_1n
 %type <text>furtherIdentifier
-%type <listPtr>qIdentifierList
-%type <listPtr>furtherQIdentifier_0n
-%type <listPtr>furtherQIdentifier_1n
-%type <text>furtherQIdentifier
-%type <listPtr>qlcIdentifierList
-%type <listPtr>furtherQlcIdentifier_0n
-%type <listPtr>furtherQlcIdentifier_1n
-%type <text>furtherQlcIdentifier
+%type <listPtr>uniqueStatement_stmtsep_01
+%type <listPtr>uniqueStatement
+%type <listPtr>uniqueSpec
 %type <listPtr>bitsValue
 %type <listPtr>bitsList
 %type <listPtr>furtherLcIdentifier_0n
 %type <listPtr>furtherLcIdentifier_1n
 %type <text>furtherLcIdentifier
 %type <text>identifier
-%type <text>qIdentifier
 %type <text>qucIdentifier
 %type <text>qlcIdentifier
 %type <text>text
@@ -635,13 +587,6 @@ checkDate(Parser *parserPtr, char *date)
 %type <text>units
 %type <valuePtr>anyValue
 %type <status>status
-%type <access>access
-%type <nodePtr>objectIdentifier
-%type <text>qlcIdentifier_subid
-%type <text>dot_subid_0127
-%type <text>dot_subid_1n
-%type <text>dot_subid
-%type <text>subid
 %type <valuePtr>number
 %type <valuePtr>negativeNumber
 %type <valuePtr>signedNumber
@@ -649,6 +594,7 @@ checkDate(Parser *parserPtr, char *date)
 %type <rc>sep
 %type <rc>optsep
 %type <rc>stmtsep
+%type <text>qOID
 
 %%
 
@@ -764,10 +710,6 @@ moduleStatement:	moduleKeyword sep ucIdentifier
 			    if ($15) {
 				setModuleDescription(thisParserPtr->modulePtr,
 						     $15, thisParserPtr);
-				if (moduleObjectPtr) {
-				    setObjectDescription(moduleObjectPtr, $15,
-							 thisParserPtr);
-				}
 			    }
 			}
 			referenceStatement_stmtsep_01
@@ -775,76 +717,18 @@ moduleStatement:	moduleKeyword sep ucIdentifier
 			    if ($18) {
 				setModuleReference(thisParserPtr->modulePtr,
 						   $18, thisParserPtr);
-				if (moduleObjectPtr) {
-				    setObjectReference(moduleObjectPtr, $18,
-						       thisParserPtr);
-				}
 			    }
 			}
 			revisionStatement_stmtsep_0n
-			identityStatement_stmtsep_01
 			extensionStatement_stmtsep_0n
+			identityStatement_stmtsep_0n
 			typedefStatement_stmtsep_0n
-			anyObjectStatement_stmtsep_0n
-			notificationStatement_stmtsep_0n
-			groupStatement_stmtsep_0n
-			complianceStatement_stmtsep_0n
+			classStatement_stmtsep_0n			
 			'}' optsep ';'
 			{
-			    List *listPtr;
-			    Object *objectPtr;
-			    
-			    /*
-			     * Walk through the index structs of all table
-			     * rows of this module and convert their
-			     * labelstrings to (Object *). This is the
-			     * case for index column lists
-			     * (indexPtr->listPtr[]->ptr), index related
-			     * rows (indexPtr->rowPtr) and create lists
-			     * (listPtr[]->ptr).
-			     */
-			    while (thisParserPtr->firstIndexlabelPtr) {
-				/* adjust indexPtr->listPtr elements */
-				for (listPtr =
-					 ((Object *)(thisParserPtr->
-						     firstIndexlabelPtr->
-						     ptr))->listPtr;
-				     listPtr; listPtr = listPtr->nextPtr) {
-				    objectPtr = findObject(listPtr->ptr,
-							   thisParserPtr,
-							   thisModulePtr);
-				    listPtr->ptr = objectPtr;
-				}
-				/* adjust relatedPtr */
-				if (((Object *)
-				    (thisParserPtr->firstIndexlabelPtr->ptr))->
-				    relatedPtr) {
-				    objectPtr = findObject(
-					((Object *)(thisParserPtr->
-						    firstIndexlabelPtr->ptr))->
-					relatedPtr,
-					thisParserPtr,
-			                thisModulePtr);
-				    ((Object *)(thisParserPtr->
-						firstIndexlabelPtr->ptr))->
-					relatedPtr = objectPtr;
-				}
-				listPtr =
-				    thisParserPtr->firstIndexlabelPtr->nextPtr;
-				free(thisParserPtr->firstIndexlabelPtr);
-				thisParserPtr->firstIndexlabelPtr = listPtr;
-			    }
-
-			    /*
-			     * Is there a node that matches the `identity'
-			     * statement?
-			     */
-			    
-			    checkObjects(thisParserPtr, thisModulePtr);
 			    checkTypes(thisParserPtr, thisModulePtr);
 			    
 			    $$ = thisModulePtr;
-			    moduleObjectPtr = NULL;
 			}
 	;
 
@@ -927,12 +811,15 @@ extensionStatement:	extensionKeyword sep lcIdentifier
 			}
 			abnfStatement_stmtsep_01
 			{
+			   if (macroPtr && $14) {
+				setMacroAbnf(macroPtr, $14,
+						  thisParserPtr);
+			   }
 			}
 			'}' optsep ';'
 			{
 			    $$ = 0;
 			    macroPtr = NULL;
-			    free(macroIdentifier);
 			}
 	;
 
@@ -987,6 +874,15 @@ typedefStatement_stmtsep: typedefStatement stmtsep
 typedefStatement:	typedefKeyword sep ucIdentifier
 			{
 			    typeIdentifier = $3;
+			    /* 
+			     *check for duplicate names in the module 
+			     */
+			    if(typePtr = 
+			    	findType(typeIdentifier, thisParserPtr,thisModulePtr)) 
+					if( typePtr->modulePtr == thisParserPtr->modulePtr)
+					       smiPrintError(thisParserPtr,
+										ERR_DUPLICATE_TYPE_NAME,
+					      				typeIdentifier);
 			}
 			optsep '{' stmtsep
 			typedefTypeStatement stmtsep
@@ -1007,10 +903,28 @@ typedefStatement:	typedefKeyword sep ucIdentifier
 				typePtr = setTypeName(typePtr, typeIdentifier);
 				setTypeDecl(typePtr, SMI_DECL_TYPEDEF);
 			    }
+			    defaultBasetype = typePtr->export.basetype;
 			}
 			defaultStatement_stmtsep_01
 			{
 			    if (typePtr && $11) {
+			    	if(typePtr->export.basetype == 
+			    					SMI_BASETYPE_ENUM) 
+			    					//check ENUM value for correctness
+    				{
+    					if($11->len)
+    	 				if(namedNumberPtr = findNamedNumberByName(typePtr,
+    	 												 $11->value.ptr)){
+    	 					smiFree($11);
+    	 					$11 = &namedNumberPtr->export.value;
+    	 				}
+    	 				else{ smiPrintError(thisParserPtr,
+					      		ERR_ENUM_NAME_NOT_DEFINED,
+					      		$11->value.ptr);
+					    }
+    	 			}
+    	 			//NOTE that the bits default value is set in the anyval
+    	 			//rule
 				setTypeValue(typePtr, $11);
 			    }
 			}
@@ -1050,38 +964,41 @@ typedefStatement:	typedefKeyword sep ucIdentifier
 			}
 			'}' optsep ';'
 			{
+			    smiCheckNamedNumberSubtyping(thisParserPtr , typePtr);
+			    smiCheckNamedNumbersOrder(thisParserPtr , typePtr);
+			    smiCheckNamedNumberRedefinition(thisParserPtr , typePtr);
 			    $$ = 0;
 			    typePtr = NULL;
 			    free(typeIdentifier);
 			    defaultBasetype = SMI_BASETYPE_UNKNOWN;
 			}
 	;
-
-anyObjectStatement_stmtsep_0n: /* empty */
+	
+classStatement_stmtsep_0n: /* empty */
 			{
 			    $$ = 0;
 			}
-        |		anyObjectStatement_stmtsep_1n
+        |		classStatement_stmtsep_1n
 			{
 			    /*
 			     * Return the number of successfully
-			     * parsed object declaring statements.
+			     * parsed typedef statements.
 			     */
 			    $$ = $1;
 			}
 	;
 
-anyObjectStatement_stmtsep_1n: anyObjectStatement_stmtsep
+classStatement_stmtsep_1n: classStatement_stmtsep
 			{
 			    $$ = $1;
 			}
-        |		anyObjectStatement_stmtsep_1n
-			anyObjectStatement_stmtsep
+        |		classStatement_stmtsep_1n
+			classStatement_stmtsep
 			{
 			    /*
 			     * Sum up the number of successfully parsed
-			     * statements or return -1, if at least one
-			     * module failed.
+			     * classes or return -1, if at least one
+			     * failed.
 			     */
 			    if (($1 >= 0) && ($2 >= 0)) {
 				$$ = $1 + $2;
@@ -1091,10 +1008,10 @@ anyObjectStatement_stmtsep_1n: anyObjectStatement_stmtsep
 			}
         ;
 
-anyObjectStatement_stmtsep: anyObjectStatement stmtsep
+classStatement_stmtsep: classStatement stmtsep
 			{
 			    /*
-			     * If we got an (Object *) return rc == 1,
+			     * If we got a (Type *) return rc == 1,
 			     * otherwise parsing failed (rc == -1).
 			     */
 			    if ($1) {
@@ -1105,445 +1022,123 @@ anyObjectStatement_stmtsep: anyObjectStatement stmtsep
 			}
         ;
 
-anyObjectStatement:	nodeStatement
-        |		scalarStatement
-	|		tableStatement
-	;
-
-nodeStatement:		nodeKeyword sep lcIdentifier
+classStatement: classKeyword sep ucIdentifier
 			{
-			    nodeIdentifier = $3;
-			}
-			optsep '{' stmtsep
-			oidStatement stmtsep
-			{
-			    if ($8) {
-				nodeObjectPtr = addObject(nodeIdentifier,
-							  $8->parentPtr,
-							  $8->subid,
-							  0, thisParserPtr);
-				setObjectDecl(nodeObjectPtr, SMI_DECL_NODE);
-				setObjectNodekind(nodeObjectPtr,
-						  SMI_NODEKIND_NODE);
-				setObjectAccess(nodeObjectPtr,
-						SMI_ACCESS_NOT_ACCESSIBLE);
+			    classIdentifier = $3;
+			    if(findClassByModuleAndName(thisModulePtr, classIdentifier))
+			    {
+			    	smiPrintError(thisParserPtr,
+										ERR_DUPLICATE_CLASS_NAME,
+					      				attributeIdentifier);
+			    }
+			    else{
+			    classPtr = addClass(classIdentifier,
+						thisParserPtr);
+			    setClassDecl(classPtr, SMI_DECL_CLASS);
 			    }
 			}
+			optsep '{' stmtsep
+			extendsStatement_stmtsep_01
+			{
+				if(classPtr && $8)
+					classPtr->parentPtr = $8;
+			}
+			attributeStatement_stmtsep_0n
+			uniqueStatement_stmtsep_01
+			{
+				List *tmpList;
+				Attribute *tmpAttribute;
+				if(classPtr && $11)
+				{
+					
+					//Check for "magic" value #@# that defines
+					//scalar class. See NOTE after Class definitino in data.h
+					if(!strcmp((char*)($11->ptr),"#@#"))
+					{	
+						classPtr->uniqueList = (List*)malloc(sizeof(List));
+						classPtr->uniqueList->ptr = classPtr;
+						classPtr->uniqueList->nextPtr = NULL;
+						smiFree($11);
+					}
+					else
+					{
+						tmpList = $11;
+						//convert  all attribute names to atributes
+						for(tmpList; tmpList; tmpList=tmpList->nextPtr)
+						{
+							if(tmpAttribute = 
+							(Attribute*)smiGetAttribute(&(classPtr->export),(char*)(tmpList->ptr)))
+							{
+								smiFree(tmpList->ptr);
+								tmpList->ptr = tmpAttribute;
+							}
+							else
+							{
+								smiFree(tmpList->ptr);
+								tmpList->ptr = NULL;
+								smiPrintError(thisParserPtr,
+										ERR_ATTRIBUTE_NOT_FOUND,
+					      				attributeIdentifier);
+							}
+						}
+						
+						classPtr->uniqueList = $11;
+					}
+				}
+			}
+			eventStatement_stmtsep_0n
 			statusStatement_stmtsep_01
 			{
-			    if (nodeObjectPtr) {
-				setObjectStatus(nodeObjectPtr, $11);
+			    if (classPtr && $14) {
+				setClassStatus(classPtr, $14);
 			    }
 			}
 			descriptionStatement_stmtsep_01
 			{
-			    if (nodeObjectPtr && $13) {
-				setObjectDescription(nodeObjectPtr, $13,
-						     thisParserPtr);
-				/*
-				 * If the node has a description, it gets
-				 * registered. This is used to distinguish
-				 * between SMIv2 OBJECT-IDENTITY macros and
-				 * non-registering ASN.1 value assignments.
-				 */
-				addObjectFlags(nodeObjectPtr, FLAG_REGISTERED);
+			    if (classPtr && $16) {
+				setClassDescription(classPtr, $16,
+						    thisParserPtr);
 			    }
 			}
 			referenceStatement_stmtsep_01
 			{
-			    if (nodeObjectPtr && $15) {
-				setObjectReference(nodeObjectPtr, $15,
-						   thisParserPtr);
+			    if (classPtr && $18) {
+				setClassReference(classPtr, $18,
+						  thisParserPtr);
 			    }
 			}
 			'}' optsep ';'
 			{
-			    if (thisParserPtr->identityObjectName &&
-				!strcmp(thisParserPtr->identityObjectName,
-					nodeIdentifier)) {
-				setModuleIdentityObject(
-				    thisParserPtr->modulePtr, nodeObjectPtr);
-				thisParserPtr->identityObjectName = NULL;
-			    }
-			    
-			    $$ = nodeObjectPtr;
-			    nodeObjectPtr = NULL;
-			    free(nodeIdentifier);
-			}
-        ;
-
-scalarStatement:	scalarKeyword sep lcIdentifier
-			{
-			    scalarIdentifier = $3;
-			}
-			optsep '{' stmtsep
-			oidStatement stmtsep
-			{
-			    if ($8) {
-				scalarObjectPtr = addObject(scalarIdentifier,
-							    $8->parentPtr,
-							    $8->subid,
-							    0, thisParserPtr);
-				setObjectDecl(scalarObjectPtr,
-					      SMI_DECL_SCALAR);
-				setObjectNodekind(scalarObjectPtr,
-						  SMI_NODEKIND_SCALAR);
-			    }
-			}
-			typeStatement stmtsep
-			{
-			    if (scalarObjectPtr && $11) {
-				setObjectType(scalarObjectPtr, $11);
-				defaultBasetype = $11->export.basetype;
-				if (!($11->export.name)) {
-				    /*
-				     * An inlined type.
-				     */
-#if 0 /* export implicitly defined types by the node's lowercase name */
-				    setTypeName($11, scalarIdentifier);
-#endif
-				}
-			    }
-			}
-			accessStatement stmtsep
-			{
-			    if (scalarObjectPtr) {
-				setObjectAccess(scalarObjectPtr, $14);
-			    }
-			}
-			defaultStatement_stmtsep_01
-			{
-			    if (scalarObjectPtr && $17) {
-				setObjectValue(scalarObjectPtr, $17);
-			    }
-			}
-			formatStatement_stmtsep_01
-			{
-			    if (scalarObjectPtr && $19
-				&& smiCheckFormat(thisParserPtr,
-						  $11->export.basetype,
-						  $19, 0)) {
-				setObjectFormat(scalarObjectPtr, $19);
-			    }
-			}
-			unitsStatement_stmtsep_01
-			{
-			    if (scalarObjectPtr && $21) {
-				setObjectUnits(scalarObjectPtr, $21);
-			    }
-			}
-			statusStatement_stmtsep_01
-			{
-			    if (scalarObjectPtr) {
-				setObjectStatus(scalarObjectPtr, $23);
-			    }
-			}
-			descriptionStatement stmtsep
-			{
-			    if (scalarObjectPtr && $25) {
-				setObjectDescription(scalarObjectPtr, $25,
-						     thisParserPtr);
-			    }
-			}
-			referenceStatement_stmtsep_01
-			{
-			    if (scalarObjectPtr && $28) {
-				setObjectReference(scalarObjectPtr, $28,
-						   thisParserPtr);
-			    }
-			}
-			'}' optsep ';'
-			{
-			    $$ = scalarObjectPtr;
-			    scalarObjectPtr = NULL;
-			    free(scalarIdentifier);
-			    defaultBasetype = SMI_BASETYPE_UNKNOWN;
-			}
-        ;
-
-tableStatement:		tableKeyword sep lcIdentifier
-			{
-			    tableIdentifier = $3;
-			}
-			optsep '{' stmtsep
-			oidStatement stmtsep
-			{
-			    if ($8) {
-				tableObjectPtr = addObject(tableIdentifier,
-							   $8->parentPtr,
-							   $8->subid,
-							   0, thisParserPtr);
-				setObjectDecl(tableObjectPtr,
-					      SMI_DECL_TABLE);
-				setObjectNodekind(tableObjectPtr,
-						  SMI_NODEKIND_TABLE);
-				setObjectAccess(tableObjectPtr,
-						SMI_ACCESS_NOT_ACCESSIBLE);
-			    }
-			}
-			statusStatement_stmtsep_01
-			{
-			    if (tableObjectPtr) {
-				setObjectStatus(tableObjectPtr, $11);
-			    }
-			}
-			descriptionStatement stmtsep
-			{
-			    if (tableObjectPtr && $13) {
-				setObjectDescription(tableObjectPtr, $13,
-						     thisParserPtr);
-			    }
-			}
-			referenceStatement_stmtsep_01
-			{
-			    if (tableObjectPtr && $16) {
-				setObjectReference(tableObjectPtr, $16,
-						   thisParserPtr);
-			    }
-			}
-			rowStatement stmtsep
-			'}' optsep ';'
-			{
-			    $$ = tableObjectPtr;
-			    tableObjectPtr = NULL;
-			    free(tableIdentifier);
-			}
-        ;
-
-rowStatement:		rowKeyword sep lcIdentifier
-			{
-			    rowIdentifier = $3;
-			}
-			optsep '{' stmtsep
-			oidStatement stmtsep
-			{
-			    if ($8) {
-				rowObjectPtr = addObject(rowIdentifier,
-							 $8->parentPtr,
-							 $8->subid,
-							 0, thisParserPtr);
-				setObjectDecl(rowObjectPtr,
-					      SMI_DECL_ROW);
-				setObjectNodekind(rowObjectPtr,
-						  SMI_NODEKIND_ROW);
-				setObjectAccess(rowObjectPtr,
-						SMI_ACCESS_NOT_ACCESSIBLE);
-			    }
-			}
-			anyIndexStatement stmtsep
-			{
-			    List *listPtr;
-			    
-			    if (rowObjectPtr &&
-				($11.indexkind != SMI_INDEX_UNKNOWN)) {
-				setObjectIndexkind(rowObjectPtr,
-						   $11.indexkind);
-				setObjectImplied(rowObjectPtr, $11.implied);
-				setObjectRelated(rowObjectPtr, $11.rowPtr);
-				setObjectList(rowObjectPtr, $11.listPtr);
-
-				/*
-				 * Add this row object to the list of rows
-				 * that have to be converted when the whole
-				 * module has been parsed. See the end of
-				 * the moduleStatement rule above.
-				 */
-				listPtr = smiMalloc(sizeof(List));
-				listPtr->ptr = rowObjectPtr;
-			  listPtr->nextPtr = thisParserPtr->firstIndexlabelPtr;
-				thisParserPtr->firstIndexlabelPtr = listPtr;
-			    }
-			}
-			createStatement_stmtsep_01
-			{
-			    if (rowObjectPtr) {
-				if ($14) {
-				    addObjectFlags(rowObjectPtr,
-						   FLAG_CREATABLE);
-				    setObjectCreate(rowObjectPtr, 1);
-				}
-			    }
-			}
-			statusStatement_stmtsep_01
-			{
-			    if (rowObjectPtr) {
-				setObjectStatus(rowObjectPtr, $16);
-			    }
-			}
-			descriptionStatement stmtsep
-			{
-			    if (rowObjectPtr && $18) {
-				setObjectDescription(rowObjectPtr, $18,
-						     thisParserPtr);
-			    }
-			}
-			referenceStatement_stmtsep_01
-			{
-			    if (rowObjectPtr && $21) {
-				setObjectReference(rowObjectPtr, $21,
-						   thisParserPtr);
-			    }
-			}
-			columnStatement_stmtsep_1n
-			'}' optsep ';'
-			{
-			    $$ = rowObjectPtr;
-			    rowObjectPtr = NULL;
-			    free(rowIdentifier);
-			}
-        ;
-
-columnStatement_stmtsep_1n: columnStatement_stmtsep
-			{
-			    /*
-			     * Return the number of successfully
-			     * parsed column statements.
-			     */
-			    $$ = $1;
-			}
-        |		columnStatement_stmtsep_1n columnStatement_stmtsep
-			{
-			    /*
-			     * Sum up the number of successfully parsed
-			     * columns or return -1, if at least one
-			     * module failed.
-			     */
-			    if (($1 >= 0) && ($2 >= 0)) {
-				$$ = $1 + $2;
-			    } else {
-				$$ = -1;
-			    }
+			    $$ = 0;
+			    classPtr = NULL;
 			}
 	;
-
-columnStatement_stmtsep: columnStatement stmtsep
-			{
-			    /*
-			     * If we got an (Object *) return rc == 1,
-			     * otherwise parsing failed (rc == -1).
-			     */
-			    if ($1) {
-				$$ = 1;
-			    } else {
-				$$ = -1;
-			    }
-			}
-        ;
-
-columnStatement:	columnKeyword sep lcIdentifier
-			{
-			    columnIdentifier = $3;
-			}
-			optsep '{' stmtsep
-			oidStatement stmtsep
-			{
-			    if ($8) {
-				columnObjectPtr = addObject(columnIdentifier,
-							    $8->parentPtr,
-							    $8->subid,
-							    0, thisParserPtr);
-				setObjectDecl(columnObjectPtr,
-					      SMI_DECL_COLUMN);
-				setObjectNodekind(columnObjectPtr,
-						  SMI_NODEKIND_COLUMN);
-			    }
-			}
-			typeStatement stmtsep
-			{
-			    if (columnObjectPtr && $11) {
-				setObjectType(columnObjectPtr, $11);
-				defaultBasetype = $11->export.basetype;
-				if (!($11->export.name)) {
-				    /*
-				     * An inlined type.
-				     */
-#if 0 /* export implicitly defined types by the node's lowercase name */
-				    setTypeName($11, columnIdentifier);
-#endif
-				}
-			    }
-			}
-			accessStatement stmtsep
-			{
-			    if (columnObjectPtr) {
-				setObjectAccess(columnObjectPtr, $14);
-			    }
-			}
-			defaultStatement_stmtsep_01
-			{
-			    if (columnObjectPtr && $17) {
-				setObjectValue(columnObjectPtr, $17);
-			    }
-			}
-			formatStatement_stmtsep_01
-			{
-			    if (columnObjectPtr && $19
-                                && smiCheckFormat(thisParserPtr,
-						  $11->export.basetype,
-						  $19, 0)) {
-				setObjectFormat(columnObjectPtr, $19);
-			    }
-			}
-			unitsStatement_stmtsep_01
-			{
-			    if (columnObjectPtr && $21) {
-				setObjectUnits(columnObjectPtr, $21);
-			    }
-			}
-			statusStatement_stmtsep_01
-			{
-			    if (columnObjectPtr) {
-				setObjectStatus(columnObjectPtr, $23);
-			    }
-			}
-			descriptionStatement stmtsep
-			{
-			    if (columnObjectPtr && $25) {
-				setObjectDescription(columnObjectPtr, $25,
-						     thisParserPtr);
-			    }
-			}
-			referenceStatement_stmtsep_01
-			{
-			    if (columnObjectPtr && $28) {
-				setObjectReference(columnObjectPtr, $28,
-						   thisParserPtr);
-			    }
-			}
-			'}' optsep ';'
-			{
-			    $$ = columnObjectPtr;
-			    columnObjectPtr = NULL;
-			    free(columnIdentifier);
-			    defaultBasetype = SMI_BASETYPE_UNKNOWN;
-			}
-        ;
-
-notificationStatement_stmtsep_0n: /* empty */
+		
+attributeStatement_stmtsep_0n: /* empty */
 			{
 			    $$ = 0;
 			}
-        |		notificationStatement_stmtsep_1n
+        |		attributeStatement_stmtsep_1n
 			{
 			    /*
 			     * Return the number of successfully
-			     * parsed notification statements.
+			     * parsed typedef statements.
 			     */
 			    $$ = $1;
 			}
 	;
 
-notificationStatement_stmtsep_1n: notificationStatement_stmtsep
+attributeStatement_stmtsep_1n: attributeStatement_stmtsep
 			{
 			    $$ = $1;
 			}
-        |		notificationStatement_stmtsep_1n
-			notificationStatement_stmtsep
+        |		attributeStatement_stmtsep_1n
+			attributeStatement_stmtsep
 			{
 			    /*
 			     * Sum up the number of successfully parsed
-			     * notifications or return -1, if at least one
-			     * module failed.
+			     * attributes or return -1, if at least one
+			     * failed.
 			     */
 			    if (($1 >= 0) && ($2 >= 0)) {
 				$$ = $1 + $2;
@@ -1553,10 +1148,10 @@ notificationStatement_stmtsep_1n: notificationStatement_stmtsep
 			}
         ;
 
-notificationStatement_stmtsep: notificationStatement stmtsep
+attributeStatement_stmtsep: attributeStatement stmtsep
 			{
 			    /*
-			     * If we got an (Object *) return rc == 1,
+			     * If we got a (Type *) return rc == 1,
 			     * otherwise parsing failed (rc == -1).
 			     */
 			    if ($1) {
@@ -1567,202 +1162,144 @@ notificationStatement_stmtsep: notificationStatement stmtsep
 			}
         ;
 
-notificationStatement:	notificationKeyword sep lcIdentifier
-			{
-			    notificationIdentifier = $3;
-			}
-			optsep '{' stmtsep
-			oidStatement stmtsep
-			{
-			    if ($8) {
-				notificationObjectPtr =
-				    addObject(notificationIdentifier,
-					      $8->parentPtr,
-					      $8->subid,
-					      0, thisParserPtr);
-				setObjectDecl(notificationObjectPtr,
-					      SMI_DECL_NOTIFICATION);
-				setObjectNodekind(notificationObjectPtr,
-						  SMI_NODEKIND_NOTIFICATION);
-			    }
-			}
-			objectsStatement_stmtsep_01
-			{
-			    List *listPtr;
-			    Object *objectPtr;
-			    
-			    if (notificationObjectPtr && $11) {
-				for (listPtr = $11; listPtr;
-				     listPtr = listPtr->nextPtr) {
-				    objectPtr = findObject(listPtr->ptr,
-							   thisParserPtr,
-							   thisModulePtr);
-				    listPtr->ptr = objectPtr;
-				}
-				setObjectList(notificationObjectPtr, $11);
-			    }
-			}
-			statusStatement_stmtsep_01
-			{
-			    if (notificationObjectPtr) {
-				setObjectStatus(notificationObjectPtr, $13);
-			    }
-			}
-			descriptionStatement stmtsep
-			{
-			    if (notificationObjectPtr && $15) {
-				setObjectDescription(notificationObjectPtr,
-						     $15, thisParserPtr);
-			    }
-			}
-			referenceStatement_stmtsep_01
-			{
-			    if (notificationObjectPtr && $18) {
-				setObjectReference(notificationObjectPtr, $18,
-						   thisParserPtr);
-			    }
-			}
-			'}' optsep ';'
-			{
-			    $$ = notificationObjectPtr;
-			    notificationObjectPtr = NULL;
-			    free(notificationIdentifier);
-			}
-        ;
+attributeStatement: attributeKeyword sep lcIdentifier
+					{
+						attributeIdentifier = $3;
+						attributePtr = (Attribute*)smiGetAttribute(&(classPtr->export),
+												attributeIdentifier);
+						if(attributePtr)
+						{
+							smiPrintError(thisParserPtr,
+										ERR_DUPLICATE_ATTRIBUTE_NAME,
+					      				attributeIdentifier);
+					      	attributePtr = NULL;
+						}					
+					}
+					optsep '{' stmtsep
+					attributeTypeStatement
+					{
+			    		if ($8) {
+				    		attributePtr = $8;
+							setAttributeName(attributePtr, 
+											attributeIdentifier);
+							setAttributeDecl(attributePtr, 
+												SMI_DECL_ATTRIBUTE);
+							defaultBasetype = attributePtr->export.basetype;
+			    		}
+					}
+					accessStatement_stmtsep_01
+					{
+						if($10 && attributePtr){
+						/* check whether there's access for class reference, 
+						   which is not allowed */
+							if(attributePtr->parentClassPtr)
+								smiPrintError(thisParserPtr,
+										ERR_ATTRIBUTE_CLASS_ACCESS,
+					      							attributeIdentifier);
+					      	else {
+					      		setAttributeAccess(attributePtr,$10);
+					      	}
+						}
+						else if(attributePtr && attributePtr->parentTypePtr)
+						{
+							smiPrintError(thisParserPtr,
+										ERR_ATTRIBUTE_MISSING_ACCESS,
+					      							attributeIdentifier);
+						}
+					}
+					defaultStatement_stmtsep_01
+					{
+						if($12 && attributePtr){
+							if(attributePtr->parentClassPtr)
+								smiPrintError(thisParserPtr,
+										ERR_ATTRIBUTE_CLASS_DEFAULT,
+					      							attributeIdentifier);
+					      	else{
+					      		attributePtr->export.value = *$12;
+					      	}
+						}
+						else if(attributePtr)
+						{
+							attributePtr->export.value.basetype = 
+													SMI_BASETYPE_UNKNOWN;
+						}
+					}
+					formatStatement_stmtsep_01
+					{
+			   			if($14 && attributePtr){
+							if(attributePtr->parentClassPtr)
+								smiPrintError(thisParserPtr,
+										ERR_ATTRIBUTE_CLASS_FORMAT,
+					      							attributeIdentifier);
+					      	else{
+					      		if (smiCheckFormat(thisParserPtr,
+						  				attributePtr->export.basetype,$14, 0)) 
+						  		{
+									attributePtr->export.format = $14;
+					      		}
+					      	}
+						}
+			    	}
+					unitsStatement_stmtsep_01
+					{
+			    		if($16 && attributePtr){
+							if(attributePtr->parentClassPtr)
+								smiPrintError(thisParserPtr,
+										ERR_ATTRIBUTE_CLASS_UNITS,
+					      							attributeIdentifier);
+					      	else{
+									attributePtr->export.units = $16;
+					      	}
+						}
+					}
+					statusStatement_stmtsep_01
+					{
+			   			if (attributePtr && $18) 
+							attributePtr->export.status = $18;
+					}
+					descriptionStatement_stmtsep_01
+					{
+						if (attributePtr && $20) 
+							attributePtr->export.description = $20;
+					}
+					referenceStatement_stmtsep_01
+					{
+						if (attributePtr && $22) 
+							attributePtr->export.reference = $22;
+			    	}
+					'}' optsep ';'
+					{
+						$$ = attributePtr;
+						attributePtr = NULL;
+						defaultBasetype = SMI_BASETYPE_UNKNOWN;
+					}
+		;
 
-groupStatement_stmtsep_0n: /* empty */
+eventStatement_stmtsep_0n: /* empty */
 			{
 			    $$ = 0;
 			}
-        |               groupStatement_stmtsep_1n
+        |		eventStatement_stmtsep_1n
 			{
 			    /*
 			     * Return the number of successfully
-			     * parsed group statements.
-			     */
-			    $$ = $1;
-			}
-        ;
-
-groupStatement_stmtsep_1n: groupStatement_stmtsep
-			{
-			    $$ = $1;
-			}
-        |               groupStatement_stmtsep_1n groupStatement_stmtsep
-			{
-			    /*
-			     * Sum up the number of successfully parsed
-			     * groups or return -1, if at least one
-			     * module failed.
-			     */
-			    if (($1 >= 0) && ($2 >= 0)) {
-				$$ = $1 + $2;
-			    } else {
-				$$ = -1;
-			    }
-			}
-        ;
-
-groupStatement_stmtsep: groupStatement stmtsep
-			{
-			    /*
-			     * If we got an (Object *) return rc == 1,
-			     * otherwise parsing failed (rc == -1).
-			     */
-			    if ($1) {
-				$$ = 1;
-			    } else {
-				$$ = -1;
-			    }
-			}
-        ;
-
-groupStatement:		groupKeyword sep lcIdentifier
-			{
-			    groupIdentifier = $3;
-			}
-			optsep '{' stmtsep
-			oidStatement stmtsep
-			{
-			    if ($8) {
-				groupObjectPtr = addObject(groupIdentifier,
-							   $8->parentPtr,
-							   $8->subid,
-							   0, thisParserPtr);
-				setObjectDecl(groupObjectPtr, SMI_DECL_GROUP);
-				setObjectNodekind(groupObjectPtr,
-						  SMI_NODEKIND_GROUP);
-			    }
-			}
-			membersStatement stmtsep
-			{
-			    List *listPtr;
-			    Object *objectPtr;
-			    
-			    if (groupObjectPtr && $11) {
-				for (listPtr = $11; listPtr;
-				     listPtr = listPtr->nextPtr) {
-				    objectPtr = findObject(listPtr->ptr,
-							   thisParserPtr,
-							   thisModulePtr);
-				    listPtr->ptr = objectPtr;
-				}
-				setObjectList(groupObjectPtr, $11);
-			    }
-			}
-			statusStatement_stmtsep_01
-			{
-			    if (groupObjectPtr) {
-				setObjectStatus(groupObjectPtr, $14);
-			    }
-			}
-			descriptionStatement stmtsep
-			{
-			    if (groupObjectPtr && $16) {
-				setObjectDescription(groupObjectPtr, $16,
-						     thisParserPtr);
-			    }
-			}
-			referenceStatement_stmtsep_01
-			{
-			    if (groupObjectPtr && $19) {
-				setObjectReference(groupObjectPtr, $19,
-						   thisParserPtr);
-			    }
-			}
-			'}' optsep ';'
-			{
-			    $$ = groupObjectPtr;
-			    groupObjectPtr = NULL;
-			    free(groupIdentifier);
-			}
-        ;
-
-complianceStatement_stmtsep_0n: /* empty */
-			{
-			    $$ = 0;
-			}
-        |               complianceStatement_stmtsep_1n
-			{
-			    /*
-			     * Return the number of successfully
-			     * parsed compliance statements.
+			     * parsed event statements.
 			     */
 			    $$ = $1;
 			}
 	;
 
-complianceStatement_stmtsep_1n: complianceStatement_stmtsep
+eventStatement_stmtsep_1n: eventStatement_stmtsep
 			{
 			    $$ = $1;
 			}
-        |               complianceStatement_stmtsep_1n
-			complianceStatement_stmtsep
+        |		eventStatement_stmtsep_1n
+			eventStatement_stmtsep
 			{
 			    /*
 			     * Sum up the number of successfully parsed
-			     * compliances or return -1, if at least one
-			     * module failed.
+			     * events or return -1, if at least one
+			     * failed.
 			     */
 			    if (($1 >= 0) && ($2 >= 0)) {
 				$$ = $1 + $2;
@@ -1772,10 +1309,10 @@ complianceStatement_stmtsep_1n: complianceStatement_stmtsep
 			}
         ;
 
-complianceStatement_stmtsep: complianceStatement stmtsep
+eventStatement_stmtsep: eventStatement stmtsep
 			{
 			    /*
-			     * If we got an (Object *) return rc == 1,
+			     * If we got a (Type *) return rc == 1,
 			     * otherwise parsing failed (rc == -1).
 			     */
 			    if ($1) {
@@ -1786,101 +1323,33 @@ complianceStatement_stmtsep: complianceStatement stmtsep
 			}
         ;
 
-complianceStatement:	complianceKeyword sep lcIdentifier
+eventStatement: eventKeyword sep lcIdentifier
 			{
-			    complianceIdentifier = $3;
+				//TODO check for repeated names
+				eventPtr=addEvent($3,classPtr,thisParserPtr);
 			}
 			optsep '{' stmtsep
-			oidStatement stmtsep
-			{
-			    if ($8) {
-				complianceObjectPtr =
-				    addObject(complianceIdentifier,
-					      $8->parentPtr,
-					      $8->subid,
-					      0, thisParserPtr);
-				setObjectDecl(complianceObjectPtr,
-					      SMI_DECL_COMPLIANCE);
-				setObjectNodekind(complianceObjectPtr,
-						  SMI_NODEKIND_COMPLIANCE);
-			    }
-			}
 			statusStatement_stmtsep_01
 			{
-			    if (complianceObjectPtr) {
-				setObjectStatus(complianceObjectPtr, $11);
-			    }
+				if($8 && eventPtr)
+				eventPtr->export.status = $8;
 			}
-			descriptionStatement stmtsep
+			descriptionStatement_stmtsep_01
 			{
-			    if (complianceObjectPtr && $13) {
-				setObjectDescription(complianceObjectPtr, $13,
-						     thisParserPtr);
-			    }
+				if($10 && eventPtr)
+				eventPtr->export.description = $10;
 			}
 			referenceStatement_stmtsep_01
 			{
-			    if (complianceObjectPtr && $16) {
-				setObjectReference(complianceObjectPtr, $16,
-						   thisParserPtr);
-			    }
-			}
-			mandatoryStatement_stmtsep_01
-			{
-			    List *listPtr;
-			    Object *objectPtr;
-			    
-			    if (complianceObjectPtr && $18) {
-				for (listPtr = $18; listPtr;
-				     listPtr = listPtr->nextPtr) {
-				    objectPtr = findObject(listPtr->ptr,
-							   thisParserPtr,
-							   thisModulePtr);
-				    listPtr->ptr = objectPtr;
-				}
-				setObjectList(complianceObjectPtr, $18);
-			    }
-			}
-			optionalStatement_stmtsep_0n
-			{
-			    Option *optionPtr;
-			    List *listPtr;
-			    
-			    complianceObjectPtr->optionlistPtr = $20;
-			    if ($20) {
-				for (listPtr = $20;
-				     listPtr;
-				     listPtr = listPtr->nextPtr) {
-				    optionPtr = ((Option *)(listPtr->ptr));
-				    optionPtr->compliancePtr =
-					complianceObjectPtr;
-				}
-			    }
-			}
-			refineStatement_stmtsep_0n
-			{
-			    Refinement *refinementPtr;
-			    List *listPtr;
-			    
-			    complianceObjectPtr->refinementlistPtr = $22;
-			    if ($22) {
-				for (listPtr = $22;
-				     listPtr;
-				     listPtr = listPtr->nextPtr) {
-				    refinementPtr =
-					((Refinement *)(listPtr->ptr));
-				    refinementPtr->compliancePtr =
-					complianceObjectPtr;
-				}
-			    }
+				if($12 && eventPtr)
+				eventPtr->export.reference = $12;
 			}
 			'}' optsep ';'
 			{
-			    $$ = complianceObjectPtr;
-			    complianceObjectPtr = NULL;
-			    free(complianceIdentifier);
+				$$ = eventPtr;
+				eventPtr = NULL;
 			}
-        ;
+		;
 
 importStatement_stmtsep_0n: /* empty */
 			{
@@ -2009,200 +1478,104 @@ revisionStatement:	revisionKeyword optsep '{' stmtsep
 			}
         ;
 
-identityStatement_stmtsep_01: /* empty */
+identityStatement_stmtsep_0n: /* empty */
 			{
 			    $$ = 0;
 			}
-        |		identityStatement stmtsep
+        |		identityStatement_stmtsep_1n
 			{
-			    $$ = 1;
+			    /*
+			     * Return the number of successfully
+			     * parsed identity statements.
+			     */
+			    $$ = $1;
 			}
 	;
 
-identityStatement:	identityKeyword sep lcIdentifier optsep ';'
+identityStatement_stmtsep_1n: identityStatement_stmtsep
 			{
-			    thisParserPtr->identityObjectName = $3;
-			    $$ = 1;
+			    $$ = $1;
+			}
+        |		identityStatement_stmtsep_1n
+			identityStatement_stmtsep
+			{
+			    /*
+			     * Sum up the number of successfully parsed
+			     * identities or return -1, if at least one
+			     * failed.
+			     */
+			    if (($1 >= 0) && ($2 >= 0)) {
+				$$ = $1 + $2;
+			    } else {
+				$$ = -1;
+			    }
 			}
         ;
+
+identityStatement_stmtsep: identityStatement stmtsep
+			{
+			    /*
+			     * If we got a (Type *) return rc == 1,
+			     * otherwise parsing failed (rc == -1).
+			     */
+			    if ($1) {
+				$$ = 1;
+			    } else {
+				$$ = -1;
+			    }
+			}
+        ;
+
+identityStatement:	identityKeyword sep lcIdentifier
+			{
+				identityIdentifier = $3;
+				identityPtr = addIdentity(identityIdentifier,
+						thisParserPtr);
+			    setIdentityDecl(identityPtr, SMI_DECL_IDENTITY);
+			}
+			optsep '{' stmtsep
+			parentStatement_stmtsep_01
+			{
+				if(identityPtr && $8) {
+					setIdentityParent(identityPtr,$8);
+				}
+			}
+			statusStatement_stmtsep_01
+			{
+			    if (identityPtr && $10) {
+				setIdentityStatus(identityPtr, $10);
+			    }
+			}
+			descriptionStatement_stmtsep_01
+			{
+				if (identityPtr && $12) {
+				setIdentityDescription(identityPtr, $12,
+						    			thisParserPtr);
+			    }
+			}
+			referenceStatement_stmtsep_01
+			{
+				setIdentityReference(identityPtr, $14, 
+									 thisParserPtr)
+			}
+			'}' optsep ';'
+			{
+			    $$ = 0;
+			    identityPtr = NULL;
+			}
+	;
 
 typedefTypeStatement:	typeKeyword sep refinedBaseType_refinedType optsep ';'
-			/* TODO: originally, this was based on
-			 * refinedBaseType. */
 			{
 			    $$ = $3;
 			}
 	;
 
-typeStatement_stmtsep_01: /* empty */
-			{
-			    $$ = NULL;
-			}
-        |		typeStatement stmtsep
-			{
-			    $$ = $1;
-			}
-	;
-
-typeStatement:		typeKeyword sep refinedBaseType_refinedType
-			optsep ';'
+attributeTypeStatement:	typeKeyword sep attribute_refinedBaseType_refinedType optsep ';'
 			{
 			    $$ = $3;
 			}
-        ;
-
-writetypeStatement_stmtsep_01: /* empty */
-			{
-			    $$ = NULL;
-			}
-        |	        writetypeStatement stmtsep
-			{
-			    $$ = $1;
-			}
 	;
-
-writetypeStatement:	writetypeKeyword sep refinedBaseType_refinedType
-			optsep ';'
-			{
-			    $$ = $3;
-			}
-        ;
-
-anyIndexStatement:	indexStatement
-        |		augmentsStatement
-	|		reordersStatement
-	|		sparseStatement
-	|		expandsStatement
-	;
-
-indexStatement:		indexKeyword sep_impliedKeyword_01 optsep
-			'(' optsep qlcIdentifierList optsep ')' optsep ';'
-			{
-			    if ($2) {
-				$$.implied = 1;
-			    } else {
-				$$.implied = 0;
-			    }
-			    $$.indexkind = SMI_INDEX_INDEX;
-			    $$.listPtr = $6;
-			    $$.rowPtr = NULL;
-			    /*
-			     * NOTE: at this point $$->listPtr and $$-rowPtr
-			     * contain identifier strings. Converstion to
-			     * (Object *)'s must be delayed till the whole
-			     * module is parsed, since even in SMIng index
-			     * clauses can contain forward references.
-			     */
-			}
-        ;
-
-augmentsStatement:	augmentsKeyword sep qlcIdentifier optsep ';'
-			{
-			    $$.implied = 0;
-			    $$.indexkind = SMI_INDEX_AUGMENT;
-			    $$.listPtr = NULL;
-			    $$.rowPtr = (void *)$3;
-			    /*
-			     * NOTE: at this point $$->listPtr and $$-rowPtr
-			     * contain identifier strings. Converstion to
-			     * (Object *)'s must be delayed till the whole
-			     * module is parsed, since even in SMIng index
-			     * clauses can contain forward references.
-			     */
-			}
-        ;
-
-reordersStatement:	reordersKeyword sep qlcIdentifier
-			sep_impliedKeyword_01 optsep '(' optsep
-			qlcIdentifierList optsep ')' optsep ';'
-			{
-			    if ($4) {
-				$$.implied = 1;
-			    } else {
-				$$.implied = 0;
-			    }
-			    $$.indexkind = SMI_INDEX_REORDER;
-			    $$.listPtr = $8;
-			    /*
-			     * NOTE: at this point $$->listPtr and $$-rowPtr
-			     * contain identifier strings. Converstion to
-			     * (Object *)'s must be delayed till the whole
-			     * module is parsed, since even in SMIng index
-			     * clauses can contain forward references.
-			     */
-			    $$.rowPtr = (void *)$3;
-			}
-        ;
-
-sparseStatement:	sparseKeyword sep qlcIdentifier optsep ';'
-			{
-			    $$.implied = 0;
-			    $$.indexkind = SMI_INDEX_SPARSE;
-			    $$.listPtr = NULL;
-			    $$.rowPtr = (void *)$3;
-			    /*
-			     * NOTE: at this point $$->listPtr and $$-rowPtr
-			     * contain identifier strings. Converstion to
-			     * (Object *)'s must be delayed till the whole
-			     * module is parsed, since even in SMIng index
-			     * clauses can contain forward references.
-			     */
-			}
-	;
-
-expandsStatement:	expandsKeyword sep qlcIdentifier
-			sep_impliedKeyword_01 optsep '(' optsep
-			qlcIdentifierList optsep ')' optsep ';'
-			{
-			    if ($4) {
-				$$.implied = 1;
-			    } else {
-				$$.implied = 0;
-			    }
-			    $$.indexkind = SMI_INDEX_EXPAND;
-			    $$.listPtr = $8;
-			    /*
-			     * NOTE: at this point $$->listPtr and $$-rowPtr
-			     * contain identifier strings. Converstion to
-			     * (Object *)'s must be delayed till the whole
-			     * module is parsed, since even in SMIng index
-			     * clauses can contain forward references.
-			     */
-			    $$.rowPtr = (void *)$3;
-			}
-        ;
-
-sep_impliedKeyword_01:	/* empty */
-			{
-			    $$ = 0;
-			}
-	|		sep impliedKeyword
-			{
-			    $$ = 1;
-			}
-	;
-
-createStatement_stmtsep_01: /* empty */
-			{
-			    $$ = 0;
-			}
-        |               createStatement stmtsep
-			{
-			    $$ = 1;
-			}
-	;
-
-createStatement:	createKeyword optsep ';'
-			{
-			    $$ = 0;
-			}
-        ;
-
-oidStatement:		oidKeyword sep objectIdentifier optsep ';'
-			{
-			    $$ = $3;
-			}
-        ;
 
 dateStatement:		dateKeyword sep date optsep ';'
 			{
@@ -2270,19 +1643,58 @@ statusStatement:	statusKeyword sep status optsep ';'
 			}
         ;
 
-accessStatement_stmtsep_01: /* empty */
-			{
-			    $$ = SMI_ACCESS_UNKNOWN;
+uniqueStatement_stmtsep_01:
+        	{
+			    $$ = NULL;
 			}
-        |		accessStatement stmtsep
+        |		uniqueStatement stmtsep
 			{
 			    $$ = $1;
 			}
-	;
-
-accessStatement:	accessKeyword sep access optsep ';'
+		;
+		
+uniqueStatement:	uniqueKeyword sep '(' uniqueSpec ')' optsep ';'
 			{
-			    $$ = $3;
+			    $$ = $4;
+			}
+        ;
+
+uniqueSpec:	optsep_comma_01
+			{
+				$$ = smiMalloc(sizeof(List));
+			    $$->ptr = "#@#"; //used to indicate that unique
+			    				 //statement is present and empty
+			    				 //i.e. the class is scalar
+			    $$->nextPtr = NULL;
+			}
+		|		lcIdentifier furtherLcIdentifier_0n optsep_comma_01
+			{
+			    $$ = smiMalloc(sizeof(List));
+			    $$->ptr = $1;
+			    $$->nextPtr = $2;
+			}
+		;
+
+
+		
+		
+extendsStatement_stmtsep_01: /* empty */
+			{
+			    $$ = NULL;
+			}
+        |               extendsStatement stmtsep
+			{
+			    $$ = $1;
+			}
+		;
+
+extendsStatement:	extendsKeyword sep ucIdentifier optsep ';'
+			{
+			    $$ = findClass($3, thisParserPtr,thisModulePtr);
+			    if(!$$)smiPrintError(thisParserPtr,
+					      ERR_UNKNOWN_CLASS,
+					      $3);
+			    
 			}
         ;
 
@@ -2299,6 +1711,55 @@ defaultStatement_stmtsep_01: /* empty */
 defaultStatement:	defaultKeyword sep anyValue optsep ';'
 			{
 			    $$ = $3;
+			}
+        ;
+        
+accessStatement_stmtsep_01: /* empty */
+			{
+			    $$ = SMI_ACCESS_UNKNOWN;
+			}
+        |		accessStatement stmtsep
+			{
+			    $$ = $1;
+			}
+	;
+
+accessStatement:	accessKeyword sep access optsep ';'
+			{
+			    $$ = $3;
+			}
+        ;
+        
+access:		readonlyKeyword
+			{
+				$$ = SMI_ACCESS_READ_ONLY;
+			}
+		|		readwriteKeyword
+			{
+				$$ = SMI_ACCESS_READ_WRITE;
+			}
+		|		eventonlyKeyword
+			{
+				$$ = SMI_ACCESS_EVENT_ONLY;
+			}
+		;
+        
+parentStatement_stmtsep_01: /* empty */
+			{
+			    $$ = NULL;
+			}
+        |		parentStatement stmtsep
+			{
+			    $$ = $1;
+			}
+	;
+
+parentStatement:	parentKeyword sep lcIdentifier optsep ';'
+			{
+			    $$ = findIdentity($3, thisParserPtr, thisModulePtr);
+			    if(!$$)smiPrintError(thisParserPtr,
+					      ERR_IDENTITY_PARENT_NOT_FOUND,
+					      $3);
 			}
         ;
 
@@ -2350,160 +1811,7 @@ abnfStatement:		abnfKeyword sep text optsep ';'
 			}
         ;
 
-membersStatement:	membersKeyword optsep '(' optsep
-			qlcIdentifierList optsep ')' optsep ';'
-			{
-			    $$ = $5;
-			}
-        ;
 
-objectsStatement_stmtsep_01: /* empty */
-			{
-			    $$ = NULL;
-			}
-        |		objectsStatement stmtsep
-			{
-			    $$ = $1;
-			}
-	;
-
-objectsStatement:	objectsKeyword optsep '(' optsep
-			qlcIdentifierList optsep ')' optsep ';'
-			{
-			    $$ = $5;
-			}
-        ;
-
-mandatoryStatement_stmtsep_01: /* empty */
-			{
-			    $$ = NULL;
-			}
-        |               mandatoryStatement stmtsep
-			{
-			    $$ = $1;
-			}
-	;
-
-mandatoryStatement:	mandatoryKeyword optsep '(' optsep
-			qlcIdentifierList optsep ')' optsep ';'
-			{
-			    $$ = $5;
-			}
-        ;
-
-optionalStatement_stmtsep_0n: /* empty */
-			{
-			    $$ = NULL;
-			}
-        |               optionalStatement_stmtsep_1n
-			{
-			    $$ = $1;
-			}
-	;
-
-optionalStatement_stmtsep_1n: optionalStatement_stmtsep
-			{
-			    $$ = smiMalloc(sizeof(List));
-			    $$->ptr = $1;
-			    $$->nextPtr = NULL;
-			}
-        |		optionalStatement_stmtsep_1n
-			optionalStatement_stmtsep
-			{
-			    List *p, *pp;
-			    
-			    p = smiMalloc(sizeof(List));
-			    p->ptr = $2;
-			    p->nextPtr = NULL;
-			    for (pp = $1; pp->nextPtr; pp = pp->nextPtr);
-			    pp->nextPtr = p;
-			    $$ = $1;
-			}
-	;
-
-optionalStatement_stmtsep: optionalStatement stmtsep
-			   {
-			       $$ = $1;
-			   }
-        ;
-
-optionalStatement:	optionalKeyword sep qlcIdentifier
-			optsep '{'
-			descriptionStatement
-			stmtsep '}' optsep ';'
-			{
-			    $$ = smiMalloc(sizeof(Option));
-			    $$->objectPtr = findObject($3,
-						       thisParserPtr,
-						       thisModulePtr);
-			    $$->export.description = smiStrdup($6);
-			}
-        ;
-
-refineStatement_stmtsep_0n: /* empty */
-			{
-			    $$ = NULL;
-			}
-        |               refineStatement_stmtsep_1n
-			{
-			    $$ = $1;
-			}
-	;
-
-refineStatement_stmtsep_1n: refineStatement_stmtsep
-			{
-			    $$ = smiMalloc(sizeof(List));
-			    $$->ptr = $1;
-			    $$->nextPtr = NULL;
-			}
-        |		refineStatement_stmtsep_1n refineStatement_stmtsep
-			{
-			    List *p, *pp;
-			    
-			    p = smiMalloc(sizeof(List));
-			    p->ptr = $2;
-			    p->nextPtr = NULL;
-			    for (pp = $1; pp->nextPtr; pp = pp->nextPtr);
-			    pp->nextPtr = p;
-			    $$ = $1;
-			}
-	;
-
-refineStatement_stmtsep: refineStatement stmtsep
-			{
-			    $$ = $1;
-			}
-        ;
-
-refineStatement:	refineKeyword sep qlcIdentifier
-			optsep '{'
-			typeStatement_stmtsep_01
-			writetypeStatement_stmtsep_01
-			accessStatement_stmtsep_01
-			descriptionStatement stmtsep '}' optsep ';'
-			{
-			    $$ = smiMalloc(sizeof(Refinement));
-			    $$->objectPtr = findObject($3,
-						       thisParserPtr,
-						       thisModulePtr);
-			    if ($6) {
-				$$->typePtr = duplicateType($6, 0,
-							    thisParserPtr);
-				$$->typePtr->listPtr = $6->listPtr;
-			    } else {
-				$$->typePtr = NULL;
-			    }
-			    if ($7) {
-				$$->writetypePtr =
-				    duplicateType($7, 0, thisParserPtr);
-				$$->writetypePtr->listPtr = $7->listPtr;
-			    } else {
-				$$->writetypePtr = NULL;
-			    }
-			    $$->export.access = $8;
-			    $$->export.description = smiStrdup($9);
-			}
-        ;
 
 refinedBaseType_refinedType: refinedBaseType
 			{
@@ -2514,6 +1822,17 @@ refinedBaseType_refinedType: refinedBaseType
 			    $$ = $1;
 			}
 	;
+	
+attribute_refinedBaseType_refinedType: attribute_refinedBaseType
+			{
+			    $$ = $1;
+			}
+        |		attribute_refinedType
+			{
+			    $$ = $1;
+			}
+	;
+	
 
 refinedBaseType:	OctetStringKeyword optsep_numberSpec_01
 			{
@@ -2639,6 +1958,17 @@ refinedBaseType:	OctetStringKeyword optsep_numberSpec_01
 				    ((Range *)p->ptr)->typePtr = $$;
 			    }
 			}
+	|		PointerKeyword optsep_pointerRestr_01
+			{
+			    if (!$2) {
+				$$ = smiHandle->typePointerPtr;
+			    } else {
+				$$ = duplicateType(smiHandle->typePointerPtr, 0,
+						   thisParserPtr);
+				setTypeParent($$, smiHandle->typePointerPtr);
+				setTypeList($$, $2);				
+				}
+			}
 	|		EnumerationKeyword bitsOrEnumerationSpec
 			{
 			    List *p;
@@ -2654,20 +1984,189 @@ refinedBaseType:	OctetStringKeyword optsep_numberSpec_01
 				    ((NamedNumber *)p->ptr)->typePtr = $$;
 			    }
 			}
-	|		BitsKeyword bitsOrEnumerationSpec
+	|		BitsKeyword 
+			{
+				bitsFlag = 1; //Since Enum elements can be 
+							  //negative we must make sure
+							  //that bits is not negative,
+							  //so we raise bitsFlag and
+							  //give error if there is
+							  //negative value 
+			}
+			bitsOrEnumerationSpec
 			{
 			    List *p;
 			    
-			    if (!$2) {
+			    if (!$3) {
 				$$ = smiHandle->typeBitsPtr;
 			    } else {
 				$$ = duplicateType(smiHandle->typeBitsPtr, 0,
 						   thisParserPtr);
 				setTypeParent($$, smiHandle->typeBitsPtr);
-				setTypeList($$, $2);
-				for (p = $2; p; p = p->nextPtr)
+				setTypeList($$, $3);
+				for (p = $3; p; p = p->nextPtr)
 				    ((NamedNumber *)p->ptr)->typePtr = $$;
 			    }
+			    
+			    bitsFlag = 0;//reset flag
+			}
+	;
+	
+	
+attribute_refinedBaseType:	OctetStringKeyword optsep_numberSpec_01
+			{
+			    List *p;
+			    $$ = duplicateTypeToAttribute(smiHandle->typeOctetStringPtr,
+												classPtr, thisParserPtr);
+				setAttributeParentType($$, smiHandle->typeOctetStringPtr);
+			    if ($2) {
+					setAttributeList($$, $2);
+					for (p = $2; p; p = p->nextPtr)
+				    	((Range *)p->ptr)->typePtr = (Type*)$$;
+			    }
+			}
+        |		ObjectIdentifierKeyword
+			{
+			    $$ = duplicateTypeToAttribute(
+			    	smiHandle->typeObjectIdentifierPtr, classPtr, thisParserPtr);
+			   	setAttributeParentType($$, smiHandle->typeObjectIdentifierPtr);
+			}
+	|		Integer32Keyword optsep_numberSpec_01
+			{
+			    List *p;
+			    
+				$$ = duplicateTypeToAttribute(smiHandle->typeInteger32Ptr,
+													classPtr, thisParserPtr);
+				setAttributeParentType($$, smiHandle->typeInteger32Ptr);
+			    if ($2) {
+					setAttributeList($$, $2);
+					for (p = $2; p; p = p->nextPtr)
+				    	((Range *)p->ptr)->typePtr = (Type*)$$;
+			    }
+			}
+	|		Unsigned32Keyword optsep_numberSpec_01
+			{
+			    List *p;
+			    
+				$$ = duplicateTypeToAttribute(smiHandle->typeUnsigned32Ptr,
+													classPtr, thisParserPtr);
+				setAttributeParentType($$, smiHandle->typeUnsigned32Ptr);
+			    if ($2) {
+					setAttributeList($$, $2);
+					for (p = $2; p; p = p->nextPtr)
+				    	((Range *)p->ptr)->typePtr = (Type*)$$;
+			    }
+			}
+	|		Integer64Keyword optsep_numberSpec_01
+			{
+			   List *p;
+			    
+				$$ = duplicateTypeToAttribute(smiHandle->typeInteger64Ptr,
+													classPtr, thisParserPtr);
+				setAttributeParentType($$, smiHandle->typeInteger64Ptr);
+			    if ($2) {
+					setAttributeList($$, $2);
+					for (p = $2; p; p = p->nextPtr)
+				    	((Range *)p->ptr)->typePtr = (Type*)$$;
+			    }
+			}
+	|		Unsigned64Keyword optsep_numberSpec_01
+			{
+			   List *p;
+			    
+				$$ = duplicateTypeToAttribute(smiHandle->typeUnsigned64Ptr,
+													classPtr, thisParserPtr);
+				setAttributeParentType($$, smiHandle->typeUnsigned64Ptr);
+			    if ($2) {
+					setAttributeList($$, $2);
+					for (p = $2; p; p = p->nextPtr)
+				    	((Range *)p->ptr)->typePtr = (Type*)$$;
+			    }
+			}
+	|		Float32Keyword optsep_floatSpec_01
+			{
+			    List *p;
+			    
+				$$ = duplicateTypeToAttribute(smiHandle->typeFloat32Ptr,
+													classPtr, thisParserPtr);
+				setAttributeParentType($$, smiHandle->typeFloat32Ptr);
+			    if ($2) {
+					setAttributeList($$, $2);
+					for (p = $2; p; p = p->nextPtr)
+				    	((Range *)p->ptr)->typePtr = (Type*)$$;
+			    }
+			}
+	|		Float64Keyword optsep_floatSpec_01
+			{
+			   List *p;
+			    
+				$$ = duplicateTypeToAttribute(smiHandle->typeFloat64Ptr,
+													classPtr, thisParserPtr);
+				setAttributeParentType($$, smiHandle->typeFloat64Ptr);
+			    if ($2) {
+					setAttributeList($$, $2);
+					for (p = $2; p; p = p->nextPtr)
+				    	((Range *)p->ptr)->typePtr = (Type*)$$;
+			    }
+			}
+	|		Float128Keyword optsep_floatSpec_01
+			{
+			    List *p;
+			    
+			    $$ = duplicateTypeToAttribute(smiHandle->typeFloat128Ptr,
+							  classPtr, thisParserPtr);
+			    setAttributeParentType($$, smiHandle->typeFloat128Ptr);
+			    if ($2) {
+				setAttributeList($$, $2);
+				for (p = $2; p; p = p->nextPtr)
+				    ((Range *)p->ptr)->typePtr = (Type*)$$;
+			    }
+			}
+	|		PointerKeyword optsep_pointerRestr_01
+			{
+			    $$ = duplicateTypeToAttribute(smiHandle->typePointerPtr,
+							  classPtr, thisParserPtr);
+			    setAttributeParentType($$, smiHandle->typePointerPtr);
+			    if ($2) {
+				setAttributeList($$, $2);
+			    }
+			}
+	|		EnumerationKeyword bitsOrEnumerationSpec
+			{
+			    List *p;
+			    
+			    $$ = duplicateTypeToAttribute(smiHandle->typeEnumPtr,
+													classPtr, thisParserPtr);
+				setAttributeParentType($$, smiHandle->typeEnumPtr);
+			    if ($2) {
+					setAttributeList($$, $2);
+					for (p = $2; p; p = p->nextPtr)
+				    	((NamedNumber *)p->ptr)->typePtr = (Type*)$$;
+			    }
+			}
+	|		BitsKeyword 
+			{
+				bitsFlag = 1; //Since Enum elements can be 
+							  //negative we must make sure
+							  //that bits is not negative,
+							  //so we raise bitsFlag and
+							  //give error if there is
+							  //negative value 
+			}
+			bitsOrEnumerationSpec
+			{
+			    List *p;
+			    
+			    $$ = duplicateTypeToAttribute(smiHandle->typeBitsPtr,
+							  classPtr, thisParserPtr);
+			    setAttributeParentType($$, smiHandle->typeBitsPtr);
+			    if ($1) {
+				setAttributeList($$, $1);
+				for (p = $1; p; p = p->nextPtr)
+				    ((NamedNumber *)(p->ptr))->typePtr = (Type*)$$;
+			    }
+			    
+			    bitsFlag = 0; /* reset flag */
 			}
 	;
 
@@ -2682,6 +2181,38 @@ refinedType:		qucIdentifier optsep_anySpec_01
 			    }
 
 			    $$ = typePtr;
+			}
+	;
+	
+attribute_refinedType:		qucIdentifier optsep_anySpec_01
+			{
+			    Class *tmp;
+			    typePtr = findType($1, thisParserPtr,
+					       thisModulePtr);
+			    if (typePtr && $2) {
+				attributePtr = duplicateTypeToAttribute(typePtr,
+											classPtr, thisParserPtr);
+				setAttributeList(attributePtr, $2);
+				setAttributeParentType(attributePtr, typePtr);
+			    } else if( typePtr ){
+			    	attributePtr = duplicateTypeToAttribute(typePtr,
+											classPtr, thisParserPtr);
+					setAttributeParentType(attributePtr, typePtr);
+				} else if($2){
+					smiPrintError(thisParserPtr, ERR_UNKNOWN_TYPE, $1);
+					attributePtr = NULL;
+				} else if (tmp = findClass($1,
+										 thisParserPtr,thisModulePtr)){
+					attributePtr = addAttribute($1, classPtr, thisParserPtr);
+					setAttributeParentClass(attributePtr, tmp);
+				} else {
+					attributePtr = NULL;
+					smiPrintError(thisParserPtr, 
+											ERR_UNKNOWN_TYPE_OR_CLASS, $1);
+				}
+				
+
+			    $$ = attributePtr;
 			}
 	;
 
@@ -2875,6 +2406,44 @@ floatUpperLimit:	optsep DOT_DOT optsep floatValue
 			}
         ;
 
+specialFloatValue:
+			neginfKeyword
+			{
+				$$="-inf";
+			}
+		|	posinfKeyword
+			{
+				$$="+inf";
+			}
+		|	qnanKeyword
+			{
+				$$="nan";
+			}
+		|	snanKeyword
+			{
+				$$="nan";
+			}
+	;		
+        
+optsep_pointerRestr_01:	/* empty */
+			{
+			    $$ = NULL;
+			}
+        |		optsep pointerRestr
+			{
+			    NamedNumber *nn =(NamedNumber*)smiMalloc(sizeof(NamedNumber));
+			    $$ = smiMalloc(sizeof(List));
+			    $$->ptr = nn;
+			    nn->export.name = $2;
+			}
+	;
+
+pointerRestr:		'(' optsep qlcIdentifier optsep ')'
+			{
+			    $$ = $3;
+			}
+    ;
+
 bitsOrEnumerationSpec:	'(' optsep bitsOrEnumerationList optsep ')'
 			{
 			    $$ = $3;
@@ -2927,12 +2496,11 @@ furtherBitsOrEnumerationItem: optsep ',' optsep bitsOrEnumerationItem
 			}
         ;
 
-bitsOrEnumerationItem:	lcIdentifier optsep '(' optsep number optsep ')'
+bitsOrEnumerationItem:	lcIdentifier optsep '(' optsep signedNumber optsep ')'
 			{
 			    $$ = smiMalloc(sizeof(NamedNumber));
 			    $$->export.name = $1;
 			    $$->export.value = *$5;
-			    smiFree($5);
 			}
         ;
 
@@ -2979,92 +2547,6 @@ furtherIdentifier:	optsep ',' optsep identifier
 			}
         ;
 
-qIdentifierList:	qIdentifier furtherQIdentifier_0n optsep_comma_01
-			{
-			    $$ = smiMalloc(sizeof(List));
-			    $$->ptr = $1;
-			    $$->nextPtr = $2;
-			}
-        ;
-
-furtherQIdentifier_0n:	/* empty */
-			{
-			    $$ = NULL;
-			}
-        |		furtherQIdentifier_1n
-			{
-			    $$ = $1;
-			}
-        ;
-
-furtherQIdentifier_1n:	furtherQIdentifier
-			{
-			    $$ = smiMalloc(sizeof(List));
-			    $$->ptr = $1;
-			    $$->nextPtr = NULL;
-			}
-        |		furtherQIdentifier_1n furtherQIdentifier
-			{
-			    List *p, *pp;
-			    
-			    p = smiMalloc(sizeof(List));
-			    p->ptr = $2;
-			    p->nextPtr = NULL;
-			    for (pp = $1; pp->nextPtr; pp = pp->nextPtr);
-			    pp->nextPtr = p;
-			    $$ = $1;
-			}
-        ;
-
-furtherQIdentifier:	optsep ',' optsep qIdentifier
-			{
-			    $$ = $4;
-			}
-        ;
-
-qlcIdentifierList:	qlcIdentifier furtherQlcIdentifier_0n optsep_comma_01
-			{
-			    $$ = smiMalloc(sizeof(List));
-			    $$->ptr = $1;
-			    $$->nextPtr = $2;
-			}
-        ;
-
-furtherQlcIdentifier_0n: /* empty */
-			{
-			    $$ = NULL;
-			}
-        |		furtherQlcIdentifier_1n
-			{
-			    $$ = $1;
-			}
-        ;
-
-furtherQlcIdentifier_1n:	furtherQlcIdentifier
-			{
-			    $$ = smiMalloc(sizeof(List));
-			    $$->ptr = $1;
-			    $$->nextPtr = NULL;
-			}
-        |		furtherQlcIdentifier_1n furtherQlcIdentifier
-			{
-			    List *p, *pp;
-			    
-			    p = smiMalloc(sizeof(List));
-			    p->ptr = $2;
-			    p->nextPtr = NULL;
-			    for (pp = $1; pp->nextPtr; pp = pp->nextPtr);
-			    pp->nextPtr = p;
-			    $$ = $1;
-			}
-        ;
-
-furtherQlcIdentifier:	optsep ',' optsep qlcIdentifier
-			{
-			    $$ = $4;
-			}
-        ;
-
 bitsValue:		'(' optsep bitsList optsep ')'
 			{
 			    $$ = $3;
@@ -3083,6 +2565,7 @@ bitsList:		optsep_comma_01
 			}
 	;
 
+//NOTE used also for unique statement
 furtherLcIdentifier_0n:	/* empty */
 			{
 			    $$ = NULL;
@@ -3128,16 +2611,6 @@ identifier:		ucIdentifier
 			}
 	;
 
-qIdentifier:		qucIdentifier
-			{
-			    $$ = $1;
-			}
-        |		qlcIdentifier
-			{
-			    $$ = $1;
-			}
-	;
-
 qucIdentifier:		ucIdentifier COLON_COLON ucIdentifier
 			{
 			    char *s;
@@ -3163,8 +2636,6 @@ qlcIdentifier:		ucIdentifier COLON_COLON lcIdentifier
 					  strlen($3) + 3);
 			    sprintf(s, "%s::%s", $1, $3);
 			    $$ = s;
-			    free($1);
-			    free($3);
 			}
         |		lcIdentifier
 			{
@@ -3251,7 +2722,15 @@ anyValue:		bitsValue
 			    if (defaultBasetype == SMI_BASETYPE_BITS) {
 				$$ = smiMalloc(sizeof(SmiValue));
 				$$->basetype = SMI_BASETYPE_BITS;
-				$$->value.ptr = NULL;
+				$$->value.ptr = (void*)($1);
+				//set the bits value in the value.integer32
+				if(typePtr){
+					createBitsValue($$,typePtr);
+				}
+				else if(attributePtr){
+				createBitsValue($$,
+					(Type*)smiGetAttributeParentType(&(attributePtr->export)));
+				}
 			    } else {
 				smiPrintError(thisParserPtr,
 					      ERR_UNEXPECTED_VALUETYPE);
@@ -3285,11 +2764,8 @@ anyValue:		bitsValue
 			    case SMI_BASETYPE_OBJECTIDENTIFIER:
 				$$ = smiMalloc(sizeof(SmiValue));
 				$$->basetype = SMI_BASETYPE_OBJECTIDENTIFIER;
-				$$->len = 2;
-				$$->value.oid =
-				    smiMalloc(2 * sizeof(SmiSubid));
-				$$->value.oid[0] = 0;
-				$$->value.oid[1] = 0;
+				$$->len = strlen($1);
+				$$->value.ptr = smiStrdup($1);
 				/* TODO */
 				break;
 			    default:
@@ -3321,15 +2797,170 @@ anyValue:		bitsValue
 			}
 	|		hexadecimalNumber
 			{
-			    /* TODO */
 			    /* Note: might also be an octet string */
-			    $$ = NULL;
+			    switch (defaultBasetype) {
+			    case SMI_BASETYPE_UNSIGNED32:
+				$$ = smiMalloc(sizeof(SmiValue));
+				$$->basetype = SMI_BASETYPE_UNSIGNED32;
+				$$->value.unsigned32 = strtoul($1, NULL, 16);
+				break;
+			    case SMI_BASETYPE_UNSIGNED64:
+				$$ = smiMalloc(sizeof(SmiValue));
+				$$->basetype = SMI_BASETYPE_UNSIGNED64;
+				$$->value.unsigned64 = strtoull($1, NULL, 16);
+				break;
+			    case SMI_BASETYPE_INTEGER32:
+				$$ = smiMalloc(sizeof(SmiValue));
+				$$->basetype = SMI_BASETYPE_INTEGER32;
+				$$->value.integer32 = strtol($1, NULL, 16);
+				break;
+			    case SMI_BASETYPE_INTEGER64:
+				$$ = smiMalloc(sizeof(SmiValue));
+				$$->basetype = SMI_BASETYPE_INTEGER64;
+				$$->value.integer64 = strtoll($1, NULL, 16);
+				break;
+			    case SMI_BASETYPE_OCTETSTRING:
+				$$ = smiMalloc(sizeof(SmiValue));
+				$$->basetype = SMI_BASETYPE_OCTETSTRING;
+				$$->value.ptr = hexToStr($1,strlen($1));
+				$$->len = strlen($$->value.ptr);
+				break;
+			    default:
+				smiPrintError(thisParserPtr,
+					      ERR_UNEXPECTED_VALUETYPE);
+				$$ = NULL;
+				break;
+			    }
 			}
 	|		floatValue
 			{
-			    /* TODO */
 			    /* Note: might also be an OID */
-			    $$ = NULL;
+			    switch (defaultBasetype) {
+			    case SMI_BASETYPE_FLOAT32:
+			    	$$ = smiMalloc(sizeof(SmiValue));
+				$$->basetype = SMI_BASETYPE_FLOAT32;
+				$$->value.float32 = strtof($1,NULL);
+				if(errno == ERANGE){
+					smiPrintError(thisParserPtr, 
+					ERR_FLOAT_OVERFLOW, $1);
+					errno = 0;
+				}
+				break;
+			    case SMI_BASETYPE_FLOAT64:
+			    	$$ = smiMalloc(sizeof(SmiValue));
+				$$->basetype = SMI_BASETYPE_FLOAT64;
+				$$->value.float64 = strtod($1,NULL);
+				if(errno == ERANGE){
+					smiPrintError(thisParserPtr, 
+					ERR_FLOAT_OVERFLOW, $1);
+					errno = 0;
+				}
+				break;
+			    case SMI_BASETYPE_FLOAT128:
+			    	$$ = smiMalloc(sizeof(SmiValue));
+				$$->basetype = SMI_BASETYPE_FLOAT128;
+				$$->value.float128 = strtold($1,NULL);
+				if(errno == ERANGE){
+					smiPrintError(thisParserPtr, 
+					ERR_FLOAT_OVERFLOW, $1);
+					errno = 0;
+				}
+				break;		
+			    case SMI_BASETYPE_OBJECTIDENTIFIER:
+				$$ = smiMalloc(sizeof(SmiValue));
+				$$->basetype = SMI_BASETYPE_OBJECTIDENTIFIER;
+				$$->value.ptr = smiMalloc(strlen($1)+1);
+				strcpy($$->value.ptr,$1);
+				$$->len = strlen($$->value.ptr);
+				break;
+			    default:
+				smiPrintError(thisParserPtr,
+					      ERR_UNEXPECTED_VALUETYPE);
+				$$ = NULL;
+				break;
+			    }
+			}
+	|		'-' floatValue
+			{
+		
+			    switch (defaultBasetype) {
+			    case SMI_BASETYPE_FLOAT32:
+			    	$$ = smiMalloc(sizeof(SmiValue));
+				$$->basetype = SMI_BASETYPE_FLOAT32;
+				$$->value.float32 = - strtof($2,NULL);
+				if(errno == ERANGE){
+					smiPrintError(thisParserPtr, 
+					ERR_FLOAT_OVERFLOW, $2);
+					errno = 0;
+				}
+				break;
+			    case SMI_BASETYPE_FLOAT64:
+			    	$$ = smiMalloc(sizeof(SmiValue));
+				$$->basetype = SMI_BASETYPE_FLOAT64;
+				$$->value.float64 = - strtof($2,NULL);
+				if(errno == ERANGE){
+					smiPrintError(thisParserPtr, 
+					ERR_FLOAT_OVERFLOW, $2);
+					errno = 0;
+				}
+				break;
+			    case SMI_BASETYPE_FLOAT128:
+			    	$$ = smiMalloc(sizeof(SmiValue));
+				$$->basetype = SMI_BASETYPE_FLOAT128;
+				$$->value.float128 = - strtof($2,NULL);
+				if(errno == ERANGE){
+					smiPrintError(thisParserPtr, 
+					ERR_FLOAT_OVERFLOW, $2);
+					errno = 0;
+				}
+				break;		
+			    default:
+				smiPrintError(thisParserPtr,
+					      ERR_UNEXPECTED_VALUETYPE);
+				$$ = NULL;
+				break;
+			    }
+			}
+	|		specialFloatValue
+			{
+				  /* Note: might also be an OID */
+			    switch (defaultBasetype) {
+			    case SMI_BASETYPE_FLOAT32:
+			    	$$ = smiMalloc(sizeof(SmiValue));
+				$$->basetype = SMI_BASETYPE_FLOAT32;
+				$$->value.float32 = strtof($1,NULL);
+				if(errno == ERANGE){
+					smiPrintError(thisParserPtr, 
+					ERR_FLOAT_OVERFLOW, $1);
+					errno = 0;
+				}
+				break;
+			    case SMI_BASETYPE_FLOAT64:
+			    	$$ = smiMalloc(sizeof(SmiValue));
+				$$->basetype = SMI_BASETYPE_FLOAT64;
+				$$->value.float64 = strtod($1,NULL);
+				if(errno == ERANGE){
+					smiPrintError(thisParserPtr, 
+					ERR_FLOAT_OVERFLOW, $1);
+					errno = 0;
+				}
+				break;
+			    case SMI_BASETYPE_FLOAT128:
+			    	$$ = smiMalloc(sizeof(SmiValue));
+				$$->basetype = SMI_BASETYPE_FLOAT128;
+				$$->value.float128 = strtold($1,NULL);
+				if(errno == ERANGE){
+					smiPrintError(thisParserPtr, 
+					ERR_FLOAT_OVERFLOW, $1);
+					errno = 0;
+				}
+				break;
+				default:
+				smiPrintError(thisParserPtr,
+					      ERR_UNEXPECTED_VALUETYPE);
+				$$ = NULL;
+				break;
+			    }	
 			}
 	|		text
 			{
@@ -3353,13 +2984,22 @@ anyValue:		bitsValue
 				$$ = smiMalloc(sizeof(SmiValue));
 				$$->basetype = SMI_BASETYPE_ENUM;
 				$$->value.ptr = $1;
+				$$->len = strlen($1);
 				/* TODO: XXX convert to int */
 				break;
 			    case SMI_BASETYPE_OBJECTIDENTIFIER:
 				$$ = smiMalloc(sizeof(SmiValue));
 				$$->basetype = SMI_BASETYPE_OBJECTIDENTIFIER;
 				$$->value.ptr = $1;
+				$$->len = strlen($1);
 				/* TODO: XXX convert to oid if found */
+				break;
+				case SMI_BASETYPE_POINTER:
+				$$ = smiMalloc(sizeof(SmiValue));
+				$$->basetype = SMI_BASETYPE_OBJECTIDENTIFIER;
+				$$->value.ptr = $1;
+				$$->len = strlen($1);
+				/* TODO: XXX check if valid reference found */
 				break;
 			    default:
 				smiPrintError(thisParserPtr,
@@ -3368,15 +3008,33 @@ anyValue:		bitsValue
 				break;
 			    }
 			}
-	|		qlcIdentifier dot_subid_1n
+	|		qOID
 			{
-			    /* TODO */
-			    $$ = NULL;
+			    if (defaultBasetype == SMI_BASETYPE_OBJECTIDENTIFIER){
+			    $$ = smiMalloc(sizeof(SmiValue));
+				$$->basetype = SMI_BASETYPE_OBJECTIDENTIFIER;
+				$$->value.ptr = $1;
+				$$->len = strlen($$->value.ptr);
+			    }
+			    else
+			    	smiPrintError(thisParserPtr,
+					      ERR_UNEXPECTED_VALUETYPE);
 			}
-	|		subid '.' subid dot_subid_1n
+	;
+	
+qOID:		ucIdentifier COLON_COLON OID
 			{
-			    /* TODO */
-			    $$ = NULL;
+			    char *s;
+
+			    s = smiMalloc(strlen($1) +
+					  strlen($3) + 3);
+			    sprintf(s, "%s::%s", $1, $3);
+			    $$ = s;
+			}
+		|	OID
+			{
+				$$ = smiMalloc(strlen($1)+1);
+				strcpy($$,$1);
 			}
 	;
 
@@ -3394,142 +3052,11 @@ status:			currentKeyword
 			}
 	;
 
-access:			noaccessKeyword
-			{
-			    $$ = SMI_ACCESS_NOT_ACCESSIBLE;
-			}
-        |		notifyonlyKeyword
-			{
-			    $$ = SMI_ACCESS_NOTIFY;
-			}
-	|		readonlyKeyword
-			{
-			    $$ = SMI_ACCESS_READ_ONLY;
-			}
-	|		readwriteKeyword
-			{
-			    $$ = SMI_ACCESS_READ_WRITE;
-			}
-	;
-
-objectIdentifier:	qlcIdentifier_subid dot_subid_0127
-			{
-			    char *oid = NULL;
-			    Node *nodePtr;
-
-			    if ($1 && $2) {
-				oid = smiMalloc(strlen($1) + strlen($2) + 1);
-				strcpy(oid, $1);
-				strcat(oid, $2);
-				free($1);
-				free($2);
-			    } else if ($1) {
-				oid = smiMalloc(strlen($1) + 1);
-				strcpy(oid, $1);
-				free($1);
-			    }
-			    
-			    if (oid) {
-				nodePtr = findNodeByOidString(oid);
-				if (!nodePtr) {
-				    nodePtr = createNodesByOidString(oid);
-				}
-				$$ = nodePtr;
-			    } else {
-				$$ = NULL;
-			    }
-			}
-	;
-
-qlcIdentifier_subid:	qlcIdentifier
-			{
-			    Object *objectPtr;
-			    Node *nodePtr;
-			    char *s;
-			    char ss[20];
-			    
-			    /* TODO: $1 might be numeric !? */
-			    
-			    objectPtr = findObject($1,
-						   thisParserPtr,
-						   thisModulePtr);
-
-			    if (objectPtr) {
-				/* create OID string */
-				nodePtr = objectPtr->nodePtr;
-				s = smiMalloc(100);
-				sprintf(s, "%u", nodePtr->subid);
-				while ((nodePtr->parentPtr) &&
-				       (nodePtr->parentPtr != smiHandle->rootNodePtr)) {
-				    nodePtr = nodePtr->parentPtr;
-
-				    sprintf(ss, "%u", nodePtr->subid);
-				    if (strlen(s) > 80)
-					s = smiRealloc(s,
-						       strlen(s)+strlen(ss)+2);
-				    memmove(&s[strlen(ss)+1], s, strlen(s)+1);
-				    strncpy(s, ss, strlen(ss));
-				    s[strlen(ss)] = '.';
-				}
-				$$ = smiStrdup(s);
-				smiFree(s);
-			    } else {
-				smiPrintError(thisParserPtr,
-					      ERR_UNKNOWN_OIDLABEL, $1);
-				$$ = NULL;
-			    }
-			}
-        |		subid
-			{
-			    $$ = $1;
-			}
-	;
-
-dot_subid_0127:		/* empty */
-			{
-			    $$ = NULL;
-			}
-        |		dot_subid_1n
-			{
-			    /* TODO: check upper limit of 127 subids */ 
-			    $$ = $1;
-			}
-	;
-
-dot_subid_1n:		dot_subid
-			{
-			    $$ = $1;
-			}
-        |		dot_subid_1n dot_subid
-			{
-			    $$ = smiMalloc(strlen($1) + strlen($2) + 1);
-			    strcpy($$, $1);
-			    strcat($$, $2);
-			    free($1);
-			    free($2);
-			}
-	;
-
-dot_subid:		'.' subid
-			{
-			    $$ = smiMalloc(strlen($2) + 1 + 1);
-			    strcpy($$, ".");
-			    strcat($$, $2);
-			    free($2);
-			}
-        ;
-
-subid:			decimalNumber
-			{
-			    $$ = smiStrdup($1);
-			}
-        ;
-
 number:			hexadecimalNumber
 			{
 			    $$ = smiMalloc(sizeof(SmiValue));
 			    $$->basetype = SMI_BASETYPE_UNSIGNED64;
-			    $$->value.unsigned64 = strtoull($1, NULL, 0);
+			    $$->value.unsigned64 = strtoull($1, NULL, 16);
 			}
         |		decimalNumber
 			{
@@ -3541,6 +3068,11 @@ number:			hexadecimalNumber
 
 negativeNumber:		'-' decimalNumber
 			{
+			    if(bitsFlag){
+			    smiPrintError(thisParserPtr,
+					      ERR_BITS_NUMBER_NEGATIVE);
+			    $$ = NULL;
+			    }
 			    $$ = smiMalloc(sizeof(SmiValue));
 			    $$->basetype = SMI_BASETYPE_INTEGER64;
 			    $$->value.integer64 = - strtoll($2, NULL, 10);

@@ -33,7 +33,7 @@ o warning detection: subtyping not allowed for counter or timeticks
 
 o warning detection: defvals not allowed for counter
 
-
+o warning detection: missing display hints for OCTET STRING derived types
 
 o parser-smi.y: handle forbidden WS at some places
   ( Module . label, ...)
@@ -149,4 +149,7 @@ o API: several applications need a mechanism to iterate through the
 
 o API/Utility Functions: getMinSize()/getMaxSize() is needed by multiple
   smidump drivers. See dump-scli.c for a good implementation.
+
+o generate a warning if a module is listed multiple times in the
+  imports and if a symbol is imported twice (Dave Perkins)
 

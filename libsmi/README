@@ -2,20 +2,20 @@
 LIBSMI -- A LIBRARY FOR SMI MANAGEMENT INFORMATION
 ==================================================
 
-Copyright (c) 1999-2005 Frank Strauss, Technical University of Braunschweig.
+Copyright (c) 1999-2008 Frank Strauss, Technical University of Braunschweig.
 
 See the file "COPYING" for information on usage and redistribution
 of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
-@(#) $Id: README 2943 2005-10-10 07:55:35Z strauss $
+@(#) $Id: README 7795 2008-02-27 10:23:25Z strauss $
 
 This project has been started as part of Frank Strauss' master's
 thesis at the Technical University of Braunschweig, Germany in 1999.
 Since then numerous people applied very major improvements, fixes, and
 new features, namely Juergen Schoenwaelder who also initiated the
 whole project and supervised my thesis work, as well as Torsten Klie,
-Andreas Mueller, Moritz Bunkus, and Jens Mueller. Many others
-contributed lots of patches, improvements, and feature requests.
+Andreas Mueller, Moritz Bunkus, Jens Mueller, and Klaus Sperner. Many
+others contributed lots of patches, improvements, and feature requests.
 
 This software comprises 
 
@@ -52,8 +52,8 @@ win/					Win32 port source code
 INSTALLATION
 ============
 
-Requirements: gcc, flex, bison, and other things most UNIX systems
-have on board. The compiler has to support `long long' types.
+Requirements: GNU make, gcc, flex, bison, and other things most UNIX
+systems have on board. The compiler has to support `long long' types.
 
 To configure libsmi, first check
 
@@ -70,19 +70,13 @@ an SMIPATH environment variable and without configuration files.
 On HP-UX platforms the build process is reported to require gcc
 and the --disable-shared configure option.
 
-On MacOS X (darwin-power-pc) platforms the standard build process 
-gives the following warning "smi.h:56: warning: use of `long double'
-type; its size may change in a future release". Users can disable
-this warning with the --with-cflags="-Wno-long-double" configure
-option.
-
 To build libsmi and the tools, run
 
 	make
 
 This should build the library libsmi in lib/ and the tools, namely
-tools/smilint, tools/smidump, tools/smiquery, tools/smidiff, and the
-shell script tools/smistrip.
+tools/smilint, tools/smidump, tools/smiquery, tools/smidiff,
+tools/smixlate and the shell script tools/smistrip.
 
 Now, you may run some checks by
 

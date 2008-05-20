@@ -1,0 +1,38 @@
+.\"
+.\" $Id: smi_util.3.in 4432 2006-05-29 16:21:11Z strauss $
+.\"
+.TH smi_util 3  "August 21, 2006" "IBR" "SMI Management Information Library"
+.SH NAME
+.\" START OF MAN PAGE COPIES
+smiGetMinSize,
+smiGetMaxSize,
+smiPack,
+smiUnpack
+.\" END OF MAN PAGE COPIES
+\- SMI type utility functions
+.SH SYNOPSIS
+.nf
+.B #include <smi.h>
+.RS
+.RE
+.sp
+.BI "unsigned int smiGetMinSize(SmiType *" smiTypePtr );
+.RE
+.sp
+.BI "unsigned int smiGetMaxSize(SmiTyep *" smiTypePtr );
+.RE
+
+.fi
+.SH DESCRIPTION
+These functions 
+.SH "FILES"
+.nf
+@includedir@/smi.h    SMI library header file
+.fi
+.SH "SEE ALSO"
+.BR libsmi "(3), "
+.BR smi_module "(3), "
+.BR smi.h
+.SH "AUTHOR"
+(C) 1999-2001 Frank Strauss, TU Braunschweig, Germany <strauss@ibr.cs.tu-bs.de>
+.br

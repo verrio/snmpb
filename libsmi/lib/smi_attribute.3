@@ -1,0 +1,143 @@
+.TH "smi_attribute" "3" "February 10, 2007" "" "SMI Management Information Library"
+.SH "NAME"
+.\" START OF MAN PAGE COPIES
+smiGetAttribute,
+smiGetFirstAttribute,
+smiGetNextAttribute,
+smiGetAttributeParentClass,
+smiGetAttributeParentType,
+smiGetFirstUniqueAttribute,
+smiGetNextUniqueAttribute,
+smiGetEvent,
+smiGetFirstEvent,
+smiGetNextEvent,
+smiGetAttributeFirstRange,
+smiGetAttributeNextRange,
+smiGetAttributeFirstNamedNumber,
+smiGetAttributeNextNamedNumber
+.\" END OF MAN PAGE COPIES
+\- SMI Attribute
+information routines
+.SH "SYNOPSIS"
+.nf 
+.B #include <smi.h>
+.RS
+.RE
+.sp
+.BI "SmiAttribute *smiGetAttribute(SmiClass *" smiClassPtr ", char *" name);
+.RE
+.sp
+.BI "SmiAttribute *smiGetFirstAttribute(SmiClass *" smiClassPtr );
+.RE
+.sp
+.BI "SmiAttribute *smiGetNextAttribute(SmiAttribute *" smiAttributePtr );
+.RE
+.sp
+.BI "SmiType *smiGetAttributeParentType(SmiType *" smiAttributePtr);
+.RE
+.sp
+.BI "SmiClass *smiGetAttributeParentClass(SmiType *" smiAttributePtr);
+.RE
+.sp
+.BI "SmiAttribute *smiGetFirstUniqueAttribute(SmiClass *" smiClassPtr);
+.RE
+.sp
+.BI "SmiAttribute *smiGetNextUniqueAttribute(SmiAttribute *" smiAttributePtr);
+.RE
+.sp
+.BI "SmiRange *smiGetAttributeFirstRange(SmiAttribute *" smiAttributePtr);
+.RE
+.sp
+.BI "SmiRange *smiGetAttributeNextRange(SmiRange *" smiRangePtr);
+.RE
+.sp
+.BI "SmiNamedNumber *smiGetAttributeFirstNamedNumber(SmiAttribute *" smiAttributePtr) ;
+.RE
+.sp
+.BI "SmiNamedNumber *smiGetAttributeNextNamedNumber(SmiNamedNumber *" smiNamedNumberPtr);
+.RE
+
+
+typedef struct SmiAttribute {
+    SmiIdentifier       name;
+    SmiDecl             decl;
+    SmiStatus           status;
+    char                *description;
+    char                *reference;
+} SmiAttribute;
+
+typedef struct SmiRange {
+    SmiValue            minValue;
+    SmiValue            maxValue;
+} SmiRange;
+
+typedef struct SmiNamedNumber {
+    SmiIdentifier       name;
+    SmiValue            value;
+} SmiNamedNumber;
+
+.fi 
+.SH "DESCRIPTION"
+These functions retrieve information on a SMIng Attribute definition (SMIng).
+.PP 
+\fBsmiGetAttribute(SmiClass *smiClassPtr, char *name)\fP returns a
+pointer to \fBstruct SmiAttribute\fP for the Attribute with the given
+\fIname\fP in the given class(\fIsmiClassPtr\fP), or NULL if the
+attribute with the given name does not exist.
+.PP 
+\fBsmiGetFirstAttribute(SmiClass *smiClassPtr)\fP and
+\fBsmiGetNextAttribute(SmiAttribute *smiAttributePtr)\fP are used to
+iterate through the attributes of the class given by
+\fIsmiClassPtr\fP. They return a pointer to \fBstruct SmiAttribute\fP
+that represents an attribute or NULL if there are no attributes left
+in the class, or error has occurred.
+.PP 
+\fBsmiGetAttributeParentClass(SmiAttribute *smiAttributePtr)\fP
+returns a pointer to a \fBstruct SmiClass\fP, pointing to the parent
+class of the given \fIsmiAttributePtr\fP, or NULL if the attribute
+does not reference class.  Note that attributes always have either
+parent type or parent class.
+.PP 
+\fBsmiGetAttributeParentType(SmiType *smiAttributePtr)\fP returns a
+pointer to a \fBstruct SmiType\fP, pointing to the parent type of the
+given \fIsmiAttributePtr\fP, or NULL if the attribute does not
+reference type.  Note that attributes always have either parent type
+or parent class.
+.PP 
+\fBsmiGetFirstUniqueAttribute(SmiClass *smiClassPtr)\fP and
+\fBsmiGetNextUniqueAttribute(SmiType *smiAttributePtr)\fP are used to
+iterate through the unique attributes of the class given by
+\fIsmiClassPtr\fP. They return a pointer to \fBstruct SmiAttribute\fP
+that represents a unique attribute or NULL if there are no unique
+attributes left in the class, or error has occurred. This function
+\fBMUST NOT\fP be used for scalar classes, so it should only be called
+after \fBisClassScalar()\fP has returned 0.
+.PP 
+\fBsmiGetAttributeFirstRange(SmiAttribute *smiAttributePtr)\fP, and
+\fBsmiGetAttributeNextRange(SmiRange *smiRangePtr)\fP are used to
+iterate through ranges that restrict number or octet string types.
+Both functions return a pointer to the \fBstruct SmiRange\fP
+representing the range, or NULL if there are no more ranges, or error
+has occurred.
+.PP 
+\fBsmiGetAttributeFirstNamedNumber(SmiAttribute *smiAttributePtr)\fP
+and \fBsmiGetAttributeNextNamedNumber(SmiNamedNumber
+*smiNamedNumberPtr)\fP are used to iterate through named numbers of
+bits or enumerations for attributes, which reference types, and to
+retrieve the reference restriction of a pointer.  Both functions
+return a pointer to the struct SmiNamedNumber representing the named
+number, or NULL if there are no named numbers left, or error has
+occurred.  \fBsmiGetFirstNamedNumber()\fP can be used to retrieve the
+name of the identity that is restricting Pointer type, as it is stored
+as the name of the first named number.
+.SH "FILES"
+.nf 
+${prefix}/include/smi.h    SMI library header file
+.fi 
+.SH "SEE ALSO"
+.BR libsmi "(3), "
+.BR smi_module "(3), "
+.BR smi.h
+.SH "AUTHOR"
+(C) 2007 Kaloyan Kanev, Jacobs University, Germany <k.kanev@jacobs-university.de>
+.br

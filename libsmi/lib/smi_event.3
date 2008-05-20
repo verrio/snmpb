@@ -1,0 +1,58 @@
+.TH "smi_event" "3" "February 10, 2007" "" "SMI Management Information Library"
+.SH "NAME"
+.\" START OF MAN PAGE COPIES
+smiGetEvent,
+smiGetFirstEvent,
+smiGetNextEvent
+.\" END OF MAN PAGE COPIES
+\- SMI identity
+information routines
+.SH "SYNOPSIS"
+.nf 
+.B #include <smi.h>
+.RS
+.RE
+.sp
+.BI "smiGetEvent(SmiClass *" smiClassPtr, char *" name) ;
+.RE
+.sp
+.BI "smiGetFirstEvent(SmiClass *" smiClassPtr);
+.RE
+.sp
+.BI "smiGetNextEvent(SmiEvent *" smiEventPtr);
+.RE
+
+typedef struct SmiEvent {
+    SmiIdentifier       name;
+    SmiDecl             decl;
+    SmiStatus           status;
+    char                *description;
+    char                *reference;
+} SmiEvent;
+
+.fi 
+.SH "DESCRIPTION"
+These functions retrieve information on a SMIng event definition (SMIng).
+.PP 
+\fBsmiGetEvent(SmiClass *smiClassPtr, char *name)\fP returns a pointer
+to \fBstruct SmiEvent\fP for the event with the given \fIname\fP in
+the given class(\fIsmiClassPtr\fP), or NULL if the event with the
+given name does not exist
+.PP 
+\fBsmiGetFirstEvent(SmiClass *smiClassPtr)\fP and
+\fBsmiGetNextEvent(SmiEvent *smiEventPtr)\fP are used to iterate
+through the events of the class given by \fIsmiClassPtr\fP. They
+return a pointer to \fBstruct SmiEvent\fP that represents an event or
+NULL if there are no events left in the class, or error has occurred.
+.SH "FILES"
+.nf 
+${prefix}/include/smi.h    SMI library header file
+.fi 
+.SH "SEE ALSO"
+.BR libsmi "(3), "
+.BR smi_module "(3), "
+.BR smi_class "(3), "
+.BR smi.h
+.SH "AUTHOR"
+(C) 2007 Kaloyan Kanev, Jacobs University, Germany <k.kanev@jacobs-university.de>
+.br

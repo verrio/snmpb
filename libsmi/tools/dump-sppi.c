@@ -459,22 +459,17 @@ static void freeImportList(void)
 static void fprint(FILE *f, char *fmt, ...)
 {
     va_list ap;
-    char    s[200];
+    char    *s;
     char    *p;
     
     va_start(ap, fmt);
-#ifdef HAVE_VSNPRINTF
-    current_column += vsnprintf(s, sizeof(s), fmt, ap);
-#else
-    current_column += vsprintf(s, fmt, ap);	/* buffer overwrite */
-#endif
+    current_column += smiVasprintf(&s, fmt, ap);
     va_end(ap);
-
     fputs(s, f);
-    
     if ((p = strrchr(s, '\n'))) {
 	current_column = strlen(p) - 1;
     }
+    free(s);
 }
 
 
@@ -535,7 +530,7 @@ static void fprintMultilineString(FILE *f, const char *s, const int comment)
 
 static char *getValueString(SmiValue *valuePtr, SmiType *typePtr)
 {
-    static char    s[100];
+    static char    s[1024];
     char           ss[9];
     int		   n;
     unsigned int   i;
@@ -606,6 +601,7 @@ static char *getValueString(SmiValue *valuePtr, SmiType *typePtr)
     case SMI_BASETYPE_FLOAT64:
     case SMI_BASETYPE_FLOAT128:
     case SMI_BASETYPE_UNKNOWN:
+    case SMI_BASETYPE_POINTER:
 	break;
     case SMI_BASETYPE_OBJECTIDENTIFIER:
 	nodePtr = smiGetNodeByOID(valuePtr->len, valuePtr->value.oid);
@@ -631,7 +627,7 @@ static void fprintSubtype(FILE *f, SmiType *smiType, const int comment)
 {
     SmiRange       *range;
     SmiNamedNumber *nn;
-    char	   s[100];
+    char	   s[1024];
     int		   i;
 
     if ((smiType->basetype == SMI_BASETYPE_ENUM) ||
@@ -1394,7 +1390,7 @@ static void fprintModuleCompliances(FILE *f, SmiModule *smiModule)
     SmiElement    *smiElement;
     char	  *module;
     char	  *done = NULL; /* "+" separated list of module names */
-    char	  s[100];
+    char	  s[1024];
     int		  j;
 
     for (smiNode = smiGetFirstNode(smiModule, SMI_NODEKIND_COMPLIANCE);

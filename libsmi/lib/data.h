@@ -8,7 +8,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: data.h 2011 2004-11-29 10:54:16Z strauss $
+ * @(#) $Id: data.h 7966 2008-03-27 21:25:52Z schoenw $
  */
 
 #ifndef _DATA_H
@@ -82,8 +82,12 @@ typedef struct Module {
     struct Object   *lastObjectPtr;
     struct Type	    *firstTypePtr;
     struct Type	    *lastTypePtr;
+    struct Class    *firstClassPtr;
+    struct Class    *lastClassPtr;
     struct Macro    *firstMacroPtr;
     struct Macro    *lastMacroPtr;
+    struct Identity *firstIdentityPtr;
+    struct Identity *lastIdentityPtr;
     struct Import   *firstImportPtr;
     struct Import   *lastImportPtr;
     struct Revision *firstRevisionPtr;
@@ -236,6 +240,56 @@ typedef struct Macro {
     int		   line;
 } Macro;
 
+typedef struct Identity {
+    SmiIdentity	   	export;
+    Module	   	*modulePtr;
+    struct Identity	*parentPtr;
+    struct Identity   	*nextPtr;
+    struct Identity  	*prevPtr;
+    int		  	line;
+} Identity;
+
+typedef struct Class {
+    SmiClass	    	export;
+    Module         	*modulePtr;
+    struct Attribute	*firstAttributePtr;
+    struct Attribute   	*lastAttributePtr;
+    struct List		*uniqueList;
+    struct Event	*firstEventPtr;
+    struct Event   	*lastEventPtr;
+    struct Class	*parentPtr;
+    struct Class   	*nextPtr;
+    struct Class  	*prevPtr;
+    int		  	line;
+} Class;
+/*NOTE: if first element of uniqueList points
+	to current class that is class->uniqueList-> = class;
+	the class is scalar. If uniqueList = NULL; it is not
+	meant to be instatiated directly. Otherwise it contains
+	list of pointers to the class unique attributes.
+*/
+
+
+typedef struct Attribute {
+    SmiAttribute 	export;
+    Class          	*classPtr;
+    struct Type    	*parentTypePtr;
+    struct List    	*listPtr;
+    struct Attribute    *nextPtr;
+    struct Attribute	*prevPtr;
+    int		   	line;
+    struct Class	*parentClassPtr;
+} Attribute;
+
+typedef struct Event {
+    SmiEvent	   	export;
+    Class          	*classPtr;
+    struct Event   	*nextPtr;
+    struct Event  	*prevPtr;
+    int		  	line;
+} Event;
+
+
 
 
 typedef struct Parser {
@@ -279,6 +333,7 @@ typedef struct Handle {
     Type     	    *typeFloat128Ptr;
     Type     	    *typeEnumPtr;
     Type     	    *typeBitsPtr;
+    Type			*typePointerPtr;
     int	     	    flags;
     char     	    *path;
     char     	    *cache;
@@ -559,6 +614,98 @@ extern Type *findTypeByModulenameAndName(const char *modulename,
 
 extern NamedNumber *findTypeNamedNumber(Type *typePtr,
 					SmiInteger32 number);
+					
+					
+					
+extern Identity *addIdentity(char *identityname,
+		             Parser *parserPtr);
+
+extern void setIdentityDecl(Identity *identityPtr,
+			    SmiDecl decl);
+
+extern void setIdentityStatus(Identity *identityPtr,
+			      SmiStatus status);
+
+extern void setIdentityDescription(Identity *identityPtr,
+				   char *description,
+				   Parser *parserPtr);
+
+extern void setIdentityReference(Identity *identityPtr,
+				 char *reference,
+				 Parser *parserPtr);
+
+extern void setIdentityParent(Identity *identityPtr,
+			      Identity *parentPtr);
+
+extern Identity *findIdentityByName(const char *identityname);
+
+extern Identity *findIdentityByModuleAndName(Module *modulePtr,
+					     const char *identityname);
+
+extern Identity *findIdentityByModulenameAndName(const char *modulename,
+						 const char *identity_name);
+
+
+
+
+extern Class *addClass(char *classname,
+		       Parser *parserPtr);
+
+extern void setClassDecl(Class *classPtr,
+			 SmiDecl decl);
+
+extern void setClassStatus(Class *classPtr,
+			   SmiStatus status);
+
+extern void setClassDescription(Class *classPtr,
+				char *description,
+				Parser *parserPtr);
+
+extern void setClassReference(Class *classPtr,
+			      char *reference,
+			      Parser *parserPtr);
+
+extern Class *findClassByModuleAndName(Module *modulePtr, char *name);
+
+extern Class *findClassByModulenameAndName(const char *modulename,
+					   const char *class_name);
+			      
+
+		             
+extern Attribute *duplicateTypeToAttribute(Type *templatePtr, 
+					   Class *classPtr, Parser *parserPtr);
+								
+extern Attribute *addAttribute(char *attribute_name,
+			       Class *classPtr, Parser *parserPtr);
+
+extern void setAttributeName(Attribute *attributePtr, char *name);
+
+extern void setAttributeDecl(Attribute *attributePtr,
+			     SmiDecl decl);
+
+extern void setAttributeStatus(Attribute *attributePtr,
+			       SmiStatus status);
+
+extern void setAttributeDescription(Attribute *attributePtr,
+				    char *description);
+
+extern void setAttributeReference(Attribute *attributePtr,
+				  char *reference);
+			      
+extern void setAttributeAccess(Attribute *attributePtr,SmiAccess access);
+
+extern void setAttributeParentType(Attribute *attributePtr,
+				   Type *parentPtr);
+
+extern void setAttributeParentClass(Attribute *attributePtr, 
+				    Class *parentPtr);
+
+extern void setAttributeList(Attribute *attributePtr, List *listPtr);
+
+
+extern Event *addEvent(char *eventname, Class *classPtr, 
+		       Parser *parserPtr);
+			    
 
 extern Macro *addMacro(char *macroname,
 		       MacroFlags flags,
@@ -577,6 +724,10 @@ extern void setMacroReference(Macro *macroPtr,
 
 extern void setMacroDecl(Macro *macroPtr,
 			 SmiDecl decl);
+			 
+extern void setMacroAbnf(Macro *macroPtr, 
+			 char *abnf, 
+			 Parser *parserPtr);
 
 extern void setMacroLine(Macro *macroPtr,
 			 int line,
@@ -589,6 +740,10 @@ extern Macro *findMacroByModuleAndName(Module *modulePtr,
 
 extern Macro *findMacroByModulenameAndName(const char *modulename,
 					   const char *macroname);
+					   
+
+extern NamedNumber *findNamedNumberByName(Type *typePtr,
+					  const char *name);
 
 
 

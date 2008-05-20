@@ -11,7 +11,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: dump-perl.c 2127 2005-04-22 21:59:07Z schoenw $
+ * @(#) $Id: dump-perl.c 8090 2008-04-18 12:56:29Z strauss $
  */
 
 /*
@@ -129,22 +129,17 @@ static char *getTimeString(time_t t)
 static void fprint(FILE *f, char *fmt, ...)
 {
     va_list ap;
-    char    s[200];
+    char    *s;
     char    *p;
 
     va_start(ap, fmt);
-#ifdef HAVE_VSNPRINTF
-    current_column += vsnprintf(s, sizeof(s), fmt, ap);
-#else
-    current_column += vsprintf(s, fmt, ap);     /* buffer overwrite */
-#endif
+    current_column += smiVasprintf(&s, fmt, ap);
     va_end(ap);
-
     fputs(s, f);
-
     if ((p = strrchr(s, '\n'))) {
         current_column = strlen(p) - 1;
     }
+    free(s);
 }
 
 
@@ -195,7 +190,7 @@ static void fprintMultilineString(FILE *f, int column, const char *s)
 
 static char *getValueString(SmiValue *valuePtr, SmiType *typePtr)
 {
-    static char    s[100];
+    static char    s[1024];
     char           ss[9];
     int            n;
     unsigned int   i;
@@ -269,6 +264,8 @@ static char *getValueString(SmiValue *valuePtr, SmiType *typePtr)
         break;
     case SMI_BASETYPE_UNKNOWN:
         break;
+    case SMI_BASETYPE_POINTER:
+        break;
     case SMI_BASETYPE_OBJECTIDENTIFIER:
         for (i = 0; i < valuePtr->len; i++) {
             sprintf(&s[strlen(s)], i ? ".%u" : "%u", valuePtr->value.oid[i]);
@@ -310,6 +307,10 @@ static void fprintNodeStartTag(FILE *f, int indent, const char *tag,
         fprintSegment(f, indent + INDENT, "", 0);
         fprint(f, "\"status\" => \"%s\"", getStringStatus(smiNode->status));
     }
+    if (smiNode->implied) {
+        fprint(f, ",\n");
+        fprintSegment(f, indent + INDENT, "\"implied\" => \"true\"", 0);
+    }
     fprint(f, ",\n");
 }
 
@@ -327,17 +328,40 @@ static void fprintNodeEndTag(FILE *f, int indent, const char *tag,
 static void fprintRanges(FILE *f, int indent, SmiType *smiType)
 {
     SmiRange       *range;
+    SmiValue	   min, max;
+    int            rc;
 
-    for(range = smiGetFirstRange(smiType);
-        range;
-        range = smiGetNextRange(range)) {
-        fprintSegment(f, indent, "\"range\" => {\n", 0);
+    if (! smiGetFirstRange(smiType)) {
+	return;
+    }
+
+    fprintSegment(f, indent, "\"ranges\" => (\n", 0);
+    for (range = smiGetFirstRange(smiType);
+	 range;
+	 range = smiGetNextRange(range)) {
+        fprintSegment(f, indent, "{\n", 0);
         fprintSegment(f, indent + INDENT, "", 0);
         fprint(f, "\"min\" => \"%s\",\n",
 	       getValueString(&range->minValue, smiType));
         fprintSegment(f, indent + INDENT, "", 0);
         fprint(f, "\"max\" => \"%s\"\n",
 	       getValueString(&range->maxValue, smiType));
+        fprintSegment(f, indent, "},\n", 0);
+    }
+    fprintSegment(f, indent, "),\n", 0);
+
+    rc = smiGetMinMaxRange(smiType, &min, &max);
+    
+    if (rc == 0
+	&& min.basetype != SMI_BASETYPE_UNKNOWN
+	&& max.basetype != SMI_BASETYPE_UNKNOWN) {
+        fprintSegment(f, indent, "\"range\" => {\n", 0);
+        fprintSegment(f, indent + INDENT, "", 0);
+        fprint(f, "\"min\" => \"%s\",\n",
+	       getValueString(&min, smiType));
+        fprintSegment(f, indent + INDENT, "", 0);
+        fprint(f, "\"max\" => \"%s\"\n",
+	       getValueString(&max, smiType));
         fprintSegment(f, indent, "},\n", 0);
     }
 }
@@ -595,11 +619,12 @@ static void fprintImports(FILE *f, SmiModule *smiModule)
     for (i = 0, smiImport = smiGetFirstImport(smiModule);
          smiImport;
          i++,
-         lastModule = smiImport->module,
          smiImport = smiGetNextImport(smiImport)) {
         if (i == 0) {
             fprintSegment(f, INDENT, "\"imports\" => [\n", 0);
         }
+        if (smiImport->module == NULL)
+            continue;
         
         if ( lastModule == NULL || strcmp(lastModule, smiImport->module)) {
             if ( lastModule ) {
@@ -614,6 +639,7 @@ static void fprintImports(FILE *f, SmiModule *smiModule)
         }
         fprintSegment(f, 4 * INDENT, "", 0);
         fprint(f, "\"%s\",\n", smiImport->name);
+        lastModule = smiImport->module;
     }
     if (lastModule) {
         fprintSegment(f, 3 * INDENT, "],\n", 0);

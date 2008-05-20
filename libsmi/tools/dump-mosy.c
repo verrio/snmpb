@@ -9,7 +9,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: dump-mosy.c 2444 2005-06-13 10:34:35Z schoenw $
+ * @(#) $Id: dump-mosy.c 8090 2008-04-18 12:56:29Z strauss $
  */
 
 #include <config.h>
@@ -130,7 +130,7 @@ static char *getOidString(SmiNode *smiNode, int importedParent)
 
 static char *getValueString(SmiValue *valuePtr)
 {
-    static char    s[100];
+    static char    s[1024];
 
     s[0] = 0;
     
@@ -158,6 +158,8 @@ static char *getValueString(SmiValue *valuePtr)
 	/* not required in MOSY format */
 	break;
     case SMI_BASETYPE_UNKNOWN:
+	break;
+    case SMI_BASETYPE_POINTER:
 	break;
     }
 
@@ -493,6 +495,11 @@ static void dumpMosy(int modc, SmiModule **modv, int flags, char *output)
 	    fprintf(f,
 		    "\n-- object definitions compiled from %s\n\n",
 		    modv[i]->name);
+	}
+
+	if (! (flags & SMIDUMP_FLAG_SILENT) && (flags & SMIDUMP_FLAG_ERROR)) {
+	    fprintf(f, "-- WARNING: this output may be incorrect due to "
+		    "significant parse errors\n\n");
 	}
 	
 	smiNode = smiGetModuleIdentityNode(modv[i]);

@@ -35,15 +35,16 @@ libsmiTest010Mib MODULE-IDENTITY
              The MIB parser should complain about improper subtyping.
 
 	     The libsmi parser is expected to report:
-LIBSMI-TEST-010-MIB:67: warning: first bit (bit zero) has no name assigned
-LIBSMI-TEST-010-MIB:80: illegal size restriction for non-octet-string parent type `EnumTcTest1'
-LIBSMI-TEST-010-MIB:88: illegal range restriction for non-numerical parent type `EnumTcTest1'
-LIBSMI-TEST-010-MIB:96: illegal size restriction for non-octet-string parent type `BitsTcTest1'
-LIBSMI-TEST-010-MIB:104: illegal range restriction for non-numerical parent type `BitsTcTest1'
-LIBSMI-TEST-010-MIB:112: illegal enumeration or bits restriction for non-enumeration-or-bits parent type `OctetsStringTcTest1'
-LIBSMI-TEST-010-MIB:57: warning: current type `EnumTcTest1' is not referenced in this module
-LIBSMI-TEST-010-MIB:63: warning: current type `BitsTcTest1' is not referenced in this module
-LIBSMI-TEST-010-MIB:69: warning: current type `OctetsStringTcTest1' is not referenced in this module
+LIBSMI-TEST-010-MIB:68: warning: first bit (bit zero) has no name assigned
+LIBSMI-TEST-010-MIB:81: illegal size restriction for non-octet-string parent type `EnumTcTest1'
+LIBSMI-TEST-010-MIB:89: illegal range restriction for non-numerical parent type `EnumTcTest1'
+LIBSMI-TEST-010-MIB:97: illegal size restriction for non-octet-string parent type `BitsTcTest1'
+LIBSMI-TEST-010-MIB:105: illegal range restriction for non-numerical parent type `BitsTcTest1'
+LIBSMI-TEST-010-MIB:113: illegal enumeration or bits restriction for non-enumeration-or-bits parent type `OctetsStringTcTest1'
+LIBSMI-TEST-010-MIB:58: warning: current type `EnumTcTest1' is not referenced in this module
+LIBSMI-TEST-010-MIB:64: warning: current type `BitsTcTest1' is not referenced in this module
+LIBSMI-TEST-010-MIB:70: warning: current type `OctetsStringTcTest1' is not referenced in this module
+LIBSMI-TEST-010-MIB:70: warning: type `OctetsStringTcTest1' has no format specification
 	    "
     REVISION        "200011081000Z"
     DESCRIPTION     
