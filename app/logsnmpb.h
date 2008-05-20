@@ -20,6 +20,8 @@
 #ifndef LOGSNMPB_H
 #define LOGSNMPB_H
 
+#include <qsettings.h>
+
 #include "snmpb.h"
 #include "snmp_pp/snmp_pp.h"
 #include "snmp_pp/log.h"
@@ -41,6 +43,7 @@ protected slots:
 
 private:
     Snmpb *s;
+    QSettings *settings;
 };
 
 class SnmpbAgentLog: public QObject, public AgentLog

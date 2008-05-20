@@ -55,6 +55,7 @@ public:
     QString GetUsmUsersConfigFile(void);
     QString GetAgentsConfigFile(void);
     QString GetPrefsConfigFile(void);
+    QString GetLogConfigFile(void);
 
 public slots:
     void TreeTabSelected(void);

@@ -22,6 +22,8 @@
 LogSnmpb::LogSnmpb(Snmpb *snmpb)
 {
     s = snmpb;
+
+    settings = new QSettings(s->GetLogConfigFile(), QSettings::IniFormat, this);
  
     connect( s->MainUI()->LogEnable, 
              SIGNAL( stateChanged( int ) ),
@@ -44,6 +46,26 @@ LogSnmpb::LogSnmpb(Snmpb *snmpb)
 
     // Initialize SNMP++ logging system
     DefaultLog::init(new SnmpbAgentLog(s->MainUI()->LogOutput));
+
+    // Load preferences from file
+    bool logenable = settings->value("logenable", true).toBool();
+    s->MainUI()->LogEnable->setCheckState((logenable == true)?
+                                           Qt::Checked:Qt::Unchecked);
+    bool logerror = settings->value("logerror", true).toBool();
+    s->MainUI()->LogError->setCheckState((logerror == true)?
+                                          Qt::Checked:Qt::Unchecked);
+    bool logwarning = settings->value("logwarning", true).toBool();
+    s->MainUI()->LogWarning->setCheckState((logwarning == true)?
+                                            Qt::Checked:Qt::Unchecked);
+    bool logevent = settings->value("logevent", true).toBool();
+    s->MainUI()->LogEvent->setCheckState((logevent == true)?
+                                          Qt::Checked:Qt::Unchecked);
+    bool loginfo = settings->value("loginfo", true).toBool();
+    s->MainUI()->LogInfo->setCheckState((loginfo == true)?
+                                         Qt::Checked:Qt::Unchecked);
+    bool logdebug = settings->value("logdebug", false).toBool();
+    s->MainUI()->LogDebug->setCheckState((logdebug == true)?
+                                          Qt::Checked:Qt::Unchecked);
 
     SetLoggingState (s->MainUI()->LogEnable->checkState());
 }
@@ -70,6 +92,8 @@ void LogSnmpb::SetLoggingState ( int state )
         for (int i = 1; i <= LOG_TYPES; i++)
             DefaultLog::log()->set_filter(i<<4, 0); 
     }
+
+    settings->setValue("logenable", (state == Qt::Checked) ? true: false);
 }
 
 void LogSnmpb::SetErrorLevelState ( int state )
@@ -83,6 +107,8 @@ void LogSnmpb::SetErrorLevelState ( int state )
     {
         DefaultLog::log()->set_filter(ERROR_LOG, 0); 
     }
+
+    settings->setValue("logerror", (state == Qt::Checked) ? true: false);
 }
 
 void LogSnmpb::SetWarningLevelState ( int state )
@@ -96,6 +122,8 @@ void LogSnmpb::SetWarningLevelState ( int state )
     {
         DefaultLog::log()->set_filter(WARNING_LOG, 0); 
     }
+
+    settings->setValue("logwarning", (state == Qt::Checked) ? true: false);
 }
 
 void LogSnmpb::SetEventLevelState ( int state )
@@ -109,6 +137,8 @@ void LogSnmpb::SetEventLevelState ( int state )
     {
         DefaultLog::log()->set_filter(EVENT_LOG, 0); 
     }
+
+    settings->setValue("logevent", (state == Qt::Checked) ? true: false);
 }
 
 void LogSnmpb::SetInfoLevelState ( int state )
@@ -122,6 +152,8 @@ void LogSnmpb::SetInfoLevelState ( int state )
     {
         DefaultLog::log()->set_filter(INFO_LOG, 0); 
     }
+
+    settings->setValue("loginfo", (state == Qt::Checked) ? true: false);
 }
 
 void LogSnmpb::SetDebugLevelState ( int state )
@@ -135,5 +167,7 @@ void LogSnmpb::SetDebugLevelState ( int state )
     {
         DefaultLog::log()->set_filter(DEBUG_LOG, 0); 
     }
+
+    settings->setValue("logdebug", (state == Qt::Checked) ? true: false);
 }
 

@@ -41,6 +41,7 @@
 #define USM_USERS_CONFIG_FILE    "usm_users.conf"
 #define AGENTS_CONFIG_FILE       "agents.conf"
 #define PREFS_CONFIG_FILE        "preferences.conf"
+#define LOG_CONFIG_FILE          "log.conf"
 
 #define STANDARD_TRAP_PORT       162 
 
@@ -234,6 +235,11 @@ QString Snmpb::GetAgentsConfigFile(void)
 QString Snmpb::GetPrefsConfigFile(void)
 {
     return (SnmpbDir.filePath(PREFS_CONFIG_FILE));
+}
+
+QString Snmpb::GetLogConfigFile(void)
+{
+    return (SnmpbDir.filePath(LOG_CONFIG_FILE));
 }
 
 void Snmpb::ManageAgentProfiles(bool)
