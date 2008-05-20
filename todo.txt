@@ -1,3 +1,4 @@
+- Add table index on mib node properties display
 - Add support for table instance on get/get-next
 - Test/fix support of 64 bits MIB variables 
 - Fix graph plotting system (+ add configurable polling interval)
@@ -6,7 +7,6 @@
 - Add support for STOP operation on a walk
 - Add support for MIB autoload on walk
 - Clean-up code/add comments
-- Allow to save logging level settings
 - Add desktop shortcut/K menu for Linux/BSD
 - Add NetBSD installer
 - Add auto-loading of MIB files on walk
