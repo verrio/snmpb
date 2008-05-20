@@ -32,7 +32,7 @@
 /* Internal SNMP++ routine */
 extern int receive_snmp_response(SnmpSocket sock, Snmp &snmp_session,
                                  Pdu &pdu, UdpAddress &fromaddress,
-                                 bool process_msg = true);
+                                 OctetStr &engine_id, bool process_msg = true);
 
 static unsigned char snmpv3_broadcast_message[] =
 {
@@ -348,7 +348,9 @@ new_loop:
         {
             // Received a message
             UdpAddress from;
-            int res = receive_snmp_response(sock, *this, in_pdu, from, true);
+            OctetStr engine_id;
+            int res = receive_snmp_response(sock, *this, in_pdu, from, 
+                                            engine_id, true);
 
             if((res == SNMPv3_MP_UNKNOWN_PDU_HANDLERS) || // SNMPv3
                (res == SNMP_CLASS_SUCCESS)) // SNMPv1 or SNMPv2c
