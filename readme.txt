@@ -36,7 +36,7 @@ Version: 0.4.8
 Modified file(s):
 win/Makefile.mingw
 win/config.h
-lib/smi.h "Changed parameter named 'class' to allow compilation on C++"
+lib/smi.h.in "Changed parameter named 'class' to allow compilation on C++"
 lib/smi.c "Fixed a bug on paths with spaces in smiReadConfig()"
 
 QWT is taken from http://qwt.sourceforge.net
