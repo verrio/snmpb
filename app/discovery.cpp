@@ -256,6 +256,7 @@ void DiscoverySnmp::discover(const UdpAddress &start_addr, int num_addr,
         {
             if (iv_snmp_session != (int)INVALID_SOCKET)
                 sock = iv_snmp_session;
+#ifndef WIN32
             else
             {
                 uaddr.map_to_ipv6();
@@ -263,7 +264,10 @@ void DiscoverySnmp::discover(const UdpAddress &start_addr, int num_addr,
             }
         }
         else
+        {
             sock = iv_snmp_session_ipv6;
+#endif
+        }
 
         if (version != version3)
         {
