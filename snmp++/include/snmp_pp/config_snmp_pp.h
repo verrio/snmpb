@@ -62,7 +62,9 @@
 #endif
 
 // define SNMP_PP_IPv6 if you want to use IPv6
+#ifndef WIN32
 #define SNMP_PP_IPv6
+#endif
 
 // define SNMP_PP_NAMESPACE to enclose all library names in Snmp_pp namespace
 // #define SNMP_PP_NAMESPACE
