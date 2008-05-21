@@ -40,10 +40,11 @@ lib/smi.h.in "Changed parameter named 'class' to allow compilation on C++"
 lib/smi.c "Fixed a bug on paths with spaces in smiReadConfig()"
 
 QWT is taken from http://qwt.sourceforge.net
-Version: 5.0.0rc0 (Release Candidate 0)
+Version: 5.1.0
 
 Modified file(s):
-qwt.pro
+qwtconfig.pri
++ do not import the doc sub-directory for space's sake
 
 --------------------------------
 
