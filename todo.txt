@@ -1,3 +1,5 @@
+- Add find feature in mibtree
+- Change menu items to be tab-sensitive (grayed out)
 - Add table index on mib node properties display
 - Add support for table instance on get/get-next
 - Test/fix support of 64 bits MIB variables 
