@@ -332,6 +332,19 @@ QwtDoubleRect::QwtDoubleRect(
 {
 }
 
+QwtDoubleRect::QwtDoubleRect(const QRect &rect):
+    d_left(rect.left()),
+    d_right(rect.right()),
+    d_top(rect.top()),
+    d_bottom(rect.bottom())
+{
+}
+
+QRect QwtDoubleRect::toRect() const
+{
+    return QRect(qRound(x()), qRound(y()), qRound(width()), qRound(height()));
+}
+
 /*! 
   Set the x-range from x1 to x2 and the y-range from y1 to y2.
 */

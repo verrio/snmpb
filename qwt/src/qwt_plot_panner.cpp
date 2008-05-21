@@ -63,7 +63,7 @@ QwtPlotPanner::~QwtPlotPanner()
 */
 void QwtPlotPanner::setAxisEnabled(int axis, bool on)
 {
-    if ( axis >= 0 && axis <= QwtPlot::axisCnt )
+    if ( axis >= 0 && axis < QwtPlot::axisCnt )
         d_data->isAxisEnabled[axis] = on;
 }
 
@@ -77,7 +77,7 @@ void QwtPlotPanner::setAxisEnabled(int axis, bool on)
 */
 bool QwtPlotPanner::isAxisEnabled(int axis) const
 {
-    if ( axis >= 0 && axis <= QwtPlot::axisCnt )
+    if ( axis >= 0 && axis < QwtPlot::axisCnt )
         return d_data->isAxisEnabled[axis];
 
     return true;
@@ -125,7 +125,7 @@ const QwtPlot *QwtPlotPanner::plot() const
    \param dx Pixel offset in x direction
    \param dy Pixel offset in y direction
 
-   \sa QwtPanner::panned
+   \sa QwtPanner::panned()
 */
 void QwtPlotPanner::moveCanvas(int dx, int dy)
 {

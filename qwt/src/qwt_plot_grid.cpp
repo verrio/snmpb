@@ -31,8 +31,8 @@ public:
     bool xMinEnabled;
     bool yMinEnabled;
 
-    QwtScaleDiv sdx;
-    QwtScaleDiv sdy;
+    QwtScaleDiv xScaleDiv;
+    QwtScaleDiv yScaleDiv;
 
     QPen majPen;
     QPen minPen;
@@ -46,12 +46,13 @@ QwtPlotGrid::QwtPlotGrid():
     setZ(10.0);
 }
 
-//! dtor
+//! Destructor
 QwtPlotGrid::~QwtPlotGrid()
 {
     delete d_data;
 }
 
+//! \return QwtPlotItem::Rtti_PlotGrid
 int QwtPlotGrid::rtti() const
 {
     return QwtPlotItem::Rtti_PlotGrid;
@@ -117,15 +118,15 @@ void QwtPlotGrid::enableYMin(bool tf)
 
 /*!
   \brief Assign an x axis scale division
-  \param sx Scale division
+  \param scaleDiv Scale division
   \warning QwtPlotGrid uses implicit sharing (see Qt Manual) for
   the scale divisions.
 */
-void QwtPlotGrid::setXDiv(const QwtScaleDiv &sx)
+void QwtPlotGrid::setXDiv(const QwtScaleDiv &scaleDiv)
 {
-    if ( d_data->sdx != sx )
+    if ( d_data->xScaleDiv != scaleDiv )
     {
-        d_data->sdx = sx;
+        d_data->xScaleDiv = scaleDiv;
         itemChanged();
     }
 }
@@ -138,9 +139,9 @@ void QwtPlotGrid::setXDiv(const QwtScaleDiv &sx)
 */
 void QwtPlotGrid::setYDiv(const QwtScaleDiv &sy)
 {
-    if ( d_data->sdy != sy )
+    if ( d_data->yScaleDiv != sy )
     {
-        d_data->sdy = sy;    
+        d_data->yScaleDiv = sy;    
         itemChanged();
     }
 }
@@ -195,31 +196,31 @@ void QwtPlotGrid::setMinPen(const QPen &p)
   maps are used to map the scale divisions into the drawing region
   screen.
   \param painter  Painter
-  \param mx X axis map
-  \param my Y axis 
-  \param r Contents rect of the plot canvas
+  \param xMap X axis map
+  \param yMap Y axis 
+  \param canvasRect Contents rect of the plot canvas
 */
 void QwtPlotGrid::draw(QPainter *painter, 
-    const QwtScaleMap &mx, const QwtScaleMap &my,
-    const QRect &r) const
+    const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+    const QRect &canvasRect) const
 {
     //  draw minor gridlines
     painter->setPen(d_data->minPen);
     
     if (d_data->xEnabled && d_data->xMinEnabled)
     {
-        drawLines(painter, r, Qt::Vertical, mx, 
-            d_data->sdx.ticks(QwtScaleDiv::MinorTick));
-        drawLines(painter, r, Qt::Vertical, mx, 
-            d_data->sdx.ticks(QwtScaleDiv::MediumTick));
+        drawLines(painter, canvasRect, Qt::Vertical, xMap, 
+            d_data->xScaleDiv.ticks(QwtScaleDiv::MinorTick));
+        drawLines(painter, canvasRect, Qt::Vertical, xMap, 
+            d_data->xScaleDiv.ticks(QwtScaleDiv::MediumTick));
     }
 
     if (d_data->yEnabled && d_data->yMinEnabled)
     {
-        drawLines(painter, r, Qt::Horizontal, my, 
-            d_data->sdy.ticks(QwtScaleDiv::MinorTick));
-        drawLines(painter, r, Qt::Horizontal, my, 
-            d_data->sdy.ticks(QwtScaleDiv::MediumTick));
+        drawLines(painter, canvasRect, Qt::Horizontal, yMap, 
+            d_data->yScaleDiv.ticks(QwtScaleDiv::MinorTick));
+        drawLines(painter, canvasRect, Qt::Horizontal, yMap, 
+            d_data->yScaleDiv.ticks(QwtScaleDiv::MediumTick));
     }
 
     //  draw major gridlines
@@ -227,29 +228,29 @@ void QwtPlotGrid::draw(QPainter *painter,
     
     if (d_data->xEnabled)
     {
-        drawLines(painter, r, Qt::Vertical, mx,
-            d_data->sdx.ticks(QwtScaleDiv::MajorTick));
+        drawLines(painter, canvasRect, Qt::Vertical, xMap,
+            d_data->xScaleDiv.ticks(QwtScaleDiv::MajorTick));
     }
 
     if (d_data->yEnabled)
     {
-        drawLines(painter, r, Qt::Horizontal, my,
-            d_data->sdy.ticks(QwtScaleDiv::MajorTick));
+        drawLines(painter, canvasRect, Qt::Horizontal, yMap,
+            d_data->yScaleDiv.ticks(QwtScaleDiv::MajorTick));
     }
 }
 
-void QwtPlotGrid::drawLines(QPainter *painter, const QRect &rect,
-    Qt::Orientation orientation, const QwtScaleMap &map, 
+void QwtPlotGrid::drawLines(QPainter *painter, const QRect &canvasRect,
+    Qt::Orientation orientation, const QwtScaleMap &scaleMap, 
     const QwtValueList &values) const
 {
-    const int x1 = rect.left();
-    const int x2 = rect.right();
-    const int y1 = rect.top();
-    const int y2 = rect.bottom();
+    const int x1 = canvasRect.left();
+    const int x2 = canvasRect.right();
+    const int y1 = canvasRect.top();
+    const int y2 = canvasRect.bottom();
 
     for (uint i = 0; i < (uint)values.count(); i++)
     {
-        const int value = map.transform(values[i]);
+        const int value = scaleMap.transform(values[i]);
         if ( orientation == Qt::Horizontal )
         {
             if ((value >= y1) && (value <= y2))
@@ -321,13 +322,13 @@ bool QwtPlotGrid::yMinEnabled() const
 /*! \return the scale division of the x axis */
 const QwtScaleDiv &QwtPlotGrid::xScaleDiv() const 
 { 
-    return d_data->sdx; 
+    return d_data->xScaleDiv; 
 }
 
 /*! \return the scale division of the y axis */
 const QwtScaleDiv &QwtPlotGrid::yScaleDiv() const 
 { 
-    return d_data->sdy; 
+    return d_data->yScaleDiv; 
 }
  
 void QwtPlotGrid::updateScaleDiv(const QwtScaleDiv& xDiv,

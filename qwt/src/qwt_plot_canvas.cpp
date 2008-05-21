@@ -58,10 +58,13 @@ QwtPlotCanvas::QwtPlotCanvas(QwtPlot *plot):
 
 #if QT_VERSION < 0x040000
     setWFlags(Qt::WNoAutoErase);
+#ifndef QT_NO_CURSOR
     setCursor(Qt::crossCursor);
+#endif
 #else
-    setAttribute(Qt::WA_PaintOnScreen, true);
+#ifndef QT_NO_CURSOR
     setCursor(Qt::CrossCursor);
+#endif
 #endif // >= 0x040000
 
     setPaintAttribute(PaintCached, true);
@@ -72,6 +75,26 @@ QwtPlotCanvas::QwtPlotCanvas(QwtPlot *plot):
 QwtPlotCanvas::~QwtPlotCanvas()
 {
     delete d_data;
+}
+
+//! Return parent plot widget
+QwtPlot *QwtPlotCanvas::plot()
+{
+    QWidget *w = parentWidget();
+    if ( w && w->inherits("QwtPlot") )
+        return (QwtPlot *)w;
+
+    return NULL;
+}
+
+//! Return parent plot widget
+const QwtPlot *QwtPlotCanvas::plot() const
+{
+    const QWidget *w = parentWidget();
+    if ( w && w->inherits("QwtPlot") )
+        return (QwtPlot *)w;
+
+    return NULL;
 }
 
 /*!
@@ -139,6 +162,7 @@ void QwtPlotCanvas::setPaintAttribute(PaintAttribute attribute, bool on)
 
   \param attribute Paint attribute
   \return true if the attribute is enabled
+  \sa setPaintAttribute()
 */
 bool QwtPlotCanvas::testPaintAttribute(PaintAttribute attribute) const
 {
@@ -197,6 +221,7 @@ void QwtPlotCanvas::hideEvent(QHideEvent *e)
     }
 }
 
+//! Paint event
 void QwtPlotCanvas::paintEvent(QPaintEvent *event)
 {
 #if QT_VERSION >= 0x040000
@@ -210,15 +235,7 @@ void QwtPlotCanvas::paintEvent(QPaintEvent *event)
         painter.restore(); 
     }
 
-#if defined(Q_WS_WIN)
-
-#ifdef __GNUC__
-#warning Clipping bugs on Win32
-#endif
-
-#else
     painter.setClipRegion(event->region() & contentsRect());
-#endif
 
     drawContents( &painter );
 #else // QT_VERSION < 0x040000
@@ -238,7 +255,15 @@ void QwtPlotCanvas::drawContents(QPainter *painter)
         painter->drawPixmap(contentsRect().topLeft(), *d_data->cache);
     }
     else
+    {
+        QwtPlot *plot = ((QwtPlot *)parent());
+        const bool doAutoReplot = plot->autoReplot();
+        plot->setAutoReplot(false);
+
         drawCanvas(painter);
+
+        plot->setAutoReplot(doAutoReplot);
+    }
 
     if ( hasFocus() && focusIndicator() == CanvasFocusIndicator )
         drawFocusIndicator(painter);
@@ -257,6 +282,15 @@ void QwtPlotCanvas::drawCanvas(QPainter *painter)
 {
     if ( !contentsRect().isValid() )
         return;
+
+    QBrush bgBrush;
+#if QT_VERSION >= 0x040000
+        bgBrush = palette().brush(backgroundRole());
+#else
+    QColorGroup::ColorRole role = 
+        QPalette::backgroundRoleFromMode( backgroundMode() );
+    bgBrush = colorGroup().brush( role );
+#endif
 
     if ( d_data->paintAttributes & PaintCached && d_data->cache )
     {
@@ -277,14 +311,6 @@ void QwtPlotCanvas::drawCanvas(QPainter *painter)
             QPainter bgPainter(d_data->cache);
             bgPainter.setPen(Qt::NoPen);
 
-            QBrush bgBrush;
-#if QT_VERSION >= 0x040000
-                bgBrush = palette().brush(backgroundRole());
-#else
-            QColorGroup::ColorRole role = 
-                QPalette::backgroundRoleFromMode( backgroundMode() );
-            bgBrush = colorGroup().brush( role );
-#endif
             bgPainter.setBrush(bgBrush);
             bgPainter.drawRect(d_data->cache->rect());
         }
@@ -303,22 +329,19 @@ void QwtPlotCanvas::drawCanvas(QPainter *painter)
     }
     else
     {
+#if QT_VERSION >= 0x040000
         if ( d_data->paintAttributes & PaintPacked )
+#endif
         {
             painter->save();
+
             painter->setPen(Qt::NoPen);
-
-            const QBrush brush =
-#if QT_VERSION < 0x040000
-                backgroundBrush();
-#else
-                palette().brush(backgroundRole());
-#endif
-            painter->setBrush(brush);
-
+            painter->setBrush(bgBrush);
             painter->drawRect(contentsRect());
+
             painter->restore();
         }
+
         ((QwtPlot *)parent())->drawCanvas(painter);
     }
 }

@@ -79,7 +79,7 @@ QwtPlotPicker::QwtPlotPicker(int xAxis, int yAxis, QwtPlotCanvas *canvas):
 
   \param xAxis X axis of the picker
   \param yAxis Y axis of the picker
-  \param selectionFlags Or´d value of SelectionType, RectSelectionType and
+  \param selectionFlags Or'd value of SelectionType, RectSelectionType and
                         SelectionMode
   \param rubberBand Rubberband style
   \param trackerMode Tracker mode
@@ -142,13 +142,22 @@ const QwtPlot *QwtPlotPicker::plot() const
 */
 QwtDoubleRect QwtPlotPicker::scaleRect() const
 {
-    const QwtScaleDiv *xs = plot()->axisScaleDiv(xAxis());
-    const QwtScaleDiv *ys = plot()->axisScaleDiv(yAxis());
+    QwtDoubleRect rect;
 
-    const QwtDoubleRect rect( xs->lBound(), ys->lBound(), 
-        xs->range(), ys->range() );
+    if ( plot() )
+    {
+        const QwtScaleDiv *xs = plot()->axisScaleDiv(xAxis());
+        const QwtScaleDiv *ys = plot()->axisScaleDiv(yAxis());
 
-    return rect.normalized();
+        if ( xs && ys )
+        {
+            rect = QwtDoubleRect( xs->lBound(), ys->lBound(), 
+                xs->range(), ys->range() );
+            rect = rect.normalized();
+        }
+    }
+
+    return rect;
 }
 
 /*!
@@ -198,7 +207,7 @@ QwtText QwtPlotPicker::trackerText(const QPoint &pos) const
 
   In case of HLineRubberBand the label is the value of the
   y position, in case of VLineRubberBand the value of the x position.
-  Otherwise the label contains x and y position separated by a ´, ´.
+  Otherwise the label contains x and y position separated by a ',' .
 
   The format for the double to string conversion is "%.4f".
 
@@ -207,16 +216,20 @@ QwtText QwtPlotPicker::trackerText(const QPoint &pos) const
 */
 QwtText QwtPlotPicker::trackerText(const QwtDoublePoint &pos) const
 {
+    QString text;
+
     switch(rubberBand())
     {
         case HLineRubberBand:
-            return QString().sprintf("%.4f", pos.y());
+            text.sprintf("%.4f", pos.y());
+            break;
         case VLineRubberBand:
-            return QString().sprintf("%.4f", pos.x());
+            text.sprintf("%.4f", pos.x());
+            break;
         default:
-            return QString().sprintf("%.4f, %.4f", pos.x(), pos.y());
+            text.sprintf("%.4f, %.4f", pos.x(), pos.y());
     }
-    return QwtText(); // make some dumb compilers happy
+    return QwtText(text);
 }
 
 /*! 

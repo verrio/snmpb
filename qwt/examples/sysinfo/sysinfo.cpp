@@ -33,14 +33,14 @@ public:
         if ( orientation == Qt::Horizontal )
         {
             d_label->setAlignment(Qt::AlignCenter);
-            d_thermo->setOrientation(orientation, QwtThermo::Bottom);
+            d_thermo->setOrientation(orientation, QwtThermo::BottomScale);
             layout->addWidget(d_label);
             layout->addWidget(d_thermo);
         }
         else
         {
             d_label->setAlignment(Qt::AlignRight);
-            d_thermo->setOrientation(orientation, QwtThermo::Left);
+            d_thermo->setOrientation(orientation, QwtThermo::LeftScale);
             layout->addWidget(d_thermo, 10, Qt::AlignHCenter);
             layout->addWidget(d_label, 0);
         }

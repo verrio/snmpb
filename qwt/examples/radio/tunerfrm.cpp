@@ -13,7 +13,7 @@ public:
         QWidget(parent)
     {
         d_thermo = new QwtThermo(this);
-        d_thermo->setOrientation(Qt::Horizontal, QwtThermo::None);
+        d_thermo->setOrientation(Qt::Horizontal, QwtThermo::NoScale);
         d_thermo->setRange(0.0, 1.0);
         d_thermo->setFillColor(Qt::green);
 
@@ -40,7 +40,7 @@ private:
 TunerFrame::TunerFrame(QWidget *parent): 
     QFrame(parent)
 {
-    d_sldFreq = new QwtSlider(this, Qt::Horizontal, QwtSlider::Top);
+    d_sldFreq = new QwtSlider(this, Qt::Horizontal, QwtSlider::TopScale);
     d_sldFreq->setRange(87.5, 108, 0.01, 10);
     d_sldFreq->setScaleMaxMinor(5);
     d_sldFreq->setScaleMaxMajor(12);

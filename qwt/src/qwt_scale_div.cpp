@@ -55,6 +55,15 @@ QwtScaleDiv::QwtScaleDiv(
 }
 
 /*!
+   Change the interval
+   \interval Interval
+*/
+void QwtScaleDiv::setInterval(const QwtDoubleInterval &interval)
+{
+    setInterval(interval.minValue(), interval.maxValue());
+}
+
+/*!
   \brief Equality operator
   \return true if this instance is equal to other
 */
@@ -129,6 +138,18 @@ void QwtScaleDiv::invert()
         for (int i=0; i < size2; i++)
             qSwap(ticks[i], ticks[size - 1 - i]);
     }
+}
+
+/*!
+    Assign ticks
+
+   \param type MinorTick, MediumTick or MajorTick
+   \param ticks Values of the tick positions
+*/
+void QwtScaleDiv::setTicks(int type, const QwtValueList &ticks)
+{
+    if ( type >= 0 || type < NTickTypes )
+        d_ticks[type] = ticks;
 }
 
 /*!

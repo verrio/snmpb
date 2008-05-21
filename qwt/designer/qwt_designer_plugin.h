@@ -76,6 +76,7 @@ private:
     QList<QDesignerCustomWidgetInterface*> d_plugins;
 };
 
+#ifndef NO_QWT_PLOT
 class PlotInterface: public CustomWidgetInterface 
 {
     Q_OBJECT
@@ -85,7 +86,9 @@ public:
     PlotInterface(QObject *parent);
     virtual QWidget *createWidget(QWidget *parent);
 };
+#endif
 
+#ifndef NO_QWT_WIDGETS
 class AnalogClockInterface: public CustomWidgetInterface 
 {
     Q_OBJECT
@@ -95,7 +98,9 @@ public:
     AnalogClockInterface(QObject *parent);
     virtual QWidget *createWidget(QWidget *parent);
 };
+#endif
 
+#ifndef NO_QWT_WIDGETS
 class CompassInterface: public CustomWidgetInterface 
 {
     Q_OBJECT
@@ -105,7 +110,9 @@ public:
     CompassInterface(QObject *parent);
     virtual QWidget *createWidget(QWidget *parent);
 };
+#endif
 
+#ifndef NO_QWT_WIDGETS
 class CounterInterface: public CustomWidgetInterface 
 {
     Q_OBJECT
@@ -115,7 +122,9 @@ public:
     CounterInterface(QObject *parent);
     virtual QWidget *createWidget(QWidget *parent);
 };
+#endif
 
+#ifndef NO_QWT_WIDGETS
 class DialInterface: public CustomWidgetInterface 
 {
     Q_OBJECT
@@ -125,7 +134,9 @@ public:
     DialInterface(QObject *parent);
     virtual QWidget *createWidget(QWidget *parent);
 };
+#endif
 
+#ifndef NO_QWT_WIDGETS
 class KnobInterface: public CustomWidgetInterface 
 {
     Q_OBJECT
@@ -135,8 +146,9 @@ public:
     KnobInterface(QObject *parent);
     virtual QWidget *createWidget(QWidget *parent);
 };
+#endif
 
-#if 0
+#ifndef NO_QWT_PLOT
 class ScaleWidgetInterface: public CustomWidgetInterface 
 {
     Q_OBJECT
@@ -148,6 +160,7 @@ public:
 };
 #endif
 
+#ifndef NO_QWT_WIDGETS
 class SliderInterface: public CustomWidgetInterface 
 {
     Q_OBJECT
@@ -157,6 +170,7 @@ public:
     SliderInterface(QObject *parent);
     virtual QWidget *createWidget(QWidget *parent);
 };
+#endif
 
 class TextLabelInterface: public CustomWidgetInterface 
 {
@@ -168,6 +182,7 @@ public:
     virtual QWidget *createWidget(QWidget *parent);
 };
 
+#ifndef NO_QWT_WIDGETS
 class ThermoInterface: public CustomWidgetInterface 
 {
     Q_OBJECT
@@ -177,7 +192,9 @@ public:
     ThermoInterface(QObject *parent);
     virtual QWidget *createWidget(QWidget *parent);
 };
+#endif
 
+#ifndef NO_QWT_WIDGETS
 class WheelInterface: public CustomWidgetInterface 
 {
     Q_OBJECT
@@ -187,6 +204,7 @@ public:
     WheelInterface(QObject *parent);
     virtual QWidget *createWidget(QWidget *parent);
 };
+#endif
 
 class TaskMenuFactory: public QExtensionFactory
 {

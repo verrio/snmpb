@@ -20,7 +20,7 @@
 /*!
    \brief Normalize the limits of the interval
 
-   If maxValue() > minValue() the limits will be inverted.
+   If maxValue() < minValue() the limits will be inverted.
    \return Normalized interval
 
    \sa isValid, inverted

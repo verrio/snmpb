@@ -23,10 +23,14 @@ CanvasPicker::CanvasPicker(QwtPlot *plot):
 
 #if QT_VERSION >= 0x040000
     canvas->setFocusPolicy(Qt::StrongFocus);
+#ifndef QT_NO_CURSOR
     canvas->setCursor(Qt::PointingHandCursor);
+#endif
 #else
     canvas->setFocusPolicy(QWidget::StrongFocus);
+#ifndef QT_NO_CURSOR
     canvas->setCursor(Qt::pointingHandCursor);
+#endif
 #endif
     canvas->setFocusIndicator(QwtPlotCanvas::ItemFocusIndicator);
     canvas->setFocus();

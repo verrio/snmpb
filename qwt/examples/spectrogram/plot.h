@@ -11,6 +11,7 @@ public:
 public slots:
     void showContour(bool on);
     void showSpectrogram(bool on);
+    void printPlot();
 
 private:
     QwtPlotSpectrogram *d_spectrogram;

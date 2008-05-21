@@ -1,4 +1,0 @@
-base referer
-rect $class_qwt_compass_magnet_needle.html 7,83 194,107
-rect $class_qwt_compass_wind_arrow.html 218,83 383,107
-rect $class_qwt_dial_simple_needle.html 407,83 557,107

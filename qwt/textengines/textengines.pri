@@ -7,33 +7,68 @@
 # modify it under the terms of the Qwt License, Version 1.0
 ##############################################
 
-TEMPLATE  = lib
-CONFIG    += qt plugin
-CONFIG    += warn_on thread plugin
-CONFIG    += debug
+QWT_ROOT = ../..
 
-QT += xml
+include( $${QWT_ROOT}/qwtconfig.pri )
+
+SUFFIX_STR =
+VVERSION = $$[QT_VERSION]
+isEmpty(VVERSION) {
+
+    # Qt 3
+    debug {
+        SUFFIX_STR = $${DEBUG_SUFFIX}
+    }
+    else {
+        SUFFIX_STR = $${RELEASE_SUFFIX}
+    }
+}
+else {
+    CONFIG(debug, debug|release) {
+        SUFFIX_STR = $${DEBUG_SUFFIX}
+    }
+    else {
+        SUFFIX_STR = $${RELEASE_SUFFIX}
+    }
+}
+
+TEMPLATE  = lib
+
+contains(CONFIG, QwtDll ) {
+    CONFIG += dll
+}
+else {
+    CONFIG += staticlib
+}
 
 MOC_DIR         = moc
-OBJECTS_DIR     = obj
-DESTDIR         = ../plugins/textengines
-INCLUDEPATH    += ../../include
+OBJECTS_DIR     = obj$${SUFFIX_STR}
+DESTDIR         = $${QWT_ROOT}/lib
+INCLUDEPATH    += $${QWT_ROOT}/src
+DEPENDPATH     += $${QWT_ROOT}/src
 
-win32::DEFINES += QWT_DLL
+QWTLIB       = qwt$${SUFFIX_STR}
 
-unix:LIBS      += -L../../lib -lqwt
-win32-msvc:LIBS  += ../../lib/qwt5.lib
-win32-msvc.net:LIBS  += ../../lib/qwt5.lib
-win32-msvc2005:LIBS += ../../lib/qwt5.lib
-win32-g++:LIBS   += -L../../lib -lqwt5
+win32 {
+    QwtDll {
+        DEFINES += QT_DLL QWT_DLL QWT_MAKEDLL
+        QWTLIB   = $${QWTLIB}$${VER_MAJ}
+    }
 
-#CONFIG    += debug_and_release
-CONFIG    += debug
+    QWTLIB = $${QWTLIB}$${VER_MAJ}
 
-target.path = $$[QT_INSTALL_PLUGINS]/qwttextengines
-INSTALLS += target
-
-CONFIG(debug, debug|release) {
-    unix: TARGET = $$join(TARGET,,,_debug)
-    else: TARGET = $$join(TARGET,,d)
+    win32-msvc:LIBS  += $${QWT_ROOT}/lib/$${QWTLIB}.lib
+    win32-msvc.net:LIBS  += $${QWT_ROOT}/lib/$${QWTLIB}.lib
+    win32-msvc2005:LIBS += $${QWT_ROOT}/lib/$${QWTLIB}.lib
+    win32-g++:LIBS   += -L$${QWT_ROOT}/lib -l$${QWTLIB}
 }
+else {
+    LIBS      += -L$${QWT_ROOT}/lib -l$${QWTLIB}
+}
+
+target.path    = $$INSTALLBASE/lib
+headers.path   = $$INSTALLBASE/include
+doc.path       = $$INSTALLBASE/doc
+
+headers.files  = $$HEADERS
+INSTALLS       = target headers

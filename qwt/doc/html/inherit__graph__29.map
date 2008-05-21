@@ -1,4 +1,0 @@
-base referer
-rect $class_qwt_scale_engine.html 7,32 127,56
-rect $class_qwt_linear_scale_engine.html 175,8 333,32
-rect $class_qwt_log10_scale_engine.html 177,56 331,80

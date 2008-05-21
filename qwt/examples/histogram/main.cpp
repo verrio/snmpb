@@ -18,7 +18,7 @@ int main(int argc, char **argv)
     QwtPlotGrid *grid = new QwtPlotGrid;
     grid->enableXMin(true);
     grid->enableYMin(true);
-    grid->setMajPen(QPen(Qt::white, 0, Qt::DotLine));
+    grid->setMajPen(QPen(Qt::black, 0, Qt::DotLine));
     grid->setMinPen(QPen(Qt::gray, 0 , Qt::DotLine));
     grid->attach(&plot);
 

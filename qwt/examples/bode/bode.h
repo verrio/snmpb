@@ -18,7 +18,6 @@ private slots:
     void selected(const QwtPolygon &);
     
     void print();
-    void exportPDF();
     void exportSVG();
     void enableZoomMode(bool);
 

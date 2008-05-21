@@ -23,9 +23,10 @@
 #include <qtextdocument.h>
 #include <qabstracttextdocumentlayout.h>
 #include <qstyleoption.h>
+#include <qpaintengine.h>
 #endif
 
-#include "qwt_rect.h"
+#include "qwt_clipper.h"
 #include "qwt_math.h"
 #include "qwt_color_map.h"
 #include "qwt_scale_map.h"
@@ -93,8 +94,7 @@ const QRect &QwtPainter::deviceClipRect()
 //! Clip a point array
 QwtPolygon QwtPainter::clip(const QwtPolygon &pa)
 {
-    const QwtRect rect(deviceClipRect());
-    return rect.clip(pa);
+    return QwtClipper::clipPolygon(deviceClipRect(), pa);
 }
 
 #if QT_VERSION < 0x040000 
@@ -183,7 +183,7 @@ void QwtPainter::drawRect(QPainter *painter, int x, int y, int w, int h)
 */
 void QwtPainter::drawRect(QPainter *painter, const QRect &rect) 
 {
-    QRect r = d_metricsMap.layoutToDevice(rect, painter);
+    const QRect r = d_metricsMap.layoutToDevice(rect, painter);
 
     QRect clipRect;
 
@@ -219,19 +219,6 @@ void QwtPainter::drawRect(QPainter *painter, const QRect &rect)
         }
     }
 
-#if QT_VERSION >= 0x040000
-    if ( painter->pen().style() != Qt::NoPen && 
-        painter->pen().color().isValid() )
-    {
-        // Qt4 adds the pen to the rect, Qt3 not.
-        int pw = painter->pen().width();
-        if ( pw == 0 )
-            pw = 1;
-
-        r.setWidth(r.width() - pw);
-        r.setHeight(r.height() - pw);
-    }
-#endif
     painter->drawRect(r);
 }
 
@@ -421,7 +408,7 @@ void QwtPainter::drawSimpleRichText(QPainter *painter, const QRect &rect,
 
     painter->save();
 
-    painter->translate(scaledRect.x(), scaledRect.y());
+    painter->translate(scaledRect.x(), y);
     layout->draw(painter, context);
 
     painter->restore();
@@ -492,7 +479,6 @@ void QwtPainter::drawPolygon(QPainter *painter, const QwtPolygon &pa)
     if ( deviceClipping )
     {
 #ifdef __GNUC__
-#warning clipping ignores painter transformations
 #endif
         cpa = clip(cpa);
     }
@@ -509,7 +495,36 @@ void QwtPainter::drawPolyline(QPainter *painter, const QwtPolygon &pa)
     QwtPolygon cpa = d_metricsMap.layoutToDevice(pa);
     if ( deviceClipping )
         cpa = clip(cpa);
-    painter->drawPolyline(cpa);
+
+#if QT_VERSION >= 0x040000
+    bool doSplit = false;
+    if ( painter->paintEngine()->type() == QPaintEngine::Raster &&
+        painter->pen().width() >= 2 )
+    {
+        /*
+            The raster paint engine seems to use some algo with O(n*n).
+            ( Qt 4.3 is better than Qt 4.2, but remains unacceptable)
+            To work around this problem, we have to split the polygon into
+            smaller pieces.
+         */
+        doSplit = true;
+    }
+
+    if ( doSplit )
+    {
+        const int numPoints = cpa.size();
+        const QPoint *points = cpa.data();
+
+        const int splitSize = 20;
+        for ( int i = 0; i < numPoints; i += splitSize )
+        {
+            const int n = qwtMin(splitSize + 1, cpa.size() - i);
+            painter->drawPolyline(points + i, n);
+        }
+    }
+    else
+#endif
+        painter->drawPolyline(cpa);
 }
 
 /*!
@@ -640,10 +655,6 @@ void QwtPainter::drawColorBar(QPainter *painter,
         const QwtScaleMap &scaleMap, Qt::Orientation orientation,
         const QRect &rect)
 {
-    painter->save();
-
-    QwtPainter::setClipRect(painter, rect);
-
 #if QT_VERSION < 0x040000
     QValueVector<QRgb> colorTable;
 #else
@@ -655,6 +666,15 @@ void QwtPainter::drawColorBar(QPainter *painter,
     QColor c;
 
     const QRect devRect = d_metricsMap.layoutToDevice(rect);
+
+    /*
+      We paint to a pixmap first to have something scalable for printing
+      ( f.e. in a Pdf document )
+     */
+      
+    QPixmap pixmap(devRect.size());
+    QPainter pmPainter(&pixmap);
+    pmPainter.translate(-devRect.x(), -devRect.y());
 
     if ( orientation == Qt::Horizontal )
     {
@@ -670,12 +690,8 @@ void QwtPainter::drawColorBar(QPainter *painter,
             else
                 c = colorTable[colorMap.colorIndex(interval, value)];
 
-            painter->setBrush(QBrush(c));
-
-            const QRect r(x, devRect.top(), 1, devRect.height());
-            QwtPainter::drawRect(painter, r);
-            painter->setPen(c);
-            painter->drawLine(x, devRect.top(), x, devRect.bottom() - 1);
+            pmPainter.setPen(c);
+            pmPainter.drawLine(x, devRect.top(), x, devRect.bottom());
         }
     }
     else // Vertical
@@ -692,9 +708,10 @@ void QwtPainter::drawColorBar(QPainter *painter,
             else
                 c = colorTable[colorMap.colorIndex(interval, value)];
 
-            painter->setPen(c);
-            painter->drawLine(devRect.left(), y, devRect.right() - 1, y);
+            pmPainter.setPen(c);
+            pmPainter.drawLine(devRect.left(), y, devRect.right(), y);
         }
     }
-    painter->restore();
+    pmPainter.end();
+    painter->drawPixmap(devRect, pixmap);
 }

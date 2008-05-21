@@ -27,7 +27,6 @@ public:
         scaleDraw(NULL)
     {
         colorBar.colorMap = NULL;
-        colorBar.width = 10;
     }
 
     ~PrivateData()
@@ -492,12 +491,12 @@ QRect QwtScaleWidget::colorBarRect(const QRect& rect) const
     if ( d_data->scaleDraw->orientation() == Qt::Horizontal )
     {
         cr.setLeft(cr.left() + d_data->borderDist[0]);
-        cr.setWidth(cr.width() - d_data->borderDist[1]);
+        cr.setWidth(cr.width() - d_data->borderDist[1] + 1);
     }
     else
     {
         cr.setTop(cr.top() + d_data->borderDist[0]);
-        cr.setHeight(cr.height() - d_data->borderDist[1]);
+        cr.setHeight(cr.height() - d_data->borderDist[1] + 1);
     }
 
     switch(d_data->scaleDraw->alignment())
@@ -851,6 +850,8 @@ void QwtScaleWidget::setScaleDiv(
 
         emit scaleDivChanged();
     }
+    else
+        delete transformation;
 }
 
 void QwtScaleWidget::setColorBarEnabled(bool on)

@@ -1,9 +1,90 @@
+Release 5.1.0
+===================
+
+Changes
+-------
+1) QwtSymbol::copy introduced
+   Now it is possible to use derived symbol classes for curves
+2) QwtPlotScaleItem introduced
+   A new type of plot item for displaying axes on the canvas
+3) QwtClipper added
+   A collection of clipping algos
+4) Using DBL_EPSILON
+   This change allows smaller intervals for sliders/dials
+5) QwtPanner
+   setOrientation() added.
+6) QwtPlot
+   axisStepSize() added
+   clear is virtual now
+7) QwtPlotPrintFilter
+   PrintCanvasBackground splitted into PrintBackground, PrintFrameWithScales
+8) QwtPlotZoomer
+   setZoomStack() added
+9) Changes for the QwtPolar package
+   QwtLegendItemManager introduced
+   QwtMagnifier introduced
+10)Suffix rules added in qwtconfig.pri for different targets for 
+   debug/release builds.
+
+Bug Fixes
+---------
+1. QwtAbstractScaleDraw::setAbstractScaleDraw
+   Reinitialization problem fixed
+2. QwtLegendItem
+   key event handlers fixed
+3. QwtPicker
+   solaris-cc compiler problem fixed
+4. Inaccurate mapping of scale to widget coordinates fixed
+5. QwtPlotCurve::draw
+   Updates for Qt 4.3 added
+6. QwtPlotLayout
+   AlignToCanvas layout calculation fixed
+7. QwtPlot::print
+   Workaround for a QPen initialization problem, 
+   when printing to Pdf, added
+8. QwtText
+   Layout of rich text documents fixed
+9. Designer
+   Handling of QwtScaleWidget fixed
+10. realtime example
+   Qt::WA_PaintOutsidePaintEvent added, ScrollZoomer fixed
+11. Several others I have forgotten
+
+Release 5.0.2
+===================
+
+Bug Fixes
+---------
+1. QwtPlotCurve::Xfy curve type fixed
+2. Memory leak in QwtLegend fixed
+3. Vertical alignment of rich texts fixed
+4. Workaround for a Qt4 bug added, that produces horrible performance
+   when painting curves with a pen width > 1.
+5. Background for the tracker text of QwtPickers fixed.
+   Improved (faster + better rendered texts) implementation of
+   painting tracker texts, using capabilities of Qt >= 4.3.
+6. QwtArrowButton/QwtCounter: workaround for layout bug ( Qt < 4.3 )
+   of the Cleanlook style added.
+7. A couple of minor fixes
+
+Changes
+-------
+1. QSvgGenerator added to the bode example
+
+Release 5.0.1
+===================
+
+Changes
+-------
+1.  A couple of problems, when building Qwt fixed.
+2.  Displaying Rich Text with Qt 4.x fixed
+
 Release 5.0.0
+===================
 
 Platforms
 ---------
 Support of Qt3 and Qt4. Qt2 is not supported any longer.
-Until Qtopia has moved to Qt4, there will be no support.
 
 Key features
 ------------
@@ -13,16 +94,17 @@ Key features
     collected in scale engines, where the application can
     implement it´s own (f.e log2, or date scales). Now it´s
     also possible to have individual and completely irregular scales
-3.  Redesign of the QwtText classes.
+3.  Redesign of the QwtText classes. The MathML renderer of
+    the Qt4 solutions package is embedded. 
+    work for all expressions/situations.
+4.  New classes for navigating: QwtPanner, QwtMaginfier
+5.  Spectrogram/Contour plots  and other classes for displaying
+    raster data added.
 
 Changes
 -------
-1.  QwtCounter is editable now.
-2.  The buttons on the legend can be toggled now. The buttons
-    are implementated using QLabel now to avoid unwanted 
-    effects of different styles. QwtPushButton has been removed.
-    (The implementation was not possible with Qt4)
-3.  ...
+5.0.0 is by far the release with the most changes in the history of Qwt
+- too many to make list.
 
 
 Release 4.2.0/0.4.2

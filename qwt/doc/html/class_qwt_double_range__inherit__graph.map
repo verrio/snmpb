@@ -1,9 +1,0 @@
-base referer
-rect $class_qwt_abstract_slider.html 217,83 345,107
-rect $class_qwt_counter.html 369,83 462,107
-rect $class_qwt_dial.html 101,158 168,182
-rect $class_qwt_knob.html 192,158 269,182
-rect $class_qwt_slider.html 293,158 373,182
-rect $class_qwt_wheel.html 397,158 480,182
-rect $class_qwt_analog_clock.html 8,233 128,257
-rect $class_qwt_compass.html 152,233 253,257

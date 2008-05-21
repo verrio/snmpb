@@ -19,19 +19,18 @@
 #include "qwt_text_engine.h"
 #include "qwt_text.h"
 #if QT_VERSION >= 0x040000
-#include <QPluginLoader>
 #include <qapplication.h>
 #include <qdesktopwidget.h>
-#include <qdir.h>
-#include "qwt_text_plugin.h"
 #endif
 
-class QwtText::EngineDict
+class QwtTextEngineDict
 {
 public:
-    EngineDict();
-    ~EngineDict();
+    QwtTextEngineDict();
+    ~QwtTextEngineDict();
 
+    void setTextEngine(QwtText::TextFormat, QwtTextEngine *);
+    const QwtTextEngine *textEngine(QwtText::TextFormat) const;
     const QwtTextEngine *textEngine(const QString &, 
         QwtText::TextFormat) const;
 
@@ -50,42 +49,15 @@ private:
     EngineMap d_map;
 };
 
-QwtText::EngineDict::EngineDict()
+QwtTextEngineDict::QwtTextEngineDict()
 {
     d_map.insert(QwtText::PlainText, new QwtPlainTextEngine());
 #ifndef QT_NO_RICHTEXT
     d_map.insert(QwtText::RichText, new QwtRichTextEngine());
 #endif
-
-#if QT_VERSION >= 0x040000
-
-    // Plugins are not implemented for Qt 3
-
-    const QStringList libPaths = QApplication::libraryPaths();
-    foreach (QString path, QApplication::libraryPaths())
-    {
-        QDir pluginsDir(path);
-        if ( !pluginsDir.cd("textengines") )
-            continue;
-
-        foreach (QString fileName, pluginsDir.entryList(QDir::Files))
-        {
-            QPluginLoader loader(pluginsDir.absoluteFilePath(fileName));
-
-            QwtTextPlugin *plugin = 
-                qobject_cast<QwtTextPlugin *>(loader.instance());
-            if (plugin)
-            {
-                EngineMap::iterator it = d_map.find(plugin->format());
-                if ( it == d_map.end() )
-                    d_map.insert(plugin->format(), plugin->engine());
-            }
-        }
-    }
-#endif // QT_VERSION >= 0x040000
 }
 
-QwtText::EngineDict::~EngineDict()
+QwtTextEngineDict::~QwtTextEngineDict()
 {
     for ( EngineMap::const_iterator it = d_map.begin(); 
         it != d_map.end(); ++it )
@@ -95,7 +67,7 @@ QwtText::EngineDict::~EngineDict()
     }
 }
 
-const QwtTextEngine *QwtText::EngineDict::textEngine(const QString& text,
+const QwtTextEngine *QwtTextEngineDict::textEngine(const QString& text,
     QwtText::TextFormat format) const
 {
     if ( format == QwtText::AutoText )
@@ -124,6 +96,42 @@ const QwtTextEngine *QwtText::EngineDict::textEngine(const QString& text,
     return engine(it);
 }
 
+void QwtTextEngineDict::setTextEngine(QwtText::TextFormat format, 
+    QwtTextEngine *engine)
+{
+    if ( format == QwtText::AutoText )
+        return;
+
+    if ( format == QwtText::PlainText && engine == NULL )
+        return;
+
+    EngineMap::const_iterator it = d_map.find(format);
+    if ( it != d_map.end() )
+    {
+        const QwtTextEngine *e = this->engine(it);
+        if ( e )
+            delete e;
+
+        d_map.remove(format);
+    }
+
+    if ( engine != NULL )
+        d_map.insert(format, engine);
+}
+
+const QwtTextEngine *QwtTextEngineDict::textEngine(
+    QwtText::TextFormat format) const
+{
+    const QwtTextEngine *e = NULL;
+
+    EngineMap::const_iterator it = d_map.find(format);
+    if ( it != d_map.end() )
+        e = engine(it);
+
+    return e;
+}
+
+static QwtTextEngineDict *engineDict = NULL;
 
 class QwtText::PrivateData
 {
@@ -532,7 +540,6 @@ QSize QwtText::textSize(const QFont &defaultFont) const
         if ( !map.isIdentity() )
         {
 #ifdef __GNUC__
-#warning Too small text size, when printing in high resolution
 #endif
             /*
                 When printing in high resolution, the tick labels
@@ -564,7 +571,13 @@ void QwtText::draw(QPainter *painter, const QRect &rect) const
             painter->save();
             painter->setPen(d_data->backgroundPen);
             painter->setBrush(d_data->backgroundBrush);
+#if QT_VERSION < 0x040000
             QwtPainter::drawRect(painter, rect);
+#else
+            const QRect r(rect.x(), rect.y(), 
+                rect.width() - 1, rect.height() - 1);
+            QwtPainter::drawRect(painter, r);
+#endif
             painter->restore();
         }
     }
@@ -620,16 +633,75 @@ void QwtText::draw(QPainter *painter, const QRect &rect) const
 /*!
    Find the text engine for a text format
 
+   In case of QwtText::AutoText the first text engine 
+   (beside QwtPlainTextEngine) is returned, where QwtTextEngine::mightRender
+   returns true. If there is none QwtPlainTextEngine is returnd.
+
+   If no text engine is registered for the format QwtPlainTextEngine 
+   is returnd.
+
    \param text Text, needed in case of AutoText
-   \param format Test format
+   \param format Text format
 */
 const QwtTextEngine *QwtText::textEngine(const QString &text,
-    QwtText::TextFormat format) const
+    QwtText::TextFormat format)
 {
-    static EngineDict *engineDict = NULL;
     if ( engineDict == NULL )
-        engineDict = new EngineDict();
+    {
+        /*
+          Note: engineDict is allocated, the first time it is used, 
+                but never deleted, because there is no known last access time.
+                So don't be irritated, if it is reported as a memory leak
+                from your memory profiler.
+         */
+        engineDict = new QwtTextEngineDict();
+    }
 
     return engineDict->textEngine(text, format);
 }
 
+/*!
+   Assign/Replace a text engine for a text format
+
+   With setTextEngine it is possible to extend Qwt with
+   other types of text formats. 
+
+   Owner of a commercial Qt license can build the qwtmathml library, 
+   that is based on the MathML renderer, that is included in MML Widget 
+   component of the Qt solutions package.
+
+   For QwtText::PlainText it is not allowed to assign a engine == NULL.
+   
+   \param format Text format
+   \param engine Text engine
+
+   \sa QwtMathMLTextEngine
+   \warning Using QwtText::AutoText does nothing.
+*/
+void QwtText::setTextEngine(QwtText::TextFormat format, 
+    QwtTextEngine *engine)
+{
+    if ( engineDict == NULL )
+        engineDict = new QwtTextEngineDict();
+
+    engineDict->setTextEngine(format, engine);
+}
+
+/*!
+   \brief Find the text engine for a text format
+
+   textEngine can be used to find out if a text format is supported. 
+   F.e, if one wants to use MathML labels, the MathML renderer from the 
+   commercial Qt solutions package might be required, that is not 
+   available in Qt Open Source Edition environments.
+
+   \param format Text format
+   \return The text engine, or NULL if no engine is available.
+*/
+const QwtTextEngine *QwtText::textEngine(QwtText::TextFormat format)
+{
+    if ( engineDict == NULL )
+        engineDict = new QwtTextEngineDict();
+
+    return engineDict->textEngine(format);
+}

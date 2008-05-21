@@ -69,7 +69,9 @@ MainWindow::MainWindow()
 #endif
 
     addToolBar(toolBar());
+#ifndef QT_NO_STATUSBAR
     (void)statusBar();
+#endif
 
     d_plot = new RandomPlot(this);
     d_plot->setMargin(4);

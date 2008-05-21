@@ -9,6 +9,11 @@
 #include <qpicture.h>
 #include <qpainter.h>
 #include <qfiledialog.h>
+#if QT_VERSION >= 0x040300
+#ifdef QT_SVG_LIB
+#include <qsvggenerator.h>
+#endif
+#endif
 #if QT_VERSION >= 0x040000
 #include <qprintdialog.h>
 #include <qfileinfo.h>
@@ -118,25 +123,27 @@ MainWin::MainWin(QWidget *parent):
     btnPrint->setUsesTextLabel(true);
 #endif
 
-#if QT_VERSION >= 0x040100
-    QToolButton *btnPDF = new QToolButton(toolBar);
-    btnPDF->setText("PDF");
-    btnPDF->setIcon(QIcon(print_xpm));
-    btnPDF->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-#endif
-
-#if QT_VERSION < 0x040000
+#if QT_VERSION < 0x040000 
     QToolButton *btnSVG = new QToolButton(toolBar);
     btnSVG->setTextLabel("SVG");
     btnSVG->setPixmap(print_xpm);
     btnSVG->setUsesTextLabel(true);
+#elif QT_VERSION >= 0x040300
+#ifdef QT_SVG_LIB
+    QToolButton *btnSVG = new QToolButton(toolBar);
+    btnSVG->setText("SVG");
+    btnSVG->setIcon(QIcon(print_xpm));
+    btnSVG->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+#endif
 #endif
 
 #if QT_VERSION >= 0x040000
     toolBar->addWidget(btnZoom);
     toolBar->addWidget(btnPrint);
-#if QT_VERSION >= 0x040100
-    toolBar->addWidget(btnPDF);
+#if QT_VERSION >= 0x040300
+#ifdef QT_SVG_LIB
+    toolBar->addWidget(btnSVG);
+#endif
 #endif
 #endif
     toolBar->addSeparator();
@@ -162,7 +169,9 @@ MainWin::MainWin(QWidget *parent):
 #endif
 
     addToolBar(toolBar);
+#ifndef QT_NO_STATUSBAR
     (void)statusBar();
+#endif
 
     enableZoomMode(false);
     showInfo();
@@ -171,11 +180,12 @@ MainWin::MainWin(QWidget *parent):
         d_plot, SLOT(setDamp(double))); 
 
     connect(btnPrint, SIGNAL(clicked()), SLOT(print()));
-#if QT_VERSION >= 0x040100
-    connect(btnPDF, SIGNAL(clicked()), SLOT(exportPDF()));
-#endif
-#if QT_VERSION < 0x040000
+#if QT_VERSION < 0x040000 
     connect(btnSVG, SIGNAL(clicked()), SLOT(exportSVG()));
+#elif QT_VERSION >= 0x040300
+#ifdef QT_SVG_LIB
+    connect(btnSVG, SIGNAL(clicked()), SLOT(exportSVG()));
+#endif
 #endif
     connect(btnZoom, SIGNAL(toggled(bool)), SLOT(enableZoomMode(bool)));
 
@@ -187,14 +197,17 @@ MainWin::MainWin(QWidget *parent):
 
 void MainWin::print()
 {
-#if 1
+#if 0
     QPrinter printer;
 #else
     QPrinter printer(QPrinter::HighResolution);
 #if QT_VERSION < 0x040000
     printer.setOutputToFile(true);
-#endif
     printer.setOutputFileName("/tmp/bode.ps");
+    printer.setColorMode(QPrinter::Color);
+#else
+    printer.setOutputFileName("/tmp/bode.pdf");
+#endif
 #endif
 
     QString docName = d_plot->title().text();
@@ -218,37 +231,25 @@ void MainWin::print()
         QwtPlotPrintFilter filter;
         if ( printer.colorMode() == QPrinter::GrayScale )
         {
-            filter.setOptions(QwtPlotPrintFilter::PrintAll 
-                & ~QwtPlotPrintFilter::PrintCanvasBackground);
+            int options = QwtPlotPrintFilter::PrintAll;
+            options &= ~QwtPlotPrintFilter::PrintBackground;
+            options |= QwtPlotPrintFilter::PrintFrameWithScales;
+            filter.setOptions(options);
         }
         d_plot->print(printer, filter);
     }
 }
 
-void MainWin::exportPDF()
-{
-#if QT_VERSION >= 0x040100
-    const QString fileName = QFileDialog::getSaveFileName(
-        this, "Export File Name", QString(),
-        "PDF Documents (*.pdf)");
-    if ( !fileName.isEmpty() )
-    {
-        QPrinter printer;
-        printer.setOutputFormat(QPrinter::PdfFormat);
-        printer.setOrientation(QPrinter::Landscape);
-        printer.setOutputFileName(fileName);
-
-        printer.setCreator("Bode example");
-        d_plot->print(printer);
-    }
-#endif
-}
-
 void MainWin::exportSVG()
 {
+    QString fileName = "bode.svg";
+
 #if QT_VERSION < 0x040000
-    const QString fileName = QFileDialog::getSaveFileName(
+
+#ifndef QT_NO_FILEDIALOG
+    fileName = QFileDialog::getSaveFileName(
         "bode.svg", "SVG Documents (*.svg)", this);
+#endif
     if ( !fileName.isEmpty() )
     {
         // enable workaround for Qt3 misalignments
@@ -262,6 +263,24 @@ void MainWin::exportSVG()
 
         picture.save(fileName, "svg");
     }
+
+#elif QT_VERSION >= 0x040300
+
+#ifdef QT_SVG_LIB
+#ifndef QT_NO_FILEDIALOG
+    fileName = QFileDialog::getSaveFileName(
+        this, "Export File Name", QString(),
+        "SVG Documents (*.svg)");
+#endif
+    if ( !fileName.isEmpty() )
+    {
+        QSvgGenerator generator;
+        generator.setFileName(fileName);
+        generator.setSize(QSize(800, 600));
+
+        d_plot->print(generator);
+    }
+#endif
 #endif
 }
 
@@ -290,10 +309,12 @@ void MainWin::showInfo(QString text)
             text = "Zoom: Press mouse button and drag";
     }
 
+#ifndef QT_NO_STATUSBAR
 #if QT_VERSION >= 0x040000
     statusBar()->showMessage(text);
 #else
     statusBar()->message(text);
+#endif
 #endif
 }
 

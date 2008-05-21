@@ -39,7 +39,6 @@ BodePlot::BodePlot(QWidget *parent):
     // legend
     QwtLegend *legend = new QwtLegend;
     legend->setFrameStyle(QFrame::Box|QFrame::Sunken);
-    legend->setItemMode(QwtLegend::ClickableItem);
     insertLegend(legend, QwtPlot::BottomLegend);
 
     // grid 

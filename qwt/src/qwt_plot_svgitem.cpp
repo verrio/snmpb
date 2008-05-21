@@ -179,8 +179,8 @@ void QwtPlotSvgItem::draw(QPainter *painter,
         if ( bRect.contains(cRect) )
             rect = cRect;
 
-        render(painter, viewBox(rect),
-            transform(xMap, yMap, rect) );
+        const QRect r = transform(xMap, yMap, rect);
+        render(painter, viewBox(rect), r);
     }
 }
 
@@ -196,6 +196,12 @@ void QwtPlotSvgItem::render(QPainter *painter,
 {
     if ( !viewBox.isValid() )
         return;
+
+#if QT_VERSION >= 0x040200
+    d_data->renderer.setViewBox(viewBox);
+    d_data->renderer.render(painter, rect);
+    return;
+#else
 
 #if QT_VERSION >= 0x040100
     const QSize paintSize(painter->window().width(),
@@ -217,11 +223,7 @@ void QwtPlotSvgItem::render(QPainter *painter,
     painter->translate(dx, dy);
     painter->scale(mx, my);
 
-#if QT_VERSION >= 0x040200
-    d_data->renderer.setViewBox(viewBox);
-#else
     d_data->renderer.setViewBox(viewBox.toRect());
-#endif
     d_data->renderer.render(painter);
 
     painter->restore();
@@ -239,7 +241,8 @@ void QwtPlotSvgItem::render(QPainter *painter,
     d_data->picture.play(painter);
 
     painter->restore();
-#endif
+#endif // < 0x040100
+#endif // < 0x040200
 }
 
 /*!

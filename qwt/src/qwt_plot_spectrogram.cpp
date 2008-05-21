@@ -498,7 +498,6 @@ QImage QwtPlotSpectrogram::renderImage(
     if ( hInvert || vInvert )
     {
 #ifdef __GNUC__
-#warning Better invert the for loops above
 #endif
 #if QT_VERSION < 0x040000
         image = image.mirror(hInvert, vInvert);

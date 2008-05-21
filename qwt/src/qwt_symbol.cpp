@@ -17,13 +17,13 @@
   Default Constructor
 
   The symbol is constructed with gray interior,
-  black outline with zero width, no size and style 'None'.
+  black outline with zero width, no size and style 'NoSymbol'.
 */
 QwtSymbol::QwtSymbol(): 
     d_brush(Qt::gray), 
     d_pen(Qt::black), 
     d_size(0,0),
-    d_style(QwtSymbol::None)
+    d_style(QwtSymbol::NoSymbol)
 {
 }
 
@@ -46,6 +46,14 @@ QwtSymbol::QwtSymbol(QwtSymbol::Style style, const QBrush &brush,
 //! Destructor
 QwtSymbol::~QwtSymbol()
 {
+}
+
+QwtSymbol *QwtSymbol::clone() const
+{
+    QwtSymbol *other = new QwtSymbol;
+    *other = *this;
+
+    return other;
 }
 
 /*!
@@ -236,7 +244,7 @@ void QwtSymbol::draw(QPainter *painter, const QRect& r) const
         {
             const int w = r.width();
             const int side = (int)(((double)r.width() * (1.0 - 0.866025)) /
-                2.0);  // 0.866025 = cos(30°)
+                2.0);  // 0.866025 = cos(30Â°)
             const int h4 = r.height() / 4;
             const int h2 = r.height() / 2;
             const int h34 = (r.height() * 3) / 4;
@@ -267,7 +275,7 @@ void QwtSymbol::draw(QPainter *painter, const QRect& r) const
         {
             const int w2 = r.width() / 2;
             const int side = (int)(((double)r.width() * (1.0 - 0.866025)) /
-                2.0);  // 0.866025 = cos(30°)
+                2.0);  // 0.866025 = cos(30Â°)
             const int h4 = r.height() / 4;
             const int h34 = (r.height() * 3) / 4;
 
@@ -307,7 +315,7 @@ void QwtSymbol::draw(QPainter *painter, const QPoint &pos) const
   \brief Specify the symbol style
 
   The following styles are defined:<dl>
-  <dt>None<dd>No Style. The symbol cannot be drawn.
+  <dt>NoSymbol<dd>No Style. The symbol cannot be drawn.
   <dt>Ellipse<dd>Ellipse or circle
   <dt>Rect<dd>Rectangle
   <dt>Diamond<dd>Diamond

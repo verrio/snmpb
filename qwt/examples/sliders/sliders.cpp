@@ -37,22 +37,22 @@ Slider::Slider(QWidget *parent, int sliderType):
 #endif
     switch(d_slider->scalePosition())
     {
-        case QwtSlider::None:
+        case QwtSlider::NoScale:
             if ( d_slider->orientation() == Qt::Horizontal )
                 alignment = Qt::AlignHCenter | Qt::AlignTop;
             else
                 alignment = Qt::AlignVCenter | Qt::AlignLeft;
             break;
-        case QwtSlider::Left:
+        case QwtSlider::LeftScale:
             alignment = Qt::AlignVCenter | Qt::AlignRight;
             break;
-        case QwtSlider::Right:
+        case QwtSlider::RightScale:
             alignment = Qt::AlignVCenter | Qt::AlignLeft;
             break;
-        case QwtSlider::Top:
+        case QwtSlider::TopScale:
             alignment = Qt::AlignHCenter | Qt::AlignBottom;
             break;
-        case QwtSlider::Bottom:
+        case QwtSlider::BottomScale:
             alignment = Qt::AlignHCenter | Qt::AlignTop;
             break;
     }
@@ -82,7 +82,7 @@ QwtSlider *Slider::createSlider(QWidget *parent, int sliderType) const
         case 0:
         {
             slider = new QwtSlider(parent, 
-                Qt::Horizontal, QwtSlider::Top, QwtSlider::BgTrough);
+                Qt::Horizontal, QwtSlider::TopScale, QwtSlider::BgTrough);
             slider->setThumbWidth(10);
             slider->setRange(-10.0, 10.0, 1.0, 0); // paging disabled
             break;
@@ -90,14 +90,14 @@ QwtSlider *Slider::createSlider(QWidget *parent, int sliderType) const
         case 1:
         {
             slider = new QwtSlider(parent, 
-                Qt::Horizontal, QwtSlider::None, QwtSlider::BgBoth);
+                Qt::Horizontal, QwtSlider::NoScale, QwtSlider::BgBoth);
             slider->setRange(0.0, 1.0, 0.01, 5);
             break;
         }
         case 2:
         {
             slider = new QwtSlider(parent, 
-                Qt::Horizontal, QwtSlider::Bottom, QwtSlider::BgSlot);
+                Qt::Horizontal, QwtSlider::BottomScale, QwtSlider::BgSlot);
             slider->setThumbWidth(25);
             slider->setThumbLength(12);
             slider->setRange(1000.0, 3000.0, 10.0, 10);
@@ -106,7 +106,7 @@ QwtSlider *Slider::createSlider(QWidget *parent, int sliderType) const
         case 3:
         {
             slider = new QwtSlider(parent, 
-                Qt::Vertical, QwtSlider::Left, QwtSlider::BgSlot);
+                Qt::Vertical, QwtSlider::LeftScale, QwtSlider::BgSlot);
             slider->setRange(0.0, 100.0, 1.0, 5);
             slider->setScaleMaxMinor(5);
             break;
@@ -114,14 +114,14 @@ QwtSlider *Slider::createSlider(QWidget *parent, int sliderType) const
         case 4:
         {
             slider = new QwtSlider(parent, 
-                Qt::Vertical, QwtSlider::None, QwtSlider::BgTrough);
+                Qt::Vertical, QwtSlider::NoScale, QwtSlider::BgTrough);
             slider->setRange(0.0,100.0,1.0, 10);
             break;
         }
         case 5:
         {
             slider = new QwtSlider(parent, 
-                Qt::Vertical, QwtSlider::Right, QwtSlider::BgBoth);
+                Qt::Vertical, QwtSlider::RightScale, QwtSlider::BgBoth);
             slider->setScaleEngine(new QwtLog10ScaleEngine);
             slider->setThumbWidth(20);
             slider->setBorderWidth(1);

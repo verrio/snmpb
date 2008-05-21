@@ -21,29 +21,38 @@
 #include <qguardedptr.h>
 #else
 #include <qpointer.h>
+#include <qpaintengine.h>
 #endif
+
+class QwtPicker::PickerWidget: public QWidget
+{
+public:
+    enum Type
+    {
+        RubberBand,
+        Text
+    };
+
+    PickerWidget(QwtPicker *, QWidget *, Type);
+    virtual void updateMask();
+
+    /*
+       For a tracker text with a background we can use the background 
+       rect as mask. Also for "regular" Qt widgets >= 4.3.0 we
+       don't need to mask the text anymore.
+     */
+    bool d_hasTextMask;
+
+protected:
+    virtual void paintEvent(QPaintEvent *);
+
+    QwtPicker *d_picker;
+    Type d_type;
+};
 
 class QwtPicker::PrivateData
 {
 public:
-    class PickerWidget: public QWidget
-    {
-    public:
-        enum Type
-        {
-            RubberBand,
-            Text
-        };
-        PickerWidget(QwtPicker *, QWidget *, Type);
-        virtual void updateMask();
-
-    protected:
-        virtual void paintEvent(QPaintEvent *);
-
-        QwtPicker *d_picker;
-        Type d_type;
-    };
-
     bool enabled;
 
     QwtPickerMachine *stateMachine;
@@ -60,7 +69,7 @@ public:
 
     QwtPolygon selection;
     bool isActive;
-    QPoint labelPosition;
+    QPoint trackerPosition;
 
     bool mouseTracking; // used to save previous value
 
@@ -73,57 +82,102 @@ public:
      
 #if QT_VERSION < 0x040000
     QGuardedPtr<PickerWidget> rubberBandWidget;
-    QGuardedPtr<PickerWidget> textLabelWidget;
+    QGuardedPtr<PickerWidget> trackerWidget;
 #else
     QPointer<PickerWidget> rubberBandWidget;
-    QPointer<PickerWidget> textLabelWidget;
+    QPointer<PickerWidget> trackerWidget;
 #endif
 };
 
-QwtPicker::PrivateData::PickerWidget::PickerWidget(
+QwtPicker::PickerWidget::PickerWidget(
         QwtPicker *picker, QWidget *parent, Type type):
     QWidget(parent),
+    d_hasTextMask(false),
     d_picker(picker),
     d_type(type)
 {
 #if QT_VERSION >= 0x040000
     setAttribute(Qt::WA_TransparentForMouseEvents);
     setAttribute(Qt::WA_NoSystemBackground);
-    setAttribute(Qt::WA_PaintOnScreen);
     setFocusPolicy(Qt::NoFocus);
 #else
     setBackgroundMode(Qt::NoBackground);
     setFocusPolicy(QWidget::NoFocus);
+    setMouseTracking(true);
 #endif
     hide();
 }
 
-void QwtPicker::PrivateData::PickerWidget::updateMask()
+void QwtPicker::PickerWidget::updateMask()
 {
-    QBitmap bm(width(), height());
-    bm.fill(Qt::color0);
-
-    QPainter painter(&bm);
+    QRegion mask;
 
     if ( d_type == RubberBand )
     {
+        QBitmap bm(width(), height());
+        bm.fill(Qt::color0);
+
+        QPainter painter(&bm);
         QPen pen = d_picker->rubberBandPen();
         pen.setColor(Qt::color1);
         painter.setPen(pen);
 
         d_picker->drawRubberBand(&painter);
+
+        mask = QRegion(bm);
     }
     if ( d_type == Text )
     {
-        QPen pen = d_picker->trackerPen();
-        pen.setColor(Qt::color1);
-        painter.setPen(pen);
+        d_hasTextMask = true;
+#if QT_VERSION >= 0x040300
+        if ( !parentWidget()->testAttribute(Qt::WA_PaintOnScreen) &&
+           parentWidget()->paintEngine()->type() != QPaintEngine::OpenGL )
+        {
+            /*
+              With Qt >= 4.3 drawing of the tracker can be implemented in an
+              easier way, using the textRect as mask. 
+            */
 
-        d_picker->drawTracker(&painter);
+            d_hasTextMask = false;
+        }
+#endif
+        
+        if ( d_hasTextMask )
+        {
+            const QwtText label = d_picker->trackerText(
+                d_picker->trackerPosition());
+            if ( label.testPaintAttribute(QwtText::PaintBackground)
+                && label.backgroundBrush().style() != Qt::NoBrush )
+            {
+#if QT_VERSION >= 0x040300
+                if ( label.backgroundBrush().color().alpha() > 0 )
+#endif
+                // We don't need a text mask, when we have a background
+                d_hasTextMask = false;
+            }
+        }
+
+        if ( d_hasTextMask )
+        {
+            QBitmap bm(width(), height());
+            bm.fill(Qt::color0);
+
+            QPainter painter(&bm);
+            painter.setFont(font());
+
+            QPen pen = d_picker->trackerPen();
+            pen.setColor(Qt::color1);
+            painter.setPen(pen);
+
+            d_picker->drawTracker(&painter);
+
+            mask = QRegion(bm);
+        }
+        else
+        {
+            mask = d_picker->trackerRect(font());
+        }
     }
-
-    painter.end();
-
 
 #if QT_VERSION < 0x040000
     QWidget *w = parentWidget();
@@ -134,8 +188,7 @@ void QwtPicker::PrivateData::PickerWidget::updateMask()
         w->setBackgroundMode(Qt::NoBackground);
 #endif
 
-    const QRegion r(bm);
-    setMask(r);
+    setMask(mask);
 
 #if QT_VERSION < 0x040000
     if ( bgMode != Qt::NoBackground )
@@ -144,29 +197,41 @@ void QwtPicker::PrivateData::PickerWidget::updateMask()
     w->setUpdatesEnabled(doUpdate);
 #endif
 
-    setShown(!r.isEmpty());
+    setShown(!mask.isEmpty());
 }
 
-void QwtPicker::PrivateData::PickerWidget::paintEvent(QPaintEvent *e)
+void QwtPicker::PickerWidget::paintEvent(QPaintEvent *e)
 {
     QPainter painter(this);
+    painter.setClipRegion(e->region());
 
     if ( d_type == RubberBand )
     {
-        painter.setClipRegion(e->region());
         painter.setPen(d_picker->rubberBandPen());
         d_picker->drawRubberBand(&painter);
     }
 
     if ( d_type == Text )
     {
-        painter.setClipRegion(e->region());
-#if 0
-        painter.setPen(d_picker->trackerPen());
-        d_picker->drawTracker(&painter);
-#else
-        painter.fillRect(e->rect(), QBrush(d_picker->trackerPen().color()));
+        /*
+           If we have a text mask we simply fill the region of
+           the mask. This gives better results for antialiased fonts.
+         */
+        bool doDrawTracker = !d_hasTextMask;
+#if QT_VERSION < 0x040000
+        if ( !doDrawTracker && QPainter::redirect(this) )
+        {
+            // setMask + painter redirection doesn't work
+            doDrawTracker = true;
+        }
 #endif
+        if ( doDrawTracker )
+        {
+            painter.setPen(d_picker->trackerPen());
+            d_picker->drawTracker(&painter);
+        }
+        else
+            painter.fillRect(e->rect(), QBrush(d_picker->trackerPen().color()));
     }
 }
 
@@ -188,7 +253,7 @@ QwtPicker::QwtPicker(QWidget *parent):
 /*!
   Constructor
 
-  \param selectionFlags Or´d value of SelectionType, RectSelectionType and 
+  \param selectionFlags Or'd value of SelectionType, RectSelectionType and 
                         SelectionMode
   \param rubberBand Rubberband style
   \param trackerMode Tracker mode
@@ -207,7 +272,7 @@ QwtPicker::~QwtPicker()
     setMouseTracking(false);
     delete d_data->stateMachine;
     delete d_data->rubberBandWidget;
-    delete d_data->textLabelWidget;
+    delete d_data->trackerWidget;
     delete d_data;
 }
 
@@ -218,14 +283,14 @@ void QwtPicker::init(QWidget *parent, int selectionFlags,
     d_data = new PrivateData;
 
     d_data->rubberBandWidget = NULL;
-    d_data->textLabelWidget = NULL;
+    d_data->trackerWidget = NULL;
 
     d_data->rubberBand = rubberBand;
     d_data->enabled = false;
     d_data->resizeMode = Stretch;
     d_data->trackerMode = AlwaysOff;
     d_data->isActive = false;
-    d_data->labelPosition = QPoint(-1, -1);
+    d_data->trackerPosition = QPoint(-1, -1);
     d_data->mouseTracking = false;
 
     d_data->stateMachine = NULL;
@@ -255,8 +320,7 @@ void QwtPicker::setStateMachine(QwtPickerMachine *stateMachine)
 {
     if ( d_data->stateMachine != stateMachine )
     {
-        if ( isActive() )
-            end(false);
+        reset();
 
         delete d_data->stateMachine;
         d_data->stateMachine = stateMachine;
@@ -328,7 +392,7 @@ const QWidget *QwtPicker::parentWidget() const
 /*!
   Set the selection flags
 
-  \param flags Or´d value of SelectionType, RectSelectionType and 
+  \param flags Or'd value of SelectionType, RectSelectionType and 
                SelectionMode. The default value is NoSelection.
 
   \sa selectionFlags(), SelectionType, RectSelectionType, SelectionMode
@@ -341,7 +405,7 @@ void QwtPicker::setSelectionFlags(int flags)
 }
 
 /*!
-  \return Selection flags, an Or´d value of SelectionType, RectSelectionType and
+  \return Selection flags, an Or'd value of SelectionType, RectSelectionType and
           SelectionMode.
   \sa setSelectionFlags(), SelectionType, RectSelectionType, SelectionMode
 */
@@ -551,7 +615,7 @@ QPen QwtPicker::rubberBandPen() const
 
    In case of HLineRubberBand the label is the value of the
    y position, in case of VLineRubberBand the value of the x position.
-   Otherwise the label contains x and y position separated by a ´, ´.
+   Otherwise the label contains x and y position separated by a ',' .
 
    The format for the string conversion is "%d".
 
@@ -682,16 +746,37 @@ void QwtPicker::drawRubberBand(QPainter *painter) const
 
 void QwtPicker::drawTracker(QPainter *painter) const
 {
-    const QRect textRect = trackerRect(painter);
+    const QRect textRect = trackerRect(painter->font());
     if ( !textRect.isEmpty() )
     {
-        QwtText label = trackerText(d_data->labelPosition);
+        QwtText label = trackerText(d_data->trackerPosition);
         if ( !label.isEmpty() )
+        {
+            painter->save();
+
+#if defined(Q_WS_MAC)
+            // Antialiased fonts are broken on the Mac.
+#if QT_VERSION >= 0x040000 
+            painter->setRenderHint(QPainter::TextAntialiasing, false);
+#else
+            QFont fnt = label.usedFont(painter->font());
+            fnt.setStyleStrategy(QFont::NoAntialias);
+            label.setFont(fnt);
+#endif
+#endif
             label.draw(painter, textRect);
+
+            painter->restore();
+        }
     }
 }
 
-QRect QwtPicker::trackerRect(QPainter *painter) const
+QPoint QwtPicker::trackerPosition() const 
+{
+    return d_data->trackerPosition;
+}
+
+QRect QwtPicker::trackerRect(const QFont &font) const
 {
     if ( trackerMode() == AlwaysOff || 
         (trackerMode() == ActiveOnly && !isActive() ) )
@@ -699,16 +784,16 @@ QRect QwtPicker::trackerRect(QPainter *painter) const
         return QRect();
     }
 
-    if ( d_data->labelPosition.x() < 0 || d_data->labelPosition.y() < 0 )
+    if ( d_data->trackerPosition.x() < 0 || d_data->trackerPosition.y() < 0 )
         return QRect();
 
-    QwtText text = trackerText(d_data->labelPosition);
+    QwtText text = trackerText(d_data->trackerPosition);
     if ( text.isEmpty() )
         return QRect();
 
-    QRect textRect(QPoint(0, 0), text.textSize(painter->font()));
+    QRect textRect(QPoint(0, 0), text.textSize(font));
 
-    const QPoint &pos = d_data->labelPosition;
+    const QPoint &pos = d_data->trackerPosition;
 
     int alignment = 0;
     if ( isActive() && d_data->selection.count() > 1 
@@ -777,10 +862,13 @@ bool QwtPicker::eventFilter(QObject *o, QEvent *e)
                 if ( d_data->rubberBandWidget )
                     d_data->rubberBandWidget->resize(re->size());
              
-                if ( d_data->textLabelWidget )
-                    d_data->textLabelWidget->resize(re->size());
+                if ( d_data->trackerWidget )
+                    d_data->trackerWidget->resize(re->size());
                 break;
             }
+            case QEvent::Leave:
+                widgetLeaveEvent(e);
+                break;
             case QEvent::MouseButtonPress:
                 widgetMousePressEvent((QMouseEvent *)e);
                 break;
@@ -836,14 +924,28 @@ void QwtPicker::widgetMousePressEvent(QMouseEvent *e)
 void QwtPicker::widgetMouseMoveEvent(QMouseEvent *e)
 {
     if ( pickRect().contains(e->pos()) )
-        d_data->labelPosition = e->pos();
+        d_data->trackerPosition = e->pos();
     else
-        d_data->labelPosition = QPoint(-1, -1);
+        d_data->trackerPosition = QPoint(-1, -1);
 
     if ( !isActive() )
         updateDisplay();
 
     transition(e);
+}
+
+/*!
+  Handle a leave event for the observed widget.
+
+  \sa eventFilter(), widgetMousePressEvent(), widgetMouseReleaseEvent(),
+      widgetMouseDoubleClickEvent(),
+      widgetWheelEvent(), widgetKeyPressEvent(), widgetKeyReleaseEvent()
+*/
+void QwtPicker::widgetLeaveEvent(QEvent *)   
+{
+    d_data->trackerPosition = QPoint(-1, -1);
+    if ( !isActive() )
+        updateDisplay();
 }
 
 /*!
@@ -888,9 +990,9 @@ void QwtPicker::widgetMouseDoubleClickEvent(QMouseEvent *me)
 void QwtPicker::widgetWheelEvent(QWheelEvent *e)
 {
     if ( pickRect().contains(e->pos()) )
-        d_data->labelPosition = e->pos();
+        d_data->trackerPosition = e->pos();
     else
-        d_data->labelPosition = QPoint(-1, -1);
+        d_data->trackerPosition = QPoint(-1, -1);
 
     updateDisplay();
 
@@ -929,11 +1031,7 @@ void QwtPicker::widgetKeyPressEvent(QKeyEvent *ke)
         dy = offset;
     else if ( keyMatch(KeyAbort, ke) )
     {
-        if ( d_data->stateMachine )
-            d_data->stateMachine->reset();
-
-        if (isActive())
-            end(false);
+        reset();
     }
     else
         transition(ke);
@@ -1043,11 +1141,11 @@ void QwtPicker::begin()
 
     if ( trackerMode() != AlwaysOff )
     {
-        if ( d_data->labelPosition.x() < 0 || d_data->labelPosition.y() < 0 ) 
+        if ( d_data->trackerPosition.x() < 0 || d_data->trackerPosition.y() < 0 ) 
         {
             QWidget *w = parentWidget();
             if ( w )
-                d_data->labelPosition = w->mapFromGlobal(QCursor::pos());
+                d_data->trackerPosition = w->mapFromGlobal(QCursor::pos());
         }
     }
 
@@ -1074,7 +1172,7 @@ bool QwtPicker::end(bool ok)
         d_data->isActive = false;
 
         if ( trackerMode() == ActiveOnly )
-            d_data->labelPosition = QPoint(-1, -1);
+            d_data->trackerPosition = QPoint(-1, -1);
 
         if ( ok )
             ok = accept(d_data->selection);
@@ -1090,6 +1188,18 @@ bool QwtPicker::end(bool ok)
         ok = false;
 
     return ok;
+}
+
+/*!
+   Reset the state machine and terminate (end(false)) the selection
+*/
+void QwtPicker::reset()
+{
+    if ( d_data->stateMachine )
+        d_data->stateMachine->reset();
+
+    if (isActive())
+        end(false);
 }
 
 /*!
@@ -1172,6 +1282,13 @@ const QwtPolygon &QwtPicker::selection() const
 */
 void QwtPicker::stretchSelection(const QSize &oldSize, const QSize &newSize)
 {
+    if ( oldSize.isEmpty() )
+    {
+        // avoid division by zero. But scaling for small sizes also 
+        // doesn't make much sense, because of rounding losses. TODO ...
+        return;
+    }
+
     const double xRatio =
         double(newSize.width()) / double(oldSize.width());
     const double yRatio =
@@ -1196,7 +1313,7 @@ void QwtPicker::stretchSelection(const QSize &oldSize, const QSize &newSize)
   \warning Even when enable is false, mouse tracking might be restored
            to true. When mouseTracking for the observed widget
            has been changed directly by QWidget::setMouseTracking
-           while mouse tracking has been set to true, this value can´t
+           while mouse tracking has been set to true, this value can't
            be restored.
 */
 
@@ -1261,38 +1378,49 @@ void QwtPicker::updateDisplay()
     }
 
 #if QT_VERSION < 0x040000
-    QGuardedPtr<PrivateData::PickerWidget> &rw = d_data->rubberBandWidget;
+    QGuardedPtr<PickerWidget> &rw = d_data->rubberBandWidget;
 #else
-    QPointer<PrivateData::PickerWidget> &rw = d_data->rubberBandWidget;
+    QPointer<PickerWidget> &rw = d_data->rubberBandWidget;
 #endif
     if ( showRubberband )
     {
         if ( rw.isNull() )
         {
-            rw = new PrivateData::PickerWidget(
-                this, w, PrivateData::PickerWidget::RubberBand);
+            rw = new PickerWidget( this, w, PickerWidget::RubberBand);
             rw->resize(w->size());
         }
         rw->updateMask();
+        rw->update(); // Needed, when the mask doesn't change
     }
     else
         delete rw;
 
 #if QT_VERSION < 0x040000
-    QGuardedPtr<PrivateData::PickerWidget> &tw = d_data->textLabelWidget;
+    QGuardedPtr<PickerWidget> &tw = d_data->trackerWidget;
 #else
-    QPointer<PrivateData::PickerWidget> &tw = d_data->textLabelWidget;
+    QPointer<PickerWidget> &tw = d_data->trackerWidget;
 #endif
     if ( showTracker )
     {
         if ( tw.isNull() )
         {
-            tw = new PrivateData::PickerWidget(
-                this, w, PrivateData::PickerWidget::Text);
+            tw = new PickerWidget( this, w, PickerWidget::Text);
             tw->resize(w->size());
         }
         tw->updateMask();
+        tw->update(); // Needed, when the mask doesn't change
     }
     else
         delete tw;
 }
+
+const QWidget *QwtPicker::rubberBandWidget() const
+{
+    return d_data->rubberBandWidget;
+}
+
+const QWidget *QwtPicker::trackerWidget() const
+{
+    return d_data->trackerWidget;
+}
+

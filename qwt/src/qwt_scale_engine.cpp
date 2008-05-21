@@ -7,11 +7,12 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
+#include <cfloat>
 #include "qwt_math.h"
 #include "qwt_scale_map.h"
 #include "qwt_scale_engine.h"
 
-static const double _eps = 1.0e-6;
+static const double _eps = DBL_EPSILON;
 
 /*!
   \brief Compare 2 values, relative to an interval
@@ -308,15 +309,8 @@ QwtValueList QwtScaleEngine::strip(
 
 QwtDoubleInterval QwtScaleEngine::buildInterval(double v) const
 {
-#if 1
     const double delta = (v == 0.0) ? 0.5 : qwtAbs(0.5 * v);
     return QwtDoubleInterval(v - delta, v + delta);
-#else
-    if ( v == 0.0 )
-        return QwtDoubleInterval(-0.5, 0.5);
-
-    return QwtDoubleInterval(0.5 * v, 1.5 * v);
-#endif
 }
 
 /*!
@@ -328,7 +322,7 @@ QwtDoubleInterval QwtScaleEngine::buildInterval(double v) const
   The behaviour of the scale engine can be changed
   with the following attributes:
   <dl>
-  <dt>QwtAutoscale::IncludeReference
+  <dt>QwtScaleEngine::IncludeReference
   <dd>Build a scale which includes the reference value.
   <dt>QwtScaleEngine::Symmetric
   <dd>Build a scale which is symmetric to the reference value.

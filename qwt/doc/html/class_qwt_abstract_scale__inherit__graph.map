@@ -1,4 +1,0 @@
-base referer
-rect $class_qwt_knob.html 8,83 85,107
-rect $class_qwt_slider.html 109,83 189,107
-rect $class_qwt_thermo.html 213,83 304,107

@@ -24,6 +24,7 @@ MainWindow::MainWindow(QWidget *parent):
 
     QToolButton *btnSpectrogram = new QToolButton(toolBar);
     QToolButton *btnContour = new QToolButton(toolBar);
+    QToolButton *btnPrint = new QToolButton(toolBar);
 
 #if QT_VERSION >= 0x040000
     btnSpectrogram->setText("Spectrogram");
@@ -37,6 +38,10 @@ MainWindow::MainWindow(QWidget *parent):
     btnContour->setCheckable(true);
     btnContour->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
     toolBar->addWidget(btnContour);
+
+    btnPrint->setText("Print");
+    btnPrint->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    toolBar->addWidget(btnPrint);
 #else
     btnSpectrogram->setTextLabel("Spectrogram");
     //btnSpectrogram->setPixmap(zoom_xpm);
@@ -47,6 +52,9 @@ MainWindow::MainWindow(QWidget *parent):
     //btnContour->setPixmap(zoom_xpm);
     btnContour->setToggleButton(true);
     btnContour->setUsesTextLabel(true);
+
+    btnPrint->setTextLabel("Print");
+    btnPrint->setUsesTextLabel(true);
 #endif
 
     addToolBar(toolBar);
@@ -55,6 +63,8 @@ MainWindow::MainWindow(QWidget *parent):
         d_plot, SLOT(showSpectrogram(bool)));
     connect(btnContour, SIGNAL(toggled(bool)), 
         d_plot, SLOT(showContour(bool)));
+    connect(btnPrint, SIGNAL(clicked()), 
+        d_plot, SLOT(printPlot()) );
 
 #if QT_VERSION >= 0x040000
     btnSpectrogram->setChecked(true);

@@ -1,8 +1,0 @@
-base referer
-rect $class_qwt_plot_item.html 9,104 102,128
-rect $class_qwt_plot_curve.html 166,8 270,32
-rect $class_qwt_plot_grid.html 172,56 265,80
-rect $class_qwt_plot_marker.html 164,104 273,128
-rect $class_qwt_plot_raster_item.html 152,152 285,176
-rect $class_qwt_plot_svg_item.html 160,200 277,224
-rect $class_qwt_plot_spectrogram.html 334,152 478,176

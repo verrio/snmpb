@@ -588,7 +588,12 @@ QPoint QwtScaleDraw::pos() const
 */
 void QwtScaleDraw::setLength(int length)
 {
-    d_data->len = qwtMax(length, 10);
+    if ( length >= 0 && length < 10 )
+        length = 10;
+    if ( length < 0 && length > -10 )
+        length = -10;
+    
+    d_data->len = length;
     updateMap();
 }
 
@@ -607,7 +612,7 @@ int QwtScaleDraw::length() const
    \param painter Painter
    \param value Value
 
-   \sa drawTick, drawBackbone
+   \sa drawTick(), drawBackbone(), boundingLabelRect()
 */
 void QwtScaleDraw::drawLabel(QPainter *painter, double value) const
 {
@@ -632,6 +637,31 @@ void QwtScaleDraw::drawLabel(QPainter *painter, double value) const
 
     lbl.draw (painter, QRect(QPoint(0, 0), labelSize) );
     painter->restore();
+}
+
+/*!
+  Find the bounding rect for the label. The coordinates of
+  the rect are absolute coordinates ( calculated from pos() ).
+  in direction of the tick.
+
+  \param font Font used for painting
+  \param value Value
+
+  \sa labelRect()
+*/
+QRect QwtScaleDraw::boundingLabelRect(const QFont &font, double value) const
+{
+    QwtText lbl = tickLabel(font, value);
+    if ( lbl.isEmpty() )
+        return QRect(); 
+
+    const QPoint pos = labelPosition(value);
+    QSize labelSize = lbl.textSize(font);
+    if ( labelSize.height() % 2 )
+        labelSize.setHeight(labelSize.height() + 1);
+
+    const QwtMatrix m = labelMatrix( pos, labelSize);
+    return m.mapRect(QRect(QPoint(0, 0), labelSize));
 }
 
 /*!
@@ -887,7 +917,7 @@ void QwtScaleDraw::updateMap()
 {
     QwtScaleMap &sm = scaleMap();
     if ( orientation() == Qt::Vertical )
-        sm.setPaintInterval(d_data->pos.y() + d_data->len - 1, d_data->pos.y());
+        sm.setPaintInterval(d_data->pos.y() + d_data->len, d_data->pos.y());
     else
-        sm.setPaintInterval(d_data->pos.x(), d_data->pos.x() + d_data->len - 1);
+        sm.setPaintInterval(d_data->pos.x(), d_data->pos.x() + d_data->len);
 }

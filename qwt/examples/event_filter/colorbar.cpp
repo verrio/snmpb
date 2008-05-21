@@ -10,10 +10,12 @@ ColorBar::ColorBar(Qt::Orientation o, QWidget *parent):
     d_light(Qt::white),
     d_dark(Qt::black)
 {
+#ifndef QT_NO_CURSOR
 #if QT_VERSION < 0x040000
     setCursor(Qt::pointingHandCursor);
 #else
     setCursor(Qt::PointingHandCursor);
+#endif
 #endif
 }
 

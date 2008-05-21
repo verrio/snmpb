@@ -21,7 +21,6 @@
 #include "qwt_plot_canvas.h"
 #include "qwt_plot_layout.h"
 #include "qwt_legend.h"
-#include "qwt_rect.h"
 #include "qwt_dyngrid_layout.h"
 #include "qwt_scale_widget.h"
 #include "qwt_scale_engine.h"
@@ -81,6 +80,16 @@ void QwtPlot::print(QPainter *painter, const QRect &plotRect,
        return;
 
     painter->save();
+#if 1
+    /*
+      PDF: In Qt4 ( <= 4.3.2 ) the scales are painted in gray instead of
+      black. See http://trolltech.com/developer/task-tracker/index_html?id=184671&method=entry
+      The dummy lines below work around the problem.
+     */
+    const QPen pen = painter->pen();
+    painter->setPen(QPen(Qt::black, 1));
+    painter->setPen(pen);
+#endif
 
     // All paint operations need to be scaled according to
     // the paint device metrics. 
@@ -98,11 +107,8 @@ void QwtPlot::print(QPainter *painter, const QRect &plotRect,
     pfilter.apply((QwtPlot *)this);
 
     int baseLineDists[QwtPlot::axisCnt];
-    if ( !(pfilter.options() & QwtPlotPrintFilter::PrintCanvasBackground) )
+    if ( pfilter.options() & QwtPlotPrintFilter::PrintFrameWithScales )
     {
-        // In case of no background we set the backbone of
-        // the scale on the frame of the canvas.
-
         for (axisId = 0; axisId < QwtPlot::axisCnt; axisId++ )
         {
             QwtScaleWidget *scaleWidget = (QwtScaleWidget *)axisWidget(axisId);
@@ -153,11 +159,23 @@ void QwtPlot::print(QPainter *painter, const QRect &plotRect,
         }
     }
 
-    const QRect canvasRect = metricsMap.layoutToDevice(plotLayout()->canvasRect());
+    QRect canvasRect = plotLayout()->canvasRect();
 
+    /* 
+       The border of the bounding rect needs to ba scaled to
+       layout coordinates, so that it is aligned to the axes 
+     */
+    QRect boundingRect( canvasRect.left() - 1, canvasRect.top() - 1,
+        canvasRect.width() + 2, canvasRect.height() + 2);
+    boundingRect = metricsMap.layoutToDevice(boundingRect);
+    boundingRect.setWidth(boundingRect.width() - 1);
+    boundingRect.setHeight(boundingRect.height() - 1);
+
+    canvasRect = metricsMap.layoutToDevice(canvasRect);
+ 
     // When using QwtPainter all sizes where computed in pixel
     // coordinates and scaled by QwtPainter later. This limits
-    // the precision to screen resolution. A much better solution
+    // the precision to screen resolution. A better solution
     // is to scale the maps and print in unlimited resolution.
 
     QwtScaleMap map[axisCnt];
@@ -178,19 +196,17 @@ void QwtPlot::print(QPainter *painter, const QRect &plotRect,
             if ( axisId == xTop || axisId == xBottom )
             {
                 from = metricsMap.layoutToDeviceX(scaleRect.left() + sDist);
-                to = metricsMap.layoutToDeviceX(scaleRect.right() - eDist);
+                to = metricsMap.layoutToDeviceX(scaleRect.right() + 1 - eDist);
             }
             else
             {
-                from = metricsMap.layoutToDeviceY(scaleRect.bottom() - eDist);
+                from = metricsMap.layoutToDeviceY(scaleRect.bottom() + 1 - eDist );
                 to = metricsMap.layoutToDeviceY(scaleRect.top() + sDist);
             }
         }
         else
         {
             const int margin = plotLayout()->canvasMargin(axisId);
-
-            const QRect &canvasRect = plotLayout()->canvasRect();
             if ( axisId == yLeft || axisId == yRight )
             {
                 from = metricsMap.layoutToDeviceX(canvasRect.bottom() - margin);
@@ -205,18 +221,15 @@ void QwtPlot::print(QPainter *painter, const QRect &plotRect,
         map[axisId].setPaintXInterval(from, to);
     }
 
-
     // The canvas maps are already scaled. 
     QwtPainter::setMetricsMap(painter->device(), painter->device());
-
-    printCanvas(painter, canvasRect, map, pfilter);
-
+    printCanvas(painter, boundingRect, canvasRect, map, pfilter);
     QwtPainter::resetMetricsMap();
 
     ((QwtPlot *)this)->plotLayout()->invalidate();
 
     // reset all widgets with their original attributes.
-    if ( !(pfilter.options() & QwtPlotPrintFilter::PrintCanvasBackground) )
+    if ( pfilter.options() & QwtPlotPrintFilter::PrintFrameWithScales )
     {
         // restore the previous base line dists
 
@@ -356,7 +369,10 @@ void QwtPlot::printScale(QPainter *painter,
     {
         const QwtMetricsMap map = QwtPainter::metricsMap();
 
-        const QRect r = map.layoutToScreen(rect);
+        QRect r = map.layoutToScreen(rect);
+        r.setWidth(r.width() - 1);
+        r.setHeight(r.height() - 1);
+
         scaleWidget->drawColorBar(painter, scaleWidget->colorBarRect(r));
 
         const int off = scaleWidget->colorBarWidth() + scaleWidget->spacing();
@@ -373,7 +389,7 @@ void QwtPlot::printScale(QPainter *painter,
     {
         case yLeft:
         {
-            x = rect.right() - baseDist + 1;
+            x = rect.right() - baseDist;
             y = rect.y() + startDist;
             w = rect.height() - startDist - endDist;
             align = QwtScaleDraw::LeftScale;
@@ -390,7 +406,7 @@ void QwtPlot::printScale(QPainter *painter,
         case xTop:
         {
             x = rect.left() + startDist;
-            y = rect.bottom() - baseDist + 1;
+            y = rect.bottom() - baseDist;
             w = rect.width() - startDist - endDist;
             align = QwtScaleDraw::TopScale;
             break;
@@ -442,62 +458,62 @@ void QwtPlot::printScale(QPainter *painter,
 
   \param painter Painter
   \param map Maps mapping between plot and paint device coordinates
-  \param canvasRect Bounding rectangle
+  \param boundingRect Bounding rectangle
+  \param canvasRect Canvas rectangle
   \param pfilter Print filter
   \sa QwtPlotPrintFilter
 */
 
-void QwtPlot::printCanvas(QPainter *painter, const QRect &canvasRect,
+void QwtPlot::printCanvas(QPainter *painter, 
+    const QRect &boundingRect, const QRect &canvasRect,
     const QwtScaleMap map[axisCnt], const QwtPlotPrintFilter &pfilter) const
 {
-    if ( pfilter.options() & QwtPlotPrintFilter::PrintCanvasBackground )
+    if ( pfilter.options() & QwtPlotPrintFilter::PrintBackground )
     {
-        painter->setPen(Qt::NoPen);
-
         QBrush bgBrush;
 #if QT_VERSION >= 0x040000
             bgBrush = canvas()->palette().brush(backgroundRole());
 #else
         QColorGroup::ColorRole role =
-            QPalette::backgroundRoleFromMode( backgroundMode() ); 
+            QPalette::backgroundRoleFromMode( backgroundMode() );
         bgBrush = canvas()->colorGroup().brush( role );
 #endif
-        painter->setBrush(bgBrush);
-        
-        int x1 = 0;
-        int x2 = 0;
-        int y1 = 0;
-        int y2 = 0;
-
-#if QT_VERSION >= 0x040000
-        switch(painter->device()->paintEngine()->type())
+        QRect r = boundingRect;
+        if ( !(pfilter.options() & QwtPlotPrintFilter::PrintFrameWithScales) )
         {
-            case QPaintEngine::PostScript:
-                x2 = 1;
-                y2 = 1;
-                break;
-            default:;
-        }
+            r = canvasRect;
+#if QT_VERSION >= 0x040000
+            // Unfortunately the paint engines do no always the same
+            switch(painter->paintEngine()->type() )
+            {
+                case QPaintEngine::Raster:
+                case QPaintEngine::X11:
+                    break;
+                default:
+                    r.setWidth(r.width() - 1);
+                    r.setHeight(r.height() - 1);
+                    break;
+            }
+#else
+            if ( painter->device()->isExtDev() )
+            {
+                r.setWidth(r.width() - 1);
+                r.setHeight(r.height() - 1);    
+            }
 #endif
+        }
 
-        const QwtMetricsMap map = QwtPainter::metricsMap();
-        x1 = map.screenToLayoutX(x1);
-        x2 = map.screenToLayoutX(x2);
-        y1 = map.screenToLayoutY(y1);
-        y2 = map.screenToLayoutY(y2);
-
-        QwtPainter::drawRect(painter, 
-            canvasRect.x() + x1, canvasRect.y() + y1, 
-            canvasRect.width() - x2, canvasRect.height() - y2); 
+        QwtPainter::fillRect(painter, r, bgBrush);
     }
-    else
+
+    if ( pfilter.options() & QwtPlotPrintFilter::PrintFrameWithScales )
     {
-        // Paint the canvas borders instead.
+        painter->save();
         painter->setPen(QPen(Qt::black));
         painter->setBrush(QBrush(Qt::NoBrush));
-        QwtPainter::drawRect(painter, canvasRect); 
+        QwtPainter::drawRect(painter, boundingRect);
+        painter->restore();
     }
-
 
     painter->setClipping(true);
     QwtPainter::setClipRect(painter, canvasRect);

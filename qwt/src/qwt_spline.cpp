@@ -155,6 +155,18 @@ bool QwtSpline::setPoints(const QPolygonF& points)
     return ok;
 }
 
+/*!
+   Return points passed by setPoints
+*/
+#if QT_VERSION < 0x040000
+QwtArray<QwtDoublePoint> QwtSpline::points() const
+#else
+QPolygonF QwtSpline::points() const
+#endif
+{
+    return d_data->points;
+}
+
 
 //! Free allocated memory and set size to 0
 void QwtSpline::reset()
@@ -165,6 +177,7 @@ void QwtSpline::reset()
     d_data->points.resize(0);
 }
 
+//! True if valid
 bool QwtSpline::isValid() const
 {
     return d_data->a.size() > 0;

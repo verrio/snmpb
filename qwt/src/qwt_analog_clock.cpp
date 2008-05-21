@@ -137,7 +137,7 @@ const QwtDialNeedle *QwtAnalogClock::hand(Hand hd) const
   \brief Set the current time
 
   This is the same as QwtAnalogClock::setTime(), but Qt < 3.0
-  can´t handle default parameters for slots.
+  can't handle default parameters for slots.
 */
 void QwtAnalogClock::setCurrentTime()
 { 

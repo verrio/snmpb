@@ -123,7 +123,7 @@ int QwtPlotPrintFilter::options() const
 
 QColor QwtPlotPrintFilter::color(const QColor &c, Item item) const
 {
-    if ( !(options() & PrintCanvasBackground))
+    if ( !(options() & PrintBackground))
     {
         switch(item)
         {
@@ -422,7 +422,8 @@ void QwtPlotPrintFilter::reset(QwtPlot *plot) const
             if ( w->inherits("QwtLegendItem") )
             {
                 QwtLegendItem *label = (QwtLegendItem *)w;
-                const QwtPlotItem *plotItem = plot->legend()->find(label);
+                const QwtPlotItem *plotItem = 
+                    (const QwtPlotItem*)plot->legend()->find(label);
 
                 QwtSymbol symbol = label->symbol();
                 if ( cache.curveSymbolPenColors.contains(plotItem) )

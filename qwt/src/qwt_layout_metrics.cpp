@@ -178,10 +178,8 @@ QRect QwtMetricsMap::layoutToDevice(const QRect &rect,
 #endif
 
     mappedRect = QRect(
-        layoutToDeviceX(mappedRect.x()), 
-        layoutToDeviceY(mappedRect.y()),
-        layoutToDeviceX(mappedRect.width()), 
-        layoutToDeviceY(mappedRect.height())
+        layoutToDevice(mappedRect.topLeft()), 
+        layoutToDevice(mappedRect.bottomRight())
     );
 
 #ifndef QT_NO_TRANSFORMATIONS
@@ -210,10 +208,8 @@ QRect QwtMetricsMap::deviceToLayout(const QRect &rect,
 #endif
 
     mappedRect = QRect(
-        deviceToLayoutX(mappedRect.x()), 
-        deviceToLayoutY(mappedRect.y()),
-        deviceToLayoutX(mappedRect.width()), 
-        deviceToLayoutY(mappedRect.height())
+        deviceToLayout(mappedRect.topLeft()), 
+        deviceToLayout(mappedRect.bottomRight())
     );
 
 #ifndef QT_NO_TRANSFORMATIONS
@@ -303,7 +299,11 @@ QwtPolygon QwtMetricsMap::deviceToLayout(const QwtPolygon &pa,
 }
 
 /*!
-  Wrapper for QwtMatrix::mapRect. 
+  Wrapper for QMatrix::mapRect. 
+
+  \param m Matrix
+  \param rect Rectangle to translate
+  \return Translated rectangle
 */
 
 QRect QwtMetricsMap::translate(
@@ -313,9 +313,12 @@ QRect QwtMetricsMap::translate(
 }
 
 /*!
-  QwtPolygon QwtMatrix::operator*(const QwtPolygon &) const.
-*/
+  Wrapper for QMatrix::map. 
 
+  \param m Matrix
+  \param pa Polygon to translate
+  \return Translated polygon
+*/
 QwtPolygon QwtMetricsMap::translate(
     const QwtMatrix &m, const QwtPolygon &pa) 
 {

@@ -71,6 +71,7 @@ private:
     ScrollData *d_vScrollData;
 
     bool d_inZoom;
+    bool d_alignCanvasToScales;
 };
             
 #endif

@@ -77,7 +77,7 @@ void QwtTextLabel::init()
 }
 
 /*!
-   Change the label´s text, keeping all other QwtText attributes
+   Change the label's text, keeping all other QwtText attributes
    \param text New text
    \param textFormat Format of text
 
@@ -86,17 +86,21 @@ void QwtTextLabel::init()
 void QwtTextLabel::setText(const QString &text, QwtText::TextFormat textFormat)
 {
     d_data->text.setText(text, textFormat);
+
     update();
+    updateGeometry();
 }
 
 /*!
-   Change the label´s text
+   Change the label's text
    \param text New text
 */
 void QwtTextLabel::setText(const QwtText &text)
 {
     d_data->text = text;
+
     update();
+    updateGeometry();
 }
 
 //! Return the text
@@ -109,7 +113,9 @@ const QwtText &QwtTextLabel::text() const
 void QwtTextLabel::clear()
 {
     d_data->text = QwtText();
+
     update();
+    updateGeometry();
 }
 
 //! Return label's text indent in pixels
@@ -128,7 +134,9 @@ void QwtTextLabel::setIndent(int indent)
         indent = 0;
 
     d_data->indent = indent;
+
     update();
+    updateGeometry();
 }
 
 //! Return label's text indent in pixels
@@ -144,7 +152,9 @@ int QwtTextLabel::margin() const
 void QwtTextLabel::setMargin(int margin)
 {
     d_data->margin = margin;
+
     update();
+    updateGeometry();
 }
 
 //! Return label's margin in pixels

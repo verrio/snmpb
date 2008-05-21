@@ -85,7 +85,29 @@ QColor HistogramItem::color() const
 
 QwtDoubleRect HistogramItem::boundingRect() const
 {
-    return d_data->data.boundingRect();
+    QwtDoubleRect rect = d_data->data.boundingRect();
+    if ( !rect.isValid() ) 
+        return rect;
+
+    if ( d_data->attributes & Xfy ) 
+    {
+        rect = QwtDoubleRect( rect.y(), rect.x(), 
+            rect.height(), rect.width() );
+
+        if ( rect.left() > d_data->reference ) 
+            rect.setLeft( d_data->reference );
+        else if ( rect.right() < d_data->reference ) 
+            rect.setRight( d_data->reference );
+    } 
+    else 
+    {
+        if ( rect.bottom() < d_data->reference ) 
+            rect.setBottom( d_data->reference );
+        else if ( rect.top() > d_data->reference ) 
+            rect.setTop( d_data->reference );
+    }
+
+    return rect;
 }
 
 

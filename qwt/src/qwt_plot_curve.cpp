@@ -14,10 +14,10 @@
 #include "qwt_legend.h"
 #include "qwt_legend_item.h"
 #include "qwt_data.h"
-#include "qwt_rect.h"
 #include "qwt_scale_map.h"
 #include "qwt_double_rect.h"
 #include "qwt_math.h"
+#include "qwt_clipper.h"
 #include "qwt_painter.h"
 #include "qwt_plot.h"
 #include "qwt_plot_canvas.h"
@@ -28,6 +28,7 @@
 #if QT_VERSION >= 0x040000
 
 #include <qevent.h>
+#include <qpaintengine.h>
 
 class QwtPlotCurvePaintHelper: public QObject
 {
@@ -109,12 +110,14 @@ public:
         attributes(0),
         paintAttributes(0)
     {
-        pen = QPen(Qt::black, 0);
+        symbol = new QwtSymbol();
+        pen = QPen(Qt::black);
         curveFitter = new QwtSplineCurveFitter;
     }
 
     ~PrivateData()
     {
+        delete symbol;
         delete curveFitter;
     }
 
@@ -122,7 +125,7 @@ public:
     QwtPlotCurve::CurveStyle style;
     double reference;
 
-    QwtSymbol sym;
+    QwtSymbol *symbol;
     QwtCurveFitter *curveFitter;
 
     QPen pen;
@@ -132,9 +135,7 @@ public:
     int paintAttributes;
 };
 
-/*!
-  \brief Ctor
-*/
+//! Constructor
 QwtPlotCurve::QwtPlotCurve():
     QwtPlotItem(QwtText())
 {
@@ -142,7 +143,7 @@ QwtPlotCurve::QwtPlotCurve():
 }
 
 /*!
-  \brief Ctor
+  Constructor
   \param title title of the curve   
 */
 QwtPlotCurve::QwtPlotCurve(const QwtText &title):
@@ -152,7 +153,7 @@ QwtPlotCurve::QwtPlotCurve(const QwtText &title):
 }
 
 /*!
-  \brief Ctor
+  Constructor
   \param title title of the curve   
 */
 QwtPlotCurve::QwtPlotCurve(const QString &title):
@@ -161,7 +162,7 @@ QwtPlotCurve::QwtPlotCurve(const QString &title):
     init();
 }
 
-//! Dtor
+//! Destructor
 QwtPlotCurve::~QwtPlotCurve()
 {
     delete d_xy;
@@ -182,6 +183,7 @@ void QwtPlotCurve::init()
     setZ(20.0);
 }
 
+//! \return QwtPlotItem::Rtti_PlotCurve
 int QwtPlotCurve::rtti() const
 {
     return QwtPlotItem::Rtti_PlotCurve;
@@ -199,7 +201,9 @@ int QwtPlotCurve::rtti() const
       notable impact on curves with many close points. 
       Only a couple of very basic filtering algos are implemented.</dd>
   <dt>ClipPolygons</dt>
-  <dd>Clip polygons before painting them.
+  <dd>Clip polygons before painting them. In situations, where points
+      are far outside the visible area this might be a great improvement
+      for the painting performance ( especially on Windows ).
   </dl>
 
   The default is, that no paint attributes are enabled.
@@ -263,7 +267,7 @@ void QwtPlotCurve::setStyle(CurveStyle style)
 
 /*!
     \brief Return the current style
-    \sa setStyle
+    \sa setStyle()
 */
 QwtPlotCurve::CurveStyle QwtPlotCurve::style() const 
 { 
@@ -272,34 +276,35 @@ QwtPlotCurve::CurveStyle QwtPlotCurve::style() const
 
 /*!
   \brief Assign a symbol
-  \param s symbol
+  \param symbol Symbol
   \sa symbol()
 */
-void QwtPlotCurve::setSymbol(const QwtSymbol &s )
+void QwtPlotCurve::setSymbol(const QwtSymbol &symbol )
 {
-    d_data->sym = s;
+    delete d_data->symbol;
+    d_data->symbol = symbol.clone();
     itemChanged();
 }
 
 /*!
     \brief Return the current symbol
-    \sa setSymbol
+    \sa setSymbol()
 */
 const QwtSymbol &QwtPlotCurve::symbol() const 
 { 
-    return d_data->sym; 
+    return *d_data->symbol; 
 }
 
 /*!
   \brief Assign a pen
-  \param p New pen
+  \param pen New pen
   \sa pen(), brush()
 */
-void QwtPlotCurve::setPen(const QPen &p)
+void QwtPlotCurve::setPen(const QPen &pen)
 {
-    if ( p != d_data->pen )
+    if ( pen != d_data->pen )
     {
-        d_data->pen = p;
+        d_data->pen = pen;
         itemChanged();
     }
 }
@@ -482,9 +487,18 @@ void QwtPlotCurve::draw(int from, int to) const
 
     QwtPlotCanvas *canvas = plot()->canvas();
 
-    bool directPaint = true;
-
 #if QT_VERSION >= 0x040000
+    if ( canvas->paintEngine()->type() == QPaintEngine::OpenGL )
+    {
+        /*
+            OpenGL alway repaint the complete widget.
+            So for this operation OpenGL is one of the slowest
+            environments.
+         */
+        canvas->repaint();
+        return;
+    }
+
     if ( !canvas->testAttribute(Qt::WA_WState_InPaintEvent) &&
         !canvas->testAttribute(Qt::WA_PaintOutsidePaintEvent) )
     {
@@ -497,7 +511,12 @@ void QwtPlotCurve::draw(int from, int to) const
 
         QwtPlotCurvePaintHelper helper(this, from, to);
         canvas->installEventFilter(&helper);
+
+        const bool noSystemBackground =
+            canvas->testAttribute(Qt::WA_NoSystemBackground);
+        canvas->setAttribute(Qt::WA_NoSystemBackground, true);
         canvas->repaint();
+        canvas->setAttribute(Qt::WA_NoSystemBackground, noSystemBackground);
 
         return;
     }
@@ -516,43 +535,12 @@ void QwtPlotCurve::draw(int from, int to) const
         draw(&cachePainter, xMap, yMap, from, to);
     }
 
-    if ( directPaint )
-    {
-        QPainter painter(canvas);
+    QPainter painter(canvas);
 
-        painter.setClipping(true);
-        painter.setClipRect(canvas->contentsRect());
+    painter.setClipping(true);
+    painter.setClipRect(canvas->contentsRect());
 
-        draw(&painter, xMap, yMap, from, to);
-
-        return;
-    }
-
-#if QT_VERSION >= 0x040000
-    if ( canvas->testPaintAttribute(QwtPlotCanvas::PaintCached) &&
-        canvas->paintCache() )
-    {
-        /*
-          The cache is up to date. We flush it via repaint to the
-          canvas. This works flicker free but is much ( > 10x )
-          slower than direct painting.
-         */
-
-        const bool noBG = canvas->testAttribute(Qt::WA_NoBackground);
-        if ( !noBG )
-            canvas->setAttribute(Qt::WA_NoBackground, true);
-
-        canvas->repaint(canvas->contentsRect());
-
-        if ( !noBG )
-            canvas->setAttribute(Qt::WA_NoBackground, false);
-
-        return;
-    }
-#endif
-
-    // Ok, we give up 
-    canvas->repaint(canvas->contentsRect());
+    draw(&painter, xMap, yMap, from, to);
 }
 
 /*!
@@ -564,7 +552,7 @@ void QwtPlotCurve::draw(int from, int to) const
   \param to index of the last point to be painted. If to < 0 the 
          curve will be painted to its last point.
 
-  \sa drawCurve(), draSymbols(),
+  \sa drawCurve(), drawSymbols(),
 */
 void QwtPlotCurve::draw(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
@@ -582,7 +570,7 @@ void QwtPlotCurve::draw(QPainter *painter,
         painter->setPen(d_data->pen);
 
         /*
-          Qt 4.0.0 is slow when drawing lines, but it´s even 
+          Qt 4.0.0 is slow when drawing lines, but it's even 
           slower when the painter has a brush. So we don't
           set the brush before we really need it.
          */
@@ -590,10 +578,10 @@ void QwtPlotCurve::draw(QPainter *painter,
         drawCurve(painter, d_data->style, xMap, yMap, from, to);
         painter->restore();
 
-        if (d_data->sym.style() != QwtSymbol::None)
+        if (d_data->symbol->style() != QwtSymbol::NoSymbol)
         {
             painter->save();
-            drawSymbols(painter, d_data->sym, xMap, yMap, from, to);
+            drawSymbols(painter, *d_data->symbol, xMap, yMap, from, to);
             painter->restore();
         }
     }
@@ -763,10 +751,7 @@ void QwtPlotCurve::drawLines(QPainter *painter,
     }
 
     if ( d_data->paintAttributes & ClipPolygons )
-    {
-        QwtRect r = painter->window();
-        polyline = r.clip(polyline);
-    }
+        polyline = QwtClipper::clipPolygon(painter->window(), polyline);
 
     QwtPainter::drawPolyline(painter, polyline);
 
@@ -797,7 +782,7 @@ void QwtPlotCurve::drawSticks(QPainter *painter,
         const int xi = xMap.transform(x(i));
         const int yi = yMap.transform(y(i));
 
-        if (d_data->attributes & Xfy)
+        if (d_data->curveType == Xfy)
             QwtPainter::drawLine(painter, x0, yi, xi, yi);
         else
             QwtPainter::drawLine(painter, xi, y0, xi, yi);
@@ -888,10 +873,7 @@ void QwtPlotCurve::drawDots(QPainter *painter,
     if ( doFill )
     {
         if ( d_data->paintAttributes & ClipPolygons )
-        {
-            const QwtRect r = painter->window();
-            polyline = r.clip(polyline);
-        }
+            polyline = QwtClipper::clipPolygon(painter->window(), polyline);
 
         fillCurve(painter, xMap, yMap, polyline);
     }
@@ -917,7 +899,7 @@ void QwtPlotCurve::drawSteps(QPainter *painter,
 {
     QwtPolygon polyline(2 * (to - from) + 1);
 
-    bool inverted = d_data->attributes & Yfx;
+    bool inverted = d_data->curveType == Yfx;
     if ( d_data->attributes & Inverted )
         inverted = !inverted;
 
@@ -939,10 +921,7 @@ void QwtPlotCurve::drawSteps(QPainter *painter,
     }
 
     if ( d_data->paintAttributes & ClipPolygons )
-    {
-        const QwtRect r = painter->window();
-        polyline = r.clip(polyline);
-    }
+        polyline = QwtClipper::clipPolygon(painter->window(), polyline);
 
     QwtPainter::drawPolyline(painter, polyline);
 
@@ -987,7 +966,7 @@ void QwtPlotCurve::setCurveAttribute(CurveAttribute attribute, bool on)
 }
 
 /*!
-    Return the current curve attributes
+    \return true, if attribute is enabled
     \sa setCurveAttribute()
 */
 bool QwtPlotCurve::testCurveAttribute(CurveAttribute attribute) const 
@@ -998,11 +977,11 @@ bool QwtPlotCurve::testCurveAttribute(CurveAttribute attribute) const
 /*!
   Assign the curve type
 
-  <dt>QwtPlotCurve::Yfx</dt>
+  <dt>QwtPlotCurve::Yfx
   <dd>Draws y as a function of x (the default). The
       baseline is interpreted as a horizontal line
       with y = baseline().</dd>
-  <dt>QwtPlotCurve::Xfy</dt>
+  <dt>QwtPlotCurve::Xfy
   <dd>Draws x as a function of y. The baseline is
       interpreted as a vertical line with x = baseline().</dd>
 
@@ -1098,7 +1077,7 @@ void QwtPlotCurve::closePolyline(
 
     pa.resize(sz + 2);
 
-    if ( d_data->attributes & QwtPlotCurve::Xfy )
+    if ( d_data->curveType == QwtPlotCurve::Xfy )
     {
         pa.setPoint(sz,
             xMap.transform(d_data->reference), pa.point(sz - 1).y());
@@ -1237,6 +1216,7 @@ int QwtPlotCurve::closestPoint(const QPoint &pos, double *dist) const
     return index;
 }
 
+//!  Update the widget that represents the curve on the legend
 void QwtPlotCurve::updateLegend(QwtLegend *legend) const
 {
     if ( !legend )
@@ -1259,7 +1239,7 @@ void QwtPlotCurve::updateLegend(QwtLegend *legend) const
 
     const int policy = legend->displayPolicy();
 
-    if (policy == QwtLegend::Fixed)
+    if (policy == QwtLegend::FixedIdentifier)
     {
         int mode = legend->identifierMode();
 
@@ -1276,7 +1256,7 @@ void QwtPlotCurve::updateLegend(QwtLegend *legend) const
 
         legendItem->setIdentifierMode(mode);
     }
-    else if (policy == QwtLegend::Auto)
+    else if (policy == QwtLegend::AutoIdentifier)
     {
         int mode = 0;
 
@@ -1285,7 +1265,7 @@ void QwtPlotCurve::updateLegend(QwtLegend *legend) const
             legendItem->setCurvePen(pen());
             mode |= QwtLegendItem::ShowLine;
         }
-        if (QwtSymbol::None != symbol().style())
+        if (QwtSymbol::NoSymbol != symbol().style())
         {
             legendItem->setSymbol(symbol());
             mode |= QwtLegendItem::ShowSymbol;

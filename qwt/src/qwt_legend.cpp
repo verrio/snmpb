@@ -16,7 +16,7 @@
 #endif
 #include "qwt_math.h"
 #include "qwt_dyngrid_layout.h"
-#include "qwt_plot_item.h"
+#include "qwt_legend_itemmanager.h"
 #include "qwt_legend_item.h"
 #include "qwt_legend.h"
 
@@ -26,27 +26,27 @@ public:
     class LegendMap
     {
     public:
-        void insert(const QwtPlotItem *, QWidget *);
+        void insert(const QwtLegendItemManager *, QWidget *);
 
-        void remove(const QwtPlotItem *);
+        void remove(const QwtLegendItemManager *);
         void remove(QWidget *);
 
         void clear();
 
         uint count() const;
 
-        inline const QWidget *find(const QwtPlotItem *) const;
-        inline QWidget *find(const QwtPlotItem *);
+        inline const QWidget *find(const QwtLegendItemManager *) const;
+        inline QWidget *find(const QwtLegendItemManager *);
 
-        inline const QwtPlotItem *find(const QWidget *) const;
-        inline QwtPlotItem *find(const QWidget *);
+        inline const QwtLegendItemManager *find(const QWidget *) const;
+        inline QwtLegendItemManager *find(const QWidget *);
 
-        const QMap<QWidget *, const QwtPlotItem *> &widgetMap() const;
-        QMap<QWidget *, const QwtPlotItem *> &widgetMap();
+        const QMap<QWidget *, const QwtLegendItemManager *> &widgetMap() const;
+        QMap<QWidget *, const QwtLegendItemManager *> &widgetMap();
 
     private:
-        QMap<QWidget *, const QwtPlotItem *> d_widgetMap;
-        QMap<const QwtPlotItem *, QWidget *> d_itemMap;
+        QMap<QWidget *, const QwtLegendItemManager *> d_widgetMap;
+        QMap<const QwtLegendItemManager *, QWidget *> d_itemMap;
     };
 
     QwtLegend::LegendItemMode itemMode;
@@ -106,6 +106,7 @@ public:
 
         setWidget(contentsWidget);
         setWidgetResizable(false);
+        setFocusPolicy(Qt::NoFocus);
     }
 
     virtual bool viewportEvent(QEvent *e) 
@@ -114,8 +115,8 @@ public:
 
         if ( e->type() == QEvent::Resize )
         {
-            QApplication::postEvent(contentsWidget, 
-                new QEvent(QEvent::LayoutRequest));
+            QEvent event(QEvent::LayoutRequest);
+            QApplication::sendEvent(contentsWidget, &event);
         }
         return ok;
     }
@@ -150,13 +151,13 @@ public:
 
 
 void QwtLegend::PrivateData::LegendMap::insert(
-    const QwtPlotItem *item, QWidget *widget)
+    const QwtLegendItemManager *item, QWidget *widget)
 {
     d_itemMap.insert(item, widget);
     d_widgetMap.insert(widget, item);
 }
 
-void QwtLegend::PrivateData::LegendMap::remove(const QwtPlotItem *item)
+void QwtLegend::PrivateData::LegendMap::remove(const QwtLegendItemManager *item)
 {
     QWidget *widget = d_itemMap[item];
     d_itemMap.remove(item);
@@ -165,19 +166,39 @@ void QwtLegend::PrivateData::LegendMap::remove(const QwtPlotItem *item)
 
 void QwtLegend::PrivateData::LegendMap::remove(QWidget *widget)
 {
-    const QwtPlotItem *item = d_widgetMap[widget];
+    const QwtLegendItemManager *item = d_widgetMap[widget];
     d_itemMap.remove(item);
     d_widgetMap.remove(widget);
 }
 
 void QwtLegend::PrivateData::LegendMap::clear()
 {
-    QMap<QWidget *, const QwtPlotItem *>::const_iterator it;
-    for ( it = d_widgetMap.begin(); it != d_widgetMap.end(); ++it ) 
-        delete it.key();
+    
+    /*
+       We can't delete the widgets in the following loop, because
+       we would get ChildRemoved events, changing d_itemMap, while
+       we are iterating.
+     */
+
+#if QT_VERSION < 0x040000
+    QValueList<QWidget *> widgets;
+
+    QMap<const QwtLegendItemManager *, QWidget *>::const_iterator it;
+    for ( it = d_itemMap.begin(); it != d_itemMap.end(); ++it ) 
+        widgets.append(it.data());
+#else
+    QList<QWidget *> widgets;
+
+    QMap<const QwtLegendItemManager *, QWidget *>::const_iterator it;
+    for ( it = d_itemMap.begin(); it != d_itemMap.end(); ++it ) 
+        widgets.append(it.value());
+#endif
 
     d_itemMap.clear();
     d_widgetMap.clear();
+
+    for ( int i = 0; i < (int)widgets.size(); i++ )
+        delete widgets[i];
 }
 
 uint QwtLegend::PrivateData::LegendMap::count() const
@@ -185,23 +206,23 @@ uint QwtLegend::PrivateData::LegendMap::count() const
     return d_itemMap.count();
 }
 
-inline const QWidget *QwtLegend::PrivateData::LegendMap::find(const QwtPlotItem *item) const
+inline const QWidget *QwtLegend::PrivateData::LegendMap::find(const QwtLegendItemManager *item) const
 {
-    if ( !d_itemMap.contains((QwtPlotItem *)item) )
+    if ( !d_itemMap.contains((QwtLegendItemManager *)item) )
         return NULL;
 
-    return d_itemMap[(QwtPlotItem *)item];
+    return d_itemMap[(QwtLegendItemManager *)item];
 }
 
-inline QWidget *QwtLegend::PrivateData::LegendMap::find(const QwtPlotItem *item)
+inline QWidget *QwtLegend::PrivateData::LegendMap::find(const QwtLegendItemManager *item)
 {
-    if ( !d_itemMap.contains((QwtPlotItem *)item) )
+    if ( !d_itemMap.contains((QwtLegendItemManager *)item) )
         return NULL;
 
-    return d_itemMap[(QwtPlotItem *)item];
+    return d_itemMap[(QwtLegendItemManager *)item];
 }
 
-inline const QwtPlotItem *QwtLegend::PrivateData::LegendMap::find(
+inline const QwtLegendItemManager *QwtLegend::PrivateData::LegendMap::find(
     const QWidget *widget) const
 {
     if ( !d_widgetMap.contains((QWidget *)widget) )
@@ -210,22 +231,22 @@ inline const QwtPlotItem *QwtLegend::PrivateData::LegendMap::find(
     return d_widgetMap[(QWidget *)widget];
 }
 
-inline QwtPlotItem *QwtLegend::PrivateData::LegendMap::find(
+inline QwtLegendItemManager *QwtLegend::PrivateData::LegendMap::find(
     const QWidget *widget)
 {
     if ( !d_widgetMap.contains((QWidget *)widget) )
         return NULL;
 
-    return (QwtPlotItem *)d_widgetMap[(QWidget *)widget];
+    return (QwtLegendItemManager *)d_widgetMap[(QWidget *)widget];
 }
 
-inline const QMap<QWidget *, const QwtPlotItem *> &
+inline const QMap<QWidget *, const QwtLegendItemManager *> &
     QwtLegend::PrivateData::LegendMap::widgetMap() const
 {
     return d_widgetMap;
 } 
 
-inline QMap<QWidget *, const QwtPlotItem *> &
+inline QMap<QWidget *, const QwtLegendItemManager *> &
     QwtLegend::PrivateData::LegendMap::widgetMap() 
 {
     return d_widgetMap;
@@ -241,7 +262,7 @@ QwtLegend::QwtLegend(QWidget *parent):
 
     d_data = new QwtLegend::PrivateData;
     d_data->itemMode = QwtLegend::ReadOnlyItem;
-    d_data->displayPolicy = QwtLegend::Auto;
+    d_data->displayPolicy = QwtLegend::AutoIdentifier;
     d_data->identifierMode = QwtLegendItem::ShowLine | 
         QwtLegendItem::ShowSymbol | QwtLegendItem::ShowText;
 
@@ -258,6 +279,7 @@ QwtLegend::QwtLegend(QWidget *parent):
     d_data->view->contentsWidget->installEventFilter(this);
 }
 
+//! Destructor
 QwtLegend::~QwtLegend()
 {
     delete d_data;
@@ -277,16 +299,16 @@ void QwtLegend::setDisplayPolicy(LegendDisplayPolicy policy, int mode)
     if (-1 != mode)
        d_data->identifierMode = mode;
 
-    QMap<QWidget *, const QwtPlotItem *> &map = 
+    QMap<QWidget *, const QwtLegendItemManager *> &map = 
         d_data->map.widgetMap();
 
-    QMap<QWidget *, const QwtPlotItem *>::iterator it;
+    QMap<QWidget *, const QwtLegendItemManager *>::iterator it;
     for ( it = map.begin(); it != map.end(); ++it ) 
     {
 #if QT_VERSION < 0x040000
-        QwtPlotItem *item = (QwtPlotItem *)it.data();
+        QwtLegendItemManager *item = (QwtLegendItemManager *)it.data();
 #else
-        QwtPlotItem *item = (QwtPlotItem *)it.value();
+        QwtLegendItemManager *item = (QwtLegendItemManager *)it.value();
 #endif
         if ( item )
             item->updateLegend(this);
@@ -361,7 +383,7 @@ const QWidget *QwtLegend::contentsWidget() const
   \param legendItem New legend item
   \note The parent of item will be changed to QwtLegend::contentsWidget()
 */
-void QwtLegend::insert(const QwtPlotItem *plotItem, QWidget *legendItem)
+void QwtLegend::insert(const QwtLegendItemManager *plotItem, QWidget *legendItem)
 {
     if ( legendItem == NULL || plotItem == NULL )
         return;
@@ -429,18 +451,35 @@ void QwtLegend::insert(const QwtPlotItem *plotItem, QWidget *legendItem)
     }
 }
 
-QWidget *QwtLegend::find(const QwtPlotItem *plotItem) const
+/*!
+  Find the widget that represents a plot item
+
+  \param plotItem Plot item
+  \return Widget on the legend, or NULL
+*/
+QWidget *QwtLegend::find(const QwtLegendItemManager *plotItem) const
 {
     return d_data->map.find(plotItem);
 }
 
-QwtPlotItem *QwtLegend::find(const QWidget *legendItem) const
+/*!
+  Find the widget that represents a plot item
+
+  \param plotItem Plot item
+  \return Widget on the legend, or NULL
+*/
+QwtLegendItemManager *QwtLegend::find(const QWidget *legendItem) const
 {
     return d_data->map.find(legendItem);
 }
 
-//! Find the corresponding item for a plotItem and remove it from the item list.
-void QwtLegend::remove(const QwtPlotItem *plotItem)
+/*! 
+   Find the corresponding item for a plotItem and remove it 
+   from the item list.
+
+   \param plotItem Plot item
+*/
+void QwtLegend::remove(const QwtLegendItemManager *plotItem)
 { 
     QWidget *legendItem = d_data->map.find(plotItem);
     d_data->map.remove(legendItem); 
@@ -474,12 +513,13 @@ QSize QwtLegend::sizeHint() const
 
 /*!
   \return The preferred height, for the width w.
+  \param width Width
 */
-int QwtLegend::heightForWidth(int w) const
+int QwtLegend::heightForWidth(int width) const
 {
-    w -= 2 * frameWidth();
+    width -= 2 * frameWidth();
 
-    int h = d_data->view->contentsWidget->heightForWidth(w);
+    int h = d_data->view->contentsWidget->heightForWidth(width);
 #if QT_VERSION < 0x040000
 
     // Asking the layout is the default implementation in Qt4 
@@ -488,7 +528,7 @@ int QwtLegend::heightForWidth(int w) const
     {
         QLayout *l = d_data->view->contentsWidget->layout();
         if ( l && l->hasHeightForWidth() )
-            h = l->heightForWidth(w);
+            h = l->heightForWidth(width);
     }
 #endif
     if ( h >= 0 )
@@ -530,6 +570,9 @@ void QwtLegend::layoutContents()
 
 /*
   Filter layout related events of QwtLegend::contentsWidget().
+
+  \param o Object to be filtered
+  \param e Event
 */
 
 bool QwtLegend::eventFilter(QObject *o, QEvent *e)
@@ -588,7 +631,7 @@ QValueList<QWidget *> QwtLegend::legendItems() const
 QList<QWidget *> QwtLegend::legendItems() const
 #endif
 {
-    const QMap<QWidget *, const QwtPlotItem *> &map = 
+    const QMap<QWidget *, const QwtLegendItemManager *> &map = 
         d_data->map.widgetMap();
 
 #if QT_VERSION < 0x040000
@@ -597,13 +640,17 @@ QList<QWidget *> QwtLegend::legendItems() const
     QList<QWidget *> list;
 #endif
 
-    QMap<QWidget *, const QwtPlotItem *>::const_iterator it;
+    QMap<QWidget *, const QwtLegendItemManager *>::const_iterator it;
     for ( it = map.begin(); it != map.end(); ++it ) 
         list += it.key();
 
     return list;
 }
 
+/*!
+   Resize event
+   \param e Event
+*/
 void QwtLegend::resizeEvent(QResizeEvent *e)
 {
     QFrame::resizeEvent(e);

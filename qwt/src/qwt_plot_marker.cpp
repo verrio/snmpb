@@ -28,6 +28,12 @@ public:
         xValue(0.0),
         yValue(0.0)
     {
+        symbol = new QwtSymbol();
+    }
+
+    ~PrivateData()
+    {
+        delete symbol;
     }
 
     QwtText label;
@@ -37,7 +43,7 @@ public:
     Qt::Alignment align;
 #endif
     QPen pen;
-    QwtSymbol sym;
+    QwtSymbol *symbol;
     LineStyle style;
 
     double xValue;
@@ -58,6 +64,7 @@ QwtPlotMarker::~QwtPlotMarker()
     delete d_data;
 }
 
+//! \return QwtPlotItem::Rtti_PlotMarker
 int QwtPlotMarker::rtti() const
 {
     return QwtPlotItem::Rtti_PlotMarker;
@@ -136,10 +143,10 @@ void QwtPlotMarker::draw(QPainter *p,
 
     // draw symbol
     QSize sSym(0, 0);
-    if (d_data->sym.style() != QwtSymbol::None)
+    if (d_data->symbol->style() != QwtSymbol::NoSymbol)
     {
-        sSym = d_data->sym.size();
-        d_data->sym.draw(p, x, y);
+        sSym = d_data->symbol->size();
+        d_data->symbol->draw(p, x, y);
     }
 
     // draw label
@@ -251,7 +258,8 @@ QwtPlotMarker::LineStyle QwtPlotMarker::lineStyle() const
 */
 void QwtPlotMarker::setSymbol(const QwtSymbol &s)
 {
-    d_data->sym = s;
+    delete d_data->symbol;
+    d_data->symbol = s.clone();
     itemChanged();
 }
 
@@ -261,7 +269,7 @@ void QwtPlotMarker::setSymbol(const QwtSymbol &s)
 */
 const QwtSymbol &QwtPlotMarker::symbol() const 
 { 
-    return d_data->sym; 
+    return *d_data->symbol; 
 }
 
 /*!

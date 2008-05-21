@@ -17,16 +17,22 @@
 #include <qdragobject.h>
 
 #include "qwtplugin.h"
-#include "qwt_counter.h"
+#include "qwt_text_label.h"
+
+#ifndef NO_QWT_PLOT
 #include "qwt_plot.h"
+#include "qwt_scale_widget.h"
+#endif
+
+#ifndef NO_QWT_WIDGETS
+#include "qwt_counter.h"
 #include "qwt_wheel.h"
 #include "qwt_thermo.h"
 #include "qwt_knob.h"
-#include "qwt_scale_widget.h"
 #include "qwt_slider.h"
-#include "qwt_text_label.h"
 #include "qwt_analog_clock.h"
 #include "qwt_compass.h"
+#endif
 
 namespace
 {
@@ -64,28 +70,35 @@ namespace
 
 QwtPlugin::QwtPlugin()
 {
+#ifndef NO_QWT_PLOT
     vec.append(Entry("QwtPlot", "qwt_plot.h",
         "qwtplot.png", "QwtPlot", "whatsthis"));
+    vec.append(Entry("QwtScaleWidget", "qwt_scale_widget.h",
+        "qwtscale.png", "QwtScaleWidget", "whatsthis"));
+#endif
+
+#ifndef NO_QWT_WIDGETS
     vec.append(Entry("QwtAnalogClock", "qwt_analog_clock.h", 
         "qwtanalogclock.png", "QwtAnalogClock", "whatsthis"));
     vec.append(Entry("QwtCompass", "qwt_compass.h",
         "qwtcompass.png", "QwtCompass", "whatsthis"));
     vec.append(Entry("QwtCounter", "qwt_counter.h", 
         "qwtcounter.png", "QwtCounter", "whatsthis"));
-    vec.append(Entry("QwtTextLabel", "qwt_text_label.h", 
-        "qwtwidget.png", "QwtTextLabel", "whatsthis"));
     vec.append(Entry("QwtDial", "qwt_dial.h", 
         "qwtdial.png", "QwtDial", "whatsthis"));
     vec.append(Entry("QwtKnob", "qwt_knob.h",
         "qwtknob.png", "QwtKnob", "whatsthis"));
-    vec.append(Entry("QwtScaleWidget", "qwt_scale_widget.h",
-        "qwtscale.png", "QwtScaleWidget", "whatsthis"));
     vec.append(Entry("QwtSlider", "qwt_slider.h",
         "qwtslider.png", "QwtSlider", "whatsthis"));
     vec.append(Entry("QwtThermo", "qwt_thermo.h",
         "qwtthermo.png", "QwtThermo", "whatsthis"));
     vec.append(Entry("QwtWheel", "qwt_wheel.h",
         "qwtwheel.png", "QwtWheel", "whatsthis"));
+#endif
+
+    vec.append(Entry("QwtTextLabel", "qwt_text_label.h", 
+        "qwtwidget.png", "QwtTextLabel", "whatsthis"));
+
 }
 
 QWidget* QwtPlugin::create(const QString &key, 
@@ -93,14 +106,18 @@ QWidget* QwtPlugin::create(const QString &key,
 {
     QWidget *w = NULL;
 
+#ifndef NO_QWT_PLOT
     if ( key == "QwtPlot" )
         w = new QwtPlot( parent );
-    else if ( key == "QwtAnalogClock" )
+    else if ( key == "QwtScaleWidget" )
+        w = new QwtScaleWidget( QwtScaleDraw::LeftScale, parent);
+#endif
+
+#ifndef NO_QWT_WIDGETS
+    if ( key == "QwtAnalogClock" )
         w = new QwtAnalogClock( parent);
     else if ( key == "QwtCounter" )
         w = new QwtCounter( parent);
-    else if ( key == "QwtTextLabel" )
-        w = new QwtTextLabel( parent);
     else if ( key == "QwtCompass" )
         w = new QwtCompass( parent);
     else if ( key == "QwtDial" )
@@ -111,10 +128,12 @@ QWidget* QwtPlugin::create(const QString &key,
         w = new QwtThermo( parent);
     else if ( key == "QwtKnob" )
         w = new QwtKnob( parent);
-    else if ( key == "QwtScaleWidget" )
-        w = new QwtScaleWidget( QwtScaleDraw::LeftScale, parent);
     else if ( key == "QwtSlider" )
         w = new QwtSlider( parent);
+#endif
+
+    if ( key == "QwtTextLabel" )
+        w = new QwtTextLabel( parent);
 
     if ( w )
         w->setName(name);
