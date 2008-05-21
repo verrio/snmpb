@@ -34,6 +34,12 @@
 #include "usmprofile.h"
 #include "preferences.h"
 
+// These are needed to get the libraries version strings for the about box
+#include "smi.h"
+#include "tomcrypt.h"
+#include "qwt.h"
+#include "snmp_pp/config_snmp_pp.h"
+
 #define SNMPB_CONFIG_DIR         ".snmpb"
 #define MIB_CONFIG_FILE          "mib.conf"
 #define PATH_CONFIG_FILE         "path.conf"
@@ -271,7 +277,40 @@ void Snmpb::AboutBox(bool)
 
     mb.setWindowTitle("About SnmpB");
     mb.setIconPixmap(QPixmap(":/images/snmpb.png"));
-    mb.setText("<H2><b>SnmpB</b></H2><br>Version 0.5<br><a href=http://sourceforge.net/projects/snmpb>http://sourceforge.net/projects/snmpb</a><br><br>Copyright (c) <b>Martin Jolicoeur</b> (<a href=\"mailto:snmpb1@gmail.com\">snmpb1@gmail.com</a>), 2004-2008<br><br>SnmpB is an SNMP MIB browser (Simple Network Management Protocol) written in QT. It supports SNMPv1, SNMPv2c and SNMPv3. SnmpB can browse/edit/load/add MIB files and can query SNMP agents. It also supports agent discovery, trap events, and graph plotting.<br><br>This program is covered by the GNU General Public License, version 2 (GPLv2), <a href=http://www.gnu.org/licenses>http://www.gnu.org/licenses</a><br><br>This program uses the following libraries, covered by their respective license:<br><br>Snmp++ (<a href=http://www.agentpp.com>http://www.agentpp.com</a>)<br>Libtomcrypt (<a href=http://libtom.org>http://libtom.org</a>)<br>Libsmi (<a href=http://www.ibr.cs.tu-bs.de/projects/libsmi>http://www.ibr.cs.tu-bs.de/projects/libsmi</a>)<br>QWT (<a href=http://qwt.sourceforge.net>http://qwt.sourceforge.net</a>)");
+
+    mb.setText(QString(
+"<H2><b>SnmpB</b></H2><br>                                                       \
+Version %1<br>                                                                   \
+<a href=http://sourceforge.net/projects/snmpb> \
+http://sourceforge.net/projects/snmpb</a><br><br>                                \
+                                                                                 \
+Copyright (c) <b>Martin Jolicoeur</b> (<a href=\"mailto:snmpb1@gmail.com\">\
+snmpb1@gmail.com</a>), 2004-2008<br><br>                                         \
+                                                                                 \
+SnmpB is an SNMP MIB browser (Simple Network Management Protocol) written in QT. \
+It supports SNMPv1, SNMPv2c and SNMPv3. SnmpB can browse/edit/load/add MIB files \
+and can query SNMP agents. It also supports agent discovery, trap events, and \
+graph plotting.<br><br>                                                          \
+                                                                                 \
+This program is covered by the GNU General Public License, version 2 (GPLv2), \
+<a href=http://www.gnu.org/licenses>http://www.gnu.org/licenses</a><br><br>      \
+                                                                                 \
+This program uses the following libraries, covered by their respective license:\
+<br><br>                                                                         \
+                                                                                 \
+Snmp++ [v%2] (<a href=http://www.agentpp.com>http://www.agentpp.com</a>)<br>     \
+Libtomcrypt [v%3] (<a href=http://libtom.org>http://libtom.org</a>)<br>          \
+Libsmi [v%4] (<a href=http://www.ibr.cs.tu-bs.de/projects/libsmi>\
+http://www.ibr.cs.tu-bs.de/projects/libsmi</a>)<br>                              \
+QWT [v%5] (<a href=http://qwt.sourceforge.net>http://qwt.sourceforge.net</a>)<br>\
+QT [v%6] (<a href=http://trolltech.com/products/qt>\
+http://trolltech.com/products/qt</a>)")
+        .arg(SNMPB_VERSION_STRING)
+        .arg(SNMP_PP_VERSION_STRING)
+        .arg(SCRYPT)
+        .arg(SMI_VERSION_STRING)
+        .arg(QWT_VERSION_STR)
+        .arg(QT_VERSION_STR));
 
     mb.exec();
 }

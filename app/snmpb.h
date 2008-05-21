@@ -22,6 +22,8 @@
 
 #include "ui_mainw.h"
 
+#define SNMPB_VERSION_STRING "0.5"
+
 class MibModule;
 class Trap;
 class Agent;
