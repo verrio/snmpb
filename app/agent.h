@@ -56,17 +56,25 @@ protected:
 
 public slots:
     void WalkFrom(const QString& oid);
-    void GetFrom(const QString& oid);
-    void GetNextFrom(const QString& oid);
+    void Get(const QString& oid);
+    void GetNext(const QString& oid);
+    void GetFrom(const QString& oid, bool get_next);
+    void GetFromPromptInstance(const QString& oid, bool get_next);
+    void GetFromSelectInstance(const QString& oid, bool get_next);
     void SetFrom(const QString& oid);
     void StopFrom(const QString& oid);
     void TableViewFrom(const QString& oid);
+    void GetSelectedTableInstance(QListWidgetItem * item);
+    void GetTypedTableInstance(void);
 
 protected slots:
     void TimerExpired(void);    
     void ShowAgentSettings(void);
     void SelectAgentProfile(int prefproto = -1);
     void AgentProfileListChange(void);
+
+signals:
+    void TableInstanceSelected(int r);
 
 private:
     Snmpb *s;
@@ -79,6 +87,9 @@ private:
     int objects;
     QString msg;
     Oid theoid;
+
+    QString tinstresult;
+    QLineEdit *le;
 };
 
 #endif /* AGENT_H */

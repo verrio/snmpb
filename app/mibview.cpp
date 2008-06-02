@@ -28,6 +28,7 @@
 #include <qtreewidget.h>
 #include <QTreeWidgetItemIterator>
 
+#include "mibnode.h"
 #include "mibview.h"
 
 //
@@ -181,17 +182,28 @@ void BasicMibView::contextMenuEvent ( QContextMenuEvent *event)
 MibView::MibView (QWidget * parent) : BasicMibView(parent)
 {
     // Create context menu actions
-    walkAct = new QAction(tr("&Walk"), this);
+    walkAct = new QAction(tr("Walk"), this);
     connect(walkAct, SIGNAL(triggered()), this, SLOT(WalkFromNode()));
-    getAct = new QAction(tr("&Get"), this);
+
+    getAct = new QAction(tr("Get"), this);
     connect(getAct, SIGNAL(triggered()), this, SLOT(GetFromNode()));
-    getnextAct = new QAction(tr("&Get Next"), this);
+    getPromptAct = new QAction(tr("Prompt for instance..."), this);
+    connect(getPromptAct, SIGNAL(triggered()), this, SLOT(GetFromNodePromptInstance()));
+    getSelectAct = new QAction(tr("Select Instance"), this);
+    connect(getSelectAct, SIGNAL(triggered()), this, SLOT(GetFromNodeSelectInstance()));
+
+    getnextAct = new QAction(tr("Get Next"), this);
     connect(getnextAct, SIGNAL(triggered()), this, SLOT(GetNextFromNode()));
-    setAct = new QAction(tr("&Set..."), this);
+    getnextPromptAct = new QAction(tr("Prompt for instance..."), this);
+    connect(getnextPromptAct, SIGNAL(triggered()), this, SLOT(GetNextFromNodePromptInstance()));
+    getnextSelectAct = new QAction(tr("Select Instance"), this);
+    connect(getnextSelectAct, SIGNAL(triggered()), this, SLOT(GetNextFromNodeSelectInstance()));
+
+    setAct = new QAction(tr("Set..."), this);
     connect(setAct, SIGNAL(triggered()), this, SLOT(SetFromNode()));
-    stopAct = new QAction(tr("&Stop"), this);
+    stopAct = new QAction(tr("Stop"), this);
     connect(stopAct, SIGNAL(triggered()), this, SLOT(StopFromNode()));
-    tableviewAct = new QAction(tr("&Table View"), this);
+    tableviewAct = new QAction(tr("Table View"), this);
     connect(tableviewAct, SIGNAL(triggered()), this, SLOT(TableViewFromNode()));
 }
 
@@ -213,10 +225,33 @@ void MibView::GetFromNode(void)
     // Could it be null ?
     if ((start = currentItem()) == NULL)
         return;
-    
     QString oid(((MibNode*)start)->GetOid());
     oid += ".0";
-    emit GetFromOid(oid);
+    emit GetFromOid(oid, false);
+}
+
+void MibView::GetFromNodePromptInstance(void)
+{
+    QTreeWidgetItem *start = NULL;
+    
+    // Could it be null ?
+    if ((start = currentItem()) == NULL)
+        return;
+
+    QString oid(((MibNode*)start)->GetOid());
+    emit GetFromOidPromptInstance(oid, false);
+}
+
+void MibView::GetFromNodeSelectInstance(void)
+{
+    QTreeWidgetItem *start = NULL;
+    
+    // Could it be null ?
+    if ((start = currentItem()) == NULL)
+        return;
+
+    QString oid(((MibNode*)start)->GetOid());
+    emit GetFromOidSelectInstance(oid, false);
 }
 
 void MibView::GetNextFromNode(void)
@@ -226,10 +261,34 @@ void MibView::GetNextFromNode(void)
     // Could it be null ?
     if ((start = currentItem()) == NULL)
         return;
-    
+   
     QString oid(((MibNode*)start)->GetOid());
     oid += ".0";
-    emit GetNextFromOid(oid);
+    emit GetFromOid(oid, true);
+}
+
+void MibView::GetNextFromNodePromptInstance(void)
+{
+    QTreeWidgetItem *start = NULL;
+    
+    // Could it be null ?
+    if ((start = currentItem()) == NULL)
+        return;
+   
+    QString oid(((MibNode*)start)->GetOid());
+    emit GetFromOidPromptInstance(oid, true);
+}
+
+void MibView::GetNextFromNodeSelectInstance(void)
+{
+    QTreeWidgetItem *start = NULL;
+    
+    // Could it be null ?
+    if ((start = currentItem()) == NULL)
+        return;
+   
+    QString oid(((MibNode*)start)->GetOid());
+    emit GetFromOidSelectInstance(oid, true);
 }
 
 void MibView::SetFromNode(void)
@@ -279,21 +338,63 @@ void MibView::SelectedNode( QTreeWidgetItem * item, QTreeWidgetItem *)
 
 void MibView::contextMenuEvent ( QContextMenuEvent *event)
 {
+    /*
+       Node kinds:
+
+       MIBNODE_NODE,
+       MIBNODE_SCALAR,
+       MIBNODE_TABLE,
+       MIBNODE_ROW,
+       MIBNODE_COLUMN,
+       MIBNODE_NOTIFICATION,
+       MIBNODE_GROUP,
+       MIBNODE_COMPLIANCE,
+    */
+    enum MibNode::MibType kind = currentItem()?((MibNode*)currentItem())
+                                 ->GetKind():MibNode::MIBNODE_NODE;
     QMenu menu(tr("Operations"), this);
 
     menu.addAction(expandAct);
     menu.addAction(collapseAct);
     menu.addSeparator();
     menu.addAction(walkAct);
-    menu.addAction(getAct);
-    menu.addAction(getnextAct);
+
+    if (kind == MibNode::MIBNODE_COLUMN)
+    {
+        QMenu *get_menu = menu.addMenu("Get");
+        get_menu->addAction(getSelectAct);
+        get_menu->addAction(getPromptAct);
+
+        QMenu *getnext_menu = menu.addMenu("Get Next");
+        getnextAct->setText("No Instance");
+        getnext_menu->addAction(getnextAct);
+        getnext_menu->addAction(getnextSelectAct);
+        getnext_menu->addAction(getnextPromptAct);
+    }
+    else
+    {
+        menu.addAction(getAct);
+        if (kind == MibNode::MIBNODE_SCALAR)
+            getAct->setEnabled(true);
+        else
+            getAct->setEnabled(false);
+
+        getnextAct->setText("Get Next");
+        menu.addAction(getnextAct);
+    }
+
 #ifdef NOTYET
     menu.addAction(setAct);
     menu.addSeparator();
     menu.addAction(stopAct);
 #endif
     menu.addSeparator();
+
     menu.addAction(tableviewAct);
+    if ((kind == MibNode::MIBNODE_TABLE) || (kind == MibNode::MIBNODE_ROW))
+        tableviewAct->setEnabled(true);
+    else
+        tableviewAct->setEnabled(false);
 
     menu.exec(event->globalPos());
 }

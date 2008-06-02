@@ -98,6 +98,7 @@ char *MibNode::GetAccess(void)
     case SMI_ACCESS_REPORT_ONLY:
         return (char*)"report-only";
     case SMI_ACCESS_UNKNOWN:
+    case SMI_ACCESS_EVENT_ONLY:
     case SMI_ACCESS_NOT_IMPLEMENTED:
         break;
     }

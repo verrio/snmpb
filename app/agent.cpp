@@ -19,6 +19,7 @@
 */
 #include <qmessagebox.h>
 #include <QDate>
+#include <QDialog>
 
 #include "mibview.h"
 #include "agent.h"
@@ -107,10 +108,12 @@ void Agent::Init(void)
     // Connect some signals
     connect( s->MainUI()->MIBTree, SIGNAL( WalkFromOid(const QString&) ),
              this, SLOT( WalkFrom(const QString&) ) );
-    connect( s->MainUI()->MIBTree, SIGNAL( GetFromOid(const QString&) ),
-             this, SLOT( GetFrom(const QString&) ) );
-    connect( s->MainUI()->MIBTree, SIGNAL( GetNextFromOid(const QString&) ),
-             this, SLOT( GetNextFrom(const QString&) ) );
+    connect( s->MainUI()->MIBTree, SIGNAL( GetFromOid(const QString&, bool) ),
+             this, SLOT( GetFrom(const QString&, bool) ) );
+    connect( s->MainUI()->MIBTree, SIGNAL( GetFromOidPromptInstance(const QString&, bool) ),
+             this, SLOT( GetFromPromptInstance(const QString&, bool) ) );
+    connect( s->MainUI()->MIBTree, SIGNAL( GetFromOidSelectInstance(const QString&, bool) ),
+             this, SLOT( GetFromSelectInstance(const QString&, bool) ) );
     connect( s->MainUI()->MIBTree, SIGNAL( SetFromOid(const QString&) ),
              this, SLOT( SetFrom(const QString&) ) );
     connect( s->MainUI()->MIBTree, SIGNAL( StopFromOid(const QString&) ),
@@ -767,7 +770,15 @@ void Agent::WalkFrom(const QString& oid)
     delete pdu;
 }
 
-void Agent::GetFrom(const QString& oid)
+void Agent::GetFrom(const QString& oid, bool get_next)
+{
+    if (get_next == false)
+        Get(oid);
+    else
+        GetNext(oid);
+}
+
+void Agent::Get(const QString& oid)
 {
     int status;
     
@@ -805,7 +816,7 @@ void Agent::GetFrom(const QString& oid)
     delete pdu;
 }
 
-void Agent::GetNextFrom(const QString& oid)
+void Agent::GetNext(const QString& oid)
 {
     int status;
     
@@ -974,6 +985,141 @@ void Agent::TableViewFrom(const QString& oid)
     
     delete target;
     delete pdu;
+}
+
+// Callback when an item is selected in the instance dialog.
+void Agent::GetSelectedTableInstance(QListWidgetItem * item)
+{
+    tinstresult = item->text();
+    emit TableInstanceSelected(1);
+}
+
+void Agent::GetFromSelectInstance(const QString& oid, bool get_next)
+{
+    // Initialize agent & pdu objects
+    SnmpTarget *target;
+    Pdu *pdu;
+    Vb tvb;
+    Oid toid;
+    int res;
+
+    QDialog *dlist;
+    QGridLayout *gl1, *gl2;
+    QLabel *label;
+    QListWidget *ilist;
+
+    if (Setup(oid, &target, &pdu) < 0)
+        return;
+    
+    /* Set the oid & node */
+    Oid roid(oid.toLatin1().data());
+    SmiNode *pnode = smiGetNodeByOID(roid.len(), (SmiSubid*)&(roid[0]));
+    
+    /* Make sure the node is a column entry ... */
+    if (pnode->nodekind != SMI_NODEKIND_COLUMN)
+        goto cleanup;
+    
+    /* Get next on the parent to get the first entry ... */
+    tvb.set_oid(roid);
+    pdu->set_vblist(&tvb, 1);
+
+    // Build the instance selection dialog and show it ...
+    dlist = new QDialog(NULL, Qt::WindowTitleHint);
+    dlist->resize(220, 250);
+    gl1 = new QGridLayout(dlist);
+    gl2 = new QGridLayout();
+    label = new QLabel(dlist);
+    gl2->addWidget(label, 0, 0, 1, 1);
+    ilist = new QListWidget(dlist);
+    gl2->addWidget(ilist, 1, 0, 1, 1);
+    gl1->addLayout(gl2, 0, 0, 1, 1);
+    dlist->setWindowTitle(QApplication::translate("Dialog", 
+                          "Select Instance", 0, QApplication::UnicodeUTF8));
+    label->setText(QApplication::translate("Dialog", 
+                   "Please select table instance to query", 0, 
+                   QApplication::UnicodeUTF8));
+    QMetaObject::connectSlotsByName(dlist);
+    connect(ilist, SIGNAL(itemDoubleClicked(QListWidgetItem *)), 
+            this, SLOT(GetSelectedTableInstance(QListWidgetItem *)));
+    connect(this, SIGNAL(TableInstanceSelected(int)),
+            dlist, SLOT(done(int)));
+    dlist->show();
+    dlist->raise();
+    dlist->activateWindow();
+
+    // Now do a sync get_next
+    while (snmp->get_next(*pdu, *target) == SNMP_CLASS_SUCCESS)
+    {
+        pdu->get_vb(tvb, 0);
+        toid = tvb.get_oid();
+
+        /* Make sure we dont get out of table scope ... */
+        if (toid.nCompare(roid.len(), roid))
+            break;
+
+        /* Get & print the instance part */
+        char *b = (char*)roid.get_printable();
+        char *f = (char*)tvb.get_printable_oid();
+        while ((*b++ == *f++) && (*b != '\0') && (*f != '\0'));
+        /* f is now the remaining part */
+        if (*++f != '\0')
+            ilist->addItem(f);
+        // Next get_next ...
+        pdu->set_vblist(&tvb, 1);   
+    }
+
+    // Wait for the result and then query the proper instance
+    res = dlist->exec();
+    if (get_next == false)
+        Get(oid + (res?("." + tinstresult):".0"));
+    else
+        GetNext(oid + (res?("." + tinstresult):".0"));
+
+cleanup: 
+    delete target;
+    delete pdu;
+}
+
+// Callback when the linedit edition is finished in the prompt dialog.
+void Agent::GetTypedTableInstance(void)
+{
+    tinstresult = le->text();
+}
+
+void Agent::GetFromPromptInstance(const QString& oid, bool get_next)
+{
+    QDialog *dprompt;
+    QGridLayout *gl;
+    QLabel *label;
+    QDialogButtonBox *box;
+    int res;
+
+    dprompt = new QDialog(NULL, Qt::WindowTitleHint);
+    dprompt->resize(370, 60);
+    gl = new QGridLayout(dprompt);
+    label = new QLabel(dprompt);
+    gl->addWidget(label, 0, 0, 1, 1);
+    box = new QDialogButtonBox(QDialogButtonBox::Ok, Qt::Vertical, dprompt);
+    gl->addWidget(box, 0, 1, 2, 1);
+    le = new QLineEdit(dprompt);
+    le->setFocus(Qt::OtherFocusReason);
+    gl->addWidget(le, 1, 0, 1, 1);
+    dprompt->setWindowTitle(QApplication::translate("Dialog", 
+                            "Type Instance", 0, QApplication::UnicodeUTF8));
+    label->setText(QApplication::translate("Dialog", 
+                   "Please type table instance to query", 0, 
+                   QApplication::UnicodeUTF8));
+    QObject::connect(box, SIGNAL(accepted()), dprompt, SLOT(accept()));
+    QMetaObject::connectSlotsByName(dprompt);
+    connect(le, SIGNAL(editingFinished(void)), 
+            this, SLOT(GetTypedTableInstance(void)));
+
+    // Wait for the result and then query the proper instance
+    res = dprompt->exec();
+    if (get_next == false)
+        Get(oid + (res?("." + tinstresult):".0"));
+    else
+        GetNext(oid + (res?("." + tinstresult):".0"));
 }
 
 unsigned long Agent::GetSyncValue(const QString& oid)

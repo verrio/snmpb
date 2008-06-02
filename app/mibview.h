@@ -74,7 +74,11 @@ protected slots:
     void SelectedNode( QTreeWidgetItem * item, QTreeWidgetItem * old);
     void WalkFromNode(void);
     void GetFromNode(void);
+    void GetFromNodePromptInstance(void);
+    void GetFromNodeSelectInstance(void);
     void GetNextFromNode(void);
+    void GetNextFromNodePromptInstance(void);
+    void GetNextFromNodeSelectInstance(void);
     void SetFromNode(void);
     void StopFromNode(void);
     void TableViewFromNode(void);
@@ -82,11 +86,13 @@ protected slots:
 signals:
     void NodeProperties(const QString& text);
     void WalkFromOid(const QString& oid);
-    void GetFromOid(const QString& oid);
-    void GetNextFromOid(const QString& oid);
+    void GetFromOid(const QString& oid, bool get_next);
+    void GetFromOidPromptInstance(const QString& oid, bool get_next);
+    void GetFromOidSelectInstance(const QString& oid, bool get_next);
     void SetFromOid(const QString& oid);
     void StopFromOid(const QString& oid);
     void TableViewFromOid(const QString& oid);
+    void GetTableInstancesFromOid(const QString& oid);
     
 protected:
     void contextMenuEvent ( QContextMenuEvent *event);
@@ -94,7 +100,11 @@ protected:
 private:
     QAction *walkAct;
     QAction *getAct;
+    QAction *getPromptAct;
+    QAction *getSelectAct;
     QAction *getnextAct;
+    QAction *getnextPromptAct;
+    QAction *getnextSelectAct;
     QAction *setAct;
     QAction *stopAct;
     QAction *tableviewAct;

@@ -51,6 +51,7 @@ public:
     void SetPixmap(bool isOpened);
     void PrintProperties(QString& text);
     char *GetOid();
+    enum MibNode::MibType GetKind(void) { return Type; };
     
 protected:
     char *GetAccess(void);
