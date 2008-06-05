@@ -248,6 +248,57 @@ char *MibNode::GetOid(void)
                              SMI_RENDER_NUMERIC):(char*)"1");
 }
 
+// Generate indexes for table rows
+QString MibNode::GetRowIndex(SmiNode *smiNode)
+{
+    SmiNode   *relatedNode;
+    SmiNode   *elementNode;
+    SmiElement *smiElement;
+    QString i;
+    int n = 0, j = 0;
+
+    relatedNode = smiGetRelatedNode(smiNode);
+
+    switch (smiNode->indexkind)
+    {
+    case SMI_INDEX_INDEX:
+        i += "<tr><td><b>Index(es):</b></td><td>";
+        for (smiElement = smiGetFirstElement(smiNode); smiElement != NULL; 
+             smiElement = smiGetNextElement(smiElement))
+            n++;
+        for (smiElement = smiGetFirstElement(smiNode); smiElement != NULL; 
+             smiElement = smiGetNextElement(smiElement))
+        {
+            elementNode = smiGetElementNode(smiElement);
+            i += QString("%1").arg(elementNode->name);
+            if (smiNode->implied) i += " (Implied)";
+            if (++j != n) i += "<br>";
+        }
+        i += "</td></tr>";
+        break;
+    case SMI_INDEX_AUGMENT:
+        if (relatedNode)
+            i += QString("<tr><td><b>Augments:</b></td><td>%1</td></tr>")
+                         .arg(relatedNode->name);
+        break;
+    case SMI_INDEX_SPARSE:
+        if (relatedNode)
+            i += QString("<tr><td><b>Sparse:</b></td><td>%1</td></tr>")
+                         .arg(relatedNode->name);
+        break;
+    case SMI_INDEX_EXPAND:
+        if (relatedNode)
+            i += QString("<tr><td><b>Expands:</b></td><td>%1</td></tr>")
+                         .arg(relatedNode->name);
+        break;
+    case SMI_INDEX_REORDER:
+    case SMI_INDEX_UNKNOWN:
+        break;
+    }
+
+    return i;
+}
+
 void MibNode::PrintProperties(QString& text)
 {
        if (!Node)
@@ -267,8 +318,10 @@ void MibNode::PrintProperties(QString& text)
        text += QString("<tr><td><b>Status:</b></td><td>%1</td></tr>").arg(GetStatus());
        text += QString("<tr><td><b>Access:</b></td><td>%1</td></tr>").arg(GetAccess());
        text += QString("<tr><td><b>Kind:</b></td><td>%1</td></tr>").arg(GetKindName());
-       text += QString("<tr><td><b>SMI Type:</b></td><td>%1</td></tr>").arg(GetSmiTypeName());
-       
+       if (Node->nodekind == SMI_NODEKIND_ROW)
+           text += GetRowIndex(Node);
+       text += QString("<tr><td><b>SMI Type:</b></td><td>%1</td></tr>").arg(GetSmiTypeName());       
+
        // Add units (seconds, bits, ....)
        text += QString("<tr><td><b>Units:</b></td><td>%1</td></tr>").arg(Node->units);
        
