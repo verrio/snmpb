@@ -1,6 +1,5 @@
 - Add find feature in mibtree
 - Change menu items to be tab-sensitive (grayed out)
-- Add table index on mib node properties display
 - Test/fix support of 64 bits MIB variables 
 - Fix graph plotting system (+ add configurable polling interval)
 - Add support for multiple files in editor
@@ -11,7 +10,6 @@
 - Clean-up code/add comments
 - Add desktop shortcut/K menu for Linux/BSD
 - Add NetBSD installer
-- Add auto-loading of MIB files on walk
 - Internationalize (using tr())
 - Fix tab-navigation order for gui elements
 - Add SMIv1 or SMIv2 config for MIB editor validation
