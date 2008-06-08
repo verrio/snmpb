@@ -116,8 +116,8 @@ void Agent::Init(void)
              this, SLOT( GetFromSelectInstance(const QString&, bool) ) );
     connect( s->MainUI()->MIBTree, SIGNAL( SetFromOid(const QString&) ),
              this, SLOT( SetFrom(const QString&) ) );
-    connect( s->MainUI()->MIBTree, SIGNAL( StopFromOid(const QString&) ),
-             this, SLOT( StopFrom(const QString&) ) );
+    connect( s->MainUI()->MIBTree, SIGNAL( Stop() ),
+             this, SLOT( Stop() ));
     connect( s->MainUI()->MIBTree, SIGNAL( TableViewFromOid(const QString&) ),
              this, SLOT( TableViewFrom(const QString&) ) );
     connect( s->MainUI()->AgentSettings, 
@@ -126,6 +126,10 @@ void Agent::Init(void)
              this, SLOT ( SelectAgentProfile() ) );
     connect( s->APManagerObj(), SIGNAL( AgentProfileListChanged() ), 
              this, SLOT ( AgentProfileListChange() ) );
+    connect( this, SIGNAL( StartWalk(bool) ), 
+             s->MainUI()->MIBTree, SLOT ( SetWalkInProgress(bool) ) );
+    connect( s->MainUI()->actionStop, SIGNAL( triggered() ),
+             this, SLOT( Stop() ) );
 
     // Fill-in the list of agent profiles from profiles manager
     AgentProfileListChange();
@@ -690,7 +694,7 @@ void Agent::AsyncCallback(int reason, Pdu &pdu,
     } // for  
 
     // Walk request, reissue a get_bulk ...
-    if (iswalk)
+    if (iswalk && (stop == false))
     {
         // Issue next get_bulk ...
         // last vb becomes seed of next request
@@ -716,9 +720,12 @@ void Agent::AsyncCallback(int reason, Pdu &pdu,
             goto cleanup;
         }
     }
-    
+   
 end:
-    msg += "-----SNMP query finished-----<br>";
+    if (stop == true)
+        msg += "<font color=red>-----SNMP query stopped-----</font><br>";
+    else
+        msg += "-----SNMP query finished-----<br>";
     msg += "<font color=#009000>Total # of Requests = ";    
     msg += QString("%1<br>Total # of Objects = %2</font>")
                     .arg(requests).arg(objects);
@@ -726,6 +733,8 @@ cleanup:
     s->MainUI()->Query->append(msg);
     // Dont stop the timer, but put it back to the lower-rate trap timer value
     timer.start(TRAP_TIMER_MSEC);
+    emit StartWalk(false);
+    s->MainUI()->actionStop->setEnabled(false);
 }
 
 void Agent::WalkFrom(const QString& oid)
@@ -746,7 +755,10 @@ void Agent::WalkFrom(const QString& oid)
     requests = 0;
     objects  = 0;
     msg = "";
-    
+    stop = false;
+    emit StartWalk(true);
+    s->MainUI()->actionStop->setEnabled(true);
+ 
     // Now do an async get_bulk
     AgentProfile *ap = s->APManagerObj()->GetAgentProfile
                         (s->MainUI()->AgentProfile->currentText());
@@ -796,6 +808,7 @@ void Agent::Get(const QString& oid)
     requests = 0;
     objects  = 0;
     msg = "";
+    stop = false;
 
     // Now do an async get
     status = snmp->get(*pdu, *target, callback, this);
@@ -834,7 +847,8 @@ void Agent::GetNext(const QString& oid)
     requests = 0;
     objects  = 0;
     msg = "";
-    
+    stop = false;
+ 
     // Now do an async get_next
     status = snmp->get_next(*pdu, *target, callback, this);
 
@@ -859,9 +873,9 @@ void Agent::SetFrom(const QString& oid)
     printf("Set %s!\n", oid.toLatin1().data());
 }
 
-void Agent::StopFrom(const QString& oid)
+void Agent::Stop(void)
 {
-    printf("Stop %s!\n", oid.toLatin1().data());
+    stop = true;
 }
 
 /* TODO: make it async */

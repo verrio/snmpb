@@ -2043,6 +2043,8 @@
     <addaction name="actionReplace" />
     <addaction name="actionFindNext" />
     <addaction name="separator" />
+    <addaction name="actionStop" />
+    <addaction name="separator" />
     <addaction name="actionVerifyMIB" />
     <addaction name="actionExtractMIBfromRFC" />
    </widget>
@@ -2208,6 +2210,17 @@
    </property>
    <property name="shortcut" >
     <string>F3</string>
+   </property>
+  </action>
+  <action name="actionStop" >
+   <property name="text" >
+    <string>Stop</string>
+   </property>
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="shortcut" >
+    <string>Esc</string>
    </property>
   </action>
  </widget>

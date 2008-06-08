@@ -80,8 +80,9 @@ protected slots:
     void GetNextFromNodePromptInstance(void);
     void GetNextFromNodeSelectInstance(void);
     void SetFromNode(void);
-    void StopFromNode(void);
+    void StopNode(void);
     void TableViewFromNode(void);
+    void SetWalkInProgress(bool value) { walkinprogress = value; };
     
 signals:
     void NodeProperties(const QString& text);
@@ -90,7 +91,7 @@ signals:
     void GetFromOidPromptInstance(const QString& oid, bool get_next);
     void GetFromOidSelectInstance(const QString& oid, bool get_next);
     void SetFromOid(const QString& oid);
-    void StopFromOid(const QString& oid);
+    void Stop(void);
     void TableViewFromOid(const QString& oid);
     void GetTableInstancesFromOid(const QString& oid);
     
@@ -108,6 +109,8 @@ private:
     QAction *setAct;
     QAction *stopAct;
     QAction *tableviewAct;
+
+    bool walkinprogress;
 };
 
 class MibViewLoader: public QObject

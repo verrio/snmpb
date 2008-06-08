@@ -62,7 +62,7 @@ public slots:
     void GetFromPromptInstance(const QString& oid, bool get_next);
     void GetFromSelectInstance(const QString& oid, bool get_next);
     void SetFrom(const QString& oid);
-    void StopFrom(const QString& oid);
+    void Stop(void);
     void TableViewFrom(const QString& oid);
     void GetSelectedTableInstance(QListWidgetItem * item);
     void GetTypedTableInstance(void);
@@ -75,6 +75,7 @@ protected slots:
 
 signals:
     void TableInstanceSelected(int r);
+    void StartWalk(bool);
 
 private:
     Snmpb *s;
@@ -90,6 +91,8 @@ private:
 
     QString tinstresult;
     QLineEdit *le;
+
+    bool stop;
 };
 
 #endif /* AGENT_H */

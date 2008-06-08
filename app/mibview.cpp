@@ -202,9 +202,11 @@ MibView::MibView (QWidget * parent) : BasicMibView(parent)
     setAct = new QAction(tr("Set..."), this);
     connect(setAct, SIGNAL(triggered()), this, SLOT(SetFromNode()));
     stopAct = new QAction(tr("Stop"), this);
-    connect(stopAct, SIGNAL(triggered()), this, SLOT(StopFromNode()));
+    connect(stopAct, SIGNAL(triggered()), this, SLOT(StopNode()));
     tableviewAct = new QAction(tr("Table View"), this);
     connect(tableviewAct, SIGNAL(triggered()), this, SLOT(TableViewFromNode()));
+
+    walkinprogress = false;
 }
 
 void MibView::WalkFromNode(void)
@@ -302,7 +304,7 @@ void MibView::SetFromNode(void)
     emit SetFromOid(((MibNode*)start)->GetOid());
 }
 
-void MibView::StopFromNode(void)
+void MibView::StopNode(void)
 {
     QTreeWidgetItem *start = NULL;
     
@@ -310,7 +312,7 @@ void MibView::StopFromNode(void)
     if ((start = currentItem()) == NULL)
         return;
     
-    emit StopFromOid(((MibNode*)start)->GetOid());
+    emit Stop();
 }
 
 void MibView::TableViewFromNode(void)
@@ -385,9 +387,15 @@ void MibView::contextMenuEvent ( QContextMenuEvent *event)
 
 #ifdef NOTYET
     menu.addAction(setAct);
+#endif
+
     menu.addSeparator();
     menu.addAction(stopAct);
-#endif
+    if (walkinprogress == true)
+        stopAct->setEnabled(true);
+    else
+        stopAct->setEnabled(false);
+
     menu.addSeparator();
 
     menu.addAction(tableviewAct);
