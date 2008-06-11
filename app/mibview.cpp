@@ -50,12 +50,14 @@ BasicMibView::BasicMibView (QWidget * parent) : QTreeWidget(parent)
     setRootIsDecorated( TRUE );
     
     // Create context menu actions
-    expandAct = new QAction(tr("&Expand"), this);
+    expandAct = new QAction(tr("Expand"), this);
     expandAct->setIcon(QIcon(":/images/expand.png"));
     connect(expandAct, SIGNAL(triggered()), this, SLOT(ExpandFromNode()));
-    collapseAct = new QAction(tr("&Collapse"), this);
+    collapseAct = new QAction(tr("Collapse"), this);
     collapseAct->setIcon(QIcon(":/images/collapse.png"));
     connect(collapseAct, SIGNAL(triggered()), this, SLOT(CollapseFromNode()));
+    findAct = new QAction(tr("Find"), this);
+    connect(findAct, SIGNAL(triggered()), this, SLOT(FindFromNode()));
     
     // Connect some signals
     connect( this, SIGNAL( itemExpanded( QTreeWidgetItem * ) ),
@@ -67,6 +69,12 @@ BasicMibView::BasicMibView (QWidget * parent) : QTreeWidget(parent)
 
     // Force initial refresh
     isdirty = 1;
+
+    find_string = "";
+    find_last = model()->index(0, 0, QModelIndex());
+    find_back = false;
+    find_cs = false;
+    find_word = false;
 }
 
 void BasicMibView::SetDirty(void)
@@ -144,6 +152,106 @@ void BasicMibView::CollapseFromNode(void)
     }
 }
 
+void BasicMibView::FindFromNode(void)
+{
+    QDialog d;
+
+    find_uid.setupUi(&d);
+    connect( find_uid.buttonFindNext, SIGNAL( clicked() ), 
+             this, SLOT( ExecuteFind() ));
+    find_uid.comboFind->setFocus(Qt::TabFocusReason);
+
+    find_uid.comboFind->addItems(find_strings);
+    if (!find_string.isEmpty())
+        find_uid.comboFind->setCurrentIndex(find_uid.comboFind->findText(find_string));
+    find_last = model()->index(0, 0, QModelIndex());
+    d.exec();
+}
+
+void BasicMibView::ExecuteFindNext(void)
+{
+    Find(false);
+}
+
+void BasicMibView::ExecuteFind(void)
+{
+    Find(true);
+}
+
+void BasicMibView::Find(bool reevaluate)
+{
+    if (reevaluate)
+    {
+        find_string = find_uid.comboFind->currentText();
+        if (!find_strings.contains(find_string))
+            find_strings.append(find_string);
+
+        if (find_uid.checkWords->isChecked())
+            find_word = true;
+        else
+            find_word = false;
+        if (find_uid.checkCase->isChecked())
+            find_cs = true;
+        else
+            find_cs = false;
+        if (find_uid.checkBackward->isChecked())
+            find_back = true;
+        else
+            find_back = false;
+    }
+
+    QTreeWidgetItem *start = NULL, *begin = NULL, *end = NULL, *cur = NULL;
+  
+    // Determine begin of tree 
+    begin = itemFromIndex(model()->index(0, 0, QModelIndex()));
+ 
+    // Determine end of tree
+    if (find_back)
+    {
+        QTreeWidgetItemIterator it(begin);
+        while ( *it ) end = *it++;
+    }
+
+    // Determine where we start the find 
+    if ((start = itemFromIndex(find_last)) == NULL)
+        start = begin;
+
+    // Create iterator
+    QTreeWidgetItemIterator it( start );
+
+    goto start_find;
+
+    // Loop thru tree items and break if item is found
+    while ( *it && (*it != start))
+    {
+        cur = *it;
+
+        if ((find_word && !cur->text(0).compare(find_string, 
+                           find_cs?Qt::CaseSensitive:Qt::CaseInsensitive)) ||
+            (!find_word && cur->text(0).contains(find_string, 
+                           find_cs?Qt::CaseSensitive:Qt::CaseInsensitive)))
+        {
+            // Found item
+            setCurrentItem(cur);
+            find_last = indexFromItem(cur);
+            break;
+        }
+
+start_find:
+        // Move to next item, handle tree wrap-around
+        if (find_back)
+        {
+            --it;
+            if (!*it) it = QTreeWidgetItemIterator(end);
+        }
+        else
+        {
+            ++it;
+            if (!*it) it = QTreeWidgetItemIterator(begin);
+        }
+    }
+}
+
 void BasicMibView::ExpandNode( QTreeWidgetItem * item)
 {
     MibNode *node = (MibNode*)item;
@@ -170,6 +278,8 @@ void BasicMibView::contextMenuEvent ( QContextMenuEvent *event)
 
     menu.addAction(expandAct);
     menu.addAction(collapseAct);
+    menu.addSeparator();
+    menu.addAction(findAct);
 
     menu.exec(event->globalPos());
 }
@@ -403,6 +513,9 @@ void MibView::contextMenuEvent ( QContextMenuEvent *event)
         tableviewAct->setEnabled(true);
     else
         tableviewAct->setEnabled(false);
+
+    menu.addSeparator();
+    menu.addAction(findAct);
 
     menu.exec(event->globalPos());
 }

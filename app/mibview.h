@@ -28,6 +28,7 @@
 #include <QContextMenuEvent>
 #include <qtreewidget.h>
 #include <qheaderview.h>
+#include "ui_find.h"
 #include "mibnode.h"
 #include "smi.h"
 
@@ -48,7 +49,13 @@ protected slots:
     void CollapseNode( QTreeWidgetItem * item);
     void ExpandFromNode(void);
     void CollapseFromNode(void);
+    void FindFromNode(void);
+    void ExecuteFind(void);
+    void ExecuteFindNext(void);
     virtual void SelectedNode( QTreeWidgetItem * item, QTreeWidgetItem * old);
+
+private:
+    void Find(bool reevaluate);
 
 signals:
     void SelectedOid(const QString& oid);
@@ -57,10 +64,19 @@ protected:
     virtual void contextMenuEvent ( QContextMenuEvent *event);
     QAction *expandAct;
     QAction *collapseAct;
+    QAction *findAct;
     
 private:
     int isdirty;
     MibViewLoader *MibLoader;
+
+    bool find_back;
+    bool find_cs;
+    bool find_word;
+    QModelIndex find_last;
+    Ui_FindDialog find_uid;
+    QStringList find_strings;
+    QString find_string;
 };
 
 class MibView : public BasicMibView
