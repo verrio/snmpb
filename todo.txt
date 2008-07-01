@@ -1,9 +1,11 @@
 - Change menu items to be tab-sensitive (grayed out)
+- MIB tree: keep last active protocol per agent profile + keep last active agent profile
+- Intelligent index on table view
 - Allow loading *.mib files and related 
 - Test/fix support of 64 bits MIB variables 
 - Fix graph plotting system (+ add configurable polling interval)
 - Add support for multiple files in editor
-- Add support for snmp set 
+- Add support for snmp set : TEST
 - Add support for multiple varbinds operations (get + set)
 - Add support for MIB autoload on walk
 - Add support for smart indexing on table view
