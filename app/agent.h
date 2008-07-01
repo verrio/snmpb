@@ -39,6 +39,7 @@ public:
     void AsyncCallback(int reason, Pdu &pdu, 
                        SnmpTarget &target, int iswalk);
     void AsyncCallbackTrap(int reason, Pdu &pdu, SnmpTarget &target);
+    void AsyncCallbackSet(int reason, Pdu &pdu, SnmpTarget &target);
     
     static char *GetPrintableValue(SmiNode *node, Vb *vb);
     static void ConfigTargetFromSettings(snmp_version v,
@@ -53,6 +54,7 @@ public:
 
 protected:
     int Setup(const QString& oid, SnmpTarget **t, Pdu **p);
+    int SelectTableInstance(const QString& oid);
 
 public slots:
     void WalkFrom(const QString& oid);
@@ -66,6 +68,8 @@ public slots:
     void TableViewFrom(const QString& oid);
     void GetSelectedTableInstance(QListWidgetItem * item);
     void GetTypedTableInstance(void);
+    void GetTypedSetValueCb(int index);
+    void GetTypedSetValueLe(void);
 
 protected slots:
     void TimerExpired(void);    
@@ -89,8 +93,11 @@ private:
     QString msg;
     Oid theoid;
 
-    QString tinstresult;
+    QComboBox *cb;
     QLineEdit *le;
+    QString tinstresult;
+    QString setresult_string;
+    int setresult_int;
 
     bool stop;
 };

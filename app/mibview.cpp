@@ -326,7 +326,7 @@ void MibView::WalkFromNode(void)
     // Could it be null ?
     if ((start = currentItem()) == NULL)
         return;
-    
+
     emit WalkFromOid(((MibNode*)start)->GetOid());
 }
 
@@ -495,9 +495,11 @@ void MibView::contextMenuEvent ( QContextMenuEvent *event)
         menu.addAction(getnextAct);
     }
 
-#ifdef NOTYET
     menu.addAction(setAct);
-#endif
+    if ((kind == MibNode::MIBNODE_COLUMN) || (kind == MibNode::MIBNODE_SCALAR))
+        setAct->setEnabled(true);
+    else
+        setAct->setEnabled(false);
 
     menu.addSeparator();
     menu.addAction(stopAct);

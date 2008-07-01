@@ -57,9 +57,11 @@ protected:
     char *GetAccess(void);
     char *GetStatus(void);
     char *GetTypeName(void);
+    char *GetBaseTypeName(void);
     char *GetKindName(void);
     char *GetSmiTypeName(void);
     QString GetRowIndex(SmiNode *smiNode);
+    QString GetSizeRange(void);
                     
 private:
     enum MibType Type;

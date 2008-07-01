@@ -90,6 +90,11 @@ char *MibNode::GetAccess(void)
     case SMI_ACCESS_READ_ONLY:
         return (char*)"read-only";
     case SMI_ACCESS_READ_WRITE:
+        if (Node->nodekind == SMI_NODEKIND_COLUMN)
+        {
+            SmiNode *p = smiGetParentNode(Node);
+            if (p && p->create) return (char*)"read-create";
+        }
         return (char*)"read-write";
     case SMI_ACCESS_INSTALL:
         return (char*)"install";
@@ -241,6 +246,39 @@ char *MibNode::GetTypeName(void)
     return (smiType->name);
 }
 
+char *MibNode::GetBaseTypeName(void)
+{
+    SmiType *smiType;
+    
+    smiType = smiGetNodeType(Node);
+
+    if (!smiType || Node->nodekind == SMI_NODEKIND_TABLE)
+        return (char*)"" ;
+
+    switch (smiType->basetype)
+    {
+    case SMI_BASETYPE_UNSIGNED32:
+        return (char*)"UNSIGNED32";
+    case SMI_BASETYPE_INTEGER32:
+        return (char*)"INTEGER";
+    case SMI_BASETYPE_ENUM:
+        return (char*)"ENUM";
+    case SMI_BASETYPE_OBJECTIDENTIFIER:
+        return (char*)"OBJECT IDENTIFIER";
+    case SMI_BASETYPE_OCTETSTRING:
+        return (char*)"OCTET STRING";
+    case SMI_BASETYPE_BITS:
+        return (char*)"BITS";
+    case SMI_BASETYPE_UNSIGNED64:
+        return (char*)"UNSIGNED64";
+    case SMI_BASETYPE_UNKNOWN:
+    default:
+        break;
+    }
+
+    return (char*)"";
+}
+
 char *MibNode::GetOid(void)
 {
     // If the Node is NULL, this is the MIBTree node, return the iso OID ...
@@ -299,45 +337,74 @@ QString MibNode::GetRowIndex(SmiNode *smiNode)
     return i;
 }
 
+QString MibNode::GetSizeRange(void)
+{
+    SmiType *type = smiGetNodeType(Node);
+    QString i;
+    SmiRange *r;
+
+    if (type && smiGetFirstRange(type))
+    {
+        i += "<tr><td><b>Size</b></td><td>";
+        for (r = smiGetFirstRange(type); r; r = smiGetNextRange(r))
+        {
+            i += QString("%1 .. %2").arg(r->minValue.value.unsigned32).arg(r->maxValue.value.unsigned32);
+            if (smiGetNextRange(r))
+                i += "<br>";
+        }
+        i += "</td></tr>";
+    }
+
+    return i;
+}
+
 void MibNode::PrintProperties(QString& text)
 {
-       if (!Node)
-	   return;
+    if (!Node)
+        return;
 
-       // Create a table and add elements ...
-       text = QString("<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\" align=\"left\">");  
-       
-       // Add the name
-       text += QString("<tr><td><b>Name:</b></td><td><font color=#009000><b>%1</b></font></td>").arg(Node->name);
-	   
-       // Add the full Oid
-       text += QString("<tr><td><b>Oid:</b></td><td>%1</td></tr>").arg(smiRenderOID(Node->oidlen, Node->oid, SMI_RENDER_NUMERIC));
-       
-       // Add misc attributes
-       text += QString("<tr><td><b>Type:</b></td><td>%1</td></tr>").arg(GetTypeName());
-       text += QString("<tr><td><b>Status:</b></td><td>%1</td></tr>").arg(GetStatus());
-       text += QString("<tr><td><b>Access:</b></td><td>%1</td></tr>").arg(GetAccess());
-       text += QString("<tr><td><b>Kind:</b></td><td>%1</td></tr>").arg(GetKindName());
-       if (Node->nodekind == SMI_NODEKIND_ROW)
-           text += GetRowIndex(Node);
-       text += QString("<tr><td><b>SMI Type:</b></td><td>%1</td></tr>").arg(GetSmiTypeName());       
+    // Create a table and add elements ...
+    text = QString("<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\" align=\"left\">");  
 
-       // Add units (seconds, bits, ....)
-       text += QString("<tr><td><b>Units:</b></td><td>%1</td></tr>").arg(Node->units);
-       
-       // Add module
-       text += QString("<tr><td><b>Module:</b></td><td>%1</td></tr>").arg(smiGetNodeModule(Node)->name);
+    // Add the name
+    text += QString("<tr><td><b>Name:</b></td><td><font color=#009000><b>%1</b></font></td>").arg(Node->name);
 
-       // Add the reference
-       text += QString("<tr><td><b>Reference:</b></td><td><font face=fixed size=-1 color=blue>");
-       text += Qt::convertFromPlainText (Node->reference);
-       text += QString("</font></td></tr>");
-       
-       // Add the description
-       text += QString("<tr><td><b>Description:</b></td><td><font face=fixed size=-1 color=blue>");
-       text += Qt::convertFromPlainText (Node->description);
-       text += QString("</font></td></tr>");
-	   
-       text += QString("</table>");
+    // Add the full Oid
+    text += QString("<tr><td><b>Oid:</b></td><td>%1</td></tr>").arg(smiRenderOID(Node->oidlen, Node->oid, SMI_RENDER_NUMERIC));
+
+    // Add misc attributes
+    text += QString("<tr><td><b>Composed Type:</b></td><td>%1</td></tr>").arg(GetTypeName());
+    text += QString("<tr><td><b>Base Type:</b></td><td>%1</td></tr>").arg(GetBaseTypeName());
+    text += QString("<tr><td><b>Status:</b></td><td>%1</td></tr>").arg(GetStatus());
+    text += QString("<tr><td><b>Access:</b></td><td>%1</td></tr>").arg(GetAccess());
+    text += QString("<tr><td><b>Kind:</b></td><td>%1</td></tr>").arg(GetKindName());
+    if (Node->nodekind == SMI_NODEKIND_ROW)
+        text += GetRowIndex(Node);
+    text += QString("<tr><td><b>SMI Type:</b></td><td>%1</td></tr>").arg(GetSmiTypeName());       
+
+    // Add size range
+    text += GetSizeRange();
+
+    // Add units (seconds, bits, ....)
+    if (Node->units)
+        text += QString("<tr><td><b>Units:</b></td><td>%1</td></tr>").arg(Node->units);
+
+    // Add module
+    text += QString("<tr><td><b>Module:</b></td><td>%1</td></tr>").arg(smiGetNodeModule(Node)->name);
+
+    // Add the reference
+    if (Node->reference)
+    {
+        text += QString("<tr><td><b>Reference:</b></td><td><font face=fixed size=-1 color=blue>");
+        text += Qt::convertFromPlainText (Node->reference);
+        text += QString("</font></td></tr>");
+    }
+
+    // Add the description
+    text += QString("<tr><td><b>Description:</b></td><td><font face=fixed size=-1 color=blue>");
+    text += Qt::convertFromPlainText (Node->description);
+    text += QString("</font></td></tr>");
+
+    text += QString("</table>");
 }
 
