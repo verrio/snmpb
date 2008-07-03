@@ -70,6 +70,7 @@ public slots:
     void GetTypedTableInstance(void);
     void GetTypedSetValueCb(int index);
     void GetTypedSetValueLe(void);
+    void GetTypedSetValueOidLe(void);
 
 protected slots:
     void TimerExpired(void);    
@@ -95,9 +96,11 @@ private:
 
     QComboBox *cb;
     QLineEdit *le;
+    QLineEdit *oidle;
     QString tinstresult;
     QString setresult_string;
     int setresult_int;
+    QString oid_to_set;
 
     bool stop;
 };

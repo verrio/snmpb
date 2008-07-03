@@ -1037,6 +1037,12 @@ void Agent::GetTypedSetValueLe(void)
     setresult_string = le->text();
 }
 
+// Callback when the OID linedit edition is finished in the set object dialog 
+void Agent::GetTypedSetValueOidLe(void)
+{
+    oid_to_set = oidle->text();
+}
+
 void Agent::SetFrom(const QString& oid)
 {
     QString info;
@@ -1101,8 +1107,11 @@ void Agent::SetFrom(const QString& oid)
     gl.addWidget(&box, 0, 1, 2, 1);
     QLabel oidlabel("<b>OID:</b>", &dprompt);
     gl.addWidget(&oidlabel, 1, 0, 1, 1);
-    QLineEdit oidle(setoid.toLatin1().data(), &dprompt);
-    gl.addWidget(&oidle, 2, 0, 1, 1);
+    oid_to_set = setoid;
+    oidle = new QLineEdit(setoid, &dprompt);
+    connect(oidle, SIGNAL(editingFinished(void)), 
+            this, SLOT(GetTypedSetValueOidLe(void)));
+    gl.addWidget(oidle, 2, 0, 1, 1);
     QLabel vallabel("<b>Value to set:</b>", &dprompt);
     gl.addWidget(&vallabel, 3, 0, 1, 1);
     le = NULL;
@@ -1160,7 +1169,7 @@ void Agent::SetFrom(const QString& oid)
         // Initialize agent & pdu objects
         SnmpTarget *target;
         Pdu *pdu;
-        if (Setup(setoid, &target, &pdu) < 0)
+        if (Setup(oid_to_set, &target, &pdu) < 0)
             goto bailout;
 
         // Fill-in pdu
@@ -1169,7 +1178,7 @@ void Agent::SetFrom(const QString& oid)
         case SMI_BASETYPE_UNSIGNED32:
             if (type->name && !strcmp(type->name, "TimeTicks"))
             {
-                TimeTicks timeticks(*(unsigned int*)&setresult_int);
+                TimeTicks timeticks(setresult_string.toUInt());
                 if (timeticks.valid())
                     vb.set_value(timeticks);
                 else
@@ -1181,9 +1190,11 @@ void Agent::SetFrom(const QString& oid)
                 }
             }
             else
-                vb.set_value(*(unsigned long*)&setresult_int);
+                vb.set_value((unsigned long)setresult_string.toUInt());
             break;
         case SMI_BASETYPE_INTEGER32:
+            vb.set_value(setresult_string.toInt());
+            break;
         case SMI_BASETYPE_ENUM: 
             vb.set_value(setresult_int);
             break;
@@ -1236,7 +1247,7 @@ void Agent::SetFrom(const QString& oid)
             break;
         }
 
-        vb.set_oid(Oid(setoid.toLatin1().data()));
+        vb.set_oid(Oid(oid_to_set.toLatin1().data()));
         pdu->set_vb(vb, 0);
 
         // Clear the Query window ...
@@ -1274,6 +1285,8 @@ bailout:
         delete cb;
     if (le)
         delete le;
+    if (oidle)
+        delete oidle;
 }
 
 void Agent::Stop(void)
