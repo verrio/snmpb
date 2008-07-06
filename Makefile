@@ -66,12 +66,18 @@ qwt/lib/libqwt.a: qwt/Makefile
 qwt/Makefile:
 ifneq ($(findstring CYGWIN,${os}),)
 	cd qwt; export DIR_SEPARATOR="/"; qmake qwt.pro
-	sed -e 's/c:/\/cygdrive\/c/g;s/C:.*moc.exe/moc.exe/g' qwt/Makefile > qwt/Makefile.tmp
+	sed -e 's/c:\//\/cygdrive\/c\//g;s/C:.*moc.exe/moc.exe/g' qwt/Makefile > qwt/Makefile.tmp
 	mv qwt/Makefile.tmp qwt/Makefile
-	sed -e 's/c:/\/cygdrive\/c/g;s/C:.*moc.exe/moc.exe/g' qwt/Makefile.Debug > qwt/Makefile.tmp
-	mv qwt/Makefile.tmp qwt/Makefile.Debug
-	sed -e 's/c:/\/cygdrive\/c/g;s/C:.*moc.exe/moc.exe/g' qwt/Makefile.Release > qwt/Makefile.tmp
-	mv qwt/Makefile.tmp qwt/Makefile.Release
+	cd qwt/src; export DIR_SEPARATOR="/"; qmake src.pro -win32 -o Makefile
+	sed -e 's/c:\//\/cygdrive\/c\//g;s/C:.*moc.exe/moc.exe/g' qwt/src/Makefile > qwt/src/Makefile.tmp
+	mv qwt/src/Makefile.tmp qwt/src/Makefile
+	sed -e 's/c:\//\/cygdrive\/c\//g;s/C:.*moc.exe/moc.exe/g' qwt/src/Makefile.Debug > qwt/src/Makefile.tmp
+	mv qwt/src/Makefile.tmp qwt/src/Makefile.Debug
+	sed -e 's/c:\//\/cygdrive\/c\//g;s/C:.*moc.exe/moc.exe/g' qwt/src/Makefile.Release > qwt/src/Makefile.tmp
+	mv qwt/src/Makefile.tmp qwt/src/Makefile.Release
+	cd qwt/textengines; export DIR_SEPARATOR="/"; qmake textengines.pro -win32 -o Makefile
+	sed -e 's/c:\//\/cygdrive\/c\//g;s/C:.*moc.exe/moc.exe/g' qwt/textengines/Makefile > qwt/textengines/Makefile.tmp
+	mv qwt/textengines/Makefile.tmp qwt/textengines/Makefile
 else
 	# Linux/BSD
 	cd qwt; qmake-qt4 qwt.pro
