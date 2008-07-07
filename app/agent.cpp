@@ -170,12 +170,12 @@ void Agent::Init(void)
     // Connect some signals
     connect( s->MainUI()->MIBTree, SIGNAL( WalkFromOid(const QString&) ),
              this, SLOT( WalkFrom(const QString&) ) );
-    connect( s->MainUI()->MIBTree, SIGNAL( GetFromOid(const QString&, bool) ),
-             this, SLOT( GetFrom(const QString&, bool) ) );
-    connect( s->MainUI()->MIBTree, SIGNAL( GetFromOidPromptInstance(const QString&, bool) ),
-             this, SLOT( GetFromPromptInstance(const QString&, bool) ) );
-    connect( s->MainUI()->MIBTree, SIGNAL( GetFromOidSelectInstance(const QString&, bool) ),
-             this, SLOT( GetFromSelectInstance(const QString&, bool) ) );
+    connect( s->MainUI()->MIBTree, SIGNAL( GetFromOid(const QString&, int) ),
+             this, SLOT( GetFrom(const QString&, int) ) );
+    connect( s->MainUI()->MIBTree, SIGNAL( GetFromOidPromptInstance(const QString&, int) ),
+             this, SLOT( GetFromPromptInstance(const QString&, int) ) );
+    connect( s->MainUI()->MIBTree, SIGNAL( GetFromOidSelectInstance(const QString&, int) ),
+             this, SLOT( GetFromSelectInstance(const QString&, int) ) );
     connect( s->MainUI()->MIBTree, SIGNAL( SetFromOid(const QString&) ),
              this, SLOT( SetFrom(const QString&) ) );
     connect( s->MainUI()->MIBTree, SIGNAL( Stop() ),
@@ -192,6 +192,8 @@ void Agent::Init(void)
              s->MainUI()->MIBTree, SLOT ( SetWalkInProgress(bool) ) );
     connect( s->MainUI()->actionStop, SIGNAL( triggered() ),
              this, SLOT( Stop() ) );
+    connect( s->MainUI()->AgentProtoV1, SIGNAL( toggled(bool) ),
+             s->MainUI()->MIBTree, SLOT( SetCurrentAgentIsV1(bool) ) );
 
     // Fill-in the list of agent profiles from profiles manager
     AgentProfileListChange();
@@ -939,12 +941,22 @@ void Agent::WalkFrom(const QString& oid)
     delete pdu;
 }
 
-void Agent::GetFrom(const QString& oid, bool get_next)
+void Agent::GetFrom(const QString& oid, int op)
 {
-    if (get_next == false)
+    switch(op)
+    {
+    case 0:
         Get(oid);
-    else
+        break;
+    case 1:
         GetNext(oid);
+        break;
+    case 2:
+        GetBulk(oid);
+        break;
+    default:
+        break;
+    }
 }
 
 void Agent::Get(const QString& oid)
@@ -1017,6 +1029,49 @@ void Agent::GetNext(const QString& oid)
     else
     {
         msg = QString("<font color=red>Could not send GETNEXT request: %1</font>")
+                       .arg(Snmp::error_msg(status));
+        s->MainUI()->Query->append(msg);
+    }
+    
+    delete target;
+    delete pdu;
+}
+
+void Agent::GetBulk(const QString& oid)
+{
+    int status;
+    
+    // Initialize agent & pdu objects
+    SnmpTarget *target;
+    Pdu *pdu;    
+    if (Setup(oid, &target, &pdu) < 0)
+        return;
+        
+    // Clear the Query window ...
+    s->MainUI()->Query->clear();
+    s->MainUI()->Query->append("-----SNMP query started-----");
+    
+    // Clear some global vars
+    requests = 0;
+    objects  = 0;
+    msg = "";
+    stop = false;
+ 
+    // Now do an async get_bulk
+    AgentProfile *ap = s->APManagerObj()->GetAgentProfile
+                        (s->MainUI()->AgentProfile->currentText());
+    status = snmp->get_bulk(*pdu, *target, ap?ap->GetNonRepeaters():0, 
+                            ap?ap->GetMaxRepetitions():10, 
+                            callback, this);
+
+    // Could we send it?
+    if (status == SNMP_CLASS_SUCCESS)
+    {
+        timer.start(ASYNC_TIMER_MSEC);
+    }
+    else
+    {
+        msg = QString("<font color=red>Could not send GETBULK request: %1</font>")
                        .arg(Snmp::error_msg(status));
         s->MainUI()->Query->append(msg);
     }
@@ -1503,7 +1558,7 @@ int Agent::SelectTableInstance(const QString& oid)
     return res;
 }
 
-void Agent::GetFromSelectInstance(const QString& oid, bool get_next)
+void Agent::GetFromSelectInstance(const QString& oid, int op)
 {
     int res = 0;
 
@@ -1511,10 +1566,20 @@ void Agent::GetFromSelectInstance(const QString& oid, bool get_next)
     res = SelectTableInstance(oid);
 
     // Then query the proper instance
-    if (get_next == false)
+    switch(op)
+    {
+    case 0:
         Get(oid + (res?("." + tinstresult):".0"));
-    else
+        break;
+    case 1:
         GetNext(oid + (res?("." + tinstresult):".0"));
+        break;
+    case 2:
+        GetBulk(oid + (res?("." + tinstresult):".0"));
+        break;
+    default:
+        break;
+    }
 }
 
 // Callback when the linedit edition is finished in the prompt dialog.
@@ -1523,7 +1588,7 @@ void Agent::GetTypedTableInstance(void)
     tinstresult = le->text();
 }
 
-void Agent::GetFromPromptInstance(const QString& oid, bool get_next)
+void Agent::GetFromPromptInstance(const QString& oid, int op)
 {
     int res;
 
@@ -1546,10 +1611,20 @@ void Agent::GetFromPromptInstance(const QString& oid, bool get_next)
 
     // Wait for the result and then query the proper instance
     res = dprompt.exec();
-    if (get_next == false)
+    switch(op)
+    {
+    case 0:
         Get(oid + (res?("." + tinstresult):".0"));
-    else
+        break;
+    case 1:
         GetNext(oid + (res?("." + tinstresult):".0"));
+        break;
+    case 2:
+        GetBulk(oid + (res?("." + tinstresult):".0"));
+        break;
+    default:
+        break;
+    }
 
     delete le;
 }

@@ -60,9 +60,10 @@ public slots:
     void WalkFrom(const QString& oid);
     void Get(const QString& oid);
     void GetNext(const QString& oid);
-    void GetFrom(const QString& oid, bool get_next);
-    void GetFromPromptInstance(const QString& oid, bool get_next);
-    void GetFromSelectInstance(const QString& oid, bool get_next);
+    void GetBulk(const QString& oid);
+    void GetFrom(const QString& oid, int op);
+    void GetFromPromptInstance(const QString& oid, int op);
+    void GetFromSelectInstance(const QString& oid, int op);
     void SetFrom(const QString& oid);
     void Stop(void);
     void TableViewFrom(const QString& oid);

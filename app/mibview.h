@@ -95,17 +95,21 @@ protected slots:
     void GetNextFromNode(void);
     void GetNextFromNodePromptInstance(void);
     void GetNextFromNodeSelectInstance(void);
+    void GetBulkFromNode(void);
+    void GetBulkFromNodePromptInstance(void);
+    void GetBulkFromNodeSelectInstance(void);
     void SetFromNode(void);
     void StopNode(void);
     void TableViewFromNode(void);
     void SetWalkInProgress(bool value) { walkinprogress = value; };
+    void SetCurrentAgentIsV1(bool is_v1) { agentisv1 = is_v1; };
     
 signals:
     void NodeProperties(const QString& text);
     void WalkFromOid(const QString& oid);
-    void GetFromOid(const QString& oid, bool get_next);
-    void GetFromOidPromptInstance(const QString& oid, bool get_next);
-    void GetFromOidSelectInstance(const QString& oid, bool get_next);
+    void GetFromOid(const QString& oid, int op);
+    void GetFromOidPromptInstance(const QString& oid, int op);
+    void GetFromOidSelectInstance(const QString& oid, int op);
     void SetFromOid(const QString& oid);
     void Stop(void);
     void TableViewFromOid(const QString& oid);
@@ -122,11 +126,15 @@ private:
     QAction *getnextAct;
     QAction *getnextPromptAct;
     QAction *getnextSelectAct;
+    QAction *getbulkAct;
+    QAction *getbulkPromptAct;
+    QAction *getbulkSelectAct;
     QAction *setAct;
     QAction *stopAct;
     QAction *tableviewAct;
 
     bool walkinprogress;
+    bool agentisv1;
 };
 
 class MibViewLoader: public QObject

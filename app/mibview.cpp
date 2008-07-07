@@ -309,6 +309,13 @@ MibView::MibView (QWidget * parent) : BasicMibView(parent)
     getnextSelectAct = new QAction(tr("Select Instance"), this);
     connect(getnextSelectAct, SIGNAL(triggered()), this, SLOT(GetNextFromNodeSelectInstance()));
 
+    getbulkAct = new QAction(tr("Get Bulk"), this);
+    connect(getbulkAct, SIGNAL(triggered()), this, SLOT(GetBulkFromNode()));
+    getbulkPromptAct = new QAction(tr("Prompt for instance..."), this);
+    connect(getbulkPromptAct, SIGNAL(triggered()), this, SLOT(GetBulkFromNodePromptInstance()));
+    getbulkSelectAct = new QAction(tr("Select Instance"), this);
+    connect(getbulkSelectAct, SIGNAL(triggered()), this, SLOT(GetBulkFromNodeSelectInstance()));
+
     setAct = new QAction(tr("Set..."), this);
     connect(setAct, SIGNAL(triggered()), this, SLOT(SetFromNode()));
     stopAct = new QAction(tr("Stop"), this);
@@ -317,6 +324,7 @@ MibView::MibView (QWidget * parent) : BasicMibView(parent)
     connect(tableviewAct, SIGNAL(triggered()), this, SLOT(TableViewFromNode()));
 
     walkinprogress = false;
+    agentisv1 = true; 
 }
 
 void MibView::WalkFromNode(void)
@@ -339,7 +347,7 @@ void MibView::GetFromNode(void)
         return;
     QString oid(((MibNode*)start)->GetOid());
     oid += ".0";
-    emit GetFromOid(oid, false);
+    emit GetFromOid(oid, 0);
 }
 
 void MibView::GetFromNodePromptInstance(void)
@@ -351,7 +359,7 @@ void MibView::GetFromNodePromptInstance(void)
         return;
 
     QString oid(((MibNode*)start)->GetOid());
-    emit GetFromOidPromptInstance(oid, false);
+    emit GetFromOidPromptInstance(oid, 0);
 }
 
 void MibView::GetFromNodeSelectInstance(void)
@@ -363,7 +371,7 @@ void MibView::GetFromNodeSelectInstance(void)
         return;
 
     QString oid(((MibNode*)start)->GetOid());
-    emit GetFromOidSelectInstance(oid, false);
+    emit GetFromOidSelectInstance(oid, 0);
 }
 
 void MibView::GetNextFromNode(void)
@@ -376,7 +384,7 @@ void MibView::GetNextFromNode(void)
    
     QString oid(((MibNode*)start)->GetOid());
     oid += ".0";
-    emit GetFromOid(oid, true);
+    emit GetFromOid(oid, 1);
 }
 
 void MibView::GetNextFromNodePromptInstance(void)
@@ -388,7 +396,7 @@ void MibView::GetNextFromNodePromptInstance(void)
         return;
    
     QString oid(((MibNode*)start)->GetOid());
-    emit GetFromOidPromptInstance(oid, true);
+    emit GetFromOidPromptInstance(oid, 1);
 }
 
 void MibView::GetNextFromNodeSelectInstance(void)
@@ -400,7 +408,44 @@ void MibView::GetNextFromNodeSelectInstance(void)
         return;
    
     QString oid(((MibNode*)start)->GetOid());
-    emit GetFromOidSelectInstance(oid, true);
+    emit GetFromOidSelectInstance(oid, 1);
+}
+
+void MibView::GetBulkFromNode(void)
+{
+    QTreeWidgetItem *start = NULL;
+    
+    // Could it be null ?
+    if ((start = currentItem()) == NULL)
+        return;
+   
+    QString oid(((MibNode*)start)->GetOid());
+    oid += ".0";
+    emit GetFromOid(oid, 2);
+}
+
+void MibView::GetBulkFromNodePromptInstance(void)
+{
+    QTreeWidgetItem *start = NULL;
+    
+    // Could it be null ?
+    if ((start = currentItem()) == NULL)
+        return;
+   
+    QString oid(((MibNode*)start)->GetOid());
+    emit GetFromOidPromptInstance(oid, 2);
+}
+
+void MibView::GetBulkFromNodeSelectInstance(void)
+{
+    QTreeWidgetItem *start = NULL;
+    
+    // Could it be null ?
+    if ((start = currentItem()) == NULL)
+        return;
+   
+    QString oid(((MibNode*)start)->GetOid());
+    emit GetFromOidSelectInstance(oid, 2);
 }
 
 void MibView::SetFromNode(void)
@@ -482,6 +527,16 @@ void MibView::contextMenuEvent ( QContextMenuEvent *event)
         getnext_menu->addAction(getnextAct);
         getnext_menu->addAction(getnextSelectAct);
         getnext_menu->addAction(getnextPromptAct);
+
+        QMenu *getbulk_menu = menu.addMenu("Get Bulk");
+        getbulkAct->setText("No Instance");
+        getbulk_menu->addAction(getbulkAct);
+        getbulk_menu->addAction(getbulkSelectAct);
+        getbulk_menu->addAction(getbulkPromptAct);
+        if (agentisv1)
+            getbulk_menu->setEnabled(false);
+        else
+            getbulk_menu->setEnabled(true);
     }
     else
     {
@@ -493,6 +548,13 @@ void MibView::contextMenuEvent ( QContextMenuEvent *event)
 
         getnextAct->setText("Get Next");
         menu.addAction(getnextAct);
+
+        getbulkAct->setText("Get Bulk");
+        if (agentisv1)
+            getbulkAct->setEnabled(false);
+        else
+            getbulkAct->setEnabled(true);
+        menu.addAction(getbulkAct);
     }
 
     menu.addAction(setAct);
