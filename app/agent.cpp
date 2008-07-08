@@ -1479,8 +1479,17 @@ void Agent::VarbindsFrom(const QString& oid)
 {
     Ui_Varbinds vbui;
     QDialog vbd;
+    Oid poid(oid.toLatin1().data());
+    SmiNode *node = smiGetNodeByOID(poid.len(), (SmiSubid*)&(poid[0]));
 
     vbui.setupUi(&vbd);
+    connect( vbui.QuitOp, SIGNAL( clicked() ), 
+             &vbd, SLOT( accept() ));
+
+    QStringList s;
+    s << (node?node->name:oid) << "B" << "C"; 
+    QTreeWidgetItem i(s);
+    vbui.VarbindsList->addTopLevelItem(&i);
 
     vbd.exec(); 
 }

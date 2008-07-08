@@ -529,7 +529,14 @@ void MibView::contextMenuEvent ( QContextMenuEvent *event)
     menu.addAction(expandAct);
     menu.addAction(collapseAct);
     menu.addSeparator();
+
     menu.addAction(walkAct);
+    menu.addAction(stopAct);
+    if (walkinprogress == true)
+        stopAct->setEnabled(true);
+    else
+        stopAct->setEnabled(false);
+    menu.addSeparator();
 
     if (kind == MibNode::MIBNODE_COLUMN)
     {
@@ -579,27 +586,19 @@ void MibView::contextMenuEvent ( QContextMenuEvent *event)
         setAct->setEnabled(false);
 
     menu.addSeparator();
-    menu.addAction(stopAct);
-    if (walkinprogress == true)
-        stopAct->setEnabled(true);
-    else
-        stopAct->setEnabled(false);
-
-    menu.addSeparator();
 
     menu.addAction(tableviewAct);
     if ((kind == MibNode::MIBNODE_TABLE) || (kind == MibNode::MIBNODE_ROW))
         tableviewAct->setEnabled(true);
     else
         tableviewAct->setEnabled(false);
-
-    menu.addSeparator();
     menu.addAction(varbindsAct);
     if ((kind == MibNode::MIBNODE_COLUMN) || (kind == MibNode::MIBNODE_SCALAR))
         varbindsAct->setEnabled(true);
     else
         varbindsAct->setEnabled(false);
     menu.addSeparator();
+
     menu.addAction(findAct);
 
     menu.exec(event->globalPos());
