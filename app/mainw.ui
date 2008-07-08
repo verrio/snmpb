@@ -2137,7 +2137,7 @@
     <iconset resource="snmpb.qrc" >:/images/snmpb.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;About Snmpb</string>
+    <string>&amp;About SnmpB</string>
    </property>
    <property name="iconText" >
     <string>About</string>

@@ -101,6 +101,7 @@ protected slots:
     void SetFromNode(void);
     void StopNode(void);
     void TableViewFromNode(void);
+    void VarbindsFromNode(void);
     void SetWalkInProgress(bool value) { walkinprogress = value; };
     void SetCurrentAgentIsV1(bool is_v1) { agentisv1 = is_v1; };
     
@@ -114,7 +115,8 @@ signals:
     void Stop(void);
     void TableViewFromOid(const QString& oid);
     void GetTableInstancesFromOid(const QString& oid);
-    
+    void VarbindsFromOid(const QString& oid);
+
 protected:
     void contextMenuEvent ( QContextMenuEvent *event);
 
@@ -132,6 +134,7 @@ private:
     QAction *setAct;
     QAction *stopAct;
     QAction *tableviewAct;
+    QAction *varbindsAct;
 
     bool walkinprogress;
     bool agentisv1;

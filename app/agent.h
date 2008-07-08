@@ -68,6 +68,7 @@ public slots:
     void Stop(void);
     void TableViewFrom(const QString& oid);
     void GetSelectedTableInstance(QListWidgetItem * item);
+    void VarbindsFrom(const QString& oid);
     void GetTypedTableInstance(void);
     void GetTypedSetValueCb(int index);
     void GetTypedSetValueLe(void);

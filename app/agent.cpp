@@ -26,6 +26,7 @@
 #include "agent.h"
 #include "snmp_pp/notifyqueue.h"
 #include "preferences.h"
+#include "ui_varbinds.h"
 
 #define ASYNC_TIMER_MSEC 5
 #define TRAP_TIMER_MSEC 100
@@ -182,6 +183,8 @@ void Agent::Init(void)
              this, SLOT( Stop() ));
     connect( s->MainUI()->MIBTree, SIGNAL( TableViewFromOid(const QString&) ),
              this, SLOT( TableViewFrom(const QString&) ) );
+    connect( s->MainUI()->MIBTree, SIGNAL( VarbindsFromOid(const QString&) ),
+             this, SLOT( VarbindsFrom(const QString&) ) );
     connect( s->MainUI()->AgentSettings, 
              SIGNAL( clicked() ), this, SLOT( ShowAgentSettings() ));
     connect( s->MainUI()->AgentProfile, SIGNAL( currentIndexChanged( int ) ), 
@@ -1470,6 +1473,16 @@ void Agent::TableViewFrom(const QString& oid)
     
     delete target;
     delete pdu;
+}
+
+void Agent::VarbindsFrom(const QString& oid)
+{
+    Ui_Varbinds vbui;
+    QDialog vbd;
+
+    vbui.setupUi(&vbd);
+
+    vbd.exec(); 
 }
 
 // Callback when an item is selected in the instance dialog.
