@@ -310,10 +310,19 @@ void MibEditor::MibFileOpen(void)
     if (!fileName.isEmpty())
     {
         QFile file(fileName);
-        if (file.open(QIODevice::ReadWrite | QFile::Text))
+        if (file.open(QIODevice::ReadOnly | QFile::Text))
         {
             s->MainUI()->MIBFile->setPlainText(file.readAll());
             SetCurrentFileName(fileName);
+        }
+        else
+        {
+            QMessageBox::critical(NULL, tr("SnmpB: Open MIB File"),
+                                  tr("Cannot open file %1: %2.\n")
+                                  .arg(file.fileName())
+                                  .arg(file.errorString()));
+            file.close();
+            return;
         }
     }
 }
@@ -326,7 +335,7 @@ void MibEditor::MibFileSave(void)
     QFile file(LoadedFile);
     if (!file.open(QFile::WriteOnly))
     {
-        QMessageBox::warning(NULL, tr("SnmpB: Save Mib File"),
+        QMessageBox::warning(NULL, tr("SnmpB: Save MIB File"),
                              tr("Cannot save file %1: %2\n")
                              .arg(file.fileName())
                              .arg(file.errorString()));
