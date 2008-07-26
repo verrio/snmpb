@@ -1480,16 +1480,28 @@ void Agent::VarbindsFrom(const QString& oid)
     Ui_Varbinds vbui;
     QDialog vbd;
     Oid poid(oid.toLatin1().data());
-    SmiNode *node = smiGetNodeByOID(poid.len(), (SmiSubid*)&(poid[0]));
 
     vbui.setupUi(&vbd);
-    connect( vbui.QuitOp, SIGNAL( clicked() ), 
-             &vbd, SLOT( accept() ));
+    connect( vbui.QuitOp, SIGNAL( clicked() ), &vbd, SLOT( accept() ));
+    connect( vbui.DeleteAllOp, SIGNAL( clicked() ), vbui.VarbindsList, SLOT( clear() ));
 
+    // Get information about selected element
+    SmiNode *node = smiGetNodeByOID(poid.len(), (SmiSubid*)&(poid[0]));
+    SmiType *smiType = smiGetNodeType(node);
+
+    if (smiType && node && 
+        !(node->nodekind == SMI_NODEKIND_TABLE) && 
+        (smiType->decl == SMI_DECL_IMPLICIT_TYPE))
+    {
+        SmiType *parentType = smiGetParentType(smiType);
+        if (parentType)
+            smiType = parentType;
+    }
+
+    // Display the element information
     QStringList s;
-    s << (node?node->name:oid) << "B" << "C"; 
-    QTreeWidgetItem i(s);
-    vbui.VarbindsList->addTopLevelItem(&i);
+    s << (node?node->name:oid) << oid << (smiType?smiType->name:"") << ""; 
+    vbui.VarbindsList->addTopLevelItem(new QTreeWidgetItem(s));
 
     vbd.exec(); 
 }
