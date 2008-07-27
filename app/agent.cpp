@@ -1475,9 +1475,11 @@ void Agent::TableViewFrom(const QString& oid)
     delete pdu;
 }
 
+Ui_Varbinds vbui;
+
 void Agent::VarbindsFrom(const QString& oid)
 {
-    Ui_Varbinds vbui;
+
     QDialog vbd;
     Oid poid(oid.toLatin1().data());
 
@@ -1486,8 +1488,10 @@ void Agent::VarbindsFrom(const QString& oid)
     connect( vbui.DeleteAllOp, SIGNAL( clicked() ), vbui.VarbindsList, SLOT( clear() ));
     //connect( vbui.NewOp, SIGNAL( clicked() ), , SLOT(  ));
     //connect( vbui.DeleteOp, SIGNAL( clicked() ), , SLOT(  ));
-    //connect( vbui.MoveUpOp, SIGNAL( clicked() ), , SLOT(  ));
-    //connect( vbui.MoveDownOp, SIGNAL( clicked() ), , SLOT(  ));
+    connect( vbui.MoveUpOp, SIGNAL( clicked() ), this, SLOT( VarbindsMoveUp() ));
+    connect( vbui.MoveDownOp, SIGNAL( clicked() ), this, SLOT( VarbindsMoveDown() ));
+vbui.MoveUpOp->setEnabled(true);
+vbui.MoveDownOp->setEnabled(true);
 
     // Get information about selected element
     SmiNode *node = smiGetNodeByOID(poid.len(), (SmiSubid*)&(poid[0]));
@@ -1503,11 +1507,37 @@ void Agent::VarbindsFrom(const QString& oid)
     }
 
     // Display the element information
-    QStringList s;
+    QStringList s, s2, s3, s4, s5;
     s << (node?node->name:oid) << oid << (smiType?smiType->name:"") << ""; 
     vbui.VarbindsList->addTopLevelItem(new QTreeWidgetItem(s));
+    s2 << (node?node->name:oid) << oid << "BLA" << ""; 
+    vbui.VarbindsList->addTopLevelItem(new QTreeWidgetItem(s2));
+    s3 << (node?node->name:oid) << oid << "TOTO" << ""; 
+    vbui.VarbindsList->addTopLevelItem(new QTreeWidgetItem(s3));
+    s4 << (node?node->name:oid) << oid << "WWWW" << ""; 
+    vbui.VarbindsList->addTopLevelItem(new QTreeWidgetItem(s4));
+    s5 << (node?node->name:oid) << oid << "HYHY" << ""; 
+    vbui.VarbindsList->addTopLevelItem(new QTreeWidgetItem(s5));
 
     vbd.exec(); 
+}
+
+void Agent::VarbindsMoveUp(void)
+{
+    QTreeWidget *vbl = vbui.VarbindsList;
+    int idx = vbl->indexOfTopLevelItem(vbl->currentItem());
+    int previdx = vbl->indexOfTopLevelItem(vbl->itemAbove(vbl->currentItem()));
+
+    vbl->insertTopLevelItem(previdx, vbl->takeTopLevelItem(idx));
+}
+
+void Agent::VarbindsMoveDown(void)
+{
+    QTreeWidget *vbl = vbui.VarbindsList;
+    int idx = vbl->indexOfTopLevelItem(vbl->currentItem());
+    int nextidx = vbl->indexOfTopLevelItem(vbl->itemBelow(vbl->currentItem()));
+
+    vbl->insertTopLevelItem(nextidx, vbl->takeTopLevelItem(idx));
 }
 
 // Callback when an item is selected in the instance dialog.

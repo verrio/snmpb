@@ -79,6 +79,8 @@ protected slots:
     void ShowAgentSettings(void);
     void SelectAgentProfile(int prefproto = -1);
     void AgentProfileListChange(void);
+    void VarbindsMoveUp(void);
+    void VarbindsMoveDown(void);
 
 signals:
     void TableInstanceSelected(int r);
