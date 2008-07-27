@@ -1484,6 +1484,10 @@ void Agent::VarbindsFrom(const QString& oid)
     vbui.setupUi(&vbd);
     connect( vbui.QuitOp, SIGNAL( clicked() ), &vbd, SLOT( accept() ));
     connect( vbui.DeleteAllOp, SIGNAL( clicked() ), vbui.VarbindsList, SLOT( clear() ));
+    //connect( vbui.NewOp, SIGNAL( clicked() ), , SLOT(  ));
+    //connect( vbui.DeleteOp, SIGNAL( clicked() ), , SLOT(  ));
+    //connect( vbui.MoveUpOp, SIGNAL( clicked() ), , SLOT(  ));
+    //connect( vbui.MoveDownOp, SIGNAL( clicked() ), , SLOT(  ));
 
     // Get information about selected element
     SmiNode *node = smiGetNodeByOID(poid.len(), (SmiSubid*)&(poid[0]));
