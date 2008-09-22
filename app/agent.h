@@ -26,6 +26,7 @@
 #include "mibview.h"
 #include "trap.h"
 #include "agentprofile.h"
+#include "ui_varbinds.h"
 #include "snmp_pp/snmp_pp.h"
 
 class Agent: public QObject
@@ -79,8 +80,18 @@ protected slots:
     void ShowAgentSettings(void);
     void SelectAgentProfile(int prefproto = -1);
     void AgentProfileListChange(void);
+    void VarbindsNew(void);
+    void VarbindsEdit(void);
+    void VarbindsDelete(void);
+    void VarbindsDeleteAll(void);
     void VarbindsMoveUp(void);
     void VarbindsMoveDown(void);
+    void VarbindsQuit(void);
+    void VarbindsGet(void);
+    void VarbindsGetNext(void);
+    void VarbindsGetBulk(void);
+    void VarbindsSet(void);
+    void VarbindsSelected(void);
 
 signals:
     void TableInstanceSelected(int r);
@@ -107,6 +118,9 @@ private:
     QString oid_to_set;
 
     bool stop;
+
+    Ui_Varbinds vbui;
+    QDialog vbd;
 };
 
 #endif /* AGENT_H */

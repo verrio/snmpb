@@ -26,7 +26,6 @@
 #include "agent.h"
 #include "snmp_pp/notifyqueue.h"
 #include "preferences.h"
-#include "ui_varbinds.h"
 
 #define ASYNC_TIMER_MSEC 5
 #define TRAP_TIMER_MSEC 100
@@ -197,6 +196,22 @@ void Agent::Init(void)
              this, SLOT( Stop() ) );
     connect( s->MainUI()->AgentProtoV1, SIGNAL( toggled(bool) ),
              s->MainUI()->MIBTree, SLOT( SetCurrentAgentIsV1(bool) ) );
+
+    vbui.setupUi(&vbd);
+    connect( vbui.QuitOp, SIGNAL( clicked() ), &vbd, SLOT( accept() ));
+    connect( vbui.NewOp, SIGNAL( clicked() ), this, SLOT( VarbindsNew() ));
+    connect( vbui.EditOp, SIGNAL( clicked() ), this, SLOT( VarbindsEdit() ));
+    connect( vbui.DeleteOp, SIGNAL( clicked() ), this, SLOT( VarbindsDelete() ));
+    connect( vbui.DeleteAllOp, SIGNAL( clicked() ), this, SLOT( VarbindsDeleteAll() ));
+    connect( vbui.MoveUpOp, SIGNAL( clicked() ), this, SLOT( VarbindsMoveUp() ));
+    connect( vbui.MoveDownOp, SIGNAL( clicked() ), this, SLOT( VarbindsMoveDown() ));
+    connect( vbui.QuitOp, SIGNAL( clicked() ), this, SLOT( VarbindsQuit() ));
+    connect( vbui.GetOp, SIGNAL( clicked() ), this, SLOT( VarbindsGet() ));
+    connect( vbui.GetNextOp, SIGNAL( clicked() ), this, SLOT( VarbindsGetNext() ));
+    connect( vbui.GetBulkOp, SIGNAL( clicked() ), this, SLOT( VarbindsGetBulk() ));
+    connect( vbui.SetOp, SIGNAL( clicked() ), this, SLOT( VarbindsSet() ));
+    connect( vbui.VarbindsList, SIGNAL( itemSelectionChanged() ), 
+             this, SLOT( VarbindsSelected() ));
 
     // Fill-in the list of agent profiles from profiles manager
     AgentProfileListChange();
@@ -1479,9 +1494,28 @@ Ui_Varbinds vbui;
 
 void Agent::VarbindsFrom(const QString& oid)
 {
-
     QDialog vbd;
     Oid poid(oid.toLatin1().data());
+    QString basetype;
+
+    // Get information about selected element
+    SmiNode *node = smiGetNodeByOID(poid.len(), (SmiSubid*)&(poid[0]));
+    SmiType *smiType = smiGetNodeType(node);
+    if (smiType)
+    {
+        switch (smiType->basetype)
+        {
+        case SMI_BASETYPE_UNSIGNED32: basetype += "UNSIGNED32"; break;
+        case SMI_BASETYPE_INTEGER32: basetype += "INTEGER"; break;
+        case SMI_BASETYPE_ENUM: basetype += "ENUM"; break;
+        case SMI_BASETYPE_OBJECTIDENTIFIER: basetype += "OBJECT IDENTIFIER"; break;
+        case SMI_BASETYPE_OCTETSTRING: basetype += "OCTET STRING"; break;
+        case SMI_BASETYPE_BITS: basetype += "BITS"; break; 
+        case SMI_BASETYPE_UNSIGNED64: basetype += "UNSIGNED64"; break;
+        case SMI_BASETYPE_UNKNOWN:
+        default: basetype += "UNKNOWN"; break;
+        }
+    }
 
     vbui.setupUi(&vbd);
     connect( vbui.QuitOp, SIGNAL( clicked() ), &vbd, SLOT( accept() ));
@@ -1492,10 +1526,6 @@ void Agent::VarbindsFrom(const QString& oid)
     connect( vbui.MoveDownOp, SIGNAL( clicked() ), this, SLOT( VarbindsMoveDown() ));
 vbui.MoveUpOp->setEnabled(true);
 vbui.MoveDownOp->setEnabled(true);
-
-    // Get information about selected element
-    SmiNode *node = smiGetNodeByOID(poid.len(), (SmiSubid*)&(poid[0]));
-    SmiType *smiType = smiGetNodeType(node);
 
     if (smiType && node && 
         !(node->nodekind == SMI_NODEKIND_TABLE) && 
@@ -1522,6 +1552,23 @@ vbui.MoveDownOp->setEnabled(true);
     vbd.exec(); 
 }
 
+void Agent::VarbindsNew(void)
+{
+}
+
+void Agent::VarbindsEdit(void)
+{
+}
+
+void Agent::VarbindsDelete(void)
+{
+}
+
+void Agent::VarbindsDeleteAll(void)
+{
+    vbui.VarbindsList->clear();
+}
+
 void Agent::VarbindsMoveUp(void)
 {
     QTreeWidget *vbl = vbui.VarbindsList;
@@ -1538,6 +1585,47 @@ void Agent::VarbindsMoveDown(void)
     int nextidx = vbl->indexOfTopLevelItem(vbl->itemBelow(vbl->currentItem()));
 
     vbl->insertTopLevelItem(nextidx, vbl->takeTopLevelItem(idx));
+}
+
+void Agent::VarbindsQuit(void)
+{
+}
+
+void Agent::VarbindsGet(void)
+{
+}
+
+void Agent::VarbindsGetNext(void)
+{
+}
+
+void Agent::VarbindsGetBulk(void)
+{
+}
+
+void Agent::VarbindsSet(void)
+{
+}
+
+// Controls buttons to gray out
+void Agent::VarbindsSelected(void)
+{
+    QList<QTreeWidgetItem *> items = vbui.VarbindsList->selectedItems();
+
+    if (items.isEmpty())
+    {
+        vbui.EditOp->setEnabled(false);
+        vbui.DeleteOp->setEnabled(false);
+        vbui.MoveUpOp->setEnabled(false);
+        vbui.MoveDownOp->setEnabled(false);
+    }
+    else
+    {
+        vbui.EditOp->setEnabled(true);
+        vbui.DeleteOp->setEnabled(true);
+        vbui.MoveUpOp->setEnabled(true);
+        vbui.MoveDownOp->setEnabled(true);
+    }
 }
 
 // Callback when an item is selected in the instance dialog.
