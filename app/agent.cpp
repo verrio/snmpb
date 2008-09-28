@@ -198,7 +198,6 @@ void Agent::Init(void)
              s->MainUI()->MIBTree, SLOT( SetCurrentAgentIsV1(bool) ) );
 
     vbui.setupUi(&vbd);
-    connect( vbui.QuitOp, SIGNAL( clicked() ), &vbd, SLOT( accept() ));
     connect( vbui.NewOp, SIGNAL( clicked() ), this, SLOT( VarbindsNew() ));
     connect( vbui.EditOp, SIGNAL( clicked() ), this, SLOT( VarbindsEdit() ));
     connect( vbui.DeleteOp, SIGNAL( clicked() ), this, SLOT( VarbindsDelete() ));
@@ -1490,17 +1489,23 @@ void Agent::TableViewFrom(const QString& oid)
     delete pdu;
 }
 
-Ui_Varbinds vbui;
-
 void Agent::VarbindsFrom(const QString& oid)
 {
-    QDialog vbd;
     Oid poid(oid.toLatin1().data());
     QString basetype;
 
     // Get information about selected element
     SmiNode *node = smiGetNodeByOID(poid.len(), (SmiSubid*)&(poid[0]));
     SmiType *smiType = smiGetNodeType(node);
+    if (smiType && node && 
+        !(node->nodekind == SMI_NODEKIND_TABLE) && 
+        (smiType->decl == SMI_DECL_IMPLICIT_TYPE))
+    {
+        SmiType *parentType = smiGetParentType(smiType);
+        if (parentType)
+            smiType = parentType;
+    }
+
     if (smiType)
     {
         switch (smiType->basetype)
@@ -1515,25 +1520,6 @@ void Agent::VarbindsFrom(const QString& oid)
         case SMI_BASETYPE_UNKNOWN:
         default: basetype += "UNKNOWN"; break;
         }
-    }
-
-    vbui.setupUi(&vbd);
-    connect( vbui.QuitOp, SIGNAL( clicked() ), &vbd, SLOT( accept() ));
-    connect( vbui.DeleteAllOp, SIGNAL( clicked() ), vbui.VarbindsList, SLOT( clear() ));
-    //connect( vbui.NewOp, SIGNAL( clicked() ), , SLOT(  ));
-    //connect( vbui.DeleteOp, SIGNAL( clicked() ), , SLOT(  ));
-    connect( vbui.MoveUpOp, SIGNAL( clicked() ), this, SLOT( VarbindsMoveUp() ));
-    connect( vbui.MoveDownOp, SIGNAL( clicked() ), this, SLOT( VarbindsMoveDown() ));
-vbui.MoveUpOp->setEnabled(true);
-vbui.MoveDownOp->setEnabled(true);
-
-    if (smiType && node && 
-        !(node->nodekind == SMI_NODEKIND_TABLE) && 
-        (smiType->decl == SMI_DECL_IMPLICIT_TYPE))
-    {
-        SmiType *parentType = smiGetParentType(smiType);
-        if (parentType)
-            smiType = parentType;
     }
 
     // Display the element information
@@ -1562,6 +1548,10 @@ void Agent::VarbindsEdit(void)
 
 void Agent::VarbindsDelete(void)
 {
+    QTreeWidget *vbl = vbui.VarbindsList;
+    QList<QTreeWidgetItem *> items = vbl->selectedItems();
+    for (int i = 0; i < items.size(); i++)
+        delete vbl->takeTopLevelItem(vbl->indexOfTopLevelItem(items[i]));
 }
 
 void Agent::VarbindsDeleteAll(void)
@@ -1569,26 +1559,78 @@ void Agent::VarbindsDeleteAll(void)
     vbui.VarbindsList->clear();
 }
 
+// External C function
+bool CompareItemPositions(QTreeWidgetItem *i1, QTreeWidgetItem *i2)
+{
+    return (i1->treeWidget()->indexOfTopLevelItem(i1) < 
+            i1->treeWidget()->indexOfTopLevelItem(i2));
+}
+
 void Agent::VarbindsMoveUp(void)
 {
     QTreeWidget *vbl = vbui.VarbindsList;
-    int idx = vbl->indexOfTopLevelItem(vbl->currentItem());
-    int previdx = vbl->indexOfTopLevelItem(vbl->itemAbove(vbl->currentItem()));
+    QList<QTreeWidgetItem *> items = vbl->selectedItems();
+    bool cleared = false;
 
-    vbl->insertTopLevelItem(previdx, vbl->takeTopLevelItem(idx));
+    qSort(items.begin(), items.end(), CompareItemPositions);
+
+    for (int i = 0; i < items.size(); i++)
+    {
+        int idx = vbl->indexOfTopLevelItem(items[i]);
+        int previdx = vbl->indexOfTopLevelItem(vbl->itemAbove(items[i]));
+
+        if (previdx >= 0)
+        {
+            if (!cleared)
+            {
+                vbl->clearSelection();
+                cleared = true;
+            }
+
+            QTreeWidgetItem *item = vbl->takeTopLevelItem(idx);
+
+            vbl->insertTopLevelItem(previdx, item);
+            item->setSelected(true);
+        }
+        else
+            break;
+    }
 }
 
 void Agent::VarbindsMoveDown(void)
 {
     QTreeWidget *vbl = vbui.VarbindsList;
-    int idx = vbl->indexOfTopLevelItem(vbl->currentItem());
-    int nextidx = vbl->indexOfTopLevelItem(vbl->itemBelow(vbl->currentItem()));
+    QList<QTreeWidgetItem *> items = vbl->selectedItems();
+    bool cleared = false;
 
-    vbl->insertTopLevelItem(nextidx, vbl->takeTopLevelItem(idx));
+    qSort(items.begin(), items.end(), CompareItemPositions);
+
+    for (int i = items.size()-1; i >= 0; i--)
+    {
+        int idx = vbl->indexOfTopLevelItem(items[i]);
+        int nextidx = vbl->indexOfTopLevelItem(vbl->itemBelow(items[i]));
+
+        if (nextidx > 0)
+        {
+            if (!cleared)
+            {
+                vbl->clearSelection();
+                cleared = true;
+            }
+
+            QTreeWidgetItem *item = vbl->takeTopLevelItem(idx);
+
+            vbl->insertTopLevelItem(nextidx, item);
+            item->setSelected(true);
+        }
+        else
+            break;
+    }
 }
 
 void Agent::VarbindsQuit(void)
 {
+    vbd.accept();
 }
 
 void Agent::VarbindsGet(void)
