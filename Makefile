@@ -1,5 +1,5 @@
 #
-# snmpb project top-level makefile. Supports Linux, NetBSD & Cygwin/Windows
+# snmpb project top-level makefile. Supports Linux, MacOSX, NetBSD & Cygwin/Windows
 #
 #    Copyright (C) 2004-2008  Martin Jolicoeur (snmpb1@gmail.com) 
 #
@@ -79,8 +79,13 @@ ifneq ($(findstring CYGWIN,${os}),)
 	sed -e 's/c:\//\/cygdrive\/c\//g;s/C:.*moc.exe/moc.exe/g' qwt/textengines/Makefile > qwt/textengines/Makefile.tmp
 	mv qwt/textengines/Makefile.tmp qwt/textengines/Makefile
 else
+ifneq ($(findstring Darwin,${os}),)
+	# MacOSX
+	cd qwt; qmake -spec macx-g++ qwt.pro
+else
 	# Linux/BSD
 	cd qwt; qmake-qt4 qwt.pro
+endif
 endif
 
 app/snmpb:

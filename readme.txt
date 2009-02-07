@@ -4,7 +4,7 @@ To compile:
 
 To install in places other than /usr, add INSTALL_PREFIX=<prefix> to the make command.
 
-Tested & compiles on Cygwin/Windows, Linux and NetBSD
+Tested & compiles on Cygwin/Windows, Linux, MacOSX (Leopard) and NetBSD
 
 --------------------------------
 
@@ -23,6 +23,8 @@ Version: 3.2.23
 
 Modified file(s):
 config_snmp_pp.h
+src/notifyqueue.cpp "Fix MacOSX build error with cont fd_set"
+src/msgqueue.cpp "Fix MacOSX build error with cont fd_set"
 
 Libtomcrypt is taken from http://libtomcrypt.com
 Version: 1.14
