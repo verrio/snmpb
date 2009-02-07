@@ -74,6 +74,7 @@ win32:DEFINES	+= WIN32
 win32:QMAKE_CXXFLAGS += -mno-cygwin
 win32:QMAKE_LFLAGS += -mno-cygwin
 win32:RC_FILE = snmpb.rc
+macx:ICON = images/snmpb.icns
 RESOURCES     = snmpb.qrc
 INCLUDEPATH	+= ../snmp++/include ../libtomcrypt/src/headers ../libsmi/lib ../qwt/src
 LIBS	+= -L. -L../libtomcrypt -L../libsmi/lib/.libs -L../qwt/lib -lsmi -ltomcrypt -lqwt
