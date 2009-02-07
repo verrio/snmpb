@@ -50,4 +50,5 @@ clean:
 	-rm snmpb
 	-rm -rf release
 	-rm -rf debug
+	-rm -rf snmpb.app 
 
