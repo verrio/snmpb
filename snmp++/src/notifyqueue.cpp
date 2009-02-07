@@ -577,7 +577,7 @@ int CNotifyEventQueue::HandleEvents(const int /*maxfds*/,
     CNotifyEventQueueElt *notifyEltPtr = m_head.GetNext();
 
     // pull the notifiaction off the socket
-    if (FD_ISSET(m_notify_fds[i], &readfds)) {
+    if (FD_ISSET(m_notify_fds[i], (fd_set*)&readfds)) {
       status = receive_snmp_notification(m_notify_fds[i], *m_snmpSession,
 					 pdu, &target);
 

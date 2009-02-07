@@ -475,7 +475,7 @@ int CSNMPMessageQueue::HandleEvents(const int maxfds,
   for (int fd = 0; fd < maxfds; fd++)
   {
     if ((FD_ISSET(fd, &snmp_readfds)) &&
-	(FD_ISSET(fd, &readfds)))
+	(FD_ISSET(fd, (fd_set*)&readfds)))
     {
       OctetStr engine_id;
 
