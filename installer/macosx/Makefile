@@ -7,7 +7,8 @@ all:
 	rm -rf S* s*
 	cp -R ../../app/snmpb.app ./SnmpB.app
 	mv ${APFILESPATH}/snmpb ${APFILESPATH}/SnmpB 
-	sed -i -e 's/<string>snmpb<\/string>/<string>SnmpB<\/string>/g' SnmpB.app/Contents/Info.plist
+	sed -e 's/<string>snmpb<\/string>/<string>SnmpB<\/string>/g' SnmpB.app/Contents/Info.plist > Sinfo
+	mv -f Sinfo SnmpB.app/Contents/Info.plist
 	mkdir ${APFILESPATH}/mibs
 	mkdir ${APFILESPATH}/pibs
 	cp -R ../../libsmi/mibs/iana/* ${APFILESPATH}/mibs
