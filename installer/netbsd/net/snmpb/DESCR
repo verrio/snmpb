@@ -1,0 +1,7 @@
+SnmpB is an SNMP (Simple Network Management Protocol) MIB
+browser written in QT. It supports SNMPv1, SNMPv2c & SNMPv3.
+
+SnmpB can browse/edit/load/add MIB files and can query SNMP
+agents. It also supports agent discovery, trap events
+and graph plotting.
+
