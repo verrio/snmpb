@@ -1,9 +1,22 @@
 #!/bin/bash
 #
-# http://developer.apple.com/TOOLS/xcode/
+# Script used to build an SnmpB MAC installer.
+# SnmpB needs to be compiled first, this script assumes
+# that the application is already built.
 #
+# To compile snmpB on MAC
+# 1- Download and install XCODE from here:
+#    http://developer.apple.com/technology/xcode.html
+# 2- Install QT for MAC. Download it from here: 
+#    http://www.qtsoftware.com/downloads 
+# 3- type 'make' in the snmpb root folder (trunk).
 #
+# To build the installer, execute this script locallly,
+# assuming XCODE is installed in the system.
 #
+# TODO:
+# 1- Bundle QT libraries in installer.
+# 2- Have binary run in setuid mode (for trap port binding)
 #
 
 VERSION=0.5
