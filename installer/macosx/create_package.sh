@@ -18,6 +18,8 @@
 # 1- Bundle QT libraries in installer.
 # 2- Have binary run in setuid mode (for trap port binding)
 #
+# Martin Jolicoeur, March 2009
+#
 
 VERSION=0.5
 APPNAME=SnmpB
