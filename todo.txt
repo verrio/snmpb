@@ -10,8 +10,6 @@
 - Add support for smart indexing on table view
 - Clean-up code/add comments
 - Add desktop shortcut/K menu for Linux/BSD/MacOSX
-- Add NetBSD installer
-- Add MacOSX installer
 - Internationalize (using tr())
 - Fix tab-navigation order for gui elements
 - Add SMIv1/SMIv2 config and severity checking level for MIB editor validation
