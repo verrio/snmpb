@@ -1,0 +1,7 @@
+[Desktop Entry] 
+Exec=snmpb
+TryExec=snmpb
+Name=SnmpB
+Icon=snmpb
+Categories=Qt;Network;Utility;
+Type=Application
