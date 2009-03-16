@@ -146,7 +146,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/share/apps/snmpb/mibs/HOST-RESOURCES-TYPES
 %{_prefix}/share/apps/snmpb/mibs/HPR-IP-MIB
 %{_prefix}/share/apps/snmpb/mibs/HPR-MIB
-%{_prefix}/share/apps/snmpb/mibs/IANA-ITU-ALARM-TC-MIB
 %{_prefix}/share/apps/snmpb/mibs/IF-CAP-STACK-MIB
 %{_prefix}/share/apps/snmpb/mibs/IFCP-MGMT-MIB
 %{_prefix}/share/apps/snmpb/mibs/IF-INVERTED-STACK-MIB
