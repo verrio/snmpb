@@ -65,7 +65,7 @@ load SNMP-VIEW-BASED-ACM-MIB"
 
 static QDir SnmpbDir = QDir::homePath() + "/" + SNMPB_CONFIG_DIR;
 
-Snmpb::Snmpb(QMainWindow* mw)
+Snmpb::Snmpb(void)
 {
     // First thing to do is to give up root privileges and allow permission to
     // bind on privileged ports (<1024). This is needed to bind on 
@@ -94,9 +94,7 @@ Snmpb::Snmpb(QMainWindow* mw)
     // Drop root privileges
     if (setuid(getuid()) < 0)
     {
-        QMessageBox::warning ( NULL, "SnmpB", 
-                               tr("Unable to drop root privileges: %m\n"),
-                               QMessageBox::Ok, Qt::NoButton);
+        printf("Unable to drop root privileges: %m\n");
     }
 #endif
     // Note: beware as anything before this point is run as root on UNIX ... 
@@ -105,7 +103,10 @@ Snmpb::Snmpb(QMainWindow* mw)
 
     if (!prefs)
         prefs = new Preferences(this);
+}
 
+void Snmpb::BindToGUI(QMainWindow* mw)
+{
     w.setupUi(mw);
 
     connect(&loader, SIGNAL ( LogError(QString) ),

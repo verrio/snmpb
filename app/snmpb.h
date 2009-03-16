@@ -40,7 +40,8 @@ class Snmpb: public QObject
     Q_OBJECT
     
 public:
-    Snmpb(QMainWindow *mw);
+    Snmpb(void);
+    void BindToGUI(QMainWindow *mw);
     Ui_MainW* MainUI(void);
     Agent* AgentObj(void);
     Trap* TrapObj(void);

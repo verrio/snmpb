@@ -24,8 +24,10 @@
 int main( int argc, char ** argv )
 {
     QApplication a( argc, argv );
+    Snmpb snmpb;
+
     QMainWindow mw;
-    Snmpb snmpb(&mw);
+    snmpb.BindToGUI(&mw);
 
     mw.show();
     a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
