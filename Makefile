@@ -116,5 +116,7 @@ install:
 	$(INSTALL) -v -m 444 -o root libsmi/mibs/tubs/* ${INSTALL_PREFIX}/share/apps/snmpb/mibs
 	$(INSTALL) -v -m 444 -o root libsmi/pibs/ietf/* ${INSTALL_PREFIX}/share/apps/snmpb/pibs
 	$(INSTALL) -v -m 444 -o root libsmi/pibs/tubs/* ${INSTALL_PREFIX}/share/apps/snmpb/pibs
-	rm ${INSTALL_PREFIX}/share/apps/snmpb/mibs/Makefile* ${INSTALL_PREFIX}/share/apps/snmpb/pibs/Makefile*
-
+	rm -f ${INSTALL_PREFIX}/share/apps/snmpb/mibs/Makefile* ${INSTALL_PREFIX}/share/apps/snmpb/pibs/Makefile*
+	$(INSTALL) -v -d ${INSTALL_PREFIX}/share/applications ${INSTALL_PREFIX}/share/icons/hicolor/128x128/apps
+	$(INSTALL) -v -m 444 -o root app/snmpb.desktop ${INSTALL_PREFIX}/share/applications
+	$(INSTALL) -v -m 444 -o root app/images/snmpb.png ${INSTALL_PREFIX}/share/icons/hicolor/128x128/apps
