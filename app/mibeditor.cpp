@@ -253,7 +253,7 @@ void MibEditor::ExecuteFindNextReplace(void)
 
 void MibEditor::ExecuteReplaceAll(void)
 {
-    while(!Replace(true));
+    while(!Replace(true)) ;
 }
 
 // 

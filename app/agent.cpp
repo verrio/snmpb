@@ -554,7 +554,7 @@ void Agent::AsyncCallbackTrap(int reason, Pdu &pdu, SnmpTarget &target)
         char *b = smiRenderOID(node->oidlen, node->oid, 
                                SMI_RENDER_NUMERIC);
         char *f = (char*)id.get_printable();
-        while ((*b++ == *f++) && (*b != '\0') && (*f != '\0'));
+        while ((*b++ == *f++) && (*b != '\0') && (*f != '\0')) ;
         /* f is now the remaining part */
       
         // Print the OID part
@@ -735,7 +735,7 @@ void Agent::AsyncCallback(int reason, Pdu &pdu,
                     char *b = smiRenderOID(node->oidlen, node->oid, 
                                            SMI_RENDER_NUMERIC);
                     char *f = (char*)vb.get_printable_oid();
-                    while ((*b++ == *f++) && (*b != '\0') && (*f != '\0'));
+                    while ((*b++ == *f++) && (*b != '\0') && (*f != '\0')) ;
                     /* f is now the remaining part */
                     
                     // Print the OID part
@@ -873,7 +873,7 @@ void Agent::AsyncCallbackSet(int reason, Pdu &pdu, SnmpTarget &target)
                 char *b = smiRenderOID(node->oidlen, node->oid, 
                         SMI_RENDER_NUMERIC);
                 char *f = (char*)vb.get_printable_oid();
-                while ((*b++ == *f++) && (*b != '\0') && (*f != '\0'));
+                while ((*b++ == *f++) && (*b != '\0') && (*f != '\0')) ;
                 /* f is now the remaining part */
 
                 // Print the OID part
@@ -1199,7 +1199,7 @@ void Agent::SetFrom(const QString& oid)
         gl.addWidget(cb, 4, 0, 1, 1);
         for (nn = smiGetFirstNamedNumber(type); nn; nn = smiGetNextNamedNumber(nn))
             cb->addItem(QString("%1 (%2)").arg(nn->name).arg(nn->value.value.unsigned32), 
-                        QVariant(*(int*)(unsigned int*)&nn->value.value.unsigned32));
+                        QVariant((unsigned int)nn->value.value.unsigned32));
         connect(cb, SIGNAL(currentIndexChanged(int)), 
                 this, SLOT(GetTypedSetValueCb(int)));
     }
@@ -1450,7 +1450,7 @@ void Agent::TableViewFrom(const QString& oid)
         /* Get & print the instance part */
         char *b = (char*)roid.get_printable();
         char *f = (char*)tvb.get_printable_oid();
-        while ((*b++ == *f++) && (*b != '\0') && (*f != '\0'));
+        while ((*b++ == *f++) && (*b != '\0') && (*f != '\0')) ;
         /* f is now the remaining part */
         f++; /* skip . */
         if (*f != '\0') msg += QString("<tr><td bgcolor=pink>%1</td>").arg(f);
@@ -1743,7 +1743,7 @@ int Agent::SelectTableInstance(const QString& oid)
         /* Get & print the instance part */
         char *b = (char*)roid.get_printable();
         char *f = (char*)tvb.get_printable_oid();
-        while ((*b++ == *f++) && (*b != '\0') && (*f != '\0'));
+        while ((*b++ == *f++) && (*b != '\0') && (*f != '\0')) ;
         /* f is now the remaining part */
         if (*++f != '\0')
             ilist.addItem(f);

@@ -342,7 +342,7 @@ void AgentProfileManager::Add(QString name, QString address, QString port,
     AgentProfile *clone;
 
     // Protection for duplicate entries (based on agent name)
-    if (GetAgentProfile(name) || !(clone = GetAgentProfile(clonefrom)))
+    if (!(clone = GetAgentProfile(clonefrom)) || GetAgentProfile(name))
         return;
 
     // Create new agent based on parameters ...
