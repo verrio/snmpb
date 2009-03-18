@@ -70,6 +70,8 @@ Snmpb::Snmpb(void)
     // First thing to do is to give up root privileges and allow permission to
     // bind on privileged ports (<1024). This is needed to bind on 
     // the RFC-defined trap port number 162 on UNIX machines.
+    //
+    // All code in this constructor is forbidden to do any GUI-related calls.
     agent = new Agent(this);
     prefs = NULL;
 
@@ -83,12 +85,12 @@ Snmpb::Snmpb(void)
         if (prefs->GetTrapPort() != STANDARD_TRAP_PORT)
             setuid(getuid());
 #endif
-        agent->BindTrapPort(prefs->GetTrapPort());
+        bind_issuccess = agent->BindTrapPort(prefs->GetTrapPort(), bind_msg);
     }
     else
     {
         // The default trap port is the standard one ...
-        agent->BindTrapPort(STANDARD_TRAP_PORT);
+        bind_issuccess = agent->BindTrapPort(STANDARD_TRAP_PORT, bind_msg);
     }
 #ifndef WIN32 
     // Drop root privileges
@@ -97,7 +99,7 @@ Snmpb::Snmpb(void)
         printf("Unable to drop root privileges: %m\n");
     }
 #endif
-    // Note: beware as anything before this point is run as root on UNIX ... 
+    // Note: beware as anything BEFORE this point is run as root on UNIX ... 
 
     CheckForConfigFiles();
 
@@ -107,6 +109,14 @@ Snmpb::Snmpb(void)
 
 void Snmpb::BindToGUI(QMainWindow* mw)
 {
+    if (bind_issuccess != true)
+    {
+        QMessageBox::warning ( NULL, "SnmpB", bind_msg,
+                               QMessageBox::Ok, Qt::NoButton);
+    }
+    else
+        agent->StartTrapTimer();
+
     w.setupUi(mw);
 
     connect(&loader, SIGNAL ( LogError(QString) ),

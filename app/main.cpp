@@ -23,9 +23,9 @@
 
 int main( int argc, char ** argv )
 {
-    QApplication a( argc, argv );
     Snmpb snmpb;
 
+    QApplication a( argc, argv );
     QMainWindow mw;
     snmpb.BindToGUI(&mw);
 

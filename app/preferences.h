@@ -50,8 +50,8 @@ protected:
 
 private:
     Snmpb *s;
-    Ui_Preferences p;
-    QDialog pw;
+    Ui_Preferences *p;
+    QDialog *pw;
     QSettings *settings;
 
     QTreeWidgetItem *mibtree;

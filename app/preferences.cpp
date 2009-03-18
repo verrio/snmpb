@@ -41,42 +41,44 @@ Preferences::Preferences(Snmpb *snmpb)
 
 void Preferences::Init(void)
 {
-    p.setupUi(&pw);
+    p = new Ui_Preferences();
+    pw = new QDialog();
+    p->setupUi(pw);
 
     // Set some properties for the Preferences TreeView
-    p.PreferencesTree->header()->hide();
-    p.PreferencesTree->setSortingEnabled( FALSE );
-    p.PreferencesTree->header()->setSortIndicatorShown( FALSE );
-    p.PreferencesTree->setLineWidth( 2 );
-    p.PreferencesTree->setAllColumnsShowFocus( FALSE );
-    p.PreferencesTree->setFrameShape(QFrame::WinPanel);
-    p.PreferencesTree->setFrameShadow(QFrame::Plain);
-    p.PreferencesTree->setRootIsDecorated( TRUE );
+    p->PreferencesTree->header()->hide();
+    p->PreferencesTree->setSortingEnabled( FALSE );
+    p->PreferencesTree->header()->setSortIndicatorShown( FALSE );
+    p->PreferencesTree->setLineWidth( 2 );
+    p->PreferencesTree->setAllColumnsShowFocus( FALSE );
+    p->PreferencesTree->setFrameShape(QFrame::WinPanel);
+    p->PreferencesTree->setFrameShadow(QFrame::Plain);
+    p->PreferencesTree->setRootIsDecorated( TRUE );
 
-    mibtree = new QTreeWidgetItem(p.PreferencesTree);
+    mibtree = new QTreeWidgetItem(p->PreferencesTree);
     mibtree->setText(0, "MIB Tree");
-    modules = new QTreeWidgetItem(p.PreferencesTree);
+    modules = new QTreeWidgetItem(p->PreferencesTree);
     modules->setText(0, "Modules");
-    traps = new QTreeWidgetItem(p.PreferencesTree);
+    traps = new QTreeWidgetItem(p->PreferencesTree);
     traps->setText(0, "Traps");
 
-    connect( p.PreferencesTree, 
+    connect( p->PreferencesTree, 
              SIGNAL( currentItemChanged( QTreeWidgetItem *, QTreeWidgetItem * ) ),
              this, SLOT( SelectedPreferences( QTreeWidgetItem *, QTreeWidgetItem * ) ) );
-    connect( p.HorizontalSplit, SIGNAL( toggled(bool) ),
+    connect( p->HorizontalSplit, SIGNAL( toggled(bool) ),
              this, SLOT( SetHorizontalSplit(bool) ) );
-    connect( p.TrapPort, SIGNAL( valueChanged( int ) ), 
+    connect( p->TrapPort, SIGNAL( valueChanged( int ) ), 
              this, SLOT ( SetTrapPort() ) );
-    connect( p.ModulePathsReset, 
+    connect( p->ModulePathsReset, 
              SIGNAL( clicked() ), this, SLOT( ModuleReset() ));
-    connect( p.ModulePathsAdd, 
+    connect( p->ModulePathsAdd, 
              SIGNAL( clicked() ), this, SLOT( ModuleAdd() ));
-    connect( p.ModulePathsDelete, 
+    connect( p->ModulePathsDelete, 
              SIGNAL( clicked() ), this, SLOT( ModuleDelete() ));
 
     // Load preferences from file
     horizontalsplit = settings->value("horizontalsplit", false).toBool();
-    p.HorizontalSplit->setCheckState((horizontalsplit == true)?
+    p->HorizontalSplit->setCheckState((horizontalsplit == true)?
                                      Qt::Checked:Qt::Unchecked);
 
     char    *dir, *smipath;
@@ -91,12 +93,12 @@ void Preferences::Init(void)
 
     pathschanged = false;
 
-    p.PreferencesTree->setCurrentItem(p.PreferencesTree->topLevelItem(0));
+    p->PreferencesTree->setCurrentItem(p->PreferencesTree->topLevelItem(0));
 }
 
 void Preferences::Execute (void)
 {
-    if(pw.exec() == QDialog::Accepted)
+    if(pw->exec() == QDialog::Accepted)
     {
         // Warn if trap port changed ...
         if(trapport != settings->value("trapport", 162).toInt())
@@ -112,7 +114,7 @@ void Preferences::Execute (void)
         {
             // Store modules in local list
             mibpaths.clear();
-            QList<QListWidgetItem *> l = p.ModulePaths->findItems("*", Qt::MatchWildcard);
+            QList<QListWidgetItem *> l = p->ModulePaths->findItems("*", Qt::MatchWildcard);
             for (int i = 0; i < l.size(); i++)
                 mibpaths << l[i]->text(); 
 
@@ -159,13 +161,13 @@ void Preferences::ModuleReset(void)
     char    sep[2] = {PATH_SEPARATOR, 0};
     smipath = strdup(DEFAULT_SMIPATH);
 
-    p.ModulePaths->clear();
+    p->ModulePaths->clear();
 
     for (dir = strtok(smipath, sep); dir; dir = strtok(NULL, sep))
     {
-        QListWidgetItem *item = new QListWidgetItem(dir, p.ModulePaths);
+        QListWidgetItem *item = new QListWidgetItem(dir, p->ModulePaths);
         item->setFlags(item->flags() | Qt::ItemIsEditable);
-        p.ModulePaths->addItem(item);
+        p->ModulePaths->addItem(item);
     }
 
     free(smipath);
@@ -175,19 +177,19 @@ void Preferences::ModuleReset(void)
 
 void Preferences::ModuleAdd(void)
 {
-    QListWidgetItem *item = new QListWidgetItem("type new path here", p.ModulePaths);
+    QListWidgetItem *item = new QListWidgetItem("type new path here", p->ModulePaths);
     item->setFlags(item->flags() | Qt::ItemIsEditable);
 
-    p.ModulePaths->addItem(item);
-    p.ModulePaths->editItem(item);
+    p->ModulePaths->addItem(item);
+    p->ModulePaths->editItem(item);
 
     pathschanged = true;
 }
 
 void Preferences::ModuleDelete(void)
 {
-    QList<QListWidgetItem *> todel  = p.ModulePaths->selectedItems();
-    QList<QListWidgetItem *> total = p.ModulePaths->findItems("*", Qt::MatchWildcard);
+    QList<QListWidgetItem *> todel  = p->ModulePaths->selectedItems();
+    QList<QListWidgetItem *> total = p->ModulePaths->findItems("*", Qt::MatchWildcard);
 
     // Protection
     if (todel.size() >= total.size())
@@ -199,7 +201,7 @@ void Preferences::ModuleDelete(void)
     }
 
     for (int i = 0; i < todel.size(); i++)
-        delete p.ModulePaths->takeItem(p.ModulePaths->row(todel[i]));
+        delete p->ModulePaths->takeItem(p->ModulePaths->row(todel[i]));
 
     pathschanged = true;
 }
@@ -212,7 +214,7 @@ void Preferences::SetHorizontalSplit(bool checked)
 
 void Preferences::SetTrapPort()
 {
-    trapport = p.TrapPort->value();
+    trapport = p->TrapPort->value();
 }
 
 int Preferences::GetTrapPort(void)
@@ -222,10 +224,10 @@ int Preferences::GetTrapPort(void)
 
 void Preferences::ModuleRefresh(void)
 {
-    p.ModulePaths->clear();
-    p.ModulePaths->addItems(mibpaths);
+    p->ModulePaths->clear();
+    p->ModulePaths->addItems(mibpaths);
 
-    QList<QListWidgetItem *> l = p.ModulePaths->findItems("*", Qt::MatchWildcard);
+    QList<QListWidgetItem *> l = p->ModulePaths->findItems("*", Qt::MatchWildcard);
 
     for (int i = 0; i < l.size(); i++)
         l[i]->setFlags(l[i]->flags() | Qt::ItemIsEditable);
@@ -235,23 +237,23 @@ void Preferences::SelectedPreferences(QTreeWidgetItem * item, QTreeWidgetItem *)
 {
     if (item == mibtree)
     {
-        p.PreferencesProps->setCurrentIndex(0);
+        p->PreferencesProps->setCurrentIndex(0);
 
-        p.HorizontalSplit->setCheckState(horizontalsplit==true?Qt::Checked:Qt::Unchecked);
+        p->HorizontalSplit->setCheckState(horizontalsplit==true?Qt::Checked:Qt::Unchecked);
     }
     else
     if (item == modules)
     {
-        p.PreferencesProps->setCurrentIndex(1);
+        p->PreferencesProps->setCurrentIndex(1);
 
         ModuleRefresh();
     }
     else
     if (item == traps)
     {
-        p.PreferencesProps->setCurrentIndex(2);
+        p->PreferencesProps->setCurrentIndex(2);
 
-        p.TrapPort->setValue(trapport);
+        p->TrapPort->setValue(trapport);
     }
 }
 

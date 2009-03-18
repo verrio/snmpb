@@ -133,12 +133,12 @@ Agent::Agent(Snmpb *snmpb)
     {
         QString err = QString("Could not create SNMP++ session:\n")
                               .arg(Snmp::error_msg(status));
-        QMessageBox::warning ( NULL, "SnmpB", err, 
-                               QMessageBox::Ok, Qt::NoButton);
+        printf("FATAL error: %s\n", err.toLatin1().data());
+        exit(-1);
     }
 }
 
-void Agent::BindTrapPort(int Port)
+bool Agent::BindTrapPort(int Port, QString &err)
 {
     int status;
 
@@ -151,16 +151,18 @@ void Agent::BindTrapPort(int Port)
     status = snmp->notify_register(oidc, targetc, callback_trap, this);
     if (status != SNMP_CLASS_SUCCESS)
     {
-        QString err = QString("Could not bind on trap port %1:\n%2\n")
-                              .arg(Port).arg(Snmp::error_msg(status));
-        QMessageBox::warning ( NULL, "SnmpB", err,
-                               QMessageBox::Ok, Qt::NoButton);
+        err = QString("Could not bind on trap port %1:\n%2\n")
+                       .arg(Port).arg(Snmp::error_msg(status));
+        return false;
     }
-    else
-    {
-        // Start the timer
-        timer.start(TRAP_TIMER_MSEC);
-    }
+
+    return true;
+}
+
+void Agent::StartTrapTimer(void)
+{
+    // Start the timer
+    timer.start(TRAP_TIMER_MSEC);
 }
 
 void Agent::Init(void)
@@ -197,19 +199,21 @@ void Agent::Init(void)
     connect( s->MainUI()->AgentProtoV1, SIGNAL( toggled(bool) ),
              s->MainUI()->MIBTree, SLOT( SetCurrentAgentIsV1(bool) ) );
 
-    vbui.setupUi(&vbd);
-    connect( vbui.NewOp, SIGNAL( clicked() ), this, SLOT( VarbindsNew() ));
-    connect( vbui.EditOp, SIGNAL( clicked() ), this, SLOT( VarbindsEdit() ));
-    connect( vbui.DeleteOp, SIGNAL( clicked() ), this, SLOT( VarbindsDelete() ));
-    connect( vbui.DeleteAllOp, SIGNAL( clicked() ), this, SLOT( VarbindsDeleteAll() ));
-    connect( vbui.MoveUpOp, SIGNAL( clicked() ), this, SLOT( VarbindsMoveUp() ));
-    connect( vbui.MoveDownOp, SIGNAL( clicked() ), this, SLOT( VarbindsMoveDown() ));
-    connect( vbui.QuitOp, SIGNAL( clicked() ), this, SLOT( VarbindsQuit() ));
-    connect( vbui.GetOp, SIGNAL( clicked() ), this, SLOT( VarbindsGet() ));
-    connect( vbui.GetNextOp, SIGNAL( clicked() ), this, SLOT( VarbindsGetNext() ));
-    connect( vbui.GetBulkOp, SIGNAL( clicked() ), this, SLOT( VarbindsGetBulk() ));
-    connect( vbui.SetOp, SIGNAL( clicked() ), this, SLOT( VarbindsSet() ));
-    connect( vbui.VarbindsList, SIGNAL( itemSelectionChanged() ), 
+    vbui = new Ui_Varbinds();
+    vbd = new QDialog(); 
+    vbui->setupUi(vbd);
+    connect( vbui->NewOp, SIGNAL( clicked() ), this, SLOT( VarbindsNew() ));
+    connect( vbui->EditOp, SIGNAL( clicked() ), this, SLOT( VarbindsEdit() ));
+    connect( vbui->DeleteOp, SIGNAL( clicked() ), this, SLOT( VarbindsDelete() ));
+    connect( vbui->DeleteAllOp, SIGNAL( clicked() ), this, SLOT( VarbindsDeleteAll() ));
+    connect( vbui->MoveUpOp, SIGNAL( clicked() ), this, SLOT( VarbindsMoveUp() ));
+    connect( vbui->MoveDownOp, SIGNAL( clicked() ), this, SLOT( VarbindsMoveDown() ));
+    connect( vbui->QuitOp, SIGNAL( clicked() ), this, SLOT( VarbindsQuit() ));
+    connect( vbui->GetOp, SIGNAL( clicked() ), this, SLOT( VarbindsGet() ));
+    connect( vbui->GetNextOp, SIGNAL( clicked() ), this, SLOT( VarbindsGetNext() ));
+    connect( vbui->GetBulkOp, SIGNAL( clicked() ), this, SLOT( VarbindsGetBulk() ));
+    connect( vbui->SetOp, SIGNAL( clicked() ), this, SLOT( VarbindsSet() ));
+    connect( vbui->VarbindsList, SIGNAL( itemSelectionChanged() ), 
              this, SLOT( VarbindsSelected() ));
 
     // Fill-in the list of agent profiles from profiles manager
@@ -1525,17 +1529,17 @@ void Agent::VarbindsFrom(const QString& oid)
     // Display the element information
     QStringList s, s2, s3, s4, s5;
     s << (node?node->name:oid) << oid << (smiType?smiType->name:"") << ""; 
-    vbui.VarbindsList->addTopLevelItem(new QTreeWidgetItem(s));
+    vbui->VarbindsList->addTopLevelItem(new QTreeWidgetItem(s));
     s2 << (node?node->name:oid) << oid << "BLA" << ""; 
-    vbui.VarbindsList->addTopLevelItem(new QTreeWidgetItem(s2));
+    vbui->VarbindsList->addTopLevelItem(new QTreeWidgetItem(s2));
     s3 << (node?node->name:oid) << oid << "TOTO" << ""; 
-    vbui.VarbindsList->addTopLevelItem(new QTreeWidgetItem(s3));
+    vbui->VarbindsList->addTopLevelItem(new QTreeWidgetItem(s3));
     s4 << (node?node->name:oid) << oid << "WWWW" << ""; 
-    vbui.VarbindsList->addTopLevelItem(new QTreeWidgetItem(s4));
+    vbui->VarbindsList->addTopLevelItem(new QTreeWidgetItem(s4));
     s5 << (node?node->name:oid) << oid << "HYHY" << ""; 
-    vbui.VarbindsList->addTopLevelItem(new QTreeWidgetItem(s5));
+    vbui->VarbindsList->addTopLevelItem(new QTreeWidgetItem(s5));
 
-    vbd.exec(); 
+    vbd->exec(); 
 }
 
 void Agent::VarbindsNew(void)
@@ -1548,7 +1552,7 @@ void Agent::VarbindsEdit(void)
 
 void Agent::VarbindsDelete(void)
 {
-    QTreeWidget *vbl = vbui.VarbindsList;
+    QTreeWidget *vbl = vbui->VarbindsList;
     QList<QTreeWidgetItem *> items = vbl->selectedItems();
     for (int i = 0; i < items.size(); i++)
         delete vbl->takeTopLevelItem(vbl->indexOfTopLevelItem(items[i]));
@@ -1556,7 +1560,7 @@ void Agent::VarbindsDelete(void)
 
 void Agent::VarbindsDeleteAll(void)
 {
-    vbui.VarbindsList->clear();
+    vbui->VarbindsList->clear();
 }
 
 // External C function
@@ -1568,7 +1572,7 @@ bool CompareItemPositions(QTreeWidgetItem *i1, QTreeWidgetItem *i2)
 
 void Agent::VarbindsMoveUp(void)
 {
-    QTreeWidget *vbl = vbui.VarbindsList;
+    QTreeWidget *vbl = vbui->VarbindsList;
     QList<QTreeWidgetItem *> items = vbl->selectedItems();
     bool cleared = false;
 
@@ -1599,7 +1603,7 @@ void Agent::VarbindsMoveUp(void)
 
 void Agent::VarbindsMoveDown(void)
 {
-    QTreeWidget *vbl = vbui.VarbindsList;
+    QTreeWidget *vbl = vbui->VarbindsList;
     QList<QTreeWidgetItem *> items = vbl->selectedItems();
     bool cleared = false;
 
@@ -1630,7 +1634,7 @@ void Agent::VarbindsMoveDown(void)
 
 void Agent::VarbindsQuit(void)
 {
-    vbd.accept();
+    vbd->accept();
 }
 
 void Agent::VarbindsGet(void)
@@ -1652,21 +1656,21 @@ void Agent::VarbindsSet(void)
 // Controls buttons to gray out
 void Agent::VarbindsSelected(void)
 {
-    QList<QTreeWidgetItem *> items = vbui.VarbindsList->selectedItems();
+    QList<QTreeWidgetItem *> items = vbui->VarbindsList->selectedItems();
 
     if (items.isEmpty())
     {
-        vbui.EditOp->setEnabled(false);
-        vbui.DeleteOp->setEnabled(false);
-        vbui.MoveUpOp->setEnabled(false);
-        vbui.MoveDownOp->setEnabled(false);
+        vbui->EditOp->setEnabled(false);
+        vbui->DeleteOp->setEnabled(false);
+        vbui->MoveUpOp->setEnabled(false);
+        vbui->MoveDownOp->setEnabled(false);
     }
     else
     {
-        vbui.EditOp->setEnabled(true);
-        vbui.DeleteOp->setEnabled(true);
-        vbui.MoveUpOp->setEnabled(true);
-        vbui.MoveDownOp->setEnabled(true);
+        vbui->EditOp->setEnabled(true);
+        vbui->DeleteOp->setEnabled(true);
+        vbui->MoveUpOp->setEnabled(true);
+        vbui->MoveDownOp->setEnabled(true);
     }
 }
 

@@ -81,6 +81,9 @@ private:
     MibEditor *editor;
     LogSnmpb *logsnmpb;
     Discovery *discovery;
+
+    QString bind_msg;
+    bool bind_issuccess;
 };
 
 #endif /* SNMPB_H */

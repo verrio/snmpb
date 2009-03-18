@@ -35,7 +35,8 @@ class Agent: public QObject
     
 public:
     Agent(Snmpb *snmpb);
-    void BindTrapPort(int Port);
+    bool BindTrapPort(int Port, QString &Err);
+    void StartTrapTimer(void);
     void Init(void);
     void AsyncCallback(int reason, Pdu &pdu, 
                        SnmpTarget &target, int iswalk);
@@ -119,8 +120,8 @@ private:
 
     bool stop;
 
-    Ui_Varbinds vbui;
-    QDialog vbd;
+    Ui_Varbinds *vbui;
+    QDialog *vbd;
 };
 
 #endif /* AGENT_H */
