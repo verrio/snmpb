@@ -1,3 +1,4 @@
+- Enable extra-debug for SNMP++
 - Change menu items to be tab-sensitive (grayed out)
 - MIB tree: keep last active protocol per agent profile + keep last active agent profile
 - Allow loading *.mib files and related 
@@ -9,7 +10,6 @@
 - Add support for MIB autoload on walk
 - Add support for smart indexing on table view
 - Clean-up code/add comments
-- Add desktop shortcut/K menu for Linux/BSD/MacOSX
 - Internationalize (using tr())
 - Fix tab-navigation order for gui elements
 - Add SMIv1/SMIv2 config and severity checking level for MIB editor validation
