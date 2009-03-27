@@ -77,11 +77,11 @@ Section "SnmpB application" SecApp
   SectionIn RO
 
   File ..\..\app\release\snmpb.exe
-  File $%QTDIR%\bin\QtCore*
-  File $%QTDIR%\bin\QtGui*
-  File $%QTDIR%\bin\QtNetwork*
-  File $%QTDIR%\bin\QtSql*
-  File $%QTDIR%\bin\QtXml*
+  File $%QTDIR%\bin\QtCore4.dll
+  File $%QTDIR%\bin\QtGui4.dll
+  File $%QTDIR%\bin\QtNetwork4.dll
+  File $%QTDIR%\bin\QtSql4.dll
+  File $%QTDIR%\bin\QtXml4.dll
   File $%QTDIR%\bin\mingw*
 
   ;Store installation folder
