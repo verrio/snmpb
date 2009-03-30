@@ -1,4 +1,3 @@
-- Enable extra-debug for SNMP++
 - Change menu items to be tab-sensitive (grayed out)
 - MIB tree: keep last active protocol per agent profile + keep last active agent profile
 - Allow loading *.mib files and related 
