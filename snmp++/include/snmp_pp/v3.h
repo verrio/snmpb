@@ -100,7 +100,17 @@ DLLOPT void debughexcprintf(int db_level, const char* comment,
 
 #ifndef _MSC_VER
 #if defined(__GNUC__) && !defined(__STRICT_ANSI__)
-#define debugprintf(db_level,format...)
+
+#include "snmp_pp/log.h"
+#define debugprintf(__db_level, ...)                             \
+    if (__db_level < DefaultLog::log()->get_filter(DEBUG_LOG)) { \
+        char __buf[MAX_LOG_SIZE];                                \
+        __buf[MAX_LOG_SIZE-1] = '\0';                            \
+        snprintf(__buf, MAX_LOG_SIZE-1,__VA_ARGS__);             \
+        LOG_BEGIN(DEBUG_LOG | __db_level);                       \
+        LOG(__buf);                                              \
+        LOG_END;                                                 \
+    }
 #else
 void debugprintf(int db_level, const char *format, ...);
 #endif
