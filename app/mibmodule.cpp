@@ -137,7 +137,7 @@ MibModule::MibModule(Snmpb *snmpb)
 
     for(SmiModule *mod = smiGetFirstModule(); 
         mod; mod = smiGetNextModule(mod))
-        Wanted.append(mod->name);
+        Wanted.append(QFileInfo(mod->path).fileName());
     Refresh();
 }
 
@@ -184,8 +184,11 @@ void MibModule::RebuildTotalList(void)
         while ( it.hasNext() ) {
             fi = &it.next();
             // Exclude -orig files
-            if (!(((str = strstr(fi->toLatin1(), "-orig")) != NULL) && (strlen(str) == 5)))
-                Total.append(fi->toLatin1());
+            // Accept only .smi, mib, .pib, or no extension files
+            QString ext = QFileInfo(fi->toLatin1()).suffix();
+            if (!(((str = strstr(fi->toLatin1(), "-orig")) != NULL) && (strlen(str) == 5)) &&
+                (ext.isEmpty() || (ext == "smi") || (ext == "mib") || (ext == "pib")))
+                Total.append(QFileInfo(fi->toLatin1()).fileName());
         }    
     }
     
@@ -250,7 +253,7 @@ void MibModule::RebuildUnloadedList(void)
         for(j = 0; j < Loaded.count(); j++)
         { 
             lmodule = Loaded[j];
-            if (lmodule->name == current) break;
+            if (QFileInfo(lmodule->module->path).fileName() == current) break;
         }
 
         if (!lmodule || (j >= Loaded.count())) {
@@ -281,7 +284,7 @@ void MibModule::RemoveModule(void)
                              s->MainUI()->LoadedModules->selectedItems();
 
     for (int i = 0; i < item_list.size(); i++)
-        Wanted.removeAll(item_list[i]->text(0));
+        Wanted.removeAll(QFileInfo(item_list[i]->text(3)).fileName());
 
     if (item_list.size())
         Refresh();
@@ -333,7 +336,7 @@ void MibModule::RefreshPathChange(void)
     Wanted.clear();
     for(SmiModule *mod = smiGetFirstModule(); 
         mod; mod = smiGetNextModule(mod))
-        Wanted.append(mod->name);
+        Wanted.append(QFileInfo(mod->path).fileName());
 
     Refresh();
 }
