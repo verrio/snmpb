@@ -4591,7 +4591,7 @@ Module *loadModule(const char *modulename, Parser *parserPtr)
     char	    sep[2];
 
     static const char *ext[] = {
-	"", ".my", ".smiv1", ".smiv2", ".sming", ".mib", ".txt", NULL
+	"", ".smi", ".mib", ".pib", NULL
     };
     
     if ((!modulename) || !strlen(modulename)) {
