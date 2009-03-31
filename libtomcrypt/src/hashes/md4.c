@@ -289,7 +289,7 @@ int md4_test(void)
         md4_init(&md);
         md4_process(&md, (unsigned char *)cases[i].input, (unsigned long)strlen(cases[i].input));
         md4_done(&md, digest);
-        if (memcmp(digest, cases[i].digest, 16) != 0) {
+        if (XMEMCMP(digest, cases[i].digest, 16) != 0) {
            return CRYPT_FAIL_TESTVECTOR;
         }
 
@@ -303,5 +303,5 @@ int md4_test(void)
 
 
 /* $Source: /cvs/libtom/libtomcrypt/src/hashes/md4.c,v $ */
-/* $Revision: 1.7 $ */
-/* $Date: 2006/03/31 14:15:35 $ */
+/* $Revision: 1.8 $ */
+/* $Date: 2006/11/01 09:28:17 $ */

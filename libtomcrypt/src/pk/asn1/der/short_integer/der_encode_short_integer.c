@@ -70,7 +70,7 @@ int der_encode_short_integer(unsigned long num, unsigned char *out, unsigned lon
    /* store header */
    x = 0;
    out[x++] = 0x02;
-   out[x++] = z;
+   out[x++] = (unsigned char)z;
 
    /* if 31st bit is set output a leading zero and decrement count */
    if (z == 5) {
@@ -80,7 +80,7 @@ int der_encode_short_integer(unsigned long num, unsigned char *out, unsigned lon
 
    /* store values */
    for (y = 0; y < z; y++) {
-      out[x++] = (num >> 24) & 0xFF;
+      out[x++] = (unsigned char)((num >> 24) & 0xFF);
       num    <<= 8;
    }
 
@@ -93,5 +93,5 @@ int der_encode_short_integer(unsigned long num, unsigned char *out, unsigned lon
 #endif
 
 /* $Source: /cvs/libtom/libtomcrypt/src/pk/asn1/der/short_integer/der_encode_short_integer.c,v $ */
-/* $Revision: 1.6 $ */
-/* $Date: 2006/06/16 21:53:41 $ */
+/* $Revision: 1.7 $ */
+/* $Date: 2006/12/04 21:34:03 $ */

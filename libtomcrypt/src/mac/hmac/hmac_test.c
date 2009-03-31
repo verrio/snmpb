@@ -15,7 +15,7 @@
   HMAC support, self-test, Tom St Denis/Dobes Vandermeer
 */
 
-#ifdef HMAC
+#ifdef LTC_HMAC
 
 #define HMAC_BLOCKSIZE hash_descriptor[hash].blocksize
 
@@ -277,7 +277,7 @@ Key First"
             return err;
         }
 
-        if(memcmp(digest, cases[i].digest, (size_t)hash_descriptor[hash].hashsize) != 0)  {
+        if(XMEMCMP(digest, cases[i].digest, (size_t)hash_descriptor[hash].hashsize) != 0)  {
             failed++;
 #if 0
             unsigned int j;
@@ -312,5 +312,5 @@ Key First"
 
 
 /* $Source: /cvs/libtom/libtomcrypt/src/mac/hmac/hmac_test.c,v $ */
-/* $Revision: 1.5 $ */
-/* $Date: 2006/08/03 02:39:34 $ */
+/* $Revision: 1.7 $ */
+/* $Date: 2006/11/03 00:39:49 $ */

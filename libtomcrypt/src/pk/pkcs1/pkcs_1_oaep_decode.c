@@ -136,7 +136,7 @@ int pkcs_1_oaep_decode(const unsigned char *msg,    unsigned long msglen,
    }
 
    /* compare the lhash'es */
-   if (memcmp(seed, DB, hLen) != 0) {
+   if (XMEMCMP(seed, DB, hLen) != 0) {
       err = CRYPT_OK;
       goto LBL_ERR;
    }
@@ -185,5 +185,5 @@ LBL_ERR:
 #endif /* PKCS_1 */
 
 /* $Source: /cvs/libtom/libtomcrypt/src/pk/pkcs1/pkcs_1_oaep_decode.c,v $ */
-/* $Revision: 1.10 $ */
-/* $Date: 2006/06/16 21:53:41 $ */
+/* $Revision: 1.11 $ */
+/* $Date: 2006/11/01 09:28:17 $ */

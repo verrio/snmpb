@@ -372,6 +372,20 @@ typedef struct {
    */
    int (*ecc_map)(ecc_point *P, void *modulus, void *mp);
 
+   /** Computes kA*A + kB*B = C using Shamir's Trick
+       @param A        First point to multiply
+       @param kA       What to multiple A by
+       @param B        Second point to multiply
+       @param kB       What to multiple B by
+       @param C        [out] Destination point (can overlap with A or B
+       @param modulus  Modulus for curve 
+       @return CRYPT_OK on success
+   */ 
+   int (*ecc_mul2add)(ecc_point *A, void *kA,
+                      ecc_point *B, void *kB,
+                      ecc_point *C,
+                           void *modulus);
+
 /* ---- (optional) rsa optimized math (for internal CRT) ---- */
 
    /** RSA Key Generation 
@@ -482,5 +496,5 @@ extern const ltc_math_descriptor gmp_desc;
 #endif
 
 /* $Source: /cvs/libtom/libtomcrypt/src/headers/tomcrypt_math.h,v $ */
-/* $Revision: 1.42 $ */
-/* $Date: 2006/06/16 21:53:41 $ */
+/* $Revision: 1.43 $ */
+/* $Date: 2006/12/02 19:23:13 $ */

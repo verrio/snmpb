@@ -50,7 +50,7 @@ static unsigned long rng_nix(unsigned char *buf, unsigned long len,
 #endif /* DEVRANDOM */
 
 /* on ANSI C platforms with 100 < CLOCKS_PER_SEC < 10000 */
-#if defined(CLOCKS_PER_SEC)
+#if defined(CLOCKS_PER_SEC) && !defined(WINCE)
 
 #define ANSI_RNG
 
@@ -87,8 +87,12 @@ static unsigned long rng_ansic(unsigned char *buf, unsigned long len,
 #endif 
 
 /* Try the Microsoft CSP */
-#ifdef WIN32
+#if defined(WIN32) || defined(WINCE)
 #define _WIN32_WINNT 0x0400
+#ifdef WINCE
+   #define UNDER_CE
+   #define ARM
+#endif
 #include <windows.h>
 #include <wincrypt.h>
 
@@ -140,5 +144,5 @@ unsigned long rng_get_bytes(unsigned char *out, unsigned long outlen,
 }
 
 /* $Source: /cvs/libtom/libtomcrypt/src/prngs/rng_get_bytes.c,v $ */
-/* $Revision: 1.4 $ */
-/* $Date: 2006/03/31 14:15:35 $ */
+/* $Revision: 1.5 $ */
+/* $Date: 2006/12/06 02:01:29 $ */

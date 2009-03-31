@@ -15,7 +15,7 @@
    PMAC implementation, process a file, by Tom St Denis 
 */
 
-#ifdef PMAC
+#ifdef LTC_PMAC
 
 /**
    PMAC a file 
@@ -80,5 +80,5 @@ int pmac_file(int cipher,
 #endif
 
 /* $Source: /cvs/libtom/libtomcrypt/src/mac/pmac/pmac_file.c,v $ */
-/* $Revision: 1.4 $ */
-/* $Date: 2006/03/31 14:15:35 $ */
+/* $Revision: 1.5 $ */
+/* $Date: 2006/11/03 00:39:49 $ */

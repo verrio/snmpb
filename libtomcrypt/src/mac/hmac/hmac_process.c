@@ -15,7 +15,7 @@
   HMAC support, process data, Tom St Denis/Dobes Vandermeer
 */
 
-#ifdef HMAC
+#ifdef LTC_HMAC
 
 /** 
   Process data through HMAC
@@ -39,5 +39,5 @@ int hmac_process(hmac_state *hmac, const unsigned char *in, unsigned long inlen)
 
 
 /* $Source: /cvs/libtom/libtomcrypt/src/mac/hmac/hmac_process.c,v $ */
-/* $Revision: 1.4 $ */
-/* $Date: 2006/03/31 14:15:35 $ */
+/* $Revision: 1.5 $ */
+/* $Date: 2006/11/03 00:39:49 $ */

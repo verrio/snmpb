@@ -16,7 +16,7 @@
 */
 
 
-#ifdef OMAC
+#ifdef LTC_OMAC
 
 /**
    Initialize an OMAC state
@@ -97,5 +97,5 @@ int omac_init(omac_state *omac, int cipher, const unsigned char *key, unsigned l
 #endif
 
 /* $Source: /cvs/libtom/libtomcrypt/src/mac/omac/omac_init.c,v $ */
-/* $Revision: 1.9 $ */
-/* $Date: 2006/08/20 16:18:03 $ */
+/* $Revision: 1.10 $ */
+/* $Date: 2006/11/03 00:39:49 $ */

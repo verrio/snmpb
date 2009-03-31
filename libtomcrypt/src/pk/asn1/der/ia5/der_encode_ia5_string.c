@@ -50,19 +50,19 @@ int der_encode_ia5_string(const unsigned char *in, unsigned long inlen,
    x = 0;
    out[x++] = 0x16;
    if (inlen < 128) {
-      out[x++] = inlen;
+      out[x++] = (unsigned char)inlen;
    } else if (inlen < 256) {
       out[x++] = 0x81;
-      out[x++] = inlen;
+      out[x++] = (unsigned char)inlen;
    } else if (inlen < 65536UL) {
       out[x++] = 0x82;
-      out[x++] = (inlen>>8)&255;
-      out[x++] = inlen&255;
+      out[x++] = (unsigned char)((inlen>>8)&255);
+      out[x++] = (unsigned char)(inlen&255);
    } else if (inlen < 16777216UL) {
       out[x++] = 0x83;
-      out[x++] = (inlen>>16)&255;
-      out[x++] = (inlen>>8)&255;
-      out[x++] = inlen&255;
+      out[x++] = (unsigned char)((inlen>>16)&255);
+      out[x++] = (unsigned char)((inlen>>8)&255);
+      out[x++] = (unsigned char)(inlen&255);
    } else {
       return CRYPT_INVALID_ARG;
    }
@@ -81,5 +81,5 @@ int der_encode_ia5_string(const unsigned char *in, unsigned long inlen,
 #endif
 
 /* $Source: /cvs/libtom/libtomcrypt/src/pk/asn1/der/ia5/der_encode_ia5_string.c,v $ */
-/* $Revision: 1.3 $ */
-/* $Date: 2006/06/16 21:53:41 $ */
+/* $Revision: 1.4 $ */
+/* $Date: 2006/12/04 21:34:03 $ */

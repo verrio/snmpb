@@ -70,6 +70,22 @@ struct rmd160_state {
 };
 #endif
 
+#ifdef RIPEMD256
+struct rmd256_state {
+    ulong64 length;
+    unsigned char buf[64];
+    ulong32 curlen, state[8];
+};
+#endif
+
+#ifdef RIPEMD320
+struct rmd320_state {
+    ulong64 length;
+    unsigned char buf[64];
+    ulong32 curlen, state[10];
+};
+#endif
+
 #ifdef WHIRLPOOL
 struct whirlpool_state {
     ulong64 length, state[8];
@@ -87,6 +103,7 @@ struct chc_state {
 #endif
 
 typedef union Hash_state {
+    char dummy[1];
 #ifdef CHC_HASH
     struct chc_state chc;
 #endif
@@ -119,6 +136,12 @@ typedef union Hash_state {
 #endif
 #ifdef RIPEMD160
     struct rmd160_state rmd160;
+#endif
+#ifdef RIPEMD256
+    struct rmd256_state rmd256;
+#endif
+#ifdef RIPEMD320
+    struct rmd320_state rmd320;
 #endif
     void *data;
 } hash_state;
@@ -279,6 +302,23 @@ int rmd160_test(void);
 extern const struct ltc_hash_descriptor rmd160_desc;
 #endif
 
+#ifdef RIPEMD256
+int rmd256_init(hash_state * md);
+int rmd256_process(hash_state * md, const unsigned char *in, unsigned long inlen);
+int rmd256_done(hash_state * md, unsigned char *hash);
+int rmd256_test(void);
+extern const struct ltc_hash_descriptor rmd256_desc;
+#endif
+
+#ifdef RIPEMD320
+int rmd320_init(hash_state * md);
+int rmd320_process(hash_state * md, const unsigned char *in, unsigned long inlen);
+int rmd320_done(hash_state * md, unsigned char *hash);
+int rmd320_test(void);
+extern const struct ltc_hash_descriptor rmd320_desc;
+#endif
+
+
 int find_hash(const char *name);
 int find_hash_id(unsigned char ID);
 int find_hash_oid(const unsigned long *ID, unsigned long IDlen);
@@ -335,5 +375,5 @@ int func_name (hash_state * md, const unsigned char *in, unsigned long inlen)   
 }
 
 /* $Source: /cvs/libtom/libtomcrypt/src/headers/tomcrypt_hash.h,v $ */
-/* $Revision: 1.16 $ */
-/* $Date: 2005/07/30 23:13:00 $ */
+/* $Revision: 1.19 $ */
+/* $Date: 2006/11/05 01:36:43 $ */

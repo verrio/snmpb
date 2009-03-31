@@ -82,7 +82,7 @@ int pkcs_1_pss_decode(const unsigned char *msghash, unsigned long msghashlen,
 
    /* ensure the 0xBC byte */
    if (sig[siglen-1] != 0xBC) {
-      err = CRYPT_OK;
+      err = CRYPT_INVALID_PACKET;
       goto LBL_ERR;
    }
 
@@ -97,7 +97,7 @@ int pkcs_1_pss_decode(const unsigned char *msghash, unsigned long msghashlen,
 
    /* check the MSB */
    if ((sig[0] & ~(0xFF >> ((modulus_len<<3) - (modulus_bitlen-1)))) != 0) {
-      err = CRYPT_OK;
+      err = CRYPT_INVALID_PACKET;
       goto LBL_ERR;
    }
 
@@ -119,14 +119,14 @@ int pkcs_1_pss_decode(const unsigned char *msghash, unsigned long msghashlen,
    /* check for zeroes and 0x01 */
    for (x = 0; x < modulus_len - saltlen - hLen - 2; x++) {
        if (DB[x] != 0x00) {
-          err = CRYPT_OK;
+          err = CRYPT_INVALID_PACKET;
           goto LBL_ERR;
        }
    }
 
    /* check for the 0x01 */
    if (DB[x++] != 0x01) {
-      err = CRYPT_OK;
+      err = CRYPT_INVALID_PACKET;
       goto LBL_ERR;
    }
 
@@ -149,7 +149,7 @@ int pkcs_1_pss_decode(const unsigned char *msghash, unsigned long msghashlen,
    }
 
    /* mask == hash means valid signature */
-   if (memcmp(mask, hash, hLen) == 0) {
+   if (XMEMCMP(mask, hash, hLen) == 0) {
       *res = 1;
    }
 
@@ -173,5 +173,5 @@ LBL_ERR:
 #endif /* PKCS_1 */
 
 /* $Source: /cvs/libtom/libtomcrypt/src/pk/pkcs1/pkcs_1_pss_decode.c,v $ */
-/* $Revision: 1.6 $ */
-/* $Date: 2006/03/31 14:15:35 $ */
+/* $Revision: 1.9 $ */
+/* $Date: 2006/11/30 02:37:21 $ */

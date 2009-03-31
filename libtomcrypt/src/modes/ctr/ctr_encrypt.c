@@ -92,15 +92,15 @@ int ctr_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, s
             *((LTC_FAST_TYPE*)((unsigned char *)ct + x)) = *((LTC_FAST_TYPE*)((unsigned char *)pt + x)) ^
                                                            *((LTC_FAST_TYPE*)((unsigned char *)ctr->pad + x));
          }
-	    pt         += ctr->blocklen;
-	    ct         += ctr->blocklen;
-	    len        -= ctr->blocklen;
-	    ctr->padlen = ctr->blocklen;
-	    continue;
-	 }
-#endif	 
-    *ct++ = *pt++ ^ ctr->pad[ctr->padlen++];
-	 --len;
+       pt         += ctr->blocklen;
+       ct         += ctr->blocklen;
+       len        -= ctr->blocklen;
+       ctr->padlen = ctr->blocklen;
+       continue;
+      }
+#endif    
+      *ct++ = *pt++ ^ ctr->pad[ctr->padlen++];
+      --len;
    }
    return CRYPT_OK;
 }
@@ -108,5 +108,5 @@ int ctr_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, s
 #endif
 
 /* $Source: /cvs/libtom/libtomcrypt/src/modes/ctr/ctr_encrypt.c,v $ */
-/* $Revision: 1.18 $ */
-/* $Date: 2006/06/29 01:46:46 $ */
+/* $Revision: 1.20 $ */
+/* $Date: 2006/11/21 00:18:23 $ */

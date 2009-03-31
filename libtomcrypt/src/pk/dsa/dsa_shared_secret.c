@@ -30,9 +30,9 @@ int dsa_shared_secret(void          *private_key, void *base,
                       dsa_key       *public_key,
                       unsigned char *out,         unsigned long *outlen)
 {
-   unsigned long x;
-   void *res;
-   int err;
+   unsigned long  x;
+   void          *res;
+   int            err;
 
    LTC_ARGCHK(private_key != NULL);
    LTC_ARGCHK(public_key  != NULL);
@@ -67,6 +67,6 @@ done:
 
 #endif
 /* $Source: /cvs/libtom/libtomcrypt/src/pk/dsa/dsa_shared_secret.c,v $ */
-/* $Revision: 1.6 $ */
-/* $Date: 2006/06/16 21:53:41 $ */
+/* $Revision: 1.7 $ */
+/* $Date: 2006/12/04 03:18:43 $ */
 

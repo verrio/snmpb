@@ -143,10 +143,10 @@ int ccm_test(void)
          return err;
       }
 
-      if (memcmp(buf, tests[x].ct, tests[x].ptlen)) {
+      if (XMEMCMP(buf, tests[x].ct, tests[x].ptlen)) {
          return CRYPT_FAIL_TESTVECTOR;
       }
-      if (memcmp(tag, tests[x].tag, tests[x].taglen)) {
+      if (XMEMCMP(tag, tests[x].tag, tests[x].taglen)) {
          return CRYPT_FAIL_TESTVECTOR;
       }
 
@@ -157,14 +157,14 @@ int ccm_test(void)
                             tests[x].header, tests[x].headerlen,
                             buf2, tests[x].ptlen,
                             buf,
-                            tag2, &taglen, 1	)) != CRYPT_OK) {
+                            tag2, &taglen, 1   )) != CRYPT_OK) {
          return err;
       }
 
-      if (memcmp(buf2, tests[x].pt, tests[x].ptlen)) {
+      if (XMEMCMP(buf2, tests[x].pt, tests[x].ptlen)) {
          return CRYPT_FAIL_TESTVECTOR;
       }
-      if (memcmp(tag2, tests[x].tag, tests[x].taglen)) {
+      if (XMEMCMP(tag2, tests[x].tag, tests[x].taglen)) {
          return CRYPT_FAIL_TESTVECTOR;
       }
       cipher_descriptor[idx].done(&skey);
@@ -176,5 +176,5 @@ int ccm_test(void)
 #endif
 
 /* $Source: /cvs/libtom/libtomcrypt/src/encauth/ccm/ccm_test.c,v $ */
-/* $Revision: 1.6 $ */
-/* $Date: 2006/03/31 14:15:35 $ */
+/* $Revision: 1.8 $ */
+/* $Date: 2006/11/21 00:18:23 $ */

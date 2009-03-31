@@ -31,9 +31,9 @@ int gcm_process(gcm_state *gcm,
                      unsigned char *ct,
                      int direction)
 {
-   unsigned long x, y;
+   unsigned long x;
+   int           y, err;
    unsigned char b;
-   int           err;
 
    LTC_ARGCHK(gcm != NULL);
    if (ptlen > 0) {
@@ -145,11 +145,8 @@ int gcm_process(gcm_state *gcm,
    return CRYPT_OK;
 }
 
-
-
 #endif
-   
 
 /* $Source: /cvs/libtom/libtomcrypt/src/encauth/gcm/gcm_process.c,v $ */
-/* $Revision: 1.11 $ */
-/* $Date: 2006/08/20 16:18:03 $ */
+/* $Revision: 1.14 $ */
+/* $Date: 2006/11/19 19:33:36 $ */

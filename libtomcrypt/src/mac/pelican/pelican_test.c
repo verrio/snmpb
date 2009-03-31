@@ -24,7 +24,7 @@ int pelican_test(void)
 #else
    static const struct {
         unsigned char K[32], MSG[64], T[16];
-	int keylen, ptlen;
+   int keylen, ptlen;
    } tests[] = {
 /* K=16, M=0 */
 {
@@ -99,7 +99,7 @@ int pelican_test(void)
           return err;
        }
 
-       if (memcmp(out, tests[x].T, 16)) {
+       if (XMEMCMP(out, tests[x].T, 16)) {
 #if 0
            int y;
            printf("\nFailed test %d\n", x);
@@ -116,5 +116,5 @@ int pelican_test(void)
 #endif
 
 /* $Source: /cvs/libtom/libtomcrypt/src/mac/pelican/pelican_test.c,v $ */
-/* $Revision: 1.10 $ */
-/* $Date: 2006/03/31 14:15:35 $ */
+/* $Revision: 1.12 $ */
+/* $Date: 2006/11/21 00:18:23 $ */

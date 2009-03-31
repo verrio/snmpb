@@ -30,7 +30,7 @@
 ecc_point *ltc_ecc_new_point(void)
 {
    ecc_point *p;
-   p = XMALLOC(sizeof(*p));
+   p = XCALLOC(1, sizeof(*p));
    if (p == NULL) {
       return NULL;
    }
@@ -55,6 +55,6 @@ void ltc_ecc_del_point(ecc_point *p)
 
 #endif
 /* $Source: /cvs/libtom/libtomcrypt/src/pk/ecc/ltc_ecc_points.c,v $ */
-/* $Revision: 1.4 $ */
-/* $Date: 2006/06/09 21:46:17 $ */
+/* $Revision: 1.5 $ */
+/* $Date: 2006/12/04 02:19:48 $ */
 

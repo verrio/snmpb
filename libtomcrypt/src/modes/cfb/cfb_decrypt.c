@@ -54,7 +54,7 @@ int cfb_decrypt(const unsigned char *ct, unsigned char *pt, unsigned long len, s
        *pt = *ct ^ cfb->IV[cfb->padlen];
        ++pt; 
        ++ct;
-       ++cfb->padlen;
+       ++(cfb->padlen);
    }
    return CRYPT_OK;
 }
@@ -63,5 +63,5 @@ int cfb_decrypt(const unsigned char *ct, unsigned char *pt, unsigned long len, s
 
 
 /* $Source: /cvs/libtom/libtomcrypt/src/modes/cfb/cfb_decrypt.c,v $ */
-/* $Revision: 1.6 $ */
-/* $Date: 2006/06/29 01:51:34 $ */
+/* $Revision: 1.7 $ */
+/* $Date: 2006/11/26 01:45:14 $ */

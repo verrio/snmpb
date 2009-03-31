@@ -77,13 +77,13 @@ int der_decode_object_identifier(const unsigned char *in,    unsigned long  inle
            if (y >= *outlen) {
               return CRYPT_BUFFER_OVERFLOW;
            }
-	   if (y == 0) {
-	      words[0] = t / 40;
-	      words[1] = t % 40;
-	      y = 2;
-	   } else {
+      if (y == 0) {
+         words[0] = t / 40;
+         words[1] = t % 40;
+         y = 2;
+      } else {
               words[y++] = t;
-	   }
+      }
            t          = 0;
        }
    }
@@ -95,5 +95,5 @@ int der_decode_object_identifier(const unsigned char *in,    unsigned long  inle
 #endif
 
 /* $Source: /cvs/libtom/libtomcrypt/src/pk/asn1/der/object_identifier/der_decode_object_identifier.c,v $ */
-/* $Revision: 1.4 $ */
-/* $Date: 2006/04/22 17:28:40 $ */
+/* $Revision: 1.5 $ */
+/* $Date: 2006/11/21 00:18:23 $ */

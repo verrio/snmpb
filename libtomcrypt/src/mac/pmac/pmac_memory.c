@@ -15,7 +15,7 @@
    PMAC implementation, process a block of memory, by Tom St Denis 
 */
 
-#ifdef PMAC
+#ifdef LTC_PMAC
 
 /**
    PMAC a block of memory
@@ -70,5 +70,5 @@ LBL_ERR:
 #endif
 
 /* $Source: /cvs/libtom/libtomcrypt/src/mac/pmac/pmac_memory.c,v $ */
-/* $Revision: 1.4 $ */
-/* $Date: 2006/03/31 14:15:35 $ */
+/* $Revision: 1.5 $ */
+/* $Date: 2006/11/03 00:39:49 $ */

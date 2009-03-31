@@ -231,7 +231,7 @@ int eax_test(void)
             tests[x].plaintext, tests[x].msglen, outct, outtag, &len)) != CRYPT_OK) {
            return err;
         }
-        if (memcmp(outct, tests[x].ciphertext, tests[x].msglen) || memcmp(outtag, tests[x].tag, len)) {
+        if (XMEMCMP(outct, tests[x].ciphertext, tests[x].msglen) || XMEMCMP(outtag, tests[x].tag, len)) {
 #if 0
            unsigned long y;
            printf("\n\nFailure: \nCT:\n");
@@ -256,7 +256,7 @@ int eax_test(void)
              outct, tests[x].msglen, outct, outtag, len, &res)) != CRYPT_OK) {
             return err;
         }
-        if ((res != 1) || memcmp(outct, tests[x].plaintext, tests[x].msglen)) {
+        if ((res != 1) || XMEMCMP(outct, tests[x].plaintext, tests[x].msglen)) {
 #if 0
            unsigned long y;
            printf("\n\nFailure (res == %d): \nPT:\n", res);
@@ -278,5 +278,5 @@ int eax_test(void)
 #endif /* EAX_MODE */
 
 /* $Source: /cvs/libtom/libtomcrypt/src/encauth/eax/eax_test.c,v $ */
-/* $Revision: 1.4 $ */
-/* $Date: 2006/03/31 14:15:35 $ */
+/* $Revision: 1.5 $ */
+/* $Date: 2006/11/01 09:28:17 $ */

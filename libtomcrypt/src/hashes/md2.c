@@ -235,7 +235,7 @@ int md2_test(void)
        md2_init(&md);
        md2_process(&md, (unsigned char*)tests[i].msg, (unsigned long)strlen(tests[i].msg));
        md2_done(&md, buf);
-       if (memcmp(buf, tests[i].md, 16) != 0) {
+       if (XMEMCMP(buf, tests[i].md, 16) != 0) {
           return CRYPT_FAIL_TESTVECTOR;
        }
    }
@@ -247,5 +247,5 @@ int md2_test(void)
 
 
 /* $Source: /cvs/libtom/libtomcrypt/src/hashes/md2.c,v $ */
-/* $Revision: 1.7 $ */
-/* $Date: 2006/03/31 14:15:35 $ */
+/* $Revision: 1.8 $ */
+/* $Date: 2006/11/01 09:28:17 $ */

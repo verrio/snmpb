@@ -66,6 +66,12 @@ int yarrow_start(prng_state *prng)
    prng->yarrow.cipher = register_cipher(&rc2_desc);
 #elif defined(NOEKEON)   
    prng->yarrow.cipher = register_cipher(&noekeon_desc);
+#elif defined(ANUBIS)   
+   prng->yarrow.cipher = register_cipher(&anubis_desc);
+#elif defined(KSEED)   
+   prng->yarrow.cipher = register_cipher(&kseed_desc);
+#elif defined(KHAZAD)   
+   prng->yarrow.cipher = register_cipher(&khazad_desc);
 #elif defined(CAST5)
    prng->yarrow.cipher = register_cipher(&cast5_desc);
 #elif defined(XTEA)
@@ -89,6 +95,10 @@ int yarrow_start(prng_state *prng)
    prng->yarrow.hash   = register_hash(&tiger_desc);
 #elif defined(SHA1)
    prng->yarrow.hash   = register_hash(&sha1_desc);
+#elif defined(RIPEMD320)
+   prng->yarrow.hash   = register_hash(&rmd320_desc);
+#elif defined(RIPEMD256)
+   prng->yarrow.hash   = register_hash(&rmd256_desc);
 #elif defined(RIPEMD160)
    prng->yarrow.hash   = register_hash(&rmd160_desc);
 #elif defined(RIPEMD128)
@@ -340,7 +350,6 @@ int yarrow_test(void)
       return err; 
    }
 
-   yarrow_done(&prng);
    return CRYPT_OK;
 #endif
 }
@@ -349,5 +358,5 @@ int yarrow_test(void)
 
 
 /* $Source: /cvs/libtom/libtomcrypt/src/prngs/yarrow.c,v $ */
-/* $Revision: 1.8 $ */
-/* $Date: 2006/06/16 21:53:41 $ */
+/* $Revision: 1.10 $ */
+/* $Date: 2006/11/14 04:21:17 $ */

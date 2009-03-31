@@ -64,7 +64,7 @@ int ecc_encrypt_key(const unsigned char *in,   unsigned long inlen,
     }
 
     /* make a random key and export the public copy */
-    if ((err = ecc_make_key(prng, wprng, ecc_get_size(key), &pubkey)) != CRYPT_OK) {
+    if ((err = ecc_make_key_ex(prng, wprng, &pubkey, key->dp)) != CRYPT_OK) {
        return err;
     }
 
@@ -131,6 +131,6 @@ LBL_ERR:
 
 #endif
 /* $Source: /cvs/libtom/libtomcrypt/src/pk/ecc/ecc_encrypt_key.c,v $ */
-/* $Revision: 1.3 $ */
-/* $Date: 2006/03/31 14:15:35 $ */
+/* $Revision: 1.4 $ */
+/* $Date: 2006/11/21 00:10:18 $ */
 

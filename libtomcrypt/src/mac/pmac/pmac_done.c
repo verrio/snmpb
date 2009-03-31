@@ -15,7 +15,7 @@
   PMAC implementation, terminate a session, by Tom St Denis 
 */
 
-#ifdef PMAC
+#ifdef LTC_PMAC
 
 int pmac_done(pmac_state *state, unsigned char *out, unsigned long *outlen)
 {
@@ -55,7 +55,7 @@ int pmac_done(pmac_state *state, unsigned char *out, unsigned long *outlen)
    cipher_descriptor[state->cipher_idx].done(&state->key);
 
    /* store it */
-   for (x = 0; x < state->block_len && x <= (int)*outlen; x++) {
+   for (x = 0; x < state->block_len && x < (int)*outlen; x++) {
        out[x] = state->checksum[x];
    }
    *outlen = x;
@@ -70,5 +70,5 @@ int pmac_done(pmac_state *state, unsigned char *out, unsigned long *outlen)
 
 
 /* $Source: /cvs/libtom/libtomcrypt/src/mac/pmac/pmac_done.c,v $ */
-/* $Revision: 1.6 $ */
-/* $Date: 2006/03/31 14:15:35 $ */
+/* $Revision: 1.8 $ */
+/* $Date: 2006/11/03 00:39:49 $ */

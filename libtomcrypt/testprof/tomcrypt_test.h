@@ -67,6 +67,7 @@ void time_mult(void);
 void time_sqr(void);
 void time_prng(void);
 void time_rsa(void);
+void time_dsa(void);
 void time_katja(void);
 void time_ecc(void);
 void time_macs_(unsigned long MAC_SIZE);
@@ -78,5 +79,5 @@ void time_encmacs(void);
 #endif
 
 /* $Source: /cvs/libtom/libtomcrypt/testprof/tomcrypt_test.h,v $ */
-/* $Revision: 1.13 $ */
-/* $Date: 2006/08/20 16:18:03 $ */
+/* $Revision: 1.14 $ */
+/* $Date: 2006/10/18 03:36:34 $ */

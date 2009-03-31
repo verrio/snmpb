@@ -27,7 +27,7 @@ const struct ltc_cipher_descriptor cast5_desc = {
    &cast5_test,
    &cast5_done,
    &cast5_keysize,
-   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 static const ulong32 S1[256] = {
@@ -676,7 +676,7 @@ int cast5_test(void)
        }
        cast5_ecb_encrypt(tests[i].pt, tmp[0], &key);
        cast5_ecb_decrypt(tmp[0], tmp[1], &key);
-       if ((memcmp(tmp[0], tests[i].ct, 8) != 0) || (memcmp(tmp[1], tests[i].pt, 8) != 0)) {
+       if ((XMEMCMP(tmp[0], tests[i].ct, 8) != 0) || (XMEMCMP(tmp[1], tests[i].pt, 8) != 0)) {
           return CRYPT_FAIL_TESTVECTOR;
        }
       /* now see if we can encrypt all zero bytes 1000 times, decrypt and come back where we started */
@@ -716,5 +716,5 @@ int cast5_keysize(int *keysize)
 #endif
 
 /* $Source: /cvs/libtom/libtomcrypt/src/ciphers/cast5.c,v $ */
-/* $Revision: 1.10 $ */
-/* $Date: 2006/03/31 14:15:34 $ */
+/* $Revision: 1.12 $ */
+/* $Date: 2006/11/08 23:01:06 $ */

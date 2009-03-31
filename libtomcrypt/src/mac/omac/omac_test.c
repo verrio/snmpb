@@ -15,7 +15,7 @@
   OMAC1 support, self-test, by Tom St Denis
 */
 
-#ifdef OMAC
+#ifdef LTC_OMAC
 
 /**
   Test the OMAC setup
@@ -90,7 +90,7 @@ int omac_test(void)
           return err;
        }
 
-       if (memcmp(out, tests[x].tag, 16) != 0) {
+       if (XMEMCMP(out, tests[x].tag, 16) != 0) {
 #if 0
           int y;
           printf("\n\nTag: ");
@@ -106,5 +106,5 @@ int omac_test(void)
 #endif
 
 /* $Source: /cvs/libtom/libtomcrypt/src/mac/omac/omac_test.c,v $ */
-/* $Revision: 1.4 $ */
-/* $Date: 2006/03/31 14:15:35 $ */
+/* $Revision: 1.6 $ */
+/* $Date: 2006/11/03 00:39:49 $ */

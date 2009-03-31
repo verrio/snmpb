@@ -290,7 +290,7 @@ int  whirlpool_test(void)
       whirlpool_init(&md);
       whirlpool_process(&md, (unsigned char *)tests[i].msg, tests[i].len);
       whirlpool_done(&md, tmp);
-      if (memcmp(tmp, tests[i].hash, 64) != 0) {
+      if (XMEMCMP(tmp, tests[i].hash, 64) != 0) {
 #if 0      
          printf("\nFailed test %d\n", i);
          for (i = 0; i < 64; ) {
@@ -310,5 +310,5 @@ int  whirlpool_test(void)
 
 
 /* $Source: /cvs/libtom/libtomcrypt/src/hashes/whirl/whirl.c,v $ */
-/* $Revision: 1.7 $ */
-/* $Date: 2006/03/31 14:15:35 $ */
+/* $Revision: 1.8 $ */
+/* $Date: 2006/11/01 09:28:17 $ */

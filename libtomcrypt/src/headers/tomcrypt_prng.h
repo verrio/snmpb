@@ -48,6 +48,7 @@ struct sober128_prng {
 #endif
 
 typedef union Prng_state {
+    char dummy[1];
 #ifdef YARROW
     struct yarrow_prng    yarrow;
 #endif
@@ -194,5 +195,5 @@ int rng_make_prng(int bits, int wprng, prng_state *prng, void (*callback)(void))
 
 
 /* $Source: /cvs/libtom/libtomcrypt/src/headers/tomcrypt_prng.h,v $ */
-/* $Revision: 1.7 $ */
-/* $Date: 2005/11/08 16:44:31 $ */
+/* $Revision: 1.8 $ */
+/* $Date: 2006/11/05 01:36:43 $ */

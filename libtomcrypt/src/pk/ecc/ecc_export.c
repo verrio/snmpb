@@ -51,7 +51,7 @@ int ecc_export(unsigned char *out, unsigned long *outlen, int type, ecc_key *key
    }
 
    /* we store the NIST byte size */
-   key_size = ltc_ecc_sets[key->idx].size;
+   key_size = key->dp->size;
 
    if (type == PK_PRIVATE) {
        flags[0] = 1;
@@ -77,6 +77,6 @@ int ecc_export(unsigned char *out, unsigned long *outlen, int type, ecc_key *key
 
 #endif
 /* $Source: /cvs/libtom/libtomcrypt/src/pk/ecc/ecc_export.c,v $ */
-/* $Revision: 1.3 $ */
-/* $Date: 2006/03/31 14:15:35 $ */
+/* $Revision: 1.4 $ */
+/* $Date: 2006/11/21 00:10:18 $ */
 

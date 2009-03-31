@@ -47,6 +47,12 @@ int f8_start(                int  cipher, const unsigned char *IV,
       return err;
    }
 
+#ifdef LTC_FAST
+   if (cipher_descriptor[cipher].block_length % sizeof(LTC_FAST_TYPE)) {
+      return CRYPT_INVALID_ARG;
+   }
+#endif
+
    /* copy details */
    f8->blockcnt = 0;
    f8->cipher   = cipher;
@@ -88,5 +94,5 @@ int f8_start(                int  cipher, const unsigned char *IV,
 #endif
 
 /* $Source: /cvs/libtom/libtomcrypt/src/modes/f8/f8_start.c,v $ */
-/* $Revision: 1.6 $ */
-/* $Date: 2006/08/30 21:47:03 $ */
+/* $Revision: 1.7 $ */
+/* $Date: 2006/11/05 01:36:43 $ */

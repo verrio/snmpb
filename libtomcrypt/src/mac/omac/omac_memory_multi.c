@@ -16,7 +16,7 @@
   OMAC1 support, process multiple blocks of memory, Tom St Denis
 */
 
-#ifdef OMAC
+#ifdef LTC_OMAC
 
 /**
    OMAC multiple blocks of memory 
@@ -86,5 +86,5 @@ LBL_ERR:
 #endif
 
 /* $Source: /cvs/libtom/libtomcrypt/src/mac/omac/omac_memory_multi.c,v $ */
-/* $Revision: 1.4 $ */
-/* $Date: 2006/03/31 14:15:35 $ */
+/* $Revision: 1.5 $ */
+/* $Date: 2006/11/03 00:39:49 $ */

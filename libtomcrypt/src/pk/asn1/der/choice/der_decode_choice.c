@@ -135,6 +135,17 @@ int der_decode_choice(const unsigned char *in,   unsigned long *inlen,
                }
                break;
 
+           case LTC_ASN1_UTF8_STRING:
+               if (der_decode_utf8_string(in, *inlen, data, &size) == CRYPT_OK) {
+                  if (der_length_utf8_string(data, size, &z) == CRYPT_OK) {
+                     list[x].used = 1;
+                     list[x].size = size;
+                     *inlen       = z;
+                     return CRYPT_OK;
+                  }
+               }
+               break;
+
            case LTC_ASN1_UTCTIME:
                z = *inlen;
                if (der_decode_utctime(in, &z, data) == CRYPT_OK) {
@@ -167,5 +178,5 @@ int der_decode_choice(const unsigned char *in,   unsigned long *inlen,
 #endif
 
 /* $Source: /cvs/libtom/libtomcrypt/src/pk/asn1/der/choice/der_decode_choice.c,v $ */
-/* $Revision: 1.7 $ */
-/* $Date: 2006/03/31 14:15:35 $ */
+/* $Revision: 1.8 $ */
+/* $Date: 2006/12/06 02:23:49 $ */

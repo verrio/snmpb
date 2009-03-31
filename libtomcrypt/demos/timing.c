@@ -16,6 +16,7 @@ reg_algs();
    extern ltc_math_descriptor EXT_MATH_LIB;
    ltc_mp = EXT_MATH_LIB;
 #endif
+
 time_keysched();
 time_cipher();
 time_cipher2();
@@ -37,5 +38,5 @@ return EXIT_SUCCESS;
 }
 
 /* $Source: /cvs/libtom/libtomcrypt/demos/timing.c,v $ */
-/* $Revision: 1.50 $ */
-/* $Date: 2006/08/30 23:23:36 $ */
+/* $Revision: 1.61 $ */
+/* $Date: 2006/12/03 03:08:35 $ */

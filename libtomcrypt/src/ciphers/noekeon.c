@@ -27,7 +27,7 @@ const struct ltc_cipher_descriptor noekeon_desc =
     &noekeon_test,
     &noekeon_done,
     &noekeon_keysize,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 static const ulong32 RC[] = {
@@ -242,10 +242,10 @@ int noekeon_test(void)
   
     noekeon_ecb_encrypt(tests[i].pt, tmp[0], &key);
     noekeon_ecb_decrypt(tmp[0], tmp[1], &key);
-    if (memcmp(tmp[0], tests[i].ct, 16) || memcmp(tmp[1], tests[i].pt, 16)) { 
+    if (XMEMCMP(tmp[0], tests[i].ct, 16) || XMEMCMP(tmp[1], tests[i].pt, 16)) { 
 #if 0
        printf("\n\nTest %d failed\n", i);
-       if (memcmp(tmp[0], tests[i].ct, 16)) {
+       if (XMEMCMP(tmp[0], tests[i].ct, 16)) {
           printf("CT: ");
           for (i = 0; i < 16; i++) {
              printf("%02x ", tmp[0][i]);
@@ -299,5 +299,5 @@ int noekeon_keysize(int *keysize)
 
 
 /* $Source: /cvs/libtom/libtomcrypt/src/ciphers/noekeon.c,v $ */
-/* $Revision: 1.10 $ */
-/* $Date: 2006/03/31 14:15:34 $ */
+/* $Revision: 1.12 $ */
+/* $Date: 2006/11/08 23:01:06 $ */

@@ -15,6 +15,9 @@ const char *error_to_string(int err);
 
 extern const char *crypt_build_settings;
 
+/* ---- HMM ---- */
+int crypt_fsa(void *mp, ...);
+
 /* $Source: /cvs/libtom/libtomcrypt/src/headers/tomcrypt_misc.h,v $ */
-/* $Revision: 1.3 $ */
-/* $Date: 2005/07/17 23:59:02 $ */
+/* $Revision: 1.4 $ */
+/* $Date: 2006/11/06 03:03:01 $ */

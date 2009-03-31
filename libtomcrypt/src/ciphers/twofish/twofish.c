@@ -35,7 +35,7 @@ const struct ltc_cipher_descriptor twofish_desc =
     &twofish_test,
     &twofish_done,
     &twofish_keysize,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 /* the two polynomials */
@@ -412,8 +412,8 @@ int twofish_setup(const unsigned char *key, int keylen, int num_rounds, symmetri
    /* make the sboxes (large ram variant) */
    if (k == 2) {
         for (x = 0; x < 256; x++) {
-           tmpx0 = sbox(0, x);
-           tmpx1 = sbox(1, x);
+           tmpx0 = (unsigned char)sbox(0, x);
+           tmpx1 = (unsigned char)sbox(1, x);
            skey->twofish.S[0][x] = mds_column_mult(sbox(1, (sbox(0, tmpx0 ^ S[0]) ^ S[4])),0);
            skey->twofish.S[1][x] = mds_column_mult(sbox(0, (sbox(0, tmpx1 ^ S[1]) ^ S[5])),1);
            skey->twofish.S[2][x] = mds_column_mult(sbox(1, (sbox(1, tmpx0 ^ S[2]) ^ S[6])),2);
@@ -421,8 +421,8 @@ int twofish_setup(const unsigned char *key, int keylen, int num_rounds, symmetri
         }
    } else if (k == 3) {
         for (x = 0; x < 256; x++) {
-           tmpx0 = sbox(0, x);
-           tmpx1 = sbox(1, x);
+           tmpx0 = (unsigned char)sbox(0, x);
+           tmpx1 = (unsigned char)sbox(1, x);
            skey->twofish.S[0][x] = mds_column_mult(sbox(1, (sbox(0, sbox(0, tmpx1 ^ S[0]) ^ S[4]) ^ S[8])),0);
            skey->twofish.S[1][x] = mds_column_mult(sbox(0, (sbox(0, sbox(1, tmpx1 ^ S[1]) ^ S[5]) ^ S[9])),1);
            skey->twofish.S[2][x] = mds_column_mult(sbox(1, (sbox(1, sbox(0, tmpx0 ^ S[2]) ^ S[6]) ^ S[10])),2);
@@ -430,8 +430,8 @@ int twofish_setup(const unsigned char *key, int keylen, int num_rounds, symmetri
         }
    } else {
         for (x = 0; x < 256; x++) {
-           tmpx0 = sbox(0, x);
-           tmpx1 = sbox(1, x);
+           tmpx0 = (unsigned char)sbox(0, x);
+           tmpx1 = (unsigned char)sbox(1, x);
            skey->twofish.S[0][x] = mds_column_mult(sbox(1, (sbox(0, sbox(0, sbox(1, tmpx1 ^ S[0]) ^ S[4]) ^ S[8]) ^ S[12])),0);
            skey->twofish.S[1][x] = mds_column_mult(sbox(0, (sbox(0, sbox(1, sbox(1, tmpx0 ^ S[1]) ^ S[5]) ^ S[9]) ^ S[13])),1);
            skey->twofish.S[2][x] = mds_column_mult(sbox(1, (sbox(1, sbox(0, sbox(0, tmpx0 ^ S[2]) ^ S[6]) ^ S[10]) ^ S[14])),2);
@@ -661,7 +661,10 @@ int twofish_test(void)
     }
     twofish_ecb_encrypt(tests[i].pt, tmp[0], &key);
     twofish_ecb_decrypt(tmp[0], tmp[1], &key);
-    if (memcmp(tmp[0], tests[i].ct, 16) != 0 || memcmp(tmp[1], tests[i].pt, 16) != 0) {
+    if (XMEMCMP(tmp[0], tests[i].ct, 16) != 0 || XMEMCMP(tmp[1], tests[i].pt, 16) != 0) {
+#if 0
+       printf("Twofish failed test %d, %d, %d\n", i, XMEMCMP(tmp[0], tests[i].ct, 16), XMEMCMP(tmp[1], tests[i].pt, 16));
+#endif
        return CRYPT_FAIL_TESTVECTOR;
     }
       /* now see if we can encrypt all zero bytes 1000 times, decrypt and come back where we started */
@@ -709,5 +712,5 @@ int twofish_keysize(int *keysize)
 
 
 /* $Source: /cvs/libtom/libtomcrypt/src/ciphers/twofish/twofish.c,v $ */
-/* $Revision: 1.11 $ */
-/* $Date: 2006/03/31 14:15:35 $ */
+/* $Revision: 1.14 $ */
+/* $Date: 2006/12/04 21:34:03 $ */

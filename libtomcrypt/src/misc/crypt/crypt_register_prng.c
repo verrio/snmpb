@@ -29,7 +29,7 @@ int register_prng(const struct ltc_prng_descriptor *prng)
    /* is it already registered? */
    LTC_MUTEX_LOCK(&ltc_prng_mutex);
    for (x = 0; x < TAB_SIZE; x++) {
-       if (memcmp(&prng_descriptor[x], prng, sizeof(struct ltc_prng_descriptor)) == 0) {
+       if (XMEMCMP(&prng_descriptor[x], prng, sizeof(struct ltc_prng_descriptor)) == 0) {
           LTC_MUTEX_UNLOCK(&ltc_prng_mutex);
           return x;
        }
@@ -50,5 +50,5 @@ int register_prng(const struct ltc_prng_descriptor *prng)
 }
 
 /* $Source: /cvs/libtom/libtomcrypt/src/misc/crypt/crypt_register_prng.c,v $ */
-/* $Revision: 1.6 $ */
-/* $Date: 2006/03/31 14:15:35 $ */
+/* $Revision: 1.7 $ */
+/* $Date: 2006/11/01 09:28:17 $ */

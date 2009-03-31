@@ -125,12 +125,11 @@ LBL_ERR:
     XFREE(expt);
     
     mp_clear_multi(g_pub, g_priv, NULL);
-
     return err;
 }
 
 #endif
 /* $Source: /cvs/libtom/libtomcrypt/src/pk/dsa/dsa_encrypt_key.c,v $ */
-/* $Revision: 1.6 $ */
-/* $Date: 2006/03/31 14:15:35 $ */
+/* $Revision: 1.7 $ */
+/* $Date: 2006/12/04 03:18:43 $ */
 

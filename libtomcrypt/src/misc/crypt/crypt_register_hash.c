@@ -29,7 +29,7 @@ int register_hash(const struct ltc_hash_descriptor *hash)
    /* is it already registered? */
    LTC_MUTEX_LOCK(&ltc_hash_mutex);
    for (x = 0; x < TAB_SIZE; x++) {
-       if (memcmp(&hash_descriptor[x], hash, sizeof(struct ltc_hash_descriptor)) == 0) {
+       if (XMEMCMP(&hash_descriptor[x], hash, sizeof(struct ltc_hash_descriptor)) == 0) {
           LTC_MUTEX_UNLOCK(&ltc_hash_mutex);
           return x;
        }
@@ -50,5 +50,5 @@ int register_hash(const struct ltc_hash_descriptor *hash)
 }
 
 /* $Source: /cvs/libtom/libtomcrypt/src/misc/crypt/crypt_register_hash.c,v $ */
-/* $Revision: 1.5 $ */
-/* $Date: 2006/03/31 14:15:35 $ */
+/* $Revision: 1.6 $ */
+/* $Date: 2006/11/01 09:28:17 $ */

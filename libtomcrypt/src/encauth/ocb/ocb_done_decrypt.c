@@ -57,7 +57,7 @@ int ocb_done_decrypt(ocb_state *ocb,
       goto LBL_ERR;
    }
 
-   if (taglen <= tagbuflen && memcmp(tagbuf, tag, taglen) == 0) {
+   if (taglen <= tagbuflen && XMEMCMP(tagbuf, tag, taglen) == 0) {
       *stat = 1;
    }
 
@@ -76,5 +76,5 @@ LBL_ERR:
 
 
 /* $Source: /cvs/libtom/libtomcrypt/src/encauth/ocb/ocb_done_decrypt.c,v $ */
-/* $Revision: 1.4 $ */
-/* $Date: 2006/03/31 14:15:35 $ */
+/* $Revision: 1.5 $ */
+/* $Date: 2006/11/01 09:28:17 $ */

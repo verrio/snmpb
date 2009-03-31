@@ -80,7 +80,6 @@ int ecc_test(void)
        }
    }
    err = CRYPT_OK;
-   goto done;
 done:
    ltc_ecc_del_point(GG);
    ltc_ecc_del_point(G);
@@ -91,6 +90,6 @@ done:
 #endif
 
 /* $Source: /cvs/libtom/libtomcrypt/src/pk/ecc/ecc_test.c,v $ */
-/* $Revision: 1.9 $ */
-/* $Date: 2006/05/25 03:25:02 $ */
+/* $Revision: 1.10 $ */
+/* $Date: 2006/12/04 02:19:48 $ */
 

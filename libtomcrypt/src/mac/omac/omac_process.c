@@ -16,7 +16,7 @@
 */
 
 
-#ifdef OMAC
+#ifdef LTC_OMAC
 
 /** 
    Process data through OMAC
@@ -84,5 +84,5 @@ int omac_process(omac_state *omac, const unsigned char *in, unsigned long inlen)
 
 
 /* $Source: /cvs/libtom/libtomcrypt/src/mac/omac/omac_process.c,v $ */
-/* $Revision: 1.8 $ */
-/* $Date: 2006/03/31 14:15:35 $ */
+/* $Revision: 1.9 $ */
+/* $Date: 2006/11/03 00:39:49 $ */

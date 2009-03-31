@@ -15,7 +15,7 @@
   OMAC1 support, terminate a stream, Tom St Denis
 */
 
-#ifdef OMAC
+#ifdef LTC_OMAC
 
 /**
   Terminate an OMAC stream
@@ -82,5 +82,5 @@ int omac_done(omac_state *omac, unsigned char *out, unsigned long *outlen)
 
 
 /* $Source: /cvs/libtom/libtomcrypt/src/mac/omac/omac_done.c,v $ */
-/* $Revision: 1.6 $ */
-/* $Date: 2006/03/31 14:15:35 $ */
+/* $Revision: 1.7 $ */
+/* $Date: 2006/11/03 00:39:49 $ */

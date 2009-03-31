@@ -3,26 +3,53 @@
 
 /* macros for various libc functions you can change for embedded targets */
 #ifndef XMALLOC
+   #ifdef malloc 
+   #define LTC_NO_PROTOTYPES
+   #endif
 #define XMALLOC  malloc
 #endif
 #ifndef XREALLOC
+   #ifdef realloc 
+   #define LTC_NO_PROTOTYPES
+   #endif
 #define XREALLOC realloc
 #endif
 #ifndef XCALLOC
+   #ifdef calloc 
+   #define LTC_NO_PROTOTYPES
+   #endif
 #define XCALLOC  calloc
 #endif
 #ifndef XFREE
+   #ifdef free
+   #define LTC_NO_PROTOTYPES
+   #endif
 #define XFREE    free
 #endif
 
 #ifndef XMEMSET
+   #ifdef memset
+   #define LTC_NO_PROTOTYPES
+   #endif
 #define XMEMSET  memset
 #endif
 #ifndef XMEMCPY
+   #ifdef memcpy
+   #define LTC_NO_PROTOTYPES
+   #endif
 #define XMEMCPY  memcpy
 #endif
 #ifndef XMEMCMP
+   #ifdef memcmp 
+   #define LTC_NO_PROTOTYPES
+   #endif
 #define XMEMCMP  memcmp
+#endif
+#ifndef XSTRCMP
+   #ifdef strcmp
+   #define LTC_NO_PROTOTYPES
+   #endif
+#define XSTRCMP strcmp
 #endif
 
 #ifndef XCLOCK
@@ -33,6 +60,9 @@
 #endif
 
 #ifndef XQSORT
+   #ifdef qsort
+   #define LTC_NO_PROTOTYPES
+   #endif
 #define XQSORT qsort
 #endif
 
@@ -124,6 +154,8 @@
 #define KHAZAD
 #define ANUBIS
 #define ANUBIS_TWEAK
+#define KSEED
+#define LTC_KASUMI
 
 #endif /* LTC_NO_CIPHERS */
 
@@ -167,15 +199,19 @@
 #define MD2
 #define RIPEMD128
 #define RIPEMD160
+#define RIPEMD256
+#define RIPEMD320
 
 #endif /* LTC_NO_HASHES */
 
 /* ---> MAC functions <--- */
 #ifndef LTC_NO_MACS
 
-#define HMAC
-#define OMAC
-#define PMAC
+#define LTC_HMAC
+#define LTC_OMAC
+#define LTC_PMAC
+#define LTC_XCBC
+#define LTC_F9_MODE
 #define PELICAN
 
 #if defined(PELICAN) && !defined(RIJNDAEL)
@@ -185,7 +221,7 @@
 /* ---> Encrypt + Authenticate Modes <--- */
 
 #define EAX_MODE
-#if defined(EAX_MODE) && !(defined(LTC_CTR_MODE) && defined(OMAC))
+#if defined(EAX_MODE) && !(defined(LTC_CTR_MODE) && defined(LTC_OMAC))
    #error EAX_MODE requires CTR and OMAC mode
 #endif
 
@@ -270,6 +306,9 @@
 /* ECC */
 #define MECC
 
+/* use Shamir's trick for point mul (speeds up signature verification) */
+#define LTC_ECC_SHAMIR
+
 #if defined(TFM_DESC) && defined(MECC)
    #define MECC_ACCEL
 #endif   
@@ -298,6 +337,9 @@
 #ifdef MECC
 /* Supported ECC Key Sizes */
 #ifndef LTC_NO_CURVES
+   #define ECC112
+   #define ECC128
+   #define ECC160
    #define ECC192
    #define ECC224
    #define ECC256
@@ -324,7 +366,6 @@
 #endif
 
 /* THREAD management */
-
 #ifdef LTC_PTHREAD
 
 #include <pthread.h>
@@ -348,10 +389,15 @@
 
 #endif
 
+/* Debuggers */
+
+/* define this if you use Valgrind, note: it CHANGES the way SOBER-128 and RC4 work (see the code) */
+/* #define LTC_VALGRIND */
+
 #endif
 
 
 
 /* $Source: /cvs/libtom/libtomcrypt/src/headers/tomcrypt_custom.h,v $ */
-/* $Revision: 1.52 $ */
-/* $Date: 2006/08/24 14:35:45 $ */
+/* $Revision: 1.66 $ */
+/* $Date: 2006/12/04 02:50:11 $ */

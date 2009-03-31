@@ -125,7 +125,7 @@ LBL_ERR:
 
    XFREE(expt);
    XFREE(skey);
-   
+  
    mp_clear(g_pub);
 
    return err;
@@ -134,6 +134,6 @@ LBL_ERR:
 #endif
 
 /* $Source: /cvs/libtom/libtomcrypt/src/pk/dsa/dsa_decrypt_key.c,v $ */
-/* $Revision: 1.8 $ */
-/* $Date: 2006/06/16 21:53:41 $ */
+/* $Revision: 1.9 $ */
+/* $Date: 2006/12/04 03:18:43 $ */
 

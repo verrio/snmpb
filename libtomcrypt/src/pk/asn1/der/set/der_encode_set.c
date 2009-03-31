@@ -28,6 +28,7 @@ static int ltc_to_asn1(int v)
       case LTC_ASN1_OCTET_STRING:            return 0x04;
       case LTC_ASN1_NULL:                    return 0x05;
       case LTC_ASN1_OBJECT_IDENTIFIER:       return 0x06;
+      case LTC_ASN1_UTF8_STRING:             return 0x0C;
       case LTC_ASN1_PRINTABLE_STRING:        return 0x13;
       case LTC_ASN1_IA5_STRING:              return 0x16;
       case LTC_ASN1_UTCTIME:                 return 0x17;
@@ -98,5 +99,5 @@ int der_encode_set(ltc_asn1_list *list, unsigned long inlen,
 #endif
 
 /* $Source: /cvs/libtom/libtomcrypt/src/pk/asn1/der/set/der_encode_set.c,v $ */
-/* $Revision: 1.10 $ */
-/* $Date: 2006/04/22 17:24:09 $ */
+/* $Revision: 1.11 $ */
+/* $Date: 2006/11/26 02:27:37 $ */

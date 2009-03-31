@@ -52,11 +52,12 @@ int ltc_ecc_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map)
       return err;
    }
    if ((err = mp_init(&mu)) != CRYPT_OK) {
+      mp_montgomery_free(mp);
       return err;
    }
    if ((err = mp_montgomery_normalization(mu, modulus)) != CRYPT_OK) {
-      mp_montgomery_free(mp);
       mp_clear(mu);
+      mp_montgomery_free(mp);
       return err;
    }
 
@@ -67,8 +68,8 @@ int ltc_ecc_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map)
          for (j = 0; j < i; j++) {
              ltc_ecc_del_point(M[j]);
          }
-         mp_montgomery_free(mp);
          mp_clear(mu);
+         mp_montgomery_free(mp);
          return CRYPT_MEM;
       }
   }
@@ -82,14 +83,15 @@ int ltc_ecc_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map)
    if ((err = mp_mulmod(G->y, mu, modulus, tG->y)) != CRYPT_OK)                      { goto done; }
    if ((err = mp_mulmod(G->z, mu, modulus, tG->z)) != CRYPT_OK)                      { goto done; }
    mp_clear(mu);
+   mu = NULL;
    
-   /* calc the M tab, which holds kG for k==8..15 */
+   /* calc the M tab */
    /* M[0] == G */
-   if ((err = mp_copy(tG->x, M[0]->x)) != CRYPT_OK)                                   { goto done; }
-   if ((err = mp_copy(tG->y, M[0]->y)) != CRYPT_OK)                                   { goto done; }
-   if ((err = mp_copy(tG->z, M[0]->z)) != CRYPT_OK)                                   { goto done; }
+   if ((err = mp_copy(tG->x, M[0]->x)) != CRYPT_OK)                                  { goto done; }
+   if ((err = mp_copy(tG->y, M[0]->y)) != CRYPT_OK)                                  { goto done; }
+   if ((err = mp_copy(tG->z, M[0]->z)) != CRYPT_OK)                                  { goto done; }
    /* M[1] == 2G */
-   if ((err = ltc_ecc_projective_dbl_point(tG, M[1], modulus, mp)) != CRYPT_OK)                  { goto done; }
+   if ((err = ltc_mp.ecc_ptdbl(tG, M[1], modulus, mp)) != CRYPT_OK)                  { goto done; }
 
    /* setup sliding window */
    mode   = 0;
@@ -117,21 +119,21 @@ int ltc_ecc_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map)
 
       if (mode == 0 && i == 0) {
          /* dummy operations */
-         if ((err = ltc_ecc_projective_add_point(M[0], M[1], M[2], modulus, mp)) != CRYPT_OK)    { goto done; }
-         if ((err = ltc_ecc_projective_dbl_point(M[1], M[2], modulus, mp)) != CRYPT_OK)          { goto done; }
+         if ((err = ltc_mp.ecc_ptadd(M[0], M[1], M[2], modulus, mp)) != CRYPT_OK)    { goto done; }
+         if ((err = ltc_mp.ecc_ptdbl(M[1], M[2], modulus, mp)) != CRYPT_OK)          { goto done; }
          continue;
       }
 
       if (mode == 0 && i == 1) {
          mode = 1;
          /* dummy operations */
-         if ((err = ltc_ecc_projective_add_point(M[0], M[1], M[2], modulus, mp)) != CRYPT_OK)    { goto done; }
-         if ((err = ltc_ecc_projective_dbl_point(M[1], M[2], modulus, mp)) != CRYPT_OK)          { goto done; }
+         if ((err = ltc_mp.ecc_ptadd(M[0], M[1], M[2], modulus, mp)) != CRYPT_OK)    { goto done; }
+         if ((err = ltc_mp.ecc_ptdbl(M[1], M[2], modulus, mp)) != CRYPT_OK)          { goto done; }
          continue;
       }
 
-      if ((err = ltc_ecc_projective_add_point(M[0], M[1], M[i^1], modulus, mp)) != CRYPT_OK)    { goto done; }
-      if ((err = ltc_ecc_projective_dbl_point(M[i], M[i], modulus, mp)) != CRYPT_OK)            { goto done; }
+      if ((err = ltc_mp.ecc_ptadd(M[0], M[1], M[i^1], modulus, mp)) != CRYPT_OK)     { goto done; }
+      if ((err = ltc_mp.ecc_ptdbl(M[i], M[i], modulus, mp)) != CRYPT_OK)             { goto done; }
    }
 
    /* copy result out */
@@ -146,6 +148,9 @@ int ltc_ecc_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map)
       err = CRYPT_OK;
    }
 done:
+   if (mu != NULL) {
+      mp_clear(mu);
+   }
    mp_montgomery_free(mp);
    ltc_ecc_del_point(tG);
    for (i = 0; i < 3; i++) {
@@ -157,6 +162,6 @@ done:
 #endif
 #endif
 /* $Source: /cvs/libtom/libtomcrypt/src/pk/ecc/ltc_ecc_mulmod_timing.c,v $ */
-/* $Revision: 1.6 $ */
-/* $Date: 2006/03/31 14:15:35 $ */
+/* $Revision: 1.11 $ */
+/* $Date: 2006/12/04 22:17:46 $ */
 

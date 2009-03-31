@@ -70,16 +70,16 @@ int der_encode_integer(void *num, unsigned char *out, unsigned long *outlen)
       *out++ = (unsigned char)y;
    } else if (y < 256) {
       *out++ = 0x81;
-      *out++ = y;
+      *out++ = (unsigned char)y;
    } else if (y < 65536UL) {
       *out++ = 0x82;
-      *out++ = (y>>8)&255;
-      *out++ = y;
+      *out++ = (unsigned char)((y>>8)&255);
+      *out++ = (unsigned char)y;
    } else if (y < 16777216UL) {
       *out++ = 0x83;
-      *out++ = (y>>16)&255;
-      *out++ = (y>>8)&255;
-      *out++ = y;
+      *out++ = (unsigned char)((y>>16)&255);
+      *out++ = (unsigned char)((y>>8)&255);
+      *out++ = (unsigned char)y;
    } else {
       return CRYPT_INVALID_ARG;
    }
@@ -126,5 +126,5 @@ int der_encode_integer(void *num, unsigned char *out, unsigned long *outlen)
 #endif
 
 /* $Source: /cvs/libtom/libtomcrypt/src/pk/asn1/der/integer/der_encode_integer.c,v $ */
-/* $Revision: 1.7 $ */
-/* $Date: 2006/06/16 21:53:41 $ */
+/* $Revision: 1.8 $ */
+/* $Date: 2006/12/04 21:34:03 $ */

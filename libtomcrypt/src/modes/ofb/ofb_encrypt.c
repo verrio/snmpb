@@ -48,7 +48,7 @@ int ofb_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, s
           }
           ofb->padlen = 0;
        }
-       *ct++ = *pt++ ^ ofb->IV[ofb->padlen++];
+       *ct++ = *pt++ ^ ofb->IV[(ofb->padlen)++];
    }
    return CRYPT_OK;
 }
@@ -56,5 +56,5 @@ int ofb_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, s
 #endif
 
 /* $Source: /cvs/libtom/libtomcrypt/src/modes/ofb/ofb_encrypt.c,v $ */
-/* $Revision: 1.6 $ */
-/* $Date: 2006/06/29 01:51:34 $ */
+/* $Revision: 1.7 $ */
+/* $Date: 2006/11/26 01:45:14 $ */

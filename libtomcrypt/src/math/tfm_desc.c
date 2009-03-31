@@ -745,11 +745,20 @@ const ltc_math_descriptor tfm_desc = {
 #else
    &ltc_ecc_projective_add_point,
    &ltc_ecc_projective_dbl_point,
-#endif
+#endif /* MECC_ACCEL */
    &ltc_ecc_map,
+#ifdef LTC_ECC_SHAMIR
+#ifdef MECC_FP
+   &ltc_ecc_fp_mul2add,
 #else
-   NULL, NULL, NULL, NULL,
-#endif
+   &ltc_ecc_mul2add,
+#endif /* MECC_FP */
+#else
+   NULL,
+#endif /* LTC_ECC_SHAMIR */
+#else
+   NULL, NULL, NULL, NULL, NULL,
+#endif /* MECC */
 
 #ifdef MRSA
    &rsa_make_key,
@@ -764,5 +773,5 @@ const ltc_math_descriptor tfm_desc = {
 #endif
 
 /* $Source: /cvs/libtom/libtomcrypt/src/math/tfm_desc.c,v $ */
-/* $Revision: 1.23 $ */
-/* $Date: 2006/06/09 22:17:53 $ */
+/* $Revision: 1.26 $ */
+/* $Date: 2006/12/03 00:39:56 $ */

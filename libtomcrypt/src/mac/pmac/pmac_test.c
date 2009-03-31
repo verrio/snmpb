@@ -16,7 +16,7 @@
 */
 
 
-#ifdef PMAC
+#ifdef LTC_PMAC
 
 /** 
    Test the OMAC implementation
@@ -138,7 +138,7 @@ int pmac_test(void)
            return err;
         }
         
-        if (memcmp(outtag, tests[x].tag, len)) {
+        if (XMEMCMP(outtag, tests[x].tag, len)) {
 #if 0
            unsigned long y;
            printf("\nTAG:\n");
@@ -161,5 +161,5 @@ int pmac_test(void)
  
 
 /* $Source: /cvs/libtom/libtomcrypt/src/mac/pmac/pmac_test.c,v $ */
-/* $Revision: 1.4 $ */
-/* $Date: 2006/03/31 14:15:35 $ */
+/* $Revision: 1.6 $ */
+/* $Date: 2006/11/03 00:39:49 $ */

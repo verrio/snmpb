@@ -47,12 +47,12 @@ int der_length_sequence(ltc_asn1_list *list, unsigned long inlen,
 
        switch (type) {
            case LTC_ASN1_BOOLEAN:
-	           if ((err = der_length_boolean(&x)) != CRYPT_OK) {
-	              goto LBL_ERR;
-	           }
-	           y += x;
-	           break;
-	       
+              if ((err = der_length_boolean(&x)) != CRYPT_OK) {
+                 goto LBL_ERR;
+              }
+              y += x;
+              break;
+          
            case LTC_ASN1_INTEGER:
                if ((err = der_length_integer(data, &x)) != CRYPT_OK) {
                   goto LBL_ERR;
@@ -113,6 +113,13 @@ int der_length_sequence(ltc_asn1_list *list, unsigned long inlen,
                y += x;
                break;
 
+           case LTC_ASN1_UTF8_STRING:
+               if ((err = der_length_utf8_string(data, size, &x)) != CRYPT_OK) {
+                  goto LBL_ERR;
+               }
+               y += x;
+               break;
+
            case LTC_ASN1_SET:
            case LTC_ASN1_SETOF:
            case LTC_ASN1_SEQUENCE:
@@ -158,5 +165,5 @@ LBL_ERR:
 #endif
 
 /* $Source: /cvs/libtom/libtomcrypt/src/pk/asn1/der/sequence/der_length_sequence.c,v $ */
-/* $Revision: 1.11 $ */
-/* $Date: 2006/05/03 00:13:24 $ */
+/* $Revision: 1.13 $ */
+/* $Date: 2006/11/26 02:25:18 $ */

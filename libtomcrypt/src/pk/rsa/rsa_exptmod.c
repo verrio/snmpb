@@ -57,7 +57,7 @@ int rsa_exptmod(const unsigned char *in,   unsigned long inlen,
    /* sanity check on the input */
    if (mp_cmp(key->N, tmp) == LTC_MP_LT) {
       err = CRYPT_PK_INVALID_SIZE;
-      goto done;
+      goto error;
    }
 
    /* are we using the private exponent and is the key optimized? */
@@ -85,13 +85,13 @@ int rsa_exptmod(const unsigned char *in,   unsigned long inlen,
    if (x > *outlen) {
       *outlen = x;
       err = CRYPT_BUFFER_OVERFLOW;
-      goto done;
+      goto error;
    }
 
    /* this should never happen ... */
    if (mp_unsigned_bin_size(tmp) > mp_unsigned_bin_size(key->N)) {
       err = CRYPT_ERROR;
-      goto done;
+      goto error;
    }
    *outlen = x;
 
@@ -101,9 +101,7 @@ int rsa_exptmod(const unsigned char *in,   unsigned long inlen,
 
    /* clean up and return */
    err = CRYPT_OK;
-   goto done;
 error:
-done:
    mp_clear_multi(tmp, tmpa, tmpb, NULL);
    return err;
 }
@@ -111,5 +109,5 @@ done:
 #endif
 
 /* $Source: /cvs/libtom/libtomcrypt/src/pk/rsa/rsa_exptmod.c,v $ */
-/* $Revision: 1.13 $ */
-/* $Date: 2006/06/16 21:53:41 $ */
+/* $Revision: 1.16 $ */
+/* $Date: 2006/12/04 03:09:28 $ */
