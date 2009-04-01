@@ -94,6 +94,9 @@ void Preferences::Init(void)
     pathschanged = false;
 
     p->PreferencesTree->setCurrentItem(p->PreferencesTree->topLevelItem(0));
+
+    curprofile = settings->value("curprofile", "localhost").toString();
+    curproto = settings->value("curproto", 0).toInt();
 }
 
 void Preferences::Execute (void)
@@ -220,6 +223,20 @@ void Preferences::SetTrapPort()
 int Preferences::GetTrapPort(void)
 {
     return trapport;
+}
+
+void Preferences::SaveCurrentProfile(QString &name, int proto)
+{
+    curprofile = name;
+    curproto = proto;
+    settings->setValue("curprofile", curprofile);
+    settings->setValue("curproto", curproto);
+}
+
+int Preferences::GetCurrentProfile(QString &name)
+{
+    name = curprofile;
+    return curproto;
 }
 
 void Preferences::ModuleRefresh(void)

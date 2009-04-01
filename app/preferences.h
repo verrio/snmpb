@@ -36,6 +36,8 @@ public:
     void Init(void);
     void Execute(void);
     int GetTrapPort(void);
+    void SaveCurrentProfile(QString &name, int proto);
+    int GetCurrentProfile(QString &name);
 
 protected slots:
     void SelectedPreferences( QTreeWidgetItem * item, QTreeWidgetItem * old);
@@ -60,6 +62,8 @@ private:
 
     bool horizontalsplit;
     int trapport;
+    QString curprofile;
+    int curproto;
     QStringList mibpaths;
     bool pathschanged;
 };

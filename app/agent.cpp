@@ -188,16 +188,28 @@ void Agent::Init(void)
              this, SLOT( VarbindsFrom(const QString&) ) );
     connect( s->MainUI()->AgentSettings, 
              SIGNAL( clicked() ), this, SLOT( ShowAgentSettings() ));
-    connect( s->MainUI()->AgentProfile, SIGNAL( currentIndexChanged( int ) ), 
-             this, SLOT ( SelectAgentProfile() ) );
     connect( s->APManagerObj(), SIGNAL( AgentProfileListChanged() ), 
              this, SLOT ( AgentProfileListChange() ) );
     connect( this, SIGNAL( StartWalk(bool) ), 
              s->MainUI()->MIBTree, SLOT ( SetWalkInProgress(bool) ) );
     connect( s->MainUI()->actionStop, SIGNAL( triggered() ),
              this, SLOT( Stop() ) );
+
+    // Select the default profile from preferences
+    QString cp;
+    int prefproto = s->PreferencesObj()->GetCurrentProfile(cp);
+    // Fill-in the list of agent profiles from profiles manager
+    AgentProfileListChange();
+    SelectAgentProfile(&cp, prefproto);
+    // then connect the signals (order is important)
+    connect( s->MainUI()->AgentProfile, SIGNAL( currentIndexChanged( int ) ), 
+             this, SLOT ( SelectAgentProfile() ) );
     connect( s->MainUI()->AgentProtoV1, SIGNAL( toggled(bool) ),
-             s->MainUI()->MIBTree, SLOT( SetCurrentAgentIsV1(bool) ) );
+             this, SLOT( SelectAgentProto() ) );
+    connect( s->MainUI()->AgentProtoV2, SIGNAL( toggled(bool) ),
+             this, SLOT( SelectAgentProto() ) );
+    connect( s->MainUI()->AgentProtoV3, SIGNAL( toggled(bool) ),
+             this, SLOT( SelectAgentProto() ) );
 
     vbui = new Ui_Varbinds();
     vbd = new QDialog(); 
@@ -215,9 +227,6 @@ void Agent::Init(void)
     connect( vbui->SetOp, SIGNAL( clicked() ), this, SLOT( VarbindsSet() ));
     connect( vbui->VarbindsList, SIGNAL( itemSelectionChanged() ), 
              this, SLOT( VarbindsSelected() ));
-
-    // Fill-in the list of agent profiles from profiles manager
-    AgentProfileListChange();
 
     connect(&timer, SIGNAL(timeout()), this, SLOT(TimerExpired()));
     
@@ -291,28 +300,85 @@ void Agent::AgentProfileListChange(void)
     else
         prefproto = -1;
 
-    SelectAgentProfile(prefproto);
+    SelectAgentProfile(NULL, prefproto);
 }
 
-void Agent::SelectAgentProfile(int prefproto)
+void Agent::SelectAgentProto(void)
+{
+    int prefproto = -1;
+    if (s->MainUI()->AgentProtoV1->isChecked()) prefproto = 0;
+    else if (s->MainUI()->AgentProtoV2->isChecked()) prefproto = 1;
+    else if (s->MainUI()->AgentProtoV3->isChecked()) prefproto = 2;
+
+    s->MainUI()->MIBTree->SetCurrentAgentIsV1(prefproto==0?true:false);
+
+    SelectAgentProfile(NULL, prefproto);
+}
+
+void Agent::SelectAgentProfile(QString *prefprofile, int prefproto)
 {
     AgentProfile *ap = s->APManagerObj()->GetAgentProfile
-                        (s->MainUI()->AgentProfile->currentText());
+                        (prefprofile?prefprofile->toLatin1():
+                         s->MainUI()->AgentProfile->currentText());
     if (ap)
     {
         bool v1,v2,v3;
+        int selectedproto = -1;
         ap->GetSupportedProtocol(&v1, &v2, &v3);
 
         s->MainUI()->AgentProtoV1->setEnabled(v1);
         s->MainUI()->AgentProtoV2->setEnabled(v2);
         s->MainUI()->AgentProtoV3->setEnabled(v3);
 
-        if ((prefproto == 0) && v1) s->MainUI()->AgentProtoV1->setChecked(true);
-        else if ((prefproto == 1) && v2) s->MainUI()->AgentProtoV2->setChecked(true);
-        else if ((prefproto == 2) && v3) s->MainUI()->AgentProtoV3->setChecked(true);
-        else if (v1) s->MainUI()->AgentProtoV1->setChecked(true);
-        else if (v2) s->MainUI()->AgentProtoV2->setChecked(true);
-        else if (v3) s->MainUI()->AgentProtoV3->setChecked(true);
+        if ((prefproto == 0) && v1)
+        {
+            s->MainUI()->AgentProtoV1->setChecked(true);
+            selectedproto = 0;
+        }
+        else 
+        if ((prefproto == 1) && v2)
+        {
+            s->MainUI()->AgentProtoV2->setChecked(true);
+            selectedproto = 1;
+        }
+        else
+        if ((prefproto == 2) && v3)
+        {
+            s->MainUI()->AgentProtoV3->setChecked(true);
+            selectedproto = 2;
+        }
+        else
+        if (v1)
+        {
+            s->MainUI()->AgentProtoV1->setChecked(true);
+            selectedproto = 0;
+        }
+        else
+        if (v2)
+        {
+            s->MainUI()->AgentProtoV2->setChecked(true);
+            selectedproto = 1;
+        }
+        else
+        if (v3)
+        {
+            s->MainUI()->AgentProtoV3->setChecked(true);
+            selectedproto = 2;
+        }
+
+        if (prefprofile)
+        {
+            // The agent profile is loaded from the preference file, 
+            // update the combobox
+            int index = s->MainUI()->AgentProfile->findText(prefprofile->toLatin1());
+            s->MainUI()->AgentProfile->setCurrentIndex(index);
+        }
+        else
+        {
+            // The agent is selected by the user, save it in the preference file
+            QString selectedprofile = s->MainUI()->AgentProfile->currentText();
+            s->PreferencesObj()->SaveCurrentProfile(selectedprofile, selectedproto);
+        }
     }
     else
     {

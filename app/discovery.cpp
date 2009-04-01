@@ -389,6 +389,8 @@ void DiscoveryThread::run(void)
     AgentProfile *ap = s->APManagerObj()->GetAgentProfile
                         (s->MainUI()->DiscoveryAgentProfile->currentText());
 
+    if (!ap)
+        return;
 
     if (status != SNMP_CLASS_SUCCESS)
         return;

@@ -79,7 +79,8 @@ public slots:
 protected slots:
     void TimerExpired(void);    
     void ShowAgentSettings(void);
-    void SelectAgentProfile(int prefproto = -1);
+    void SelectAgentProfile(QString *prefprofile = NULL, int prefproto = -1);
+    void SelectAgentProto(void);
     void AgentProfileListChange(void);
     void VarbindsNew(void);
     void VarbindsEdit(void);
