@@ -28,7 +28,7 @@ src/msgqueue.cpp "Fix MacOSX build error with cont fd_set"
 v3.h "Changed debugprintf() macro to log debug messages"
 
 Libtomcrypt is taken from http://libtomcrypt.com
-Version: 1.14
+Version: 1.16
 
 Modified file(s):
 libtomcrypt/makefile
