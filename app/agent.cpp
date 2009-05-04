@@ -781,8 +781,8 @@ void Agent::AsyncCallback(int reason, Pdu &pdu,
         objects++;
             
         // look for var bind exception, applies to v2 only   
-        if ( vb.get_syntax() != sNMP_SYNTAX_ENDOFMIBVIEW)
-        {          
+        if ( vb.get_syntax() != sNMP_SYNTAX_ENDOFMIBVIEW )
+        {
             Oid tmp;
             vb.get_oid(tmp);
             unsigned long* oid = &(tmp[0]);
@@ -926,7 +926,7 @@ void Agent::AsyncCallbackSet(int reason, Pdu &pdu, SnmpTarget &target)
         pdu.get_vb( vb, z );
          
         // look for var bind exception, applies to v2 only   
-        if ( vb.get_syntax() != sNMP_SYNTAX_ENDOFMIBVIEW)
+        if ( vb.get_syntax() != sNMP_SYNTAX_ENDOFMIBVIEW )
         {          
             Oid tmp;
             vb.get_oid(tmp);
@@ -1521,7 +1521,7 @@ void Agent::TableViewFrom(const QString& oid)
         f++; /* skip . */
         if (*f != '\0') msg += QString("<tr><td bgcolor=pink>%1</td>").arg(f);
         
-        /* Loop thru all colums of that instance and build the row */
+        /* Loop thru all columns of that instance and build the row */
         for (SmiNode *node = smiGetFirstChildNode(pnode); node != NULL;
              node = smiGetNextChildNode(node))
         {
@@ -1532,17 +1532,24 @@ void Agent::TableViewFrom(const QString& oid)
             pdu->set_vblist(&svb, 1);
             
             // Now do an sync get
-            if (snmp->get(*pdu, *target) == SNMP_CLASS_SUCCESS)
-            {
-                pdu->get_vb(svb, 0);
-                msg += QString("<td>%1</td>").arg(GetPrintableValue(node, &svb));
-            }
-            else
+            int status = snmp->get(*pdu, *target);
+
+            pdu->get_vb(svb, 0);
+
+            if ((pdu->get_error_status() == SNMP_ERROR_NO_SUCH_NAME) || // For v1
+                (svb.get_syntax() == sNMP_SYNTAX_NOSUCHOBJECT) ||       // For v2
+                (svb.get_syntax() == sNMP_SYNTAX_NOSUCHINSTANCE)) 
             {
                 msg += QString("<td>not available</td>");
             }
+            else
+            if (status != SNMP_CLASS_SUCCESS)
+            {
+                msg += QString("<td>not available</td>");
+            }
+            else
+                msg += QString("<td>%1</td>").arg(GetPrintableValue(node, &svb));
         }
-        
         msg += QString("</tr>");
         rows++;
         
