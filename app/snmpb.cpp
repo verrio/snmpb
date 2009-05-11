@@ -136,7 +136,7 @@ void Snmpb::BindToGUI(QMainWindow* mw)
 
     // Connect some signals
     connect( w.TabW, SIGNAL( currentChanged(int) ),
-             this, SLOT( TreeTabSelected() ) );
+             this, SLOT( TabSelected() ) );
     connect( w.actionManageAgentProfiles, SIGNAL( triggered(bool) ),
              this, SLOT( ManageAgentProfiles(bool) ) );
     connect( w.actionManageUSMProfiles, SIGNAL( triggered(bool) ),
@@ -150,7 +150,7 @@ void Snmpb::BindToGUI(QMainWindow* mw)
     w.MIBTree->RegisterToLoader(&loader);
     w.PlotMIBTree->RegisterToLoader(&loader);
     
-    TreeTabSelected();
+    TabSelected();
 }
 
 Ui_MainW* Snmpb::MainUI(void)
@@ -274,12 +274,81 @@ void Snmpb::ManagePreferences(bool)
     prefs->Execute();
 }
 
-void Snmpb::TreeTabSelected(void)
+void Snmpb::SetEditorMenus(bool value)
 {
-    if (w.TabW->tabText(w.TabW->currentIndex()) == "Tree")
+    MainUI()->fileNewAction->setEnabled(value);
+    MainUI()->fileOpenAction->setEnabled(value);
+    MainUI()->fileSaveAction->setEnabled(value);
+    MainUI()->fileSaveAsAction->setEnabled(value);
+    MainUI()->actionVerifyMIB->setEnabled(value);
+    MainUI()->actionExtractMIBfromRFC->setEnabled(value);
+    MainUI()->actionGotoLine->setEnabled(value);
+    MainUI()->actionFind->setEnabled(value);
+    MainUI()->actionReplace->setEnabled(value);
+    MainUI()->actionFindNext->setEnabled(value);
+}
+
+/* 
+ * This is where anything related to a tab being selected happens:
+ * graying-out GUI parts, refreshing MIB trees, ...
+ */
+void Snmpb::TabSelected(void)
+{
+    switch (w.TabW->currentIndex())
+    {
+    case 0: // Tree
+        SetEditorMenus(false);
+        // Set find func to MIB tree
+        MainUI()->actionFind->setEnabled(true);
+        MainUI()->actionFindNext->setEnabled(true);
+        disconnect(MainUI()->actionFind, SIGNAL( triggered() ), 0, 0);
+        disconnect(MainUI()->actionFindNext, SIGNAL( triggered() ), 0, 0);
+        connect( MainUI()->actionFind, SIGNAL( triggered() ),
+                w.MIBTree, SLOT( FindFromNode() ) );
+        connect( MainUI()->actionFindNext, SIGNAL( triggered() ),
+                w.MIBTree, SLOT( ExecuteFindNext() ) );
+        // Refresh MIB tree if needed
         w.MIBTree->Populate();
-    else if (w.TabW->tabText(w.TabW->currentIndex()) == "Graphs")
+        break;
+    case 1: // Modules
+        SetEditorMenus(false);
+        break;
+    case 2: // Editor
+        SetEditorMenus(true);
+        // Set find func to MIB editor 
+        disconnect(MainUI()->actionFind, SIGNAL( triggered() ), 0, 0);
+        disconnect(MainUI()->actionFindNext, SIGNAL( triggered() ), 0, 0);
+        connect( MainUI()->actionFind, SIGNAL( triggered() ),
+                editor, SLOT( Find() ) );
+        connect( MainUI()->actionFindNext, SIGNAL( triggered() ),
+                editor, SLOT( ExecuteFindNext() ) );
+        break;
+    case 3: // Discovery
+        SetEditorMenus(false);
+        break;
+    case 4: // Traps
+        SetEditorMenus(true);
+        break;
+    case 5: // Graphs
+        SetEditorMenus(false);
+        // Set find func to MIB tree
+        MainUI()->actionFind->setEnabled(true);
+        MainUI()->actionFindNext->setEnabled(true);
+        disconnect(MainUI()->actionFind, SIGNAL( triggered() ), 0, 0);
+        disconnect(MainUI()->actionFindNext, SIGNAL( triggered() ), 0, 0);
+        connect( MainUI()->actionFind, SIGNAL( triggered() ),
+                w.PlotMIBTree, SLOT( FindFromNode() ) );
+        connect( MainUI()->actionFindNext, SIGNAL( triggered() ),
+                w.PlotMIBTree, SLOT( ExecuteFindNext() ) );
+        // Refresh MIB tree if needed
         w.PlotMIBTree->Populate();
+        break;
+    case 6: // Log
+        SetEditorMenus(false);
+        break;
+    default:
+        break;
+    }
 }
 
 void Snmpb::AboutBox(bool)

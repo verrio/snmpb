@@ -61,11 +61,14 @@ public:
     QString GetLogConfigFile(void);
 
 public slots:
-    void TreeTabSelected(void);
+    void TabSelected(void);
     void ManageAgentProfiles(bool);
     void ManageUSMProfiles(bool);
     void ManagePreferences(bool);
     void AboutBox(bool);
+
+private:
+    void SetEditorMenus(bool value);
 
 private:
     Ui_MainW w;

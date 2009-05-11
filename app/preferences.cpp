@@ -146,7 +146,7 @@ void Preferences::Execute (void)
 
             // and finally refresh the list of loaded MIBS ...
             s->MibModuleObj()->RefreshPathChange();
-            s->TreeTabSelected();
+            s->TabSelected();
         }
 
         pathschanged = false;
