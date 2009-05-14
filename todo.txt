@@ -1,4 +1,3 @@
-- Test/fix support of 64 bits MIB variables 
 - Fix graph plotting system (+ add configurable polling interval)
 - Add support for multiple files in editor
 - Add support for snmp set : TEST

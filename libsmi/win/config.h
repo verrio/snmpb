@@ -39,8 +39,8 @@
 #define LIBSMI_INT64_MIN     _I64_MIN
 #define LIBSMI_INT64_MAX     _I64_MAX
 #else
-#define UINT64_FORMAT "%lu"
-#define INT64_FORMAT  "%ld"
+#define UINT64_FORMAT "%llu"
+#define INT64_FORMAT  "%lld"
 #define LIBSMI_UINT64_MAX    18446744073709551615ULL
 #define LIBSMI_INT64_MIN     -9223372036854775808LL
 #define LIBSMI_INT64_MAX     9223372036854775807LL
@@ -77,7 +77,10 @@
 #define HAVE_SNPRINTF 1
 
 /* Define if you have the vsnprintf function.  */
-#undef HAVE_VSNPRINTF
+#define HAVE_VSNPRINTF 1
+
+/* Supports long long 64 bits */
+#define HAVE_LONG_LONG 1
 
 /* Define if the win.h header file is present. */
 #define HAVE_WIN_H 1
