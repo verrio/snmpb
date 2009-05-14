@@ -82,6 +82,38 @@ private:
     bool is_uint;
 };
 
+// Class used to validate set operations on Counter64
+class UInt64Validator: public QValidator
+{
+public:
+    UInt64Validator(QObject *parent = 0): QValidator(parent) {}
+
+    State validate (QString& input, int& pos) const
+    {
+        QRegExp r("\\-?\\d{0,20}");
+        if (r.exactMatch(input))
+        {
+            bool ok;
+            unsigned long long uval = input.toULongLong(&ok);
+            if ( ((ok == true) && (uval <= 0xFFFFFFFFFFFFFFFFULL)) || 
+                 ((ok == false) && (!input.size())) )
+                return Acceptable;
+            else
+                return Invalid;
+        }
+        else
+        {
+            if (const_cast<QRegExp &>(r).matchedLength() == input.size())
+                return Intermediate;
+            else
+            {
+                pos = input.size();
+                return Invalid;
+            }
+        }
+    }
+};
+
 // C Callback functions for snmp++
 void callback_walk(int reason, Snmp *, Pdu &pdu, SnmpTarget &target, void *cd)
 {
@@ -570,7 +602,15 @@ char *Agent::GetPrintableValue(SmiNode *node, Vb *vb)
                 break;
             }
         }
-        case SMI_BASETYPE_UNSIGNED64: // TODO: myvalue.value.unsigned64
+        case SMI_BASETYPE_UNSIGNED64:
+        {
+            Counter64 cntr64;
+            if (vb->get_value(cntr64) == SNMP_CLASS_SUCCESS)
+            {
+                myvalue.value.unsigned64 = Counter64::c64_to_ll(cntr64);
+                return smiRenderValue(&myvalue, type, SMI_RENDER_ALL);
+            }
+        }
         case SMI_BASETYPE_UNKNOWN:
         default:
             break;
@@ -1189,6 +1229,7 @@ void Agent::SetFrom(const QString& oid)
 {
     QString info;
     IntValidator *validator = NULL;
+    UInt64Validator *validator64 = NULL;
     QString setoid = oid;
     Oid poid(setoid.toLatin1().data());
     SmiNode *node = smiGetNodeByOID(poid.len(), (SmiSubid*)&(poid[0]));
@@ -1230,7 +1271,7 @@ void Agent::SetFrom(const QString& oid)
         for (r = smiGetFirstRange(type); r; r = smiGetNextRange(r))
         {
             info += QString("%1 .. %2")
-                .arg(r->minValue.value.unsigned32).arg(r->maxValue.value.unsigned32);
+                .arg(r->minValue.value.unsigned64).arg(r->maxValue.value.unsigned64);
             if (smiGetNextRange(r))
                 info += ", ";
         }
@@ -1286,6 +1327,10 @@ void Agent::SetFrom(const QString& oid)
         case SMI_BASETYPE_ENUM:
             validator = new IntValidator(false, le);
             le->setValidator(validator);
+            break;
+        case SMI_BASETYPE_UNSIGNED64:
+            validator64 = new UInt64Validator(le);
+            le->setValidator(validator64);
             break;
         default:
             validator = new IntValidator(true, le);
@@ -1384,6 +1429,8 @@ void Agent::SetFrom(const QString& oid)
             }
             break; 
         case SMI_BASETYPE_UNSIGNED64:
+            vb.set_value(Counter64::ll_to_c64(setresult_string.toULongLong()));
+            break;
         case SMI_BASETYPE_UNKNOWN:
         default:
             break;
@@ -1423,6 +1470,8 @@ cleanup:
 bailout:
     if (validator)
         delete validator;
+    if (validator64)
+        delete validator64;
     if (cb)
         delete cb;
     if (le)

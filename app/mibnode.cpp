@@ -348,7 +348,7 @@ QString MibNode::GetSizeRange(void)
         i += "<tr><td><b>Size</b></td><td>";
         for (r = smiGetFirstRange(type); r; r = smiGetNextRange(r))
         {
-            i += QString("%1 .. %2").arg(r->minValue.value.unsigned32).arg(r->maxValue.value.unsigned32);
+            i += QString("%1 .. %2").arg(r->minValue.value.unsigned64).arg(r->maxValue.value.unsigned64);
             if (smiGetNextRange(r))
                 i += "<br>";
         }
