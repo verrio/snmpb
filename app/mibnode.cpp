@@ -358,6 +358,26 @@ QString MibNode::GetSizeRange(void)
     return i;
 }
 
+QString MibNode::GetValueList(void)
+{
+    SmiType *type = smiGetNodeType(Node);
+    QString i;
+    SmiNamedNumber  *nn;
+
+    if (type && smiGetFirstNamedNumber(type))
+    {
+        i += "<tr><td><b>Value List</b></td><td><font color=green>";
+        for (nn = smiGetFirstNamedNumber(type); nn; nn = smiGetNextNamedNumber(nn))
+        {
+            i += QString("%1 (%2)").arg(nn->name).arg(nn->value.value.unsigned32);
+            if (smiGetNextNamedNumber(nn))
+                i += "<br>";
+        }
+        i += "</font></td></tr>";
+    }
+    return i;
+}
+
 void MibNode::PrintProperties(QString& text)
 {
     if (!Node)
@@ -389,19 +409,22 @@ void MibNode::PrintProperties(QString& text)
     if (Node->units)
         text += QString("<tr><td><b>Units:</b></td><td>%1</td></tr>").arg(Node->units);
 
+    // Add value list 
+    text += GetValueList();
+
     // Add module
     text += QString("<tr><td><b>Module:</b></td><td>%1</td></tr>").arg(smiGetNodeModule(Node)->name);
 
     // Add the reference
     if (Node->reference)
     {
-        text += QString("<tr><td><b>Reference:</b></td><td><font face=fixed size=-1 color=blue>");
+        text += QString("<tr><td><b>Reference:</b></td><td><font face=fixed color=blue>");
         text += Qt::convertFromPlainText (Node->reference);
         text += QString("</font></td></tr>");
     }
 
     // Add the description
-    text += QString("<tr><td><b>Description:</b></td><td><font face=fixed size=-1 color=blue>");
+    text += QString("<tr><td><b>Description:</b></td><td><font face=fixed color=blue>");
     text += Qt::convertFromPlainText (Node->description);
     text += QString("</font></td></tr>");
 
