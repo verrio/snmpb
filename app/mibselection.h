@@ -116,11 +116,14 @@ class MibSelection: public QObject
     Q_OBJECT
     
 public:
-    MibSelection(Snmpb *snmpb, bool isget);
+    MibSelection(Snmpb *snmpb, QString title);
     ~MibSelection();
 
     bool run(const QString& oid);
     Vb *GetVarbind(void);
+    QString GetSyntax(void);
+    QString GetName(void);
+    SmiNode *GetNode(void);
 
 public slots:
     void GetValueCb(int index);
@@ -137,9 +140,12 @@ protected:
 
 private:
     Snmpb *s;
+
     Vb vb;
-    bool doget;
-  
+    SmiType *type;  
+    QString syntax;
+    SmiNode *node;
+
     QGridLayout *gl;
     QLabel *oidlabel;
     QLabel *syntaxlabel;
@@ -154,10 +160,8 @@ private:
     BasicMibView *bmv;
  
     QString result_string;
-    int     result_int;
     QString result_oid;
     int     result_syntax;
-    SmiType *type;
 
     IntValidator *validator;
     UInt64Validator *validator64;

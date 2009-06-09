@@ -1131,7 +1131,7 @@ void Agent::SetFrom(const QString& oid)
     int status;
 
     // Create and run the mib selection dialog
-    MibSelection ms(s, false);
+    MibSelection ms(s, "Set");
 
     if (ms.run(oid))
     {
@@ -1313,12 +1313,14 @@ void Agent::TableViewFrom(const QString& oid)
 
 void Agent::VarbindsFrom(const QString& oid)
 {
+    SmiType *smiType = NULL;
     Oid poid(oid.toLatin1().data());
     QString basetype;
 
     // Get information about selected element
     SmiNode *node = smiGetNodeByOID(poid.len(), (SmiSubid*)&(poid[0]));
-    SmiType *smiType = smiGetNodeType(node);
+    if (node)
+        smiType = smiGetNodeType(node);
     if (smiType && node && 
         !(node->nodekind == SMI_NODEKIND_TABLE) && 
         (smiType->decl == SMI_DECL_IMPLICIT_TYPE))
@@ -1332,39 +1334,63 @@ void Agent::VarbindsFrom(const QString& oid)
     {
         switch (smiType->basetype)
         {
-        case SMI_BASETYPE_UNSIGNED32: basetype += "UNSIGNED32"; break;
-        case SMI_BASETYPE_INTEGER32: basetype += "INTEGER"; break;
-        case SMI_BASETYPE_ENUM: basetype += "ENUM"; break;
-        case SMI_BASETYPE_OBJECTIDENTIFIER: basetype += "OBJECT IDENTIFIER"; break;
-        case SMI_BASETYPE_OCTETSTRING: basetype += "OCTET STRING"; break;
-        case SMI_BASETYPE_BITS: basetype += "BITS"; break; 
-        case SMI_BASETYPE_UNSIGNED64: basetype += "UNSIGNED64"; break;
-        case SMI_BASETYPE_UNKNOWN:
-        default: basetype += "UNKNOWN"; break;
+            case SMI_BASETYPE_UNSIGNED32:
+                if (!strcmp(smiType->name, "TimeTicks"))
+                {
+                    basetype += "TIMETICKS";
+                    break;
+                }
+                else if (!strcmp(smiType->name, "Counter32") || 
+                        !strcmp(smiType->name, "COUNTER"))
+                {
+                    basetype += "COUNTER32";
+                    break;
+                }
+                else if (!strcmp(smiType->name, "Gauge32") || 
+                        !strcmp(smiType->name, "GAUGE"))
+                {
+                    basetype += "GAUGE32";
+                    break;
+                }
+                else
+                    basetype += "UNSIGNED32";
+                break;
+            case SMI_BASETYPE_INTEGER32: basetype += "INTEGER"; break;
+            case SMI_BASETYPE_ENUM: basetype += "ENUM"; break;
+            case SMI_BASETYPE_OBJECTIDENTIFIER: basetype += "OBJECT IDENTIFIER"; break;
+            case SMI_BASETYPE_OCTETSTRING:
+                if (!strcmp(smiType->name, "IpAddress"))
+                {
+                    basetype += "IP ADDRESS";
+                    break;
+                }
+                else if (!strcmp(smiType->name, "Opaque"))
+                {
+                    basetype += "OPAQUE";
+                    break;
+                }
+                else
+                    basetype += "OCTET STRING";
+                break;
+            case SMI_BASETYPE_BITS: basetype += "BITS"; break; 
+            case SMI_BASETYPE_UNSIGNED64: basetype += "UNSIGNED64"; break;
+            case SMI_BASETYPE_UNKNOWN:
+            default: basetype += "UNKNOWN"; break;
         }
     }
 
     // Display the element information
-    QStringList s, s2, s3, s4, s5;
-    s << (node?node->name:oid) << oid << (smiType?smiType->name:"") << ""; 
+    QStringList s;
+    s << (node?node->name:oid) << oid << basetype << ""; 
     vbui->VarbindsList->addTopLevelItem(new QTreeWidgetItem(s));
-    s2 << (node?node->name:oid) << oid << "BLA" << ""; 
-    vbui->VarbindsList->addTopLevelItem(new QTreeWidgetItem(s2));
-    s3 << (node?node->name:oid) << oid << "TOTO" << ""; 
-    vbui->VarbindsList->addTopLevelItem(new QTreeWidgetItem(s3));
-    s4 << (node?node->name:oid) << oid << "WWWW" << ""; 
-    vbui->VarbindsList->addTopLevelItem(new QTreeWidgetItem(s4));
-    s5 << (node?node->name:oid) << oid << "HYHY" << ""; 
-    vbui->VarbindsList->addTopLevelItem(new QTreeWidgetItem(s5));
 
     vbd->exec(); 
 }
 
 void Agent::VarbindsNew(void)
 {
-#if 0
     // Create and run the mib selection dialog
-    MibSelection ms(s, true);
+    MibSelection ms(s, "New VarBind");
 
     if (ms.run(""))
     {
@@ -1372,23 +1398,31 @@ void Agent::VarbindsNew(void)
         if (vb)
         {
             QStringList s;
-            s << "TODO" << vb->get_printable_oid() << "TODO syntax" /*vb->get_syntax()*/ << vb->get_printable_value();
+            s << ms.GetName() << vb->get_printable_oid() 
+              << ms.GetSyntax() << GetPrintableValue(ms.GetNode(), vb);
             vbui->VarbindsList->addTopLevelItem(new QTreeWidgetItem(s));
         }
     }
-#endif
 }
 
 void Agent::VarbindsEdit(void)
 {
-#if 0
-    // Create and run the mib selection dialog
-    MibSelection ms(s, true);
+    QTreeWidget *vbl = vbui->VarbindsList;
+    QList<QTreeWidgetItem *> items = vbl->selectedItems();
+    if (items.size() != 1)
+    {
+        QMessageBox::critical( NULL, "Edit VarBind", 
+                "Please select only one VarBind",
+                QMessageBox::Ok, Qt::NoButton);
+        return;
+    }
 
-    if (ms.run("1.3.6.3.4.5.6.7.8.9.2.3.4.3.2.0"))
+    // Create and run the mib selection dialog
+    MibSelection ms(s, "Edit VarBind");
+
+    if (ms.run(items[0]->text(1)))
     {
     }
-#endif
 }
 
 void Agent::VarbindsDelete(void)

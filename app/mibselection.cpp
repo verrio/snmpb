@@ -25,8 +25,7 @@
 #include "mibselection.h"
 #include "agent.h"
 
-// If isget is false, it is a set operation
-MibSelection::MibSelection(Snmpb *snmpb, bool isget)
+MibSelection::MibSelection(Snmpb *snmpb, QString title)
 {
     s = snmpb;
 
@@ -36,8 +35,7 @@ MibSelection::MibSelection(Snmpb *snmpb, bool isget)
     val_le = NULL;
 
     type = NULL;
-
-    doget = isget;
+    node = NULL;
 
     dprompt = new QDialog(NULL, Qt::WindowTitleHint);
     dprompt->resize(400, 500);
@@ -90,7 +88,7 @@ MibSelection::MibSelection(Snmpb *snmpb, bool isget)
     gl->addWidget(infolabel, 9, 0, 1, 1);
 
     dprompt->setWindowTitle(QApplication::translate("Dialog", 
-                            doget?"Get":"Set", 0, QApplication::UnicodeUTF8));
+                            title.toLatin1().data(), 0, QApplication::UnicodeUTF8));
     box = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel, 
                                Qt::Horizontal, dprompt);
     gl->addWidget(box, 10, 0, 1, 1);
@@ -136,6 +134,21 @@ Vb *MibSelection::GetVarbind(void)
     return &vb;
 }
 
+QString MibSelection::GetSyntax(void)
+{
+    return syntax;
+}
+
+QString MibSelection::GetName(void)
+{
+    return node?node->name:result_oid;
+}
+
+SmiNode *MibSelection::GetNode(void)
+{
+    return node;
+}
+
 // Callback when the value combobox value changes 
 void MibSelection::GetValueCb(int index)
 {
@@ -175,18 +188,28 @@ void MibSelection::GetSelectedOid(const QString& oid)
 void MibSelection::OKButtonPressed(void)
 {
     // Fill-in pdu and do validation checking
+    if (result_oid.isEmpty())
+    {
+        QMessageBox::critical( NULL, "MIB Operation", 
+                "Invalid OID value",
+                QMessageBox::Ok, Qt::NoButton);
+        return;
+    }
+
     switch (result_syntax)
     {
         case sNMP_SYNTAX_INT32:
             {
                 SnmpInt32 v(result_string.toInt());
                 vb.set_value(v);
+                syntax = "INTEGER";
                 break;
             }
         case sNMP_SYNTAX_CNTR32:
             {
                 Counter32 v((unsigned long)result_string.toUInt());
                 vb.set_value(v);
+                syntax = "COUNTER32";
                 break;
             }
         /*case sNMP_SYNTAX_UINT32:*/
@@ -194,11 +217,17 @@ void MibSelection::OKButtonPressed(void)
             {
                 Gauge32 v((unsigned long)result_string.toUInt());
                 vb.set_value(v);
+                syntax = "GAUGE32";
                 break;
             }
         case sNMP_SYNTAX_OCTETS:
         case sNMP_SYNTAX_BITS: /* Obsoleted ? */
             {
+                if (result_syntax == sNMP_SYNTAX_OCTETS)
+                    syntax = "OCTET STRING";
+                else
+                    syntax = "BITS";
+ 
                 OctetStr octetstr(result_string.toLatin1().data());
                 if (octetstr.valid())
                     vb.set_value(octetstr);
@@ -213,6 +242,7 @@ void MibSelection::OKButtonPressed(void)
             }
         case sNMP_SYNTAX_OPAQUE:
             {
+                syntax = "OPAQUE";
                 OpaqueStr opaquestr(result_string.toLatin1().data());
                 if (opaquestr.valid())
                     vb.set_value(opaquestr);
@@ -227,6 +257,7 @@ void MibSelection::OKButtonPressed(void)
             }
         case sNMP_SYNTAX_OID:
             {
+                syntax = "OBJECT IDENTIFIER";
                 Oid oid(result_string.toLatin1().data());
                 if (oid.valid())
                     vb.set_value(oid);
@@ -240,10 +271,12 @@ void MibSelection::OKButtonPressed(void)
                 break;
             }
         case sNMP_SYNTAX_CNTR64:
+            syntax = "COUNTER64";
             vb.set_value(Counter64::ll_to_c64(result_string.toULongLong()));
             break;
         case sNMP_SYNTAX_TIMETICKS:
             {
+                syntax = "TIMETICKS";
                 TimeTicks timeticks(result_string.toUInt());
                 if (timeticks.valid())
                     vb.set_value(timeticks);
@@ -258,6 +291,7 @@ void MibSelection::OKButtonPressed(void)
             }
         case sNMP_SYNTAX_IPADDR:
             {
+                syntax = "IP ADDRESS";
                 IpAddress ipaddress(result_string.toLatin1().data());
                 if (ipaddress.valid())
                     vb.set_value( ipaddress);
@@ -283,18 +317,21 @@ void MibSelection::SetOidInfoType(const QString& oid)
 
     QString outoid = oid;
     QString outinfo = "";
+    SmiNode *thenode;
+    SmiType *thetype;
     type = NULL;
+    node = NULL;
 
     if (poid.valid() == true)
     {
-        SmiNode *node = smiGetNodeByOID(poid.len(), (SmiSubid*)&(poid[0]));
-        if (node && (node->oidlen >= poid.len()))
+        thenode = smiGetNodeByOID(poid.len(), (SmiSubid*)&(poid[0]));
+        if (thenode && (thenode->oidlen >= poid.len()))
         {
-            SmiType *thetype = smiGetNodeType(node);
+            thetype = smiGetNodeType(thenode);
             SmiRange *r;
 
             // If a column object, ask the user to select the instance ...
-            if (node->nodekind == SMI_NODEKIND_COLUMN)
+            if (thenode->nodekind == SMI_NODEKIND_COLUMN)
             {
                 QString inst;
                 // Pop-up the selection dialog
@@ -305,6 +342,8 @@ void MibSelection::SetOidInfoType(const QString& oid)
             }
             else
                 outoid = oid + ".0";
+
+            node = thenode;
 
             if (thetype)
             {
@@ -322,7 +361,7 @@ void MibSelection::SetOidInfoType(const QString& oid)
                 }
             }
 
-            if (node->access != SMI_ACCESS_READ_WRITE)
+            if (thenode->access != SMI_ACCESS_READ_WRITE)
                 outinfo += "<br><b><font color=red>WARNING: object is not writable!</font></b>";
 
             type = thetype;
