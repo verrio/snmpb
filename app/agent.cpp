@@ -20,99 +20,15 @@
 #include <qmessagebox.h>
 #include <QDate>
 #include <QDialog>
-#include <QValidator>
 
 #include "mibview.h"
 #include "agent.h"
 #include "snmp_pp/notifyqueue.h"
 #include "preferences.h"
+#include "mibselection.h"
 
 #define ASYNC_TIMER_MSEC 5
 #define TRAP_TIMER_MSEC 100
-
-// Class used to validate set operations on Counter32/Unsigned32/Gauge32/Integer...
-class IntValidator: public QValidator
-{
-public:
-    IntValidator(bool is_unsigned, QObject *parent = 0): QValidator(parent)
-    {
-        is_uint = is_unsigned;
-    }
-
-    // -2147483648 .. 4294967295
-    State validate (QString& input, int& pos) const
-    {
-        QRegExp r("\\-?\\d{0,10}");
-        if (r.exactMatch(input))
-        {
-            bool ok;
-            if (is_uint == true)
-            {
-                unsigned int uval = input.toUInt(&ok);
-                if ( ((ok == true) && (uval <= 4294967295U)) || 
-                     ((ok == false) && (!input.size())) )
-                    return Acceptable;
-                else
-                    return Invalid;
-            }
-            else
-            {
-                int val = input.toInt(&ok);
-                if ( ((ok == true) && (val >= (-2147483647-1)) && 
-                                      (val <= 2147483647)) || 
-                     ((ok == false) && (!input.size() || (input.size() == 1))) )
-                    return Acceptable;
-                else
-                    return Invalid;
-            }
-        }
-        else
-        {
-            if (const_cast<QRegExp &>(r).matchedLength() == input.size())
-                return Intermediate;
-            else
-            {
-                pos = input.size();
-                return Invalid;
-            }
-        }
-    }
-
-private:
-    bool is_uint;
-};
-
-// Class used to validate set operations on Counter64
-class UInt64Validator: public QValidator
-{
-public:
-    UInt64Validator(QObject *parent = 0): QValidator(parent) {}
-
-    State validate (QString& input, int& pos) const
-    {
-        QRegExp r("\\-?\\d{0,20}");
-        if (r.exactMatch(input))
-        {
-            bool ok;
-            unsigned long long uval = input.toULongLong(&ok);
-            if ( ((ok == true) && (uval <= 0xFFFFFFFFFFFFFFFFULL)) || 
-                 ((ok == false) && (!input.size())) )
-                return Acceptable;
-            else
-                return Invalid;
-        }
-        else
-        {
-            if (const_cast<QRegExp &>(r).matchedLength() == input.size())
-                return Intermediate;
-            else
-            {
-                pos = input.size();
-                return Invalid;
-            }
-        }
-    }
-};
 
 // C Callback functions for snmp++
 void callback_walk(int reason, Snmp *, Pdu &pdu, SnmpTarget &target, void *cd)
@@ -404,6 +320,7 @@ void Agent::SelectAgentProfile(QString *prefprofile, int prefproto)
             // update the combobox
             int index = s->MainUI()->AgentProfile->findText(prefprofile->toLatin1());
             s->MainUI()->AgentProfile->setCurrentIndex(index);
+            s->PreferencesObj()->SaveCurrentProfile(*prefprofile, prefproto);
         }
         else
         {
@@ -1207,277 +1124,56 @@ void Agent::GetBulk(const QString& oid)
     delete pdu;
 }
 
-// Callback when the combobox edition is finished in the set object dialog 
-void Agent::GetTypedSetValueCb(int index)
-{
-    setresult_int = cb->itemData(index).toInt();
-}
-
-// Callback when the linedit edition is finished in the set object dialog 
-void Agent::GetTypedSetValueLe(void)
-{
-    setresult_string = le->text();
-}
-
-// Callback when the OID linedit edition is finished in the set object dialog 
-void Agent::GetTypedSetValueOidLe(void)
-{
-    oid_to_set = oidle->text();
-}
-
 void Agent::SetFrom(const QString& oid)
 {
-    QString info;
-    IntValidator *validator = NULL;
-    UInt64Validator *validator64 = NULL;
-    QString setoid = oid;
-    Oid poid(setoid.toLatin1().data());
-    SmiNode *node = smiGetNodeByOID(poid.len(), (SmiSubid*)&(poid[0]));
-    SmiType *type = smiGetNodeType(node);
-    SmiRange *r;
-    SmiNamedNumber  *nn;
+    SnmpTarget *target;
+    Pdu *pdu;
+    int status;
 
-    // If a column object, ask the user to select the instance ...
-    if (node->nodekind == SMI_NODEKIND_COLUMN)
+    // Create and run the mib selection dialog
+    MibSelection ms(s, false);
+
+    if (ms.run(oid))
     {
-        // Pop-up the selection dialog
-        if (!SelectTableInstance(oid))
-            return;
-        setoid = oid + "." + tinstresult;
-    }
-    else
-        setoid = oid + ".0";
-
-    info = QString("<b>BaseType:</b> ");
-    if (type)
-    {
-        switch (type->basetype)
-        {
-        case SMI_BASETYPE_UNSIGNED32: info += "UNSIGNED32"; break;
-        case SMI_BASETYPE_INTEGER32: info += "INTEGER"; break;
-        case SMI_BASETYPE_ENUM: info += "ENUM"; break;
-        case SMI_BASETYPE_OBJECTIDENTIFIER: info += "OBJECT IDENTIFIER"; break;
-        case SMI_BASETYPE_OCTETSTRING: info += "OCTET STRING"; break;
-        case SMI_BASETYPE_BITS: info += "BITS"; break; 
-        case SMI_BASETYPE_UNSIGNED64: info += "UNSIGNED64"; break;
-        case SMI_BASETYPE_UNKNOWN:
-        default: info += "UNKNOWN"; break;
-        }
-    }
-
-    if (smiGetFirstRange(type))
-    {
-        info += QString("<br><b>Range:</b> ");
-        for (r = smiGetFirstRange(type); r; r = smiGetNextRange(r))
-        {
-            info += QString("%1 .. %2")
-                .arg(r->minValue.value.unsigned64).arg(r->maxValue.value.unsigned64);
-            if (smiGetNextRange(r))
-                info += ", ";
-        }
-    }
-
-    if (node->access != SMI_ACCESS_READ_WRITE)
-        info += "<br><b><font color=red>WARNING: object is not writable!</font></b>";
-
-    QDialog dprompt(NULL, Qt::WindowTitleHint);
-    dprompt.resize(300, 60);
-    QGridLayout gl(&dprompt);
-    QLabel label(info, &dprompt);
-    gl.addWidget(&label, 0, 0, 1, 1);
-    QDialogButtonBox box(QDialogButtonBox::Ok|QDialogButtonBox::Cancel, 
-                         Qt::Vertical, &dprompt);
-    gl.addWidget(&box, 0, 1, 2, 1);
-    QLabel oidlabel("<b>OID:</b>", &dprompt);
-    gl.addWidget(&oidlabel, 1, 0, 1, 1);
-    oid_to_set = setoid;
-    oidle = new QLineEdit(setoid, &dprompt);
-    connect(oidle, SIGNAL(editingFinished(void)), 
-            this, SLOT(GetTypedSetValueOidLe(void)));
-    gl.addWidget(oidle, 2, 0, 1, 1);
-    QLabel vallabel("<b>Value to set:</b>", &dprompt);
-    gl.addWidget(&vallabel, 3, 0, 1, 1);
-    le = NULL;
-    cb = NULL;
-
-    if (smiGetFirstNamedNumber(type))
-    {
-        cb = new QComboBox(&dprompt);
-        gl.addWidget(cb, 4, 0, 1, 1);
-        for (nn = smiGetFirstNamedNumber(type); nn; nn = smiGetNextNamedNumber(nn))
-            cb->addItem(QString("%1 (%2)").arg(nn->name).arg(nn->value.value.unsigned32), 
-                        QVariant((unsigned int)nn->value.value.unsigned32));
-        connect(cb, SIGNAL(currentIndexChanged(int)), 
-                this, SLOT(GetTypedSetValueCb(int)));
-    }
-    else
-    {
-        le = new QLineEdit(&dprompt);
-        gl.addWidget(le, 4, 0, 1, 1);
-        le->setFocus(Qt::OtherFocusReason);
-
-        // Set acceptable ranges/inputs
-        switch (type->basetype)
-        {
-        case SMI_BASETYPE_OCTETSTRING:
-        case SMI_BASETYPE_OBJECTIDENTIFIER:
-            le->setMaxLength(65535);
-            break;
-        case SMI_BASETYPE_INTEGER32:
-        case SMI_BASETYPE_ENUM:
-            validator = new IntValidator(false, le);
-            le->setValidator(validator);
-            break;
-        case SMI_BASETYPE_UNSIGNED64:
-            validator64 = new UInt64Validator(le);
-            le->setValidator(validator64);
-            break;
-        default:
-            validator = new IntValidator(true, le);
-            le->setValidator(validator);
-        }
-
-        connect(le, SIGNAL(editingFinished(void)), 
-                this, SLOT(GetTypedSetValueLe(void)));
-    }
-
-    dprompt.setWindowTitle(QApplication::translate("Dialog", 
-                           "Set", 0, QApplication::UnicodeUTF8));
-    QObject::connect(&box, SIGNAL(accepted()), &dprompt, SLOT(accept()));
-    QObject::connect(&box, SIGNAL(rejected()), &dprompt, SLOT(reject()));
-    QMetaObject::connectSlotsByName(&dprompt);
-
-    // Show the gui to the user. If OK is pressed, construct and send the packet
-    if (dprompt.exec())
-    {
-        int status;
-        Vb vb;
-
         // Initialize agent & pdu objects
-        SnmpTarget *target;
-        Pdu *pdu;
-        if (Setup(oid_to_set, &target, &pdu) < 0)
-            goto bailout;
+        if (Setup(oid, &target, &pdu) < 0)
+            return;
 
-        // Fill-in pdu
-        switch (type->basetype)
+        pdu->delete_vb(0);
+        Vb *vb = ms.GetVarbind();
+        if (vb)
         {
-        case SMI_BASETYPE_UNSIGNED32:
-            if (type->name && !strcmp(type->name, "TimeTicks"))
+            *pdu += *vb;
+
+            // Clear the Query window ...
+            s->MainUI()->Query->clear();
+            s->MainUI()->Query->append("-----SNMP set started-----");
+
+            // Clear some global vars
+            requests = 0;
+            objects = 0;
+            msg = "";
+            stop = false;
+
+            // Now do an async set 
+            status = snmp->set(*pdu, *target, callback_set, this);
+
+            // Could we send it?
+            if (status == SNMP_CLASS_SUCCESS)
             {
-                TimeTicks timeticks(setresult_string.toUInt());
-                if (timeticks.valid())
-                    vb.set_value(timeticks);
-                else
-                {
-                    QMessageBox::critical( NULL, "Set Operation", 
-                                           "Invalid TimeTick value",
-                                           QMessageBox::Ok, Qt::NoButton);
-                    goto cleanup;
-                }
-            }
-            else
-                vb.set_value((unsigned long)setresult_string.toUInt());
-            break;
-        case SMI_BASETYPE_INTEGER32:
-            vb.set_value(setresult_string.toInt());
-            break;
-        case SMI_BASETYPE_ENUM: 
-            vb.set_value(setresult_int);
-            break;
-        case SMI_BASETYPE_OBJECTIDENTIFIER:
-        {
-            Oid oid(setresult_string.toLatin1().data());
-            if (oid.valid())
-                vb.set_value( oid);
-            else
-            {
-                QMessageBox::critical( NULL, "Set Operation", 
-                                       "Invalid Object Identifier value",
-                                       QMessageBox::Ok, Qt::NoButton);
-                goto cleanup;
-            }
-            break;
-        }
-        case SMI_BASETYPE_OCTETSTRING:
-        case SMI_BASETYPE_BITS: 
-            if (type->name && !strcmp(type->name, "IpAddress"))
-            {
-                IpAddress ipaddress(setresult_string.toLatin1().data());
-                if (ipaddress.valid())
-                    vb.set_value( ipaddress);
-                else
-                {
-                    QMessageBox::critical( NULL, "Set Operation", 
-                                           "Invalid IP address value",
-                                           QMessageBox::Ok, Qt::NoButton);
-                    goto cleanup;
-                } 
+                timer.start(ASYNC_TIMER_MSEC);
             }
             else
             {
-                OctetStr octetstr(setresult_string.toLatin1().data());
-                if (octetstr.valid())
-                    vb.set_value(octetstr);
-                else
-                {
-                    QMessageBox::critical( NULL, "Set Operation", 
-                                           "Invalid Octet String value",
-                                           QMessageBox::Ok, Qt::NoButton);
-                    goto cleanup;
-                } 
+                msg = QString("<font color=red>Could not send SET request: %1</font>")
+                    .arg(Snmp::error_msg(status));
+                s->MainUI()->Query->append(msg);
             }
-            break; 
-        case SMI_BASETYPE_UNSIGNED64:
-            vb.set_value(Counter64::ll_to_c64(setresult_string.toULongLong()));
-            break;
-        case SMI_BASETYPE_UNKNOWN:
-        default:
-            break;
         }
 
-        vb.set_oid(Oid(oid_to_set.toLatin1().data()));
-        pdu->set_vb(vb, 0);
-
-        // Clear the Query window ...
-        s->MainUI()->Query->clear();
-        s->MainUI()->Query->append("-----SNMP set started-----");
-
-        // Clear some global vars
-        objects = 0;
-        msg = "";
-
-        // Now do an async set 
-        status = snmp->set(*pdu, *target, callback_set, this);
-
-        // Could we send it?
-        if (status == SNMP_CLASS_SUCCESS)
-        {
-            timer.start(ASYNC_TIMER_MSEC);
-        }
-        else
-        {
-            msg = QString("<font color=red>Could not send SET request: %1</font>")
-                          .arg(Snmp::error_msg(status));
-            s->MainUI()->Query->append(msg);
-        }
-
-cleanup:
         delete target;
         delete pdu;
     }
-
-bailout:
-    if (validator)
-        delete validator;
-    if (validator64)
-        delete validator64;
-    if (cb)
-        delete cb;
-    if (le)
-        delete le;
-    if (oidle)
-        delete oidle;
 }
 
 void Agent::Stop(void)
@@ -1666,18 +1362,49 @@ void Agent::VarbindsFrom(const QString& oid)
 
 void Agent::VarbindsNew(void)
 {
+#if 0
+    // Create and run the mib selection dialog
+    MibSelection ms(s, true);
+
+    if (ms.run(""))
+    {
+        Vb *vb = ms.GetVarbind();
+        if (vb)
+        {
+            QStringList s;
+            s << "TODO" << vb->get_printable_oid() << "TODO syntax" /*vb->get_syntax()*/ << vb->get_printable_value();
+            vbui->VarbindsList->addTopLevelItem(new QTreeWidgetItem(s));
+        }
+    }
+#endif
 }
 
 void Agent::VarbindsEdit(void)
 {
+#if 0
+    // Create and run the mib selection dialog
+    MibSelection ms(s, true);
+
+    if (ms.run("1.3.6.3.4.5.6.7.8.9.2.3.4.3.2.0"))
+    {
+    }
+#endif
 }
 
 void Agent::VarbindsDelete(void)
 {
     QTreeWidget *vbl = vbui->VarbindsList;
     QList<QTreeWidgetItem *> items = vbl->selectedItems();
+
+    QTreeWidgetItem *next = vbl->itemBelow(items[items.size()-1]);
+    if (!next)
+        next = vbl->itemAbove(items[items.size()-1]);
+
     for (int i = 0; i < items.size(); i++)
         delete vbl->takeTopLevelItem(vbl->indexOfTopLevelItem(items[i]));
+
+    if (next)
+        vbl->setCurrentItem(next); 
 }
 
 void Agent::VarbindsDeleteAll(void)
@@ -1803,7 +1530,7 @@ void Agent::GetSelectedTableInstance(QListWidgetItem * item)
     emit TableInstanceSelected(1);
 }
 
-int Agent::SelectTableInstance(const QString& oid)
+int Agent::SelectTableInstance(const QString& oid, QString& outinstance)
 {
     // Initialize agent & pdu objects
     SnmpTarget *target;
@@ -1848,6 +1575,7 @@ int Agent::SelectTableInstance(const QString& oid)
             this, SLOT(GetSelectedTableInstance(QListWidgetItem *)));
     connect(this, SIGNAL(TableInstanceSelected(int)),
             &dlist, SLOT(done(int)));
+    dlist.setModal(true);
     dlist.show();
     dlist.raise();
     dlist.activateWindow();
@@ -1876,6 +1604,8 @@ int Agent::SelectTableInstance(const QString& oid)
     // Wait for the result
     res = dlist.exec();
 
+    outinstance = tinstresult;
+
     delete target;
     delete pdu;
 
@@ -1885,21 +1615,22 @@ int Agent::SelectTableInstance(const QString& oid)
 void Agent::GetFromSelectInstance(const QString& oid, int op)
 {
     int res = 0;
+    QString inst;
 
     // Pop-up the selection dialog
-    res = SelectTableInstance(oid);
+    res = SelectTableInstance(oid, inst);
 
     // Then query the proper instance
     switch(op)
     {
     case 0:
-        Get(oid + (res?("." + tinstresult):".0"));
+        Get(oid + (res?("." + inst):".0"));
         break;
     case 1:
-        GetNext(oid + (res?("." + tinstresult):".0"));
+        GetNext(oid + (res?("." + inst):".0"));
         break;
     case 2:
-        GetBulk(oid + (res?("." + tinstresult):".0"));
+        GetBulk(oid + (res?("." + inst):".0"));
         break;
     default:
         break;

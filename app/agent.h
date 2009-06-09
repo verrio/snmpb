@@ -54,9 +54,11 @@ public:
 
     inline USM *GetUSMObj(void) { return v3mp->get_usm(); };
 
+    int SelectTableInstance(const QString& oid, QString& outinstance);
+
 protected:
     int Setup(const QString& oid, SnmpTarget **t, Pdu **p);
-    int SelectTableInstance(const QString& oid);
+
 
 public slots:
     void WalkFrom(const QString& oid);
@@ -72,9 +74,6 @@ public slots:
     void GetSelectedTableInstance(QListWidgetItem * item);
     void VarbindsFrom(const QString& oid);
     void GetTypedTableInstance(void);
-    void GetTypedSetValueCb(int index);
-    void GetTypedSetValueLe(void);
-    void GetTypedSetValueOidLe(void);
 
 protected slots:
     void TimerExpired(void);    
@@ -111,14 +110,9 @@ private:
     QString msg;
     Oid theoid;
 
-    QComboBox *cb;
     QLineEdit *le;
-    QLineEdit *oidle;
     QString tinstresult;
-    QString setresult_string;
-    int setresult_int;
-    QString oid_to_set;
-
+ 
     bool stop;
 
     Ui_Varbinds *vbui;
