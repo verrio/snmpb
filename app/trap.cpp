@@ -94,7 +94,7 @@ void TrapItem::PrintContent(QTreeWidget* TrapContent)
             char *b = smiRenderOID(node->oidlen, node->oid, 
                                    SMI_RENDER_NUMERIC);
             char *f = (char*)vb->get_printable_oid();
-            while ((*b++ == *f++) && (*b != '\0') && (*f != '\0'));
+            while ((*b++ == *f++) && (*b != '\0') && (*f != '\0')) ;
             /* f is now the remaining part */
                     
             // Print the OID part
