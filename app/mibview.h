@@ -43,6 +43,7 @@ public:
     void Populate (void);
     void SetDirty(void);
     void RegisterToLoader(MibViewLoader *loader); 
+    void SelectFromOid(const QString& oid);
 
 protected slots:
     void ExpandNode( QTreeWidgetItem * item);

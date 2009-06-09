@@ -252,6 +252,28 @@ start_find:
     }
 }
 
+void BasicMibView::SelectFromOid(const QString& oid)
+{
+    QTreeWidgetItem *start = NULL, *cur = NULL;
+
+    // Determine begin of tree 
+    start = itemFromIndex(model()->index(0, 0, QModelIndex()));
+ 
+    // Create iterator
+    QTreeWidgetItemIterator it( start );
+
+    // Loop thru tree items and break if item is found
+    while ( (cur = *it++) != NULL)
+    {
+        if (((MibNode*)cur)->GetOid() == oid) 
+        {
+            // Found item
+            setCurrentItem(cur);
+            break;
+        }
+    }
+}
+
 void BasicMibView::ExpandNode( QTreeWidgetItem * item)
 {
     MibNode *node = (MibNode*)item;
