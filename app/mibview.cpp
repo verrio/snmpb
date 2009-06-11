@@ -514,7 +514,6 @@ void MibView::VarbindsFromNode(void)
         return;
     
     QString oid(((MibNode*)start)->GetOid());
-    oid += ".0";
     emit VarbindsFromOid(oid);
 }
 

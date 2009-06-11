@@ -120,8 +120,13 @@ public:
     ~MibSelection();
 
     bool run(const QString& oid);
+    void bgrun(const QString& oid);
+
     Vb *GetVarbind(void);
-    QString GetSyntax(void);
+    QString GetSyntaxName(void);
+    int GetSyntax(void);
+    QString GetOid(void);
+    QString GetValue(void);
     QString GetName(void);
     SmiNode *GetNode(void);
 
@@ -162,6 +167,7 @@ private:
     QString result_string;
     QString result_oid;
     int     result_syntax;
+    Oid     result_poid;
 
     IntValidator *validator;
     UInt64Validator *validator64;

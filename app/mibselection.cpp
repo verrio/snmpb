@@ -134,14 +134,42 @@ Vb *MibSelection::GetVarbind(void)
     return &vb;
 }
 
-QString MibSelection::GetSyntax(void)
+QString MibSelection::GetSyntaxName(void)
 {
     return syntax;
 }
 
+int MibSelection::GetSyntax(void)
+{
+    return result_syntax;
+}
+
+QString MibSelection::GetOid(void)
+{
+    return result_oid;
+}
+
+QString MibSelection::GetValue(void)
+{
+    return result_string;
+}
+
 QString MibSelection::GetName(void)
 {
-    return node?node->name:result_oid;
+    if (node)
+    {
+        char *b = (char*)result_poid.get_printable();
+        char *f = result_oid.toLatin1().data();
+        while ((*b++ == *f++) && (*b != '\0') && (*f != '\0')) ;
+        /* f is now the remaining part */
+
+        if (*f != '\0')
+            return QString("%1%2").arg(node->name).arg(f);
+        else
+            return QString("%1").arg(node->name);
+    }
+    else
+        return  result_oid;
 }
 
 SmiNode *MibSelection::GetNode(void)
@@ -181,7 +209,6 @@ void MibSelection::GetSelectedOid(const QString& oid)
 {
     SetOidInfoType(oid);
     SetSyntax();
-    SetValueWidget();
 }
 
 // Callback when the user presses the OK button 
@@ -202,7 +229,7 @@ void MibSelection::OKButtonPressed(void)
             {
                 SnmpInt32 v(result_string.toInt());
                 vb.set_value(v);
-                syntax = "INTEGER";
+                syntax = "INTEGER32";
                 break;
             }
         case sNMP_SYNTAX_CNTR32:
@@ -314,6 +341,7 @@ void MibSelection::OKButtonPressed(void)
 void MibSelection::SetOidInfoType(const QString& oid)
 {
     Oid poid(oid.toLatin1().data());
+    result_poid = poid;
 
     QString outoid = oid;
     QString outinfo = "";
@@ -491,6 +519,8 @@ void MibSelection::SetSyntax(void)
     }
     else // default
         syntax_cb->setCurrentIndex(4);
+
+    GetSyntaxCb(syntax_cb->currentIndex());
 }
 
 bool MibSelection::run(const QString& oid)
@@ -504,7 +534,6 @@ bool MibSelection::run(const QString& oid)
 
     SetOidInfoType(oid); 
     SetSyntax();
-    SetValueWidget();
 
     val_le->setFocus(Qt::OtherFocusReason);
 
@@ -518,5 +547,14 @@ bool MibSelection::run(const QString& oid)
     disconnect( bmv, SIGNAL( SelectedOid(const QString&) ), 0, 0);
 
     return status;
+}
+
+void MibSelection::bgrun(const QString& oid)
+{
+    bmv->SelectFromOid(oid);
+    SetOidInfoType(oid); 
+    SetSyntax();
+    OKButtonPressed();
+    vb.set_oid(Oid(result_oid.toLatin1().data()));
 }
 

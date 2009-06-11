@@ -175,6 +175,8 @@ void Agent::Init(void)
     connect( vbui->SetOp, SIGNAL( clicked() ), this, SLOT( VarbindsSet() ));
     connect( vbui->VarbindsList, SIGNAL( itemSelectionChanged() ), 
              this, SLOT( VarbindsSelected() ));
+    connect( vbui->VarbindsList, SIGNAL( itemDoubleClicked(QTreeWidgetItem*, int) ), 
+             this, SLOT( VarbindsEdit() ));
 
     connect(&timer, SIGNAL(timeout()), this, SLOT(TimerExpired()));
     
@@ -1313,76 +1315,19 @@ void Agent::TableViewFrom(const QString& oid)
 
 void Agent::VarbindsFrom(const QString& oid)
 {
-    SmiType *smiType = NULL;
-    Oid poid(oid.toLatin1().data());
-    QString basetype;
+    // Do a background run of the mib selection dialog
+    MibSelection ms(s, "New VarBind");
 
-    // Get information about selected element
-    SmiNode *node = smiGetNodeByOID(poid.len(), (SmiSubid*)&(poid[0]));
-    if (node)
-        smiType = smiGetNodeType(node);
-    if (smiType && node && 
-        !(node->nodekind == SMI_NODEKIND_TABLE) && 
-        (smiType->decl == SMI_DECL_IMPLICIT_TYPE))
+    ms.bgrun(oid);
+
+    Vb *vb = ms.GetVarbind();
+    if (vb)
     {
-        SmiType *parentType = smiGetParentType(smiType);
-        if (parentType)
-            smiType = parentType;
+        QStringList s;
+        s << ms.GetName() << ms.GetOid() 
+          << ms.GetSyntaxName() << GetPrintableValue(ms.GetNode(), vb);
+        vbui->VarbindsList->addTopLevelItem(new QTreeWidgetItem(s));
     }
-
-    if (smiType)
-    {
-        switch (smiType->basetype)
-        {
-            case SMI_BASETYPE_UNSIGNED32:
-                if (!strcmp(smiType->name, "TimeTicks"))
-                {
-                    basetype += "TIMETICKS";
-                    break;
-                }
-                else if (!strcmp(smiType->name, "Counter32") || 
-                        !strcmp(smiType->name, "COUNTER"))
-                {
-                    basetype += "COUNTER32";
-                    break;
-                }
-                else if (!strcmp(smiType->name, "Gauge32") || 
-                        !strcmp(smiType->name, "GAUGE"))
-                {
-                    basetype += "GAUGE32";
-                    break;
-                }
-                else
-                    basetype += "UNSIGNED32";
-                break;
-            case SMI_BASETYPE_INTEGER32: basetype += "INTEGER"; break;
-            case SMI_BASETYPE_ENUM: basetype += "ENUM"; break;
-            case SMI_BASETYPE_OBJECTIDENTIFIER: basetype += "OBJECT IDENTIFIER"; break;
-            case SMI_BASETYPE_OCTETSTRING:
-                if (!strcmp(smiType->name, "IpAddress"))
-                {
-                    basetype += "IP ADDRESS";
-                    break;
-                }
-                else if (!strcmp(smiType->name, "Opaque"))
-                {
-                    basetype += "OPAQUE";
-                    break;
-                }
-                else
-                    basetype += "OCTET STRING";
-                break;
-            case SMI_BASETYPE_BITS: basetype += "BITS"; break; 
-            case SMI_BASETYPE_UNSIGNED64: basetype += "UNSIGNED64"; break;
-            case SMI_BASETYPE_UNKNOWN:
-            default: basetype += "UNKNOWN"; break;
-        }
-    }
-
-    // Display the element information
-    QStringList s;
-    s << (node?node->name:oid) << oid << basetype << ""; 
-    vbui->VarbindsList->addTopLevelItem(new QTreeWidgetItem(s));
 
     vbd->exec(); 
 }
@@ -1398,8 +1343,8 @@ void Agent::VarbindsNew(void)
         if (vb)
         {
             QStringList s;
-            s << ms.GetName() << vb->get_printable_oid() 
-              << ms.GetSyntax() << GetPrintableValue(ms.GetNode(), vb);
+            s << ms.GetName() << ms.GetOid() 
+              << ms.GetSyntaxName() << GetPrintableValue(ms.GetNode(), vb);
             vbui->VarbindsList->addTopLevelItem(new QTreeWidgetItem(s));
         }
     }
