@@ -30,6 +30,15 @@
 #define ASYNC_TIMER_MSEC 5
 #define TRAP_TIMER_MSEC 100
 
+typedef struct
+{
+    Vb vb;
+    int syntax;
+    QString val;
+} vb_data;
+
+Q_DECLARE_METATYPE(vb_data);
+
 // C Callback functions for snmp++
 void callback_walk(int reason, Snmp *, Pdu &pdu, SnmpTarget &target, void *cd)
 {
@@ -339,7 +348,7 @@ void Agent::SelectAgentProfile(QString *prefprofile, int prefproto)
     }
 }
 
-int Agent::Setup(const QString& oid, SnmpTarget **t, Pdu **p)
+int Agent::Setup(const QString& oid, SnmpTarget **t, Pdu **p, bool usevblist)
 {    
     if (!snmp)
         return -1;
@@ -373,7 +382,7 @@ int Agent::Setup(const QString& oid, SnmpTarget **t, Pdu **p)
         UTarget *utarget = new UTarget(address);
 
         ConfigTargetFromSettings(version3, utarget, ap);
-        theoid = ConfigPduFromSettings(version3, oid, pdu, ap);
+        theoid = ConfigPduFromSettings(version3, oid, pdu, ap, usevblist);
         *t = utarget;
     }
     else
@@ -384,12 +393,12 @@ int Agent::Setup(const QString& oid, SnmpTarget **t, Pdu **p)
         if (s->MainUI()->AgentProtoV2->isChecked())
         {
             ConfigTargetFromSettings(version2c, ctarget, ap);
-            theoid = ConfigPduFromSettings(version2c, oid, pdu, ap);
+            theoid = ConfigPduFromSettings(version2c, oid, pdu, ap, usevblist);
         }
         else
         {
             ConfigTargetFromSettings(version1, ctarget, ap);
-            theoid = ConfigPduFromSettings(version1, oid, pdu, ap);
+            theoid = ConfigPduFromSettings(version1, oid, pdu, ap, usevblist);
         }
 
         *t = ctarget;
@@ -426,15 +435,29 @@ void Agent::ConfigTargetFromSettings(snmp_version v, SnmpTarget *t,
 }
 
 Oid Agent::ConfigPduFromSettings(snmp_version v, const QString& oid, 
-                                 Pdu *p, AgentProfile *ap)
+                                 Pdu *p, AgentProfile *ap, bool usevblist)
 {
     Vb vb;
     Oid oidobj(oid.toLatin1().data());
 
-    // Set the Oid part of the Vb & add it to pdu
-    vb.set_oid(oidobj);
-    p->clear();
-    *p += vb;
+    if (usevblist == true)
+    {
+        // Use the pre-built vblist
+        Vb *v[100];
+
+        for(int i=0;i<vbcount;i++)
+            v[i] = &vblist[i];
+
+        p->clear();
+        p->set_vblist(v[0], vbcount);
+    }
+    else
+    {
+        // Set the Oid part of the Vb & add it to pdu
+        vb.set_oid(oidobj);
+        p->clear();
+        *p += vb;
+    }
 
     if (v == version3)
     {
@@ -465,7 +488,7 @@ void Agent::TimerExpired(void)
 char *Agent::GetPrintableValue(SmiNode *node, Vb *vb)
 {  
     SmiValue myvalue;
-    SmiType *type = smiGetNodeType(node);
+    SmiType *type = node?smiGetNodeType(node):NULL;
      
     if (type && (type->name == NULL) && 
         (type->basetype != SMI_BASETYPE_ENUM) && 
@@ -1005,14 +1028,14 @@ void Agent::GetFrom(const QString& oid, int op)
     }
 }
 
-void Agent::Get(const QString& oid)
+void Agent::Get(const QString& oid, bool usevblist)
 {
     int status;
     
     // Initialize agent & pdu objects
     SnmpTarget *target;
     Pdu *pdu;
-    if (Setup(oid, &target, &pdu) < 0)
+    if (Setup(oid, &target, &pdu, usevblist) < 0)
         return;
     
     // Clear the Query window ...
@@ -1044,14 +1067,14 @@ void Agent::Get(const QString& oid)
     delete pdu;
 }
 
-void Agent::GetNext(const QString& oid)
+void Agent::GetNext(const QString& oid, bool usevblist)
 {
     int status;
     
     // Initialize agent & pdu objects
     SnmpTarget *target;
     Pdu *pdu;    
-    if (Setup(oid, &target, &pdu) < 0)
+    if (Setup(oid, &target, &pdu, usevblist) < 0)
         return;
         
     // Clear the Query window ...
@@ -1083,14 +1106,14 @@ void Agent::GetNext(const QString& oid)
     delete pdu;
 }
 
-void Agent::GetBulk(const QString& oid)
+void Agent::GetBulk(const QString& oid, bool usevblist)
 {
     int status;
     
     // Initialize agent & pdu objects
     SnmpTarget *target;
     Pdu *pdu;    
-    if (Setup(oid, &target, &pdu) < 0)
+    if (Setup(oid, &target, &pdu, usevblist) < 0)
         return;
         
     // Clear the Query window ...
@@ -1126,55 +1149,60 @@ void Agent::GetBulk(const QString& oid)
     delete pdu;
 }
 
-void Agent::SetFrom(const QString& oid)
+void Agent::Set(const QString& oid, bool usevblist)
 {
-    SnmpTarget *target;
-    Pdu *pdu;
     int status;
 
+    // Initialize agent & pdu objects
+    SnmpTarget *target;
+    Pdu *pdu;    
+    if (Setup(oid, &target, &pdu, usevblist) < 0)
+        return;
+
+    // Clear the Query window ...
+    s->MainUI()->Query->clear();
+    s->MainUI()->Query->append("-----SNMP set started-----");
+
+    // Clear some global vars
+    requests = 0;
+    objects = 0;
+    msg = "";
+    stop = false;
+
+    // Now do an async set 
+    status = snmp->set(*pdu, *target, callback_set, this);
+
+    // Could we send it?
+    if (status == SNMP_CLASS_SUCCESS)
+    {
+        timer.start(ASYNC_TIMER_MSEC);
+    }
+    else
+    {
+        msg = QString("<font color=red>Could not send SET request: %1</font>")
+            .arg(Snmp::error_msg(status));
+        s->MainUI()->Query->append(msg);
+    }
+
+
+    delete target;
+    delete pdu;
+}
+
+void Agent::SetFrom(const QString& oid)
+{
     // Create and run the mib selection dialog
     MibSelection ms(s, "Set");
 
     if (ms.run(oid))
     {
-        // Initialize agent & pdu objects
-        if (Setup(oid, &target, &pdu) < 0)
-            return;
-
-        pdu->delete_vb(0);
         Vb *vb = ms.GetVarbind();
         if (vb)
         {
-            *pdu += *vb;
-
-            // Clear the Query window ...
-            s->MainUI()->Query->clear();
-            s->MainUI()->Query->append("-----SNMP set started-----");
-
-            // Clear some global vars
-            requests = 0;
-            objects = 0;
-            msg = "";
-            stop = false;
-
-            // Now do an async set 
-            status = snmp->set(*pdu, *target, callback_set, this);
-
-            // Could we send it?
-            if (status == SNMP_CLASS_SUCCESS)
-            {
-                timer.start(ASYNC_TIMER_MSEC);
-            }
-            else
-            {
-                msg = QString("<font color=red>Could not send SET request: %1</font>")
-                    .arg(Snmp::error_msg(status));
-                s->MainUI()->Query->append(msg);
-            }
+            vbcount = 1;
+            vblist[0] = *vb;
+            Set(ms.GetOid(), true);
         }
-
-        delete target;
-        delete pdu;
     }
 }
 
@@ -1313,6 +1341,40 @@ void Agent::TableViewFrom(const QString& oid)
     delete pdu;
 }
 
+QString Agent::GetValueString(MibSelection &ms, Vb* vb)
+{
+    // Get the printable value, with an exception for the ENUMs and C64
+    if (!ms.GetValue().isEmpty())
+    {
+        if (ms.GetNode() && 
+            (smiGetNodeType(ms.GetNode())->basetype == SMI_BASETYPE_ENUM) && 
+            (ms.GetSyntax() == sNMP_SYNTAX_INT32))
+        {
+            return GetPrintableValue(ms.GetNode(), vb);
+        }
+        else
+            if (ms.GetSyntax() == sNMP_SYNTAX_CNTR64)
+            {    
+                SmiValue myvalue;
+                myvalue.basetype = SMI_BASETYPE_UNSIGNED64;
+                myvalue.len = 0;
+                Counter64 cntr64;
+                SmiType mytype;
+                mytype.basetype = SMI_BASETYPE_UNSIGNED64;
+                mytype.format = 0;
+                if (vb->get_value(cntr64) == SNMP_CLASS_SUCCESS)
+                {
+                    myvalue.value.unsigned64 = Counter64::c64_to_ll(cntr64);
+                    return smiRenderValue(&myvalue, &mytype, SMI_RENDER_ALL);
+                }
+            }
+            else
+                return vb->get_printable_value();
+    }
+
+    return "";
+}
+
 void Agent::VarbindsFrom(const QString& oid)
 {
     // Do a background run of the mib selection dialog
@@ -1325,9 +1387,22 @@ void Agent::VarbindsFrom(const QString& oid)
     {
         QStringList s;
         s << ms.GetName() << ms.GetOid() 
-          << ms.GetSyntaxName() << GetPrintableValue(ms.GetNode(), vb);
-        vbui->VarbindsList->addTopLevelItem(new QTreeWidgetItem(s));
+          << ms.GetSyntaxName() << GetValueString(ms, vb);
+
+        vb_data data;
+        data.vb = *vb;
+        data.syntax = ms.GetSyntax();
+        data.val = ms.GetValue();
+        QTreeWidgetItem *qtwi = new QTreeWidgetItem(s);
+        QVariant qv;
+        qv.setValue(data);
+        qtwi->setData(0, Qt::UserRole, qv);
+        vbui->VarbindsList->addTopLevelItem(qtwi);
+        
+        vbui->VarbindsList->setCurrentItem(qtwi); 
     }
+
+    vbui->SNMPOps->setEnabled(true);
 
     vbd->exec(); 
 }
@@ -1337,15 +1412,24 @@ void Agent::VarbindsNew(void)
     // Create and run the mib selection dialog
     MibSelection ms(s, "New VarBind");
 
-    if (ms.run(""))
+    if (ms.run())
     {
         Vb *vb = ms.GetVarbind();
         if (vb)
         {
             QStringList s;
             s << ms.GetName() << ms.GetOid() 
-              << ms.GetSyntaxName() << GetPrintableValue(ms.GetNode(), vb);
-            vbui->VarbindsList->addTopLevelItem(new QTreeWidgetItem(s));
+              << ms.GetSyntaxName() << GetValueString(ms, vb);
+
+            vb_data data;
+            data.vb = *vb;
+            data.syntax = ms.GetSyntax();
+            data.val = ms.GetValue();
+            QTreeWidgetItem *qtwi = new QTreeWidgetItem(s);
+            QVariant qv;
+            qv.setValue(data);
+            qtwi->setData(0, Qt::UserRole, qv);
+            vbui->VarbindsList->addTopLevelItem(qtwi);
         }
     }
 }
@@ -1365,8 +1449,25 @@ void Agent::VarbindsEdit(void)
     // Create and run the mib selection dialog
     MibSelection ms(s, "Edit VarBind");
 
-    if (ms.run(items[0]->text(1)))
+    vb_data data = items[0]->data(0, Qt::UserRole).value<vb_data>();
+
+    if (ms.run(items[0]->text(1), data.syntax, data.val))
     {
+        Vb *vb = ms.GetVarbind();
+        if (vb)
+        {
+            items[0]->setText(0, ms.GetName());
+            items[0]->setText(1, ms.GetOid());
+            items[0]->setText(2, ms.GetSyntaxName());
+            items[0]->setText(3, GetValueString(ms, vb));
+ 
+            data.vb = *vb;
+            data.syntax = ms.GetSyntax();
+            data.val = ms.GetValue();
+            QVariant qv;
+            qv.setValue(data);
+            items[0]->setData(0, Qt::UserRole, qv);
+        }
     }
 }
 
@@ -1465,20 +1566,54 @@ void Agent::VarbindsQuit(void)
     vbd->accept();
 }
 
+void Agent::VarbindsBuildList(void)
+{
+    QTreeWidget *vbl = vbui->VarbindsList;
+    for(int i = 0; i < vbl->topLevelItemCount(); i++)
+    {
+        QTreeWidgetItem *item = vbl->topLevelItem(i);
+        vb_data data = item->data(0, Qt::UserRole).value<vb_data>();
+        printf("Value %d: %s\n", i, data.val.toLatin1().data());
+        vblist[i] = data.vb;
+    }
+
+    vbcount = vbl->topLevelItemCount();
+}
+
 void Agent::VarbindsGet(void)
 {
+    // Build the vblist
+    VarbindsBuildList();
+
+    // Do the operation 
+    Get("", true);
 }
 
 void Agent::VarbindsGetNext(void)
 {
+    // Build the vblist
+    VarbindsBuildList();
+
+    // Do the operation 
+    GetNext("", true);
 }
 
 void Agent::VarbindsGetBulk(void)
 {
+    // Build the vblist
+    VarbindsBuildList();
+
+    // Do the operation 
+    GetBulk("", true);
 }
 
 void Agent::VarbindsSet(void)
 {
+    // Build the vblist
+    VarbindsBuildList();
+
+    // Do the operation 
+    Set("", true);
 }
 
 // Controls buttons to gray out

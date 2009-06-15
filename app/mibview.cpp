@@ -265,7 +265,10 @@ void BasicMibView::SelectFromOid(const QString& oid)
     // Loop thru tree items and break if item is found
     while ( (cur = *it++) != NULL)
     {
-        if (((MibNode*)cur)->GetOid() == oid) 
+        MibNode* mn = (MibNode*)cur;
+        if ((mn->GetOid() == oid) ||
+            (oid.startsWith(mn->GetOid()) && 
+             (mn->GetKind() == MibNode::MIBNODE_COLUMN)))
         {
             // Found item
             setCurrentItem(cur);

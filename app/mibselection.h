@@ -119,7 +119,8 @@ public:
     MibSelection(Snmpb *snmpb, QString title);
     ~MibSelection();
 
-    bool run(const QString& oid);
+    bool run(const QString& init_oid = "", int init_syntax = -1, 
+             const QString& init_val = "");
     void bgrun(const QString& oid);
 
     Vb *GetVarbind(void);
@@ -141,7 +142,7 @@ public slots:
 protected:
     void SetOidInfoType(const QString& oid);
     void SetValueWidget(void);
-    void SetSyntax(void);
+    void SetSyntax(int st = -1);
 
 private:
     Snmpb *s;
@@ -167,7 +168,6 @@ private:
     QString result_string;
     QString result_oid;
     int     result_syntax;
-    Oid     result_poid;
 
     IntValidator *validator;
     UInt64Validator *validator64;

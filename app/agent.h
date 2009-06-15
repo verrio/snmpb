@@ -25,6 +25,7 @@
 #include "snmpb.h"
 #include "mibview.h"
 #include "trap.h"
+#include "mibselection.h"
 #include "agentprofile.h"
 #include "ui_varbinds.h"
 #include "snmp_pp/snmp_pp.h"
@@ -44,10 +45,10 @@ public:
     void AsyncCallbackSet(int reason, Pdu &pdu, SnmpTarget &target);
     
     static char *GetPrintableValue(SmiNode *node, Vb *vb);
-    static void ConfigTargetFromSettings(snmp_version v,
-                                         SnmpTarget *t, AgentProfile *ap);
-    static Oid ConfigPduFromSettings(snmp_version v, const QString& oid, 
-                                     Pdu *p, AgentProfile *ap);
+    void ConfigTargetFromSettings(snmp_version v,
+                                  SnmpTarget *t, AgentProfile *ap);
+    Oid ConfigPduFromSettings(snmp_version v, const QString& oid, 
+                              Pdu *p, AgentProfile *ap, bool usevblist = false);
     
     // Used by graph update timer
     unsigned long GetSyncValue(const QString& oid);
@@ -57,17 +58,21 @@ public:
     int SelectTableInstance(const QString& oid, QString& outinstance);
 
 protected:
-    int Setup(const QString& oid, SnmpTarget **t, Pdu **p);
+    int Setup(const QString& oid, SnmpTarget **t, Pdu **p, bool usevblist = false);
 
+private:
+    QString GetValueString(MibSelection &ms, Vb* vb);
+    void VarbindsBuildList(void);
 
 public slots:
     void WalkFrom(const QString& oid);
-    void Get(const QString& oid);
-    void GetNext(const QString& oid);
-    void GetBulk(const QString& oid);
+    void Get(const QString& oid, bool usevblist = false);
+    void GetNext(const QString& oid, bool usevblist = false);
+    void GetBulk(const QString& oid, bool usevblist = false);
     void GetFrom(const QString& oid, int op);
     void GetFromPromptInstance(const QString& oid, int op);
     void GetFromSelectInstance(const QString& oid, int op);
+    void Set(const QString& oid, bool usevblist = false);
     void SetFrom(const QString& oid);
     void Stop(void);
     void TableViewFrom(const QString& oid);
@@ -114,6 +119,9 @@ private:
     QString tinstresult;
  
     bool stop;
+
+    Vb vblist[100];
+    int vbcount;
 
     Ui_Varbinds *vbui;
     QDialog *vbd;

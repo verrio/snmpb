@@ -158,7 +158,8 @@ QString MibSelection::GetName(void)
 {
     if (node)
     {
-        char *b = (char*)result_poid.get_printable();
+        char *b = smiRenderOID(node->oidlen, node->oid, 
+                               SMI_RENDER_NUMERIC);
         char *f = result_oid.toLatin1().data();
         while ((*b++ == *f++) && (*b != '\0') && (*f != '\0')) ;
         /* f is now the remaining part */
@@ -256,7 +257,7 @@ void MibSelection::OKButtonPressed(void)
                     syntax = "BITS";
  
                 OctetStr octetstr(result_string.toLatin1().data());
-                if (octetstr.valid())
+                if (octetstr.valid() || result_string.isEmpty())
                     vb.set_value(octetstr);
                 else
                 {
@@ -271,7 +272,7 @@ void MibSelection::OKButtonPressed(void)
             {
                 syntax = "OPAQUE";
                 OpaqueStr opaquestr(result_string.toLatin1().data());
-                if (opaquestr.valid())
+                if (opaquestr.valid() || result_string.isEmpty())
                     vb.set_value(opaquestr);
                 else
                 {
@@ -286,7 +287,7 @@ void MibSelection::OKButtonPressed(void)
             {
                 syntax = "OBJECT IDENTIFIER";
                 Oid oid(result_string.toLatin1().data());
-                if (oid.valid())
+                if (oid.valid() || result_string.isEmpty())
                     vb.set_value(oid);
                 else
                 {
@@ -305,7 +306,7 @@ void MibSelection::OKButtonPressed(void)
             {
                 syntax = "TIMETICKS";
                 TimeTicks timeticks(result_string.toUInt());
-                if (timeticks.valid())
+                if (timeticks.valid() || result_string.isEmpty())
                     vb.set_value(timeticks);
                 else
                 {
@@ -320,7 +321,7 @@ void MibSelection::OKButtonPressed(void)
             {
                 syntax = "IP ADDRESS";
                 IpAddress ipaddress(result_string.toLatin1().data());
-                if (ipaddress.valid())
+                if (ipaddress.valid() || result_string.isEmpty())
                     vb.set_value( ipaddress);
                 else
                 {
@@ -341,7 +342,6 @@ void MibSelection::OKButtonPressed(void)
 void MibSelection::SetOidInfoType(const QString& oid)
 {
     Oid poid(oid.toLatin1().data());
-    result_poid = poid;
 
     QString outoid = oid;
     QString outinfo = "";
@@ -353,13 +353,15 @@ void MibSelection::SetOidInfoType(const QString& oid)
     if (poid.valid() == true)
     {
         thenode = smiGetNodeByOID(poid.len(), (SmiSubid*)&(poid[0]));
-        if (thenode && (thenode->oidlen >= poid.len()))
+        if (thenode && ((thenode->oidlen >= poid.len()) || 
+                        (thenode->nodekind == SMI_NODEKIND_COLUMN)))
         {
             thetype = smiGetNodeType(thenode);
             SmiRange *r;
 
             // If a column object, ask the user to select the instance ...
-            if (thenode->nodekind == SMI_NODEKIND_COLUMN)
+            if ((thenode->nodekind == SMI_NODEKIND_COLUMN) && 
+                (thenode->oidlen >= poid.len()))
             {
                 QString inst;
                 // Pop-up the selection dialog
@@ -369,7 +371,7 @@ void MibSelection::SetOidInfoType(const QString& oid)
                     outoid = oid; // Invalid, but no instance selected ...
             }
             else
-                outoid = oid + ".0";
+                outoid = oid;
 
             node = thenode;
 
@@ -410,7 +412,7 @@ void MibSelection::SetValueWidget(void)
     val_cb->setVisible(false);
 
     if (type && smiGetFirstNamedNumber(type) && 
-        (type->basetype != SMI_BASETYPE_BITS))
+        (type->basetype == SMI_BASETYPE_ENUM))
     {
         val_cb->setVisible(true);
 
@@ -455,87 +457,121 @@ void MibSelection::SetValueWidget(void)
             this, SLOT(GetValueLe(void)));
 }
 
-void MibSelection::SetSyntax(void)
+void MibSelection::SetSyntax(int st)
 {
-    if (type)
+    if (st != -1) // A syntax is specified in parameter
     {
-        switch (type->basetype)
+        switch (st)
         {
-            case SMI_BASETYPE_INTEGER32:
-            case SMI_BASETYPE_ENUM:
-                syntax_cb->setCurrentIndex(0);
-                break;
-            case SMI_BASETYPE_UNSIGNED32:
-                if (type->name)
-                {
-                    if (!strcmp(type->name, "TimeTicks"))
-                    {
-                        syntax_cb->setCurrentIndex(8);
-                        break;
-                    }
-                    else if (!strcmp(type->name, "Counter32") || 
-                            !strcmp(type->name, "COUNTER"))
-                    {
-                        syntax_cb->setCurrentIndex(2);
-                        break;
-                    }
-                    else if (!strcmp(type->name, "Gauge32") || 
-                            !strcmp(type->name, "GAUGE"))
-                    {
-                        syntax_cb->setCurrentIndex(3);
-                        break;
-                    }
-                }
-                syntax_cb->setCurrentIndex(1);
-                break;
-            case SMI_BASETYPE_OCTETSTRING:
-                if (type->name)
-                {
-                    if (!strcmp(type->name, "IpAddress"))
-                    {
-                        syntax_cb->setCurrentIndex(9);
-                        break;
-                    }
-                    else if (!strcmp(type->name, "Opaque"))
-                    {
-                        syntax_cb->setCurrentIndex(10);
-                        break;
-                    }
-                }
-                syntax_cb->setCurrentIndex(4);
-                break;
-            case SMI_BASETYPE_BITS: 
-                syntax_cb->setCurrentIndex(5);
-                break;
-            case SMI_BASETYPE_OBJECTIDENTIFIER:
-                syntax_cb->setCurrentIndex(6);
-                break;
-            case SMI_BASETYPE_UNSIGNED64:
-                syntax_cb->setCurrentIndex(7);
-                break;
-            default:
-                break;
+            case sNMP_SYNTAX_INT32: syntax_cb->setCurrentIndex(0); break;
+                                    /*case sNMP_SYNTAX_UINT32:*/
+            case sNMP_SYNTAX_CNTR32: syntax_cb->setCurrentIndex(2); break;
+            case sNMP_SYNTAX_GAUGE32: syntax_cb->setCurrentIndex(3); break;
+            case sNMP_SYNTAX_OCTETS: syntax_cb->setCurrentIndex(4); break;
+            case sNMP_SYNTAX_BITS: syntax_cb->setCurrentIndex(5); break;
+            case sNMP_SYNTAX_OID: syntax_cb->setCurrentIndex(6); break;
+            case sNMP_SYNTAX_CNTR64: syntax_cb->setCurrentIndex(7); break;
+            case sNMP_SYNTAX_TIMETICKS: syntax_cb->setCurrentIndex(8); break;
+            case sNMP_SYNTAX_IPADDR: syntax_cb->setCurrentIndex(9); break;
+            case sNMP_SYNTAX_OPAQUE: syntax_cb->setCurrentIndex(10); break;
+            default: break;
         }
     }
-    else // default
-        syntax_cb->setCurrentIndex(4);
+    else // Get the syntax from the MIB information
+    {
+        if (type)
+        {
+            switch (type->basetype)
+            {
+                case SMI_BASETYPE_INTEGER32:
+                case SMI_BASETYPE_ENUM:
+                    syntax_cb->setCurrentIndex(0);
+                    break;
+                case SMI_BASETYPE_UNSIGNED32:
+                    if (type->name)
+                    {
+                        if (!strcmp(type->name, "TimeTicks"))
+                        {
+                            syntax_cb->setCurrentIndex(8);
+                            break;
+                        }
+                        else if (!strcmp(type->name, "Counter32") || 
+                                !strcmp(type->name, "COUNTER"))
+                        {
+                            syntax_cb->setCurrentIndex(2);
+                            break;
+                        }
+                        else if (!strcmp(type->name, "Gauge32") || 
+                                !strcmp(type->name, "GAUGE"))
+                        {
+                            syntax_cb->setCurrentIndex(3);
+                            break;
+                        }
+                    }
+                    syntax_cb->setCurrentIndex(1);
+                    break;
+                case SMI_BASETYPE_OCTETSTRING:
+                    if (type->name)
+                    {
+                        if (!strcmp(type->name, "IpAddress"))
+                        {
+                            syntax_cb->setCurrentIndex(9);
+                            break;
+                        }
+                        else if (!strcmp(type->name, "Opaque"))
+                        {
+                            syntax_cb->setCurrentIndex(10);
+                            break;
+                        }
+                    }
+                    syntax_cb->setCurrentIndex(4);
+                    break;
+                case SMI_BASETYPE_BITS: 
+                    syntax_cb->setCurrentIndex(5);
+                    break;
+                case SMI_BASETYPE_OBJECTIDENTIFIER:
+                    syntax_cb->setCurrentIndex(6);
+                    break;
+                case SMI_BASETYPE_UNSIGNED64:
+                    syntax_cb->setCurrentIndex(7);
+                    break;
+                default:
+                    break;
+            }
+        }
+        else // default
+            syntax_cb->setCurrentIndex(4);
+    }
 
     GetSyntaxCb(syntax_cb->currentIndex());
 }
 
-bool MibSelection::run(const QString& oid)
+bool MibSelection::run(const QString& init_oid, int init_syntax, const QString& init_val)
 {
     bool status = false;
 
-    bmv->SelectFromOid(oid);
+    bmv->SelectFromOid(init_oid);
 
     connect( bmv, SIGNAL( SelectedOid(const QString&) ), 
              this, SLOT( GetSelectedOid(const QString&) ));
 
-    SetOidInfoType(oid); 
-    SetSyntax();
+    SetOidInfoType(init_oid); 
+    SetSyntax(init_syntax);
 
     val_le->setFocus(Qt::OtherFocusReason);
+
+    // Set a pre-determined value
+    if (!init_val.isEmpty())
+    {
+        val_le->setText(init_val);
+        GetValueLe();
+        if (type && (type->basetype == SMI_BASETYPE_ENUM))
+        {
+            for (int i = 0; i < val_cb->count(); i++)
+                if (val_cb->itemData(i).toUInt() == init_val.toUInt())
+                    val_cb->setCurrentIndex(i);
+        }
+    }
 
     // Show the gui to the user. If OK is pressed, construct and send the packet
     if (dprompt->exec())
