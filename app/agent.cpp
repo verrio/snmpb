@@ -158,6 +158,9 @@ void Agent::Init(void)
     // Fill-in the list of agent profiles from profiles manager
     AgentProfileListChange();
     SelectAgentProfile(&cp, prefproto);
+    s->MainUI()->MIBTree->SetCurrentAgentIsV1(
+        s->MainUI()->AgentProtoV1->isChecked()?true:false);
+
     // then connect the signals (order is important)
     connect( s->MainUI()->AgentProfile, SIGNAL( currentIndexChanged( int ) ), 
              this, SLOT ( SelectAgentProfile() ) );
@@ -190,7 +193,7 @@ void Agent::Init(void)
     connect(&timer, SIGNAL(timeout()), this, SLOT(TimerExpired()));
     
     // get the Boot counter (you may use any own method for this)
-    char *engineId = (char*)"not_needed";
+    char *engineId = (char*)"SnmpB_engine";
     unsigned int snmpEngineBoots = 0;
 
     status = getBootCounter(s->GetBootCounterConfigFile().toLatin1().data(), 
@@ -442,14 +445,8 @@ Oid Agent::ConfigPduFromSettings(snmp_version v, const QString& oid,
 
     if (usevblist == true)
     {
-        // Use the pre-built vblist
-        Vb *v[100];
-
-        for(int i=0;i<vbcount;i++)
-            v[i] = &vblist[i];
-
         p->clear();
-        p->set_vblist(v[0], vbcount);
+        p->set_vblist(vblist.data(), vblist.size());
     }
     else
     {
@@ -711,6 +708,8 @@ void Agent::AsyncCallback(int reason, Pdu &pdu,
                           SnmpTarget &target, int iswalk)
 {
     int pdu_error;
+    int pdu_index;
+    int start_index = 0;
     int status;
     Vb vb;   // empty Vb
     int z = 0;
@@ -732,17 +731,19 @@ void Agent::AsyncCallback(int reason, Pdu &pdu,
     
     // Look at the error status of the Pdu
     pdu_error = pdu.get_error_status();
-    
+
     if (pdu_error)
     {
-        if (pdu_error == SNMP_ERROR_NO_SUCH_NAME)
-        {
+        if (iswalk && (pdu_error == SNMP_ERROR_NO_SUCH_NAME))
             goto end;
-        }
+
+        pdu_index = pdu.get_error_index();
+        if (pdu_index > 0)
+            start_index = objects = pdu_index-1;
         else
         {
-            msg = QString("<font color=red>Answer contains error: %1</font>")
-                           .arg(Snmp::error_msg(pdu_error));
+            msg = QString("<font color=red>%1</font><br>")
+                .arg(Snmp::error_msg(pdu_error));
             goto cleanup;
         }
     }
@@ -756,7 +757,7 @@ void Agent::AsyncCallback(int reason, Pdu &pdu,
 
     requests++;
         
-    for ( z=0; z < pdu.get_vb_count(); z++)
+    for ( z=start_index; z < pdu.get_vb_count(); z++)
     {
         pdu.get_vb( vb, z );
             
@@ -786,21 +787,41 @@ void Agent::AsyncCallback(int reason, Pdu &pdu,
                     while ((*b++ == *f++) && (*b != '\0') && (*f != '\0')) ;
                     /* f is now the remaining part */
                     
+                    if (pdu_error && (z+1 == pdu_index))
+                        msg += QString("<font color=red>ERROR on varbind #</font>");
+
                     // Print the OID part
                     msg += QString("%1: %2").arg(objects).arg(node->name);
                     if (*f != '\0') msg += QString("%1").arg(f);
-                    
+
+                    if (pdu_error && (z+1 == pdu_index))
+                    {
+                        msg += QString("<font color=red><br>%1</font><br>")
+                                       .arg(Snmp::error_msg(pdu_error));
+                        goto end;
+                    }
+
                     // Print the value part
                     msg += QString("    <font color=blue>%1</font>")
                                    .arg(GetPrintableValue(node, &vb));
                 }
                 else
                 {
-                    /* Unknown OID */
-                    msg += QString("%1: %2    <font color=blue>%3</font>")
-                                    .arg(objects)
-                                    .arg(vb.get_printable_oid())
-                                    .arg(vb.get_printable_value());
+                    if (pdu_error && (z+1 == pdu_index))
+                    {
+                        msg += QString("<font color=red>ERROR on varbind #</font>%1: %2")
+                                       .arg(objects).arg(vb.get_printable_oid());
+                        msg += QString("<font color=red><br>%3</font><br>")
+                                       .arg(Snmp::error_msg(pdu_error));
+                    }
+                    else
+                    {
+                        /* Unknown OID */
+                        msg += QString("%1: %2    <font color=blue>%3</font>")
+                            .arg(objects)
+                            .arg(vb.get_printable_oid())
+                            .arg(vb.get_printable_value());
+                    }
                 }
             }
         }
@@ -865,6 +886,8 @@ cleanup:
 void Agent::AsyncCallbackSet(int reason, Pdu &pdu, SnmpTarget &target)
 {
     int pdu_error;
+    int pdu_index;
+    int start_index = 0;
     int z = 0;
     Vb vb;   // empty Vb
     (void)target;
@@ -886,12 +909,18 @@ void Agent::AsyncCallbackSet(int reason, Pdu &pdu, SnmpTarget &target)
     
     // Look at the error status of the Pdu
     pdu_error = pdu.get_error_status();
-    
+
     if (pdu_error)
     {
-        msg = QString("<font color=red>%1</font>")
-                      .arg(Snmp::error_msg(pdu_error));
-        goto cleanup;
+        pdu_index = pdu.get_error_index();
+        if (pdu_index > 0)
+            start_index = objects = pdu_index-1;
+        else
+        {
+            msg = QString("<font color=red>%1</font><br>")
+                .arg(Snmp::error_msg(pdu_error));
+            goto cleanup;
+        }
     }
 
     // The Pdu must contain at least one Vb
@@ -901,7 +930,7 @@ void Agent::AsyncCallbackSet(int reason, Pdu &pdu, SnmpTarget &target)
         goto cleanup;
     }
 
-    for ( z=0; z < pdu.get_vb_count(); z++)
+    for ( z=start_index; z < pdu.get_vb_count(); z++)
     {
         objects++;
 
@@ -924,21 +953,41 @@ void Agent::AsyncCallbackSet(int reason, Pdu &pdu, SnmpTarget &target)
                 while ((*b++ == *f++) && (*b != '\0') && (*f != '\0')) ;
                 /* f is now the remaining part */
 
+                if (pdu_error && (z+1 == pdu_index))
+                    msg += QString("<font color=red>ERROR on varbind #</font>");
+
                 // Print the OID part
                 msg += QString("%1: %2").arg(objects).arg(node->name);
                 if (*f != '\0') msg += QString("%1").arg(f);
 
+                if (pdu_error && (z+1 == pdu_index))
+                {
+                    msg += QString("<font color=red><br>%1</font><br>")
+                                   .arg(Snmp::error_msg(pdu_error));
+                    goto end;
+                }
+
                 // Print the value part
                 msg += QString("    <font color=blue>%1</font>")
-                    .arg(GetPrintableValue(node, &vb));
+                           .arg(GetPrintableValue(node, &vb));
             }
             else
             {
                 /* Unknown OID */
-                msg += QString("%1: %2    <font color=blue>%3</font>")
-                    .arg(objects)
-                    .arg(vb.get_printable_oid())
-                    .arg(vb.get_printable_value());
+                if (pdu_error && (z+1 == pdu_index))
+                {
+                    msg += QString("<font color=red>ERROR on varbind #</font>%1: %2")
+                                   .arg(objects).arg(vb.get_printable_oid());
+                    msg += QString("<font color=red><br>%3</font><br>")
+                                   .arg(Snmp::error_msg(pdu_error));
+                }
+                else
+                {
+                    msg += QString("%1: %2    <font color=blue>%3</font>")
+                        .arg(objects)
+                        .arg(vb.get_printable_oid())
+                        .arg(vb.get_printable_value());
+                }
             }
         }
         else
@@ -1199,8 +1248,8 @@ void Agent::SetFrom(const QString& oid)
         Vb *vb = ms.GetVarbind();
         if (vb)
         {
-            vbcount = 1;
-            vblist[0] = *vb;
+            vblist.clear();
+            vblist += *vb;
             Set(ms.GetOid(), true);
         }
     }
@@ -1283,6 +1332,10 @@ void Agent::TableViewFrom(const QString& oid)
             first = 0; /* reset the flag */
             roid += toid[poid.len()];
         }
+
+        // look for var bind exception, applies to v2 only   
+        if ( tvb.get_syntax() == sNMP_SYNTAX_ENDOFMIBVIEW )
+            break;
         
         /* Make sure we dont get out of table scope ... */
         if (toid.nCompare(roid.len(), roid))
@@ -1569,15 +1622,11 @@ void Agent::VarbindsQuit(void)
 void Agent::VarbindsBuildList(void)
 {
     QTreeWidget *vbl = vbui->VarbindsList;
-    for(int i = 0; i < vbl->topLevelItemCount(); i++)
-    {
-        QTreeWidgetItem *item = vbl->topLevelItem(i);
-        vb_data data = item->data(0, Qt::UserRole).value<vb_data>();
-        printf("Value %d: %s\n", i, data.val.toLatin1().data());
-        vblist[i] = data.vb;
-    }
 
-    vbcount = vbl->topLevelItemCount();
+    vblist.clear();
+
+    for(int i = 0; i < vbl->topLevelItemCount(); i++)
+        vblist += vbl->topLevelItem(i)->data(0, Qt::UserRole).value<vb_data>().vb; 
 }
 
 void Agent::VarbindsGet(void)
@@ -1699,6 +1748,10 @@ int Agent::SelectTableInstance(const QString& oid, QString& outinstance)
     {
         pdu->get_vb(tvb, 0);
         toid = tvb.get_oid();
+
+        // look for var bind exception, applies to v2 only   
+        if ( tvb.get_syntax() == sNMP_SYNTAX_ENDOFMIBVIEW )
+            break;
 
         /* Make sure we dont get out of table scope ... */
         if (toid.nCompare(roid.len(), roid))

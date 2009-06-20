@@ -120,8 +120,7 @@ private:
  
     bool stop;
 
-    Vb vblist[100];
-    int vbcount;
+    QVector<Vb> vblist;
 
     Ui_Varbinds *vbui;
     QDialog *vbd;

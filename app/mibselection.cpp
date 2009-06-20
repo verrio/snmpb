@@ -576,7 +576,14 @@ bool MibSelection::run(const QString& init_oid, int init_syntax, const QString& 
     // Show the gui to the user. If OK is pressed, construct and send the packet
     if (dprompt->exec())
     {
-        vb.set_oid(Oid(result_oid.toLatin1().data()));
+        QString tmpoid;
+        if (node && (node->nodekind == SMI_NODEKIND_SCALAR))
+            tmpoid = result_oid + ".0";
+        else
+            tmpoid = result_oid;
+
+        vb.set_oid(Oid(tmpoid.toLatin1().data()));
+
         status = true;
     }
 
@@ -591,6 +598,13 @@ void MibSelection::bgrun(const QString& oid)
     SetOidInfoType(oid); 
     SetSyntax();
     OKButtonPressed();
-    vb.set_oid(Oid(result_oid.toLatin1().data()));
+
+    QString tmpoid;
+    if (node && (node->nodekind == SMI_NODEKIND_SCALAR))
+        tmpoid = result_oid + ".0";
+    else
+        tmpoid = result_oid;
+
+    vb.set_oid(Oid(tmpoid.toLatin1().data()));
 }
 
