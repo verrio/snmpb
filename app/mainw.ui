@@ -2043,6 +2043,7 @@
     <addaction name="actionReplace" />
     <addaction name="actionFindNext" />
     <addaction name="separator" />
+    <addaction name="actionMultipleVarbinds" />
     <addaction name="actionStop" />
     <addaction name="separator" />
     <addaction name="actionVerifyMIB" />
@@ -2212,9 +2213,17 @@
     <string>F3</string>
    </property>
   </action>
+  <action name="actionMultipleVarbinds" >
+   <property name="text" >
+    <string>&amp;Multiple Varbinds...</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+M</string>
+   </property>
+  </action>
   <action name="actionStop" >
    <property name="text" >
-    <string>Stop</string>
+    <string>Stop Walk</string>
    </property>
    <property name="enabled" >
     <bool>false</bool>

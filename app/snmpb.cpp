@@ -307,11 +307,13 @@ void Snmpb::TabSelected(void)
                 w.MIBTree, SLOT( FindFromNode() ) );
         connect( MainUI()->actionFindNext, SIGNAL( triggered() ),
                 w.MIBTree, SLOT( ExecuteFindNext() ) );
+        MainUI()->actionMultipleVarbinds->setEnabled(true);
         // Refresh MIB tree if needed
         w.MIBTree->Populate();
         break;
     case 1: // Modules
         SetEditorMenus(false);
+        MainUI()->actionMultipleVarbinds->setEnabled(false);
         break;
     case 2: // Editor
         SetEditorMenus(true);
@@ -322,12 +324,15 @@ void Snmpb::TabSelected(void)
                 editor, SLOT( Find() ) );
         connect( MainUI()->actionFindNext, SIGNAL( triggered() ),
                 editor, SLOT( ExecuteFindNext() ) );
+        MainUI()->actionMultipleVarbinds->setEnabled(false);
         break;
     case 3: // Discovery
         SetEditorMenus(false);
+        MainUI()->actionMultipleVarbinds->setEnabled(false);
         break;
     case 4: // Traps
-        SetEditorMenus(true);
+        SetEditorMenus(false);
+        MainUI()->actionMultipleVarbinds->setEnabled(false);
         break;
     case 5: // Graphs
         SetEditorMenus(false);
@@ -340,11 +345,13 @@ void Snmpb::TabSelected(void)
                 w.PlotMIBTree, SLOT( FindFromNode() ) );
         connect( MainUI()->actionFindNext, SIGNAL( triggered() ),
                 w.PlotMIBTree, SLOT( ExecuteFindNext() ) );
+        MainUI()->actionMultipleVarbinds->setEnabled(false);
         // Refresh MIB tree if needed
         w.PlotMIBTree->Populate();
         break;
     case 6: // Log
         SetEditorMenus(false);
+        MainUI()->actionMultipleVarbinds->setEnabled(false);
         break;
     default:
         break;

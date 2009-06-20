@@ -151,6 +151,8 @@ void Agent::Init(void)
              s->MainUI()->MIBTree, SLOT ( SetWalkInProgress(bool) ) );
     connect( s->MainUI()->actionStop, SIGNAL( triggered() ),
              this, SLOT( Stop() ) );
+    connect( s->MainUI()->actionMultipleVarbinds, SIGNAL( triggered() ),
+             this, SLOT( Varbinds() ) );
 
     // Select the default profile from preferences
     QString cp;
@@ -1428,6 +1430,12 @@ QString Agent::GetValueString(MibSelection &ms, Vb* vb)
     return "";
 }
 
+void Agent::Varbinds(void)
+{
+    vbui->GetBulkOp->setEnabled(s->MainUI()->AgentProtoV1->isChecked()!=true);
+    vbd->exec(); 
+}
+
 void Agent::VarbindsFrom(const QString& oid)
 {
     // Do a background run of the mib selection dialog
@@ -1438,24 +1446,25 @@ void Agent::VarbindsFrom(const QString& oid)
     Vb *vb = ms.GetVarbind();
     if (vb)
     {
-        QStringList s;
-        s << ms.GetName() << ms.GetOid() 
-          << ms.GetSyntaxName() << GetValueString(ms, vb);
+        QStringList sl;
+        sl << ms.GetName() << ms.GetOid() 
+           << ms.GetSyntaxName() << GetValueString(ms, vb);
 
         vb_data data;
         data.vb = *vb;
         data.syntax = ms.GetSyntax();
         data.val = ms.GetValue();
-        QTreeWidgetItem *qtwi = new QTreeWidgetItem(s);
+        QTreeWidgetItem *qtwi = new QTreeWidgetItem(sl);
         QVariant qv;
         qv.setValue(data);
         qtwi->setData(0, Qt::UserRole, qv);
         vbui->VarbindsList->addTopLevelItem(qtwi);
         
         vbui->VarbindsList->setCurrentItem(qtwi); 
-    }
 
-    vbui->SNMPOps->setEnabled(true);
+        vbui->SNMPOps->setEnabled(true);
+        vbui->GetBulkOp->setEnabled(s->MainUI()->AgentProtoV1->isChecked()!=true);
+    }
 
     vbd->exec(); 
 }
@@ -1470,19 +1479,22 @@ void Agent::VarbindsNew(void)
         Vb *vb = ms.GetVarbind();
         if (vb)
         {
-            QStringList s;
-            s << ms.GetName() << ms.GetOid() 
-              << ms.GetSyntaxName() << GetValueString(ms, vb);
+            QStringList sl;
+            sl << ms.GetName() << ms.GetOid() 
+               << ms.GetSyntaxName() << GetValueString(ms, vb);
 
             vb_data data;
             data.vb = *vb;
             data.syntax = ms.GetSyntax();
             data.val = ms.GetValue();
-            QTreeWidgetItem *qtwi = new QTreeWidgetItem(s);
+            QTreeWidgetItem *qtwi = new QTreeWidgetItem(sl);
             QVariant qv;
             qv.setValue(data);
             qtwi->setData(0, Qt::UserRole, qv);
             vbui->VarbindsList->addTopLevelItem(qtwi);
+
+            vbui->SNMPOps->setEnabled(true);
+            vbui->GetBulkOp->setEnabled(s->MainUI()->AgentProtoV1->isChecked()!=true);
         }
     }
 }
@@ -1538,11 +1550,17 @@ void Agent::VarbindsDelete(void)
 
     if (next)
         vbl->setCurrentItem(next); 
+
+    if (vbui->VarbindsList->topLevelItemCount() == 0)
+        vbui->SNMPOps->setEnabled(false);
 }
 
 void Agent::VarbindsDeleteAll(void)
 {
     vbui->VarbindsList->clear();
+
+    if (vbui->VarbindsList->topLevelItemCount() == 0)
+        vbui->SNMPOps->setEnabled(false);
 }
 
 // External C function
