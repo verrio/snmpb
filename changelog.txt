@@ -1,0 +1,33 @@
+0.8 (Sun, 21 Jun 2009)
+- Added support for SNMP SET
+- Added support for SNMP GET-BULK 
+- Added FIND feature in MIB tree
+- Allows loading *.mib and *.smi files
+- Added support for multiple varbinds operations (get, get next, get bulk, set)
+- Fixed support of 64 bits MIB variables: now fully supported on all platforms
+- Fixed trap port binding permissions on Linux/BSD:
+  SnmpB now a suid binary that drops privileges after binding trap port
+- Added support for STOP operation on a walk
+- Added support for table instance on get/get-next/get-bulk: "no instance",
+  "prompt for instance" and "select instance" (using index discovery dialog).
+- Added NetBSD installer
+- Added support for MacOSX with installer
+- Added desktop integration with freedesktop on Linux/BSD: 
+  SnmpB now in K menu/Gnome menu
+- Added table index(es) on MIB node properties display
+- Now allowed to walk from a table as well as a table entry node
+- Added context menu button to create agent profile from discovery output
+- Fixed broken discovery system on win32
+- Removed possibility to edit agent profile name using the tree item name in
+  the agent profile preference dialog: this should be done in the property pane
+- Logging level settings are now saved
+- Enabled extra debug for SNMP++, showing up in "log" tab
+- MIB tree: now keeps last active protocol per agent profile 
+  and keeps last active agent profile
+- Changed menu items to be tab-sensitive: i.e. menu items related to the editor
+  tab are grayed-out when the editor tab is not the focus
+- Upgraded all sub-packages: libsmi, libtomcrypt, SNMP++, QWT, QT
+
+0.5 (Mon, 13 Apr 2008)
+- Initial release
+
