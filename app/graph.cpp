@@ -49,7 +49,7 @@ GraphItem::~GraphItem()
     for( int j = 0; j < NUM_PLOT_PER_GRAPH; j++)
         if (curves[j].object) delete curves[j].object;
 
-#if 1 // crashes the app 
+#if 0 // crashes the app 
     if (s->MainUI()->GraphTab && (s->MainUI()->GraphTab->indexOf(this) != -1))
         s->MainUI()->GraphTab->removeTab(s->MainUI()->GraphTab->indexOf(this));
 #endif
