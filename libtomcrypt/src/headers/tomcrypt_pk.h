@@ -1,3 +1,5 @@
+#include <sys/param.h>
+
 /* ---- NUMBER THEORY ---- */
 
 enum {
@@ -496,7 +498,7 @@ int der_printable_char_encode(int c);
 int der_printable_value_decode(int v);
 
 /* UTF-8 */
-#if (defined(SIZE_MAX) || __STDC_VERSION__ >= 199901L || defined(WCHAR_MAX) || defined(_WCHAR_T) || defined(_WCHAR_T_DEFINED)) && !defined(LTC_NO_WCHAR)
+#if (defined(SIZE_MAX) || __STDC_VERSION__ >= 199901L || defined(WCHAR_MAX) || defined(_WCHAR_T) || defined(BSD) || defined(_WCHAR_T_DEFINED)) && !defined(LTC_NO_WCHAR)
 #include <wchar.h>
 #else
 typedef ulong32 wchar_t;
