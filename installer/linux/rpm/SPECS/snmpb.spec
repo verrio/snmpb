@@ -2,7 +2,7 @@
 Name: snmpb
 Summary: Graphical SNMP MIB browser written in QT.
 Packager: Martin Jolicoeur
-Version: 0.5.0
+Version: 0.8.0
 Release:  1
 License: GPL2
 Group: Applications/Internet
@@ -375,6 +375,9 @@ rm -rf %buildroot
 %prefix/share/apps/snmpb/pibs/UMTS-PIB-orig
 
 %changelog
+* Sun Jun 21 2009 Martin Jolicoeur 
+- Release 0.8 
+
 * Sun Apr 13 2008 Martin Jolicoeur 
 - Initial release 
 
