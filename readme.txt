@@ -31,7 +31,8 @@ Libtomcrypt is taken from http://libtomcrypt.com
 Version: 1.16
 
 Modified file(s):
-libtomcrypt/makefile
+makefile
+src/headers/tomcrypt_pk.h "Added defined(BSD) around wchar_t definition to fix broken build on *BSD"
 
 Libsmi is taken from http://www.ibr.cs.tu-bs.de/projects/libsmi
 Version: 0.4.8
