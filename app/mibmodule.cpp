@@ -186,7 +186,8 @@ void MibModule::RebuildTotalList(void)
             // Exclude -orig files
             // Accept only .smi, mib, .pib, or no extension files
             QString ext = QFileInfo(fi->toLatin1()).suffix();
-            if (!(((str = strstr(fi->toLatin1(), "-orig")) != NULL) && (strlen(str) == 5)) &&
+            if (!(((str = strstr(fi->toLatin1().data(), "-orig")) != NULL) 
+                && (strlen(str) == 5)) &&
                 (ext.isEmpty() || (ext == "smi") || (ext == "mib") || (ext == "pib")))
                 Total.append(QFileInfo(fi->toLatin1()).fileName());
         }    
