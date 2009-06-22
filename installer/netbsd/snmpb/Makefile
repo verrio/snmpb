@@ -11,7 +11,6 @@ COMMENT=	Graphical SNMP MIB browser written in QT.
 USE_TOOLS+=	gmake
 USE_LANGUAGES=	c c++
 USE_LIBTOOL=	NO
-WRKSRC     = /usr/pkgsrc/net/snmpb/work/snmpb0.8
 CHECK_PORTABILITY_SKIP+=libsmi/*
 MAKE_FLAGS +=   INSTALL_PREFIX=${PREFIX}
 
