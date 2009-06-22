@@ -62,8 +62,8 @@ cp ../../license.txt ${APPNAME}.app/Contents/Resources/en.lproj/License
 /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -o ${APPNAME}.mpkg -t ${APPNAME} -l /Applications/${APPNAME}.app -b -g 10.4 -i Martin.Jolicoeur -n ${VERSION} -e ${APPNAME}.app/Contents/Resources --root ${APPNAME}.app
 
 # Create a file-system image (.dmg) with the installer
-mkdir ${APPNAME}
-cp Readme.txt ${APPNAME}
-mv ${APPNAME}.mpkg ${APPNAME}
-hdiutil create ${APPNAME}.dmg -volname "${APPNAME}" -fs HFS+ -srcfolder ${APPNAME}
+mkdir ${APPNAME}-${VERSION}
+cp Readme.txt ${APPNAME}-${VERSION}
+mv ${APPNAME}.mpkg ${APPNAME}-${VERSION}
+hdiutil create ${APPNAME}-${VERSION}.dmg -volname "${APPNAME}-${VERSION}" -fs HFS+ -srcfolder ${APPNAME}-${VERSION}
 
