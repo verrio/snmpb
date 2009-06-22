@@ -31,6 +31,8 @@ endif
 
 INSTALL_PREFIX=/usr
 
+all: snmpb
+
 ifneq ($(findstring CYGWIN,${os}),)
 snmpb: libtomcrypt/libtomcrypt.a \
        libsmi/win/libsmi.a \
