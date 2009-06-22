@@ -1,4 +1,6 @@
 bin/snmpb
+share/applications/snmpb.desktop
+share/icons/hicolor/128x128/apps/snmpb.png
 share/snmpb/mibs/IANA-ADDRESS-FAMILY-NUMBERS-MIB
 share/snmpb/mibs/IANA-CHARSET-MIB
 share/snmpb/mibs/IANA-FINISHER-MIB
