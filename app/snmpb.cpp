@@ -372,7 +372,7 @@ Version %1<br>                                                                  
 http://sourceforge.net/projects/snmpb</a><br><br>                                \
                                                                                  \
 Copyright (c) <b>Martin Jolicoeur</b> (<a href=\"mailto:snmpb1@gmail.com\">\
-snmpb1@gmail.com</a>), 2004-2008<br><br>                                         \
+snmpb1@gmail.com</a>), 2004-2009<br><br>                                         \
                                                                                  \
 SnmpB is an SNMP MIB browser (Simple Network Management Protocol) written in QT. \
 It supports SNMPv1, SNMPv2c and SNMPv3. SnmpB can browse/edit/load/add MIB files \
