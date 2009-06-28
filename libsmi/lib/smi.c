@@ -1920,7 +1920,7 @@ char *smiRenderValue(SmiValue *smiValuePtr, SmiType *smiTypePtr, int flags)
     int xlen;
     SmiNamedNumber *nn;
     char *s, *ss;
-    char f[8];
+    char f[15];
     SmiUnsigned32 v32;
     SmiUnsigned64 v64;
     
