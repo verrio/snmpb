@@ -1028,7 +1028,7 @@ void Agent::WalkFrom(const QString& oid)
     
     // Clear the Query window ...
     s->MainUI()->Query->clear();
-    s->MainUI()->Query->append("-----SNMP query started-----");
+    s->MainUI()->Query->append("<font color=black>-----SNMP query started-----</font>");
     
     // Clear some global vars
     requests = 0;
@@ -1091,7 +1091,7 @@ void Agent::Get(const QString& oid, bool usevblist)
     
     // Clear the Query window ...
     s->MainUI()->Query->clear();
-    s->MainUI()->Query->append("-----SNMP query started-----");
+    s->MainUI()->Query->append("<font color=black>-----SNMP query started-----</font>");
     
     // Clear some global vars
     requests = 0;
@@ -1130,7 +1130,7 @@ void Agent::GetNext(const QString& oid, bool usevblist)
         
     // Clear the Query window ...
     s->MainUI()->Query->clear();
-    s->MainUI()->Query->append("-----SNMP query started-----");
+    s->MainUI()->Query->append("<font color=black>-----SNMP query started-----</font>");
     
     // Clear some global vars
     requests = 0;
@@ -1169,7 +1169,7 @@ void Agent::GetBulk(const QString& oid, bool usevblist)
         
     // Clear the Query window ...
     s->MainUI()->Query->clear();
-    s->MainUI()->Query->append("-----SNMP query started-----");
+    s->MainUI()->Query->append("<font color=black>-----SNMP query started-----</font>");
     
     // Clear some global vars
     requests = 0;
@@ -1212,7 +1212,7 @@ void Agent::Set(const QString& oid, bool usevblist)
 
     // Clear the Query window ...
     s->MainUI()->Query->clear();
-    s->MainUI()->Query->append("-----SNMP set started-----");
+    s->MainUI()->Query->append("<font color=black>-----SNMP set started-----</font>");
 
     // Clear some global vars
     requests = 0;
@@ -1277,7 +1277,7 @@ void Agent::TableViewFrom(const QString& oid)
     
     // Clear the Query window ...
     s->MainUI()->Query->clear();
-    s->MainUI()->Query->append("-----SNMP query started-----");
+    s->MainUI()->Query->append("<font color=black>-----SNMP query started-----</font>");
     
     // Clear some global vars
     requests = 0;
