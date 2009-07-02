@@ -710,7 +710,7 @@ void Agent::AsyncCallback(int reason, Pdu &pdu,
                           SnmpTarget &target, int iswalk)
 {
     int pdu_error;
-    int pdu_index;
+    int pdu_index = 0;
     int start_index = 0;
     int status;
     Vb vb;   // empty Vb
@@ -888,7 +888,7 @@ cleanup:
 void Agent::AsyncCallbackSet(int reason, Pdu &pdu, SnmpTarget &target)
 {
     int pdu_error;
-    int pdu_index;
+    int pdu_index = 0;
     int start_index = 0;
     int z = 0;
     Vb vb;   // empty Vb
