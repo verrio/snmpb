@@ -2,9 +2,9 @@
   _## 
   _##  timetick.cpp  
   _##
-  _##  SNMP++v3.2.23
+  _##  SNMP++v3.2.24
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
+  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -42,25 +42,14 @@
   or implied. User hereby grants a royalty-free license to any and all
   derivatives based upon this software code base.
 
-
-
   T I M E T I C K. C P P
 
   TIMETICK CLASS IMPLEMENTATION
 
-  DESIGN + AUTHOR:
-  Peter E Mellquist
-
-  LANGUAGE:
-  ANSI C++
-
-  OPERATING SYSTEMS:
-  MS-Windows Win32
-  BSD UNIX
+  DESIGN + AUTHOR:  Peter E Mellquist
 
   DESCRIPTION:
   Class implentation for SMI Timeticks class.
-
 =====================================================================*/
 char timetick_cpp_version[]="#(@) SNMP++ $Id$";
 

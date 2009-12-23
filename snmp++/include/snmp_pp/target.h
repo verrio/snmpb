@@ -2,9 +2,9 @@
   _## 
   _##  target.h  
   _##
-  _##  SNMP++v3.2.23
+  _##  SNMP++v3.2.24
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
+  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -47,15 +47,7 @@
 
   TARGET CLASS DEFINITION
 
-  DESIGN + AUTHOR:
-  Peter E Mellquist
-
-  LANGUAGE:
-  ANSI C++
-
-  OPERATING SYSTEMS:
-  DOS/WINDOWS 3.1
-  BSD UNIX
+  DESIGN + AUTHOR:  Peter E Mellquist
 
   DESCRIPTION:
   Target class defines target SNMP agents.
@@ -119,14 +111,14 @@ class DLLOPT SnmpTarget
    */
   SnmpTarget()
     : validity(false), timeout(default_timeout), retries(default_retries),
-    version(version1), ttype(type_base) {};
+      version(version1), ttype(type_base) {};
 
   /**
    * Create a SnmpTarget object with the given Address.
    */
-  SnmpTarget( const Address &address)
+  SnmpTarget(const Address &address)
     : validity(false), timeout(default_timeout), retries(default_retries),
-    version(version1), ttype(type_base), my_address(address)
+      version(version1), ttype(type_base), my_address(address)
     { if (my_address.valid()) validity = true; };
 
   /**
@@ -156,7 +148,7 @@ class DLLOPT SnmpTarget
    *
    * @param r - The number of retries if no response is received.
    */
-  void set_retry( const int r) { retries = r; };
+  void set_retry(const int r) { retries = r; };
 
   /**
    * Get the retry value.
@@ -173,7 +165,7 @@ class DLLOPT SnmpTarget
    *
    * @param t - Timeout in 10ms, so 100 will set the timeout to 1 second.
    */
-  void set_timeout( const unsigned long t) { timeout = t; };
+  void set_timeout(const unsigned long t) { timeout = t; };
 
   /**
    * Get the timeout.
@@ -302,9 +294,9 @@ class DLLOPT CTarget: public SnmpTarget
    * @param read_community_name - Community for get requests
    * @param write_community_name - Community for set requests
    */
-  CTarget( const Address &address,
-	   const char *read_community_name,
-	   const char *write_community_name);
+  CTarget(const Address &address,
+	  const char *read_community_name,
+	  const char *write_community_name);
 
   /**
    * Constructor with all args.
@@ -313,9 +305,9 @@ class DLLOPT CTarget: public SnmpTarget
    * @param read_community_name - Community for get requests
    * @param write_community_name - Community for set requests
    */
-  CTarget( const Address &address,
-	   const OctetStr &read_community_name,
-	   const OctetStr &write_community_name);
+  CTarget(const Address &address,
+	  const OctetStr &read_community_name,
+	  const OctetStr &write_community_name);
 
   /**
    * Constructor with only address.
@@ -324,12 +316,12 @@ class DLLOPT CTarget: public SnmpTarget
    *
    * @param address - Address of the target host (cann be any address object)
    */
-  CTarget( const Address &address);
+  CTarget(const Address &address);
 
   /**
    * Constructor from existing CTarget.
    */
-  CTarget( const CTarget &target);
+  CTarget(const CTarget &target);
 
   /**
    * Destructor, that has nothing to do.
@@ -362,21 +354,21 @@ class DLLOPT CTarget: public SnmpTarget
    *
    * @param oct - OctetStr that will be filled with the read community name.
    */
-  void get_readcommunity( OctetStr& oct) const { oct = read_community; };
+  void get_readcommunity(OctetStr& oct) const { oct = read_community; };
 
   /**
    * Set the read community name.
    *
    * @param str - The new read community name
    */
-  void set_readcommunity( const char * str) { read_community = str; };
+  void set_readcommunity(const char * str) { read_community = str; };
 
   /**
    * Set the read community name.
    *
    * @param oct - The new read community name
    */
-  void set_readcommunity( const OctetStr& oct) { read_community = oct; };
+  void set_readcommunity(const OctetStr& oct) { read_community = oct; };
 
   /**
    * Get the write community name.
@@ -391,26 +383,26 @@ class DLLOPT CTarget: public SnmpTarget
    *
    * @param oct - OctetStr that will be filled with the write community name.
    */
-  void get_writecommunity( OctetStr &oct) const { oct = write_community; };
+  void get_writecommunity(OctetStr &oct) const { oct = write_community; };
 
   /**
    * Set the write community name.
    *
    * @param str - The new write community name
    */
-  void set_writecommunity( const char * str) { write_community = str; };
+  void set_writecommunity(const char *str) { write_community = str; };
 
   /**
    * Set the write community name.
    *
    * @param oct - The new write community name
    */
-  void set_writecommunity( const OctetStr &oct) { write_community = oct; };
+  void set_writecommunity(const OctetStr &oct) { write_community = oct; };
 
   /**
    * Overloaded assignment operator.
    */
-  CTarget& operator=( const CTarget& target);
+  CTarget& operator=(const CTarget& target);
 
   /**
    * Overloeaded compare operator.
@@ -420,7 +412,7 @@ class DLLOPT CTarget: public SnmpTarget
    *
    * @return 1 if targets are equal, 0 if not.
    */
-  int operator==( const CTarget &rhs) const;
+  int operator==(const CTarget &rhs) const;
 
   /**
    * Get all values of a CTarget object.
@@ -434,12 +426,12 @@ class DLLOPT CTarget: public SnmpTarget
    *
    * @return TRUE on success and FALSE on failure.
    */
-  int resolve_to_C( OctetStr& read_comm,
-		    OctetStr& write_comm,
-		    GenAddress &address,
-		    unsigned long &t,
-		    int &r,
-		    unsigned char &v) const;
+  int resolve_to_C(OctetStr& read_comm,
+		   OctetStr& write_comm,
+		   GenAddress &address,
+		   unsigned long &t,
+		   int &r,
+		   unsigned char &v) const;
 
   /**
    * Reset the object.
@@ -482,9 +474,9 @@ class DLLOPT UTarget: public SnmpTarget
    * @param sec_name   - The security name
    * @param sec_model - The security model to use
    */
-  UTarget( const Address &address,
-	   const char *sec_name,
-	   const int sec_model);
+  UTarget(const Address &address,
+	  const char *sec_name,
+	  const int sec_model);
 
   /**
    * Constructor with all args.
@@ -493,9 +485,9 @@ class DLLOPT UTarget: public SnmpTarget
    * @param sec_name  - The security name
    * @param sec_model - The security model to use
    */
-  UTarget( const Address &address,
-	   const OctetStr &sec_name,
-	   const int sec_model);
+  UTarget(const Address &address,
+	  const OctetStr &sec_name,
+	  const int sec_model);
 
   /**
    * Constructor with only address.
@@ -505,12 +497,12 @@ class DLLOPT UTarget: public SnmpTarget
    *
    * @param address - Address of the target host (cann be any address object)
    */
-  UTarget( const Address &address);
+  UTarget(const Address &address);
 
   /**
    * Constructor from existing UTarget.
    */
-  UTarget( const UTarget &target);
+  UTarget(const UTarget &target);
 
   /**
    * Destructor, that has nothing to do.
@@ -552,21 +544,21 @@ class DLLOPT UTarget: public SnmpTarget
    *
    * @param oct - OctetStr that will be filled with the security name.
    */
-  void get_security_name( OctetStr& oct) const { oct = security_name; };
+  void get_security_name(OctetStr& oct) const { oct = security_name; };
 
   /**
    * Set the security name.
    *
    * @param str - The new security name
    */
-  void set_security_name( const char * str) { security_name = str; };
+  void set_security_name(const char * str) { security_name = str; };
 
   /**
    * Set the security name.
    *
    * @param oct - The new security name
    */
-  void set_security_name( const OctetStr& oct) { security_name = oct; };
+  void set_security_name(const OctetStr& oct) { security_name = oct; };
 
 #ifdef _SNMPv3
   /**
@@ -579,7 +571,7 @@ class DLLOPT UTarget: public SnmpTarget
    *
    * @param str - The engine id to use
    */
-  void set_engine_id( const char * str) { engine_id = str; };
+  void set_engine_id(const char * str) { engine_id = str; };
 
   /**
    * Set the engine id.
@@ -591,7 +583,7 @@ class DLLOPT UTarget: public SnmpTarget
    *
    * @param oct - The engine id to use
    */
-  void set_engine_id( const OctetStr &oct) { engine_id = oct; };
+  void set_engine_id(const OctetStr &oct) { engine_id = oct; };
 
   /**
    * Get the engine id.
@@ -605,7 +597,7 @@ class DLLOPT UTarget: public SnmpTarget
    *
    * @param oct - OctetStr that will be filled with the engine id
    */
-  void get_engine_id( OctetStr& oct) const { oct = engine_id; };
+  void get_engine_id(OctetStr& oct) const { oct = engine_id; };
 #endif
 
   /**
@@ -625,7 +617,7 @@ class DLLOPT UTarget: public SnmpTarget
   /**
    * Overloaded assignment operator.
    */
-  UTarget& operator=( const UTarget& target);
+  UTarget& operator=(const UTarget& target);
 
   /**
    * Overloeaded compare operator.
@@ -635,7 +627,7 @@ class DLLOPT UTarget: public SnmpTarget
    *
    * @return 1 if targets are equal, 0 if not.
    */
-  virtual int operator==( const UTarget &rhs) const;
+  virtual int operator==(const UTarget &rhs) const;
 
   /**
    * Get all values of a UTarget object.
@@ -649,12 +641,12 @@ class DLLOPT UTarget: public SnmpTarget
    *
    * @return TRUE on success and FALSE on failure.
    */
-  int resolve_to_U( OctetStr&  sec_name,
-		    int &sec_model,
-		    GenAddress &address,
-		    unsigned long &t,
-		    int &r,
-		    unsigned char &v) const;
+  int resolve_to_U(OctetStr&  sec_name,
+		   int &sec_model,
+		   GenAddress &address,
+		   unsigned long &t,
+		   int &r,
+		   unsigned char &v) const;
 
   /**
    * Reset the object.

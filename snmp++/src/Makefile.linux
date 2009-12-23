@@ -2,9 +2,9 @@
   ## 
   ##  Makefile.linux  
   ##
-  ##  SNMP++v3.2.23
+  ##  SNMP++v3.2.24
   ##  -----------------------------------------------
-  ##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
+  ##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
   ##
   ##  This software is based on SNMP++2.6 from Hewlett Packard:
   ##  
@@ -23,7 +23,7 @@
   ##  hereby grants a royalty-free license to any and all derivatives based
   ##  upon this software code base. 
   ##  
-  ##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
+  ##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
   ##  
   ##########################################################################*
 
@@ -34,9 +34,12 @@
 COPTIONS = -D_XPG4_EXTENDED -Wall # -DHEADER_DES_LOCL_H # -D_DEBUG
 TEMPOPTS = -I. 
 
+ifndef USEROPTS
 USEROPTS = -g
-CFLAGS	 = $(COPTIONS) $(CINCDIRS) $(USEROPTS)
-LDFLAGS  = $(CFLAGS)
+endif
+
+CFLAGS	 += $(COPTIONS) $(CINCDIRS) $(USEROPTS)
+LDFLAGS  += $(CFLAGS) -Wl,-soname -Wl,$(LIBSNMPPLUS_SHARED_SHORT).$(SOVERSION_MAIN)
 SHARED	 = -fPIC -shared
 
 #

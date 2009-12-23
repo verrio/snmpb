@@ -2,9 +2,9 @@
   _## 
   _##  vb.h  
   _##
-  _##  SNMP++v3.2.23
+  _##  SNMP++v3.2.24
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
+  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -54,11 +54,7 @@
   objects and thus requires the Oid class. The Vb class may be used
   stand alone and does not require use of any other snmp library.
 
-  DESIGN + AUTHOR:
-  Peter E. Mellquist
-
-  LANGAUGE:
-  ANSI C++
+  DESIGN + AUTHOR:  Peter E. Mellquist
 
 =====================================================================*/
 // $Id$
@@ -172,7 +168,17 @@ class DLLOPT Vb
   void set_value(const int i) { free_vb(); iv_vb_value = new SnmpInt32(i); };
 
   /**
-   * Set the value with an int.
+   * Set the value with an unsigned int.
+   *
+   * The syntax of the Vb will be set to SMI UINT32.
+   */
+  void set_value(const unsigned int i)
+    { free_vb(); iv_vb_value = new SnmpUInt32(i); };
+
+  /**
+   * Set the value with a long int.
+   *
+   * @note Even on 64 bit platforms, only 32 bits are used
    *
    * The syntax of the Vb will be set to SMI INT32.
    */
@@ -181,6 +187,8 @@ class DLLOPT Vb
 
   /**
    * Set the value with an unsigned long int.
+   *
+   * @note Even on 64 bit platforms, only 32 bits are used
    *
    * The syntax of the Vb will be set to SMI UINT32.
    */
@@ -231,6 +239,19 @@ class DLLOPT Vb
    * @return SNMP_CLASS_SUCCESS on success, else SNMP_CLASS_INVALID.
    */
   int get_value(int &i) const;
+
+  /**
+   * Get the value.
+   *
+   * This method will only return success if the value of the vb can
+   * be mapped to an unsigned long (SMI types uint32, counter32, gauge
+   * and timeticks).
+   *
+   * @param i - returned value
+   *
+   * @return SNMP_CLASS_SUCCESS on success, else SNMP_CLASS_INVALID.
+   */
+  int get_value(unsigned int &i) const;
 
   /**
    * Get the value.

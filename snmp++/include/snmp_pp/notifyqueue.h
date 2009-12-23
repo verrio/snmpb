@@ -2,9 +2,9 @@
   _## 
   _##  notifyqueue.h  
   _##
-  _##  SNMP++v3.2.23
+  _##  SNMP++v3.2.24
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
+  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -52,12 +52,7 @@
 
       NETWORK MANAGEMENT SECTION
 
-
-      DESIGN + AUTHOR:
-        Tom Murray
-
-      LANGUAGE:
-        ANSI C++
+      DESIGN + AUTHOR:        Tom Murray
 
       DESCRIPTION:
         Queue for holding sessions waiting for notifiactions
@@ -145,15 +140,21 @@ class DLLOPT CNotifyEventQueue: public CEvents
     // find the next timeout
     int GetNextTimeout(msec &/*timeout*/) { return 1; }; // we have no timeouts
     // set up parameters for select
+#ifdef HAVE_POLL_SYSCALL
+    int GetFdCount();
+    bool GetFdArray(struct pollfd *readfds, int &remaining);
+    int HandleEvents(const struct pollfd *readfds, const int fds);
+#else
     void GetFdSets(int &maxfds, fd_set &readfds, fd_set &writefds,
 		   fd_set &exceptfds);
-    // return number of outstanding messages
-    int GetCount() { return m_msgCount; };
-
     int HandleEvents(const int maxfds,
                      const fd_set &readfds,
                      const fd_set &writefds,
                      const fd_set &exceptfds);
+#endif
+    // return number of outstanding messages
+    int GetCount() { return m_msgCount; };
+
     int DoRetries(const msec &/*sendtime*/) { return 0; }; // nothing to retry
 
     int Done() { return 0; }; // we are never done

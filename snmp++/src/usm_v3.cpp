@@ -2,9 +2,9 @@
   _## 
   _##  usm_v3.cpp  
   _##
-  _##  SNMP++v3.2.23
+  _##  SNMP++v3.2.24
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,12 +23,12 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
+  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
   _##  
   _##########################################################################*/
 char usm_v3_cpp_version[]="@(#) SNMP++ $Id$";
 
-#ifdef _AIX
+#if defined(_AIX) || defined(__APPLE__)
 #include <unistd.h>
 #endif
 #ifdef __MINGW32__
@@ -1042,6 +1042,14 @@ int USM::remove_engine_id(const OctetStr &engine_id)
   return SNMPv3_USM_OK;
 }
 
+// Delete the time information for the given engine id
+int USM::remove_time_information(const OctetStr &engine_id)
+{
+  if (usm_time_table->delete_entry(engine_id) == SNMPv3_USM_ERROR)
+    return SNMPv3_USM_ERROR;
+
+  return SNMPv3_USM_OK;
+}
 
 int USM::update_key(const unsigned char* user_name,
 		    const long int user_name_len,

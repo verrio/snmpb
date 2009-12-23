@@ -2,9 +2,9 @@
   ## 
   ##  common.mk  
   ##
-  ##  SNMP++v3.2.23
+  ##  SNMP++v3.2.24
   ##  -----------------------------------------------
-  ##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
+  ##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
   ##
   ##  This software is based on SNMP++2.6 from Hewlett Packard:
   ##  
@@ -23,10 +23,13 @@
   ##  hereby grants a royalty-free license to any and all derivatives based
   ##  upon this software code base. 
   ##  
-  ##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
+  ##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
   ##  
   ##########################################################################*
 
+# Versions for shared library
+SOVERSION	= 1.0.0
+SOVERSION_MAIN	= 1
 
 LIBDESDIR	= ../../libdes
 LIBTOMCRYPTDIR	= ../../crypt
@@ -51,9 +54,12 @@ OBJS_SHARED	= $(PP_SRCS:.cpp=_sh.o)
 #  Libraries:  dependencies and produced
 #
 LIBPATH = ../lib
-LIBSNMPPLUS_SHARED = $(LIBPATH)/libsnmp++.so
+LIBSNMPPLUS_SHARED_SHORT = libsnmp++.so
+LIBSNMPPLUS_SHARED = $(LIBPATH)/$(LIBSNMPPLUS_SHARED_SHORT).$(SOVERSION)
+LIBSNMPPLUS_SHARED_MAIN = $(LIBPATH)/$(LIBSNMPPLUS_SHARED_SHORT).$(SOVERSION_MAIN)
+LIBSNMPPLUS_SHARED_NOVERSION = $(LIBPATH)/$(LIBSNMPPLUS_SHARED_SHORT)
+
 LIBSNMPPLUS = $(LIBPATH)/libsnmp++.a
-LIBSNMPX11 = $(LIBPATH)/libsnmpx11.a
 
 #
 # Installation directories
@@ -62,8 +68,13 @@ ifndef INSTPREFIX
 INSTPREFIX	= /usr/local
 endif
 
+ifndef INSTLIBPATH
 INSTLIBPATH	= $(INSTPREFIX)/lib
+endif
+
+ifndef INSTINCPATH
 INSTINCPATH	= $(INSTPREFIX)/include
+endif
 
 #
 #  Here for a quick sanity check upon completing a build...
@@ -74,16 +85,13 @@ INSTINCPATH	= $(INSTPREFIX)/include
 %.o:	%.cpp
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-%x11.o: %.cpp
-	$(CC) -DSNMPX11 -I/usr/include/X11R5 $(CFLAGS) -c $< -o $@
-
 %_sh.o:	%.cpp
 	$(CC) $(SHARED) $(CFLAGS) -o $@ -c $<
 
 #
 #  Build rules
 #
-all: $(LIBPATH) $(LIBSNMPPLUS) $(LIBSNMPPLUS_SHARED) # $(LIBSNMPX11)
+all: $(LIBPATH) $(LIBSNMPPLUS) $(LIBSNMPPLUS_SHARED)
 
 lib: $(LIBPATH) $(LIBSNMPPLUS)
 
@@ -97,15 +105,16 @@ $(LIBSNMPPLUS): $(OBJS)
 
 $(LIBSNMPPLUS_SHARED): $(OBJS_SHARED)
 	$(CC) $(SHARED) $(LDFLAGS) $(OBJS_SHARED) -o $@ 
-
-$(LIBSNMPX11): $(OBJS:.o=x11.o)
-	ar -rv $(LIBSNMPX11) $(OBJS:.o=x11.o)
+	rm -f $(LIBSNMPPLUS_SHARED_MAIN) $(LIBSNMPPLUS_SHARED_NOVERSION)
+	ln -s $(LIBSNMPPLUS_SHARED) $(LIBSNMPPLUS_SHARED_NOVERSION)
+	ln -s $(LIBSNMPPLUS_SHARED)  $(LIBSNMPPLUS_SHARED_MAIN)
 
 clean:
 	-rm -f core *.o *.rpo *~ a.out ../include/snmp_pp/*~
 
 clobber: clean
-	-rm -f $(LIBSNMPPLUS) $(LIBSNMPX11) $(LIBSNMPPLUS_SHARED)
+	-rm -f $(LIBSNMPPLUS) $(LIBSNMPPLUS_SHARED)
+	-rm -f $(LIBSNMPPLUS_SHARED_MAIN) $(LIBSNMPPLUS_SHARED_NOVERSION)
 
 install: all
 	install -d $(DESTDIR)$(INSTLIBPATH)
@@ -119,8 +128,6 @@ endif
 #
 #  Dependency rules
 #
-$(P1OBJ): $(HEADERS)
-
 $(OBJS): $(HEADERS)
 
 #dependencies:	$(PP_SRCS) $(HEADERS)

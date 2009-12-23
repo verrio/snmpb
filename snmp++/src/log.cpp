@@ -2,9 +2,9 @@
   _## 
   _##  log.cpp  
   _##
-  _##  SNMP++v3.2.23
+  _##  SNMP++v3.2.24
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,10 +23,9 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
+  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
   _##  
   _##########################################################################*/
-
 
 #ifndef WIN32
 #include <unistd.h>
@@ -249,11 +248,15 @@ unsigned char AgentLog::get_filter(int logclass) const
 
 const char* AgentLog::now(char* buf)
 {
-        if (buf == NULL) buf = static_buf;
+	if (buf == NULL) buf = static_buf;
 
 	time_t t;
 	time(&t);
-	strftime(buf, 18, "%Y%m%d.%H:%M:%S", localtime(&t));
+	struct tm *stm = localtime(&t);
+	if (stm)
+		strftime(buf, 18, "%Y%m%d.%H:%M:%S", localtime(&t));
+	else
+		buf[0] = 0;
 	return buf;
 }	
 
@@ -347,7 +350,10 @@ AgentLog& AgentLogImpl::operator+=(const LogEntry* log)
 
 	// check if critical error
 	if ((log->get_class() == ERROR_LOG) && (log->get_level() == 0))
-		raise(SIGTERM);
+	{
+	  fprintf(logfile, "Exiting now\n");
+	  raise(SIGTERM);
+	}
 
 	return *this;
 }

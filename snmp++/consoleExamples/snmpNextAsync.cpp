@@ -2,9 +2,9 @@
   _## 
   _##  snmpNextAsync.cpp  
   _##
-  _##  SNMP++v3.2.23
+  _##  SNMP++v3.2.24
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
+  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
   _##  
   _##########################################################################*/
 /*
@@ -288,8 +288,8 @@ int main(int argc, char **argv)
    //---------[ init SnmpV3 ]--------------------------------------------
 #ifdef _SNMPv3
    if (version == version3) {
-     char *engineId = "snmpNextAsync";
-     char *filename = "snmpv3_boot_counter";
+     const char *engineId = "snmpNextAsync";
+     const char *filename = "snmpv3_boot_counter";
      unsigned int snmpEngineBoots = 0;
      int status;
 
@@ -309,6 +309,11 @@ int main(int argc, char **argv)
 
      int construct_status;
      v3_MP = new v3MP(engineId, snmpEngineBoots, construct_status);
+     if (construct_status != SNMPv3_MP_OK)
+     {
+       cout << "Error initializing v3MP: " << construct_status << endl;
+       return 1;
+     }
 
      USM *usm = v3_MP->get_usm();
      usm->add_usm_user(securityName,
@@ -396,7 +401,7 @@ int main(int argc, char **argv)
 
    for (int t=1; t<=10;t++)
    {
-     snmp.eventListHolder->SNMPProcessPendingEvents();
+     snmp.get_eventListHolder()->SNMPProcessPendingEvents();
 #ifdef WIN32
      Sleep(1000);
 #else

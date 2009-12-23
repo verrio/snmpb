@@ -2,9 +2,9 @@
   _## 
   _##  msgqueue.h  
   _##
-  _##  SNMP++v3.2.23
+  _##  SNMP++v3.2.24
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
+  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -52,10 +52,7 @@
 
       NETWORK MANAGEMENT SECTION
 
-
       DESIGN + AUTHOR:     Tom Murray
-
-      LANGUAGE:            ANSI C++
 
       DESCRIPTION:
 	Queue for holing SNMP event sources (outstanding snmp messages)
@@ -166,19 +163,23 @@ class DLLOPT CSNMPMessageQueue: public CEvents
     CSNMPMessage *GetNextTimeoutEntry();
   // find the next timeout
     int GetNextTimeout(msec &sendTime);
+#ifdef HAVE_POLL_SYSCALL
+    int GetFdCount();
+    bool GetFdArray(struct pollfd *readfds, int &remaining);
+    int HandleEvents(const struct pollfd *readfds, const int fds);
+#else
   // set up parameters for select
     void GetFdSets(int &maxfds, fd_set &readfds, fd_set &writefds,
 		  fd_set &exceptfds);
-  // return number of outstanding messages
-    int GetCount() { return m_msgCount; };
-
-  // tell the queue we are looking for an id
-    void PushId(const unsigned long id);
-    unsigned long PeekId();
     int HandleEvents(const int maxfds,
 		     const fd_set &readfds,
 		     const fd_set &writefds,
 		     const fd_set &exceptfds);
+#endif
+
+  // return number of outstanding messages
+    int GetCount() { return m_msgCount; };
+
     int DoRetries(const msec &sendtime);
 
     int Done();
@@ -212,9 +213,6 @@ class DLLOPT CSNMPMessageQueue: public CEvents
 
     CSNMPMessageQueueElt m_head;
     int m_msgCount;
-    unsigned long *m_idStack;
-    int m_stackTop;
-    int m_stackSize;
     EventListHolder *my_holder;
     Snmp *m_snmpSession;
 };

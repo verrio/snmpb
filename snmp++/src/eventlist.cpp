@@ -2,9 +2,9 @@
   _## 
   _##  eventlist.cpp  
   _##
-  _##  SNMP++v3.2.23
+  _##  SNMP++v3.2.24
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
+  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -52,24 +52,11 @@
 
       NETWORK MANAGEMENT SECTION
 
-
-      DESIGN + AUTHOR:
-        Tom Murray
-
-      LANGUAGE:
-        ANSI C++
-
-      OPERATING SYSTEMS:
-        DOS/WINDOWS 3.1
-        BSD UNIX
+      DESIGN + AUTHOR:        Tom Murray
 
       DESCRIPTION:
         Queue for holding all event sources (snmp messages, user
         defined input sources, user defined timeouts, etc)
-
-      COMPILER DIRECTIVES:
-        UNIX - For UNIX build
-
 =====================================================================*/
 char event_list_version[]="@(#) SNMP++ $Id$";
 
@@ -150,6 +137,58 @@ int CEventList::GetNextTimeout(msec &sendTime) REENTRANT ({
  return 0;
 })
 
+#ifdef HAVE_POLL_SYSCALL
+
+int CEventList::GetFdCount()
+{
+  SnmpSynchronize _synchronize(*this); // instead of REENTRANT()
+  int count = 0;
+  CEventListElt *msgEltPtr = m_head.GetNext();
+
+  while (msgEltPtr)
+  {
+    count += msgEltPtr->GetEvents()->GetFdCount();
+    msgEltPtr = msgEltPtr->GetNext();
+  }
+  return count;
+}
+
+bool CEventList::GetFdArray(struct pollfd *readfds, int &remaining)
+{
+  SnmpSynchronize _synchronize(*this); // instead of REENTRANT()
+  CEventListElt *msgEltPtr = m_head.GetNext();
+
+  while (msgEltPtr)
+  {
+      int old_remaining = remaining;
+      if (msgEltPtr->GetEvents()->GetFdArray(readfds, remaining) == false)
+	  return false;
+      readfds += (old_remaining - remaining);
+      msgEltPtr = msgEltPtr->GetNext();
+  }
+  return true;
+}
+
+int CEventList::HandleEvents(const struct pollfd *readfds, const int fds)
+{
+  lock();
+  CEventListElt *msgEltPtr = m_head.GetNext();
+  int status = SNMP_CLASS_SUCCESS;
+  while (msgEltPtr)
+  {
+    if (msgEltPtr->GetEvents()->GetCount())
+    {
+      unlock();
+      status = msgEltPtr->GetEvents()->HandleEvents(readfds, fds);
+      lock();
+    }
+    msgEltPtr = msgEltPtr->GetNext();
+  }
+  unlock();
+  return status;
+}
+
+#else
 
 void CEventList::GetFdSets(int &maxfds, fd_set &readfds, fd_set &writefds,
 			   fd_set &exceptfds) REENTRANT ({
@@ -188,6 +227,8 @@ int CEventList::HandleEvents(const int maxfds,
   unlock();
   return status;
 }
+
+#endif // HAVE_POLL_SYSCALL
 
 int CEventList::DoRetries(const msec &sendtime) REENTRANT ({
 

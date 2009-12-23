@@ -2,9 +2,9 @@
   _## 
   _##  vb.cpp  
   _##
-  _##  SNMP++v3.2.23
+  _##  SNMP++v3.2.24
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
+  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -43,7 +43,6 @@
   derivatives based upon this software code base.
 
 
-
   V B . C P P
 
   VARIABLE BINDING CLASS IMPLEMENTATION
@@ -52,16 +51,7 @@
   This module contains the class implementation of the VB class.
   The Vb class is an encapsulation of the snmp variable binding.
 
-  DESIGN + AUTHOR:
-  Peter E Mellquist
-
-  LANGAUGE:
-  ANSI C++
-
-  OPERATING SYSTEMS:
-  MS-Windows Win32
-  BSD UNIX
-
+  DESIGN + AUTHOR:  Peter E Mellquist
 =====================================================================*/
 char vb_cpp_version[]="#(@) SNMP++ $Id$";
 
@@ -145,6 +135,24 @@ int Vb::get_value(int &i) const
    return SNMP_CLASS_INVALID;
 }
 
+// get the unsigned int
+// returns 0 on success and a value
+int Vb::get_value(unsigned int &i) const
+{
+  if (iv_vb_value &&
+      iv_vb_value->valid() &&
+      ((iv_vb_value->get_syntax() == sNMP_SYNTAX_UINT32 ) ||
+       (iv_vb_value->get_syntax() == sNMP_SYNTAX_CNTR32 ) ||
+       (iv_vb_value->get_syntax() == sNMP_SYNTAX_GAUGE32 ) ||
+       (iv_vb_value->get_syntax() == sNMP_SYNTAX_TIMETICKS )))
+  {
+    unsigned long lval;
+    lval = *((SnmpUInt32 *)iv_vb_value);
+    i = (unsigned int)lval;
+    return SNMP_CLASS_SUCCESS;
+  }
+  return SNMP_CLASS_INVALID;
+}
 
 
 //--------------[ Vb::get_value(long int &i) ]-------------------------

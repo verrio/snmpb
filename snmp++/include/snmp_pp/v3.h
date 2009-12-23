@@ -2,9 +2,9 @@
   _## 
   _##  v3.h  
   _##
-  _##  SNMP++v3.2.23
+  _##  SNMP++v3.2.24
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
+  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
   _##  
   _##########################################################################*/
 // $Id$
@@ -100,17 +100,7 @@ DLLOPT void debughexcprintf(int db_level, const char* comment,
 
 #ifndef _MSC_VER
 #if defined(__GNUC__) && !defined(__STRICT_ANSI__)
-
-#include "snmp_pp/log.h"
-#define debugprintf(__db_level, ...)                             \
-    if (__db_level < DefaultLog::log()->get_filter(DEBUG_LOG)) { \
-        char __buf[MAX_LOG_SIZE];                                \
-        __buf[MAX_LOG_SIZE-1] = '\0';                            \
-        snprintf(__buf, MAX_LOG_SIZE-1,__VA_ARGS__);             \
-        LOG_BEGIN(DEBUG_LOG | __db_level);                       \
-        LOG(__buf);                                              \
-        LOG_END;                                                 \
-    }
+#define debugprintf(db_level,format...)
 #else
 void debugprintf(int db_level, const char *format, ...);
 #endif

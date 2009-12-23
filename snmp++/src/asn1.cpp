@@ -2,9 +2,9 @@
   _## 
   _##  asn1.cpp  
   _##
-  _##  SNMP++v3.2.23
+  _##  SNMP++v3.2.24
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
+  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
   _##  
   _##########################################################################*/
 
@@ -119,7 +119,7 @@ unsigned char * asn_parse_int( unsigned char *data,
     return NULL;
   }
   if ((asn_length + (bufp - data)) > (unsigned long)(*datalength)){
-    ASNERROR("overflow of message");
+    ASNERROR("overflow of message (int)");
     return NULL;
   }
   if ((int)asn_length > intsize){
@@ -183,7 +183,7 @@ unsigned char * asn_parse_unsigned_int( unsigned char *data,
 
   // check the len for message overflow
   if ((asn_length + (bufp - data)) > (unsigned long)(*datalength)){
-    ASNERROR("overflow of message");
+    ASNERROR("overflow of message (uint)");
     return NULL;
   }
 
@@ -252,10 +252,8 @@ unsigned char *asn_build_int(unsigned char *data, int *datalength,
     integer <<= 8;
   }
   data = asn_build_header(data, datalength, type, intsize);
-  if (data == NULL)
-    return NULL;
-  if (*datalength < intsize)
-    return NULL;
+  if (data == NULL)          return NULL;
+  if (*datalength < intsize) return NULL;
   *datalength -= intsize;
   mask = 0xFFul << (8 * (sizeof(long) - 1));
   /* mask is 0xFF000000 on a big-endian machine */
@@ -286,14 +284,12 @@ unsigned char * asn_build_unsigned_int( unsigned char *data, // modified data
   /*
    * ASN.1 integer ::= 0x02 asnlength byte {byte}*
    */
-
   unsigned long u_integer;
   long u_integer_len;
   long x;
 
   // check uint size
-  if (intsize != sizeof (long))
-    return NULL;
+  if (intsize != sizeof(long)) return NULL;
 
   // local var point to var passed in
   u_integer = *intp;
@@ -318,6 +314,8 @@ unsigned char * asn_build_unsigned_int( unsigned char *data, // modified data
 			   datalength,           // length of data buffer
 			   type,                 // SMI type to enode
 			   (int)u_integer_len);  // length of BER encoded item
+  if (data == NULL)                return NULL;
+  if (*datalength < u_integer_len) return NULL;
 
   // special case, add a null byte for len of 5
   if ( u_integer_len ==5) {
@@ -411,11 +409,9 @@ unsigned char *asn_build_string(unsigned char *data,
    * This code will never send a compound string.
    */
   data = asn_build_header(data, datalength, type, strlength);
-  if (data == NULL)
-    return NULL;
-  if (*datalength < strlength)
-    return NULL;
-  // fixed
+  if (data == NULL)            return NULL;
+  if (*datalength < strlength) return NULL;
+
   memcpy((unsigned char *)data, string, strlength);
   *datalength -= strlength;
   return data + strlength;
@@ -525,8 +521,8 @@ unsigned char * asn_build_sequence( unsigned char *data,
  *  field (aka: the start of the data field).
  *  Returns NULL on any error.
  */
-unsigned char * asn_parse_length( unsigned char *data,
-                                  unsigned long  *length)
+unsigned char * asn_parse_length(unsigned char *data,
+                                 unsigned long *length)
 {
   unsigned char lengthbyte = *data;
   *length = 0;
@@ -540,10 +536,10 @@ unsigned char * asn_parse_length( unsigned char *data,
       ASNERROR("we can't support data lengths that long");
       return NULL;
     }
-    // fixed
-    memcpy((char *)length, (char *)data + 1, (int)lengthbyte);
-    *length = ntohl(*length);
-    *length >>= (8 * ((sizeof(int)) - lengthbyte));
+    for (int i=0 ; i < lengthbyte ; i++)
+    {
+      *length = (*length << 8) + *(data + 1 + i);
+    }
     // check for length greater than 2^31
     if (*length > 0x80000000ul) {
       ASNERROR("SNMP does not support data lengths > 2^31");
@@ -651,7 +647,7 @@ unsigned char *asn_parse_objid( unsigned char *data,
   if (bufp == NULL)
     return NULL;
   if ((asn_length + (bufp - data)) > (unsigned long)(*datalength)){
-    ASNERROR("overflow of message");
+    ASNERROR("overflow of message (objid)");
     return NULL;
   }
   *datalength -= (int)asn_length + SAFE_INT_CAST(bufp - data);
@@ -761,11 +757,9 @@ unsigned char *asn_build_objid( unsigned char *data,
   }
   asnlength = SAFE_INT_CAST(bp - buf);
   data = asn_build_header(data, datalength, type, asnlength);
-  if (data == NULL)
-    return NULL;
-  if (*datalength < asnlength)
-    return NULL;
-  // fixed
+  if (data == NULL)            return NULL;
+  if (*datalength < asnlength) return NULL;
+
   memcpy((char *)data, (char *)buf,  asnlength);
   *datalength -= asnlength;
   return data + asnlength;
@@ -861,7 +855,7 @@ unsigned char *asn_parse_bitstring( unsigned char *data,
   if (bufp == NULL)
     return NULL;
   if ((asn_length + (bufp - data)) > (unsigned long)(*datalength)){
-    ASNERROR("overflow of message");
+    ASNERROR("overflow of message (bitstring)");
     return NULL;
   }
   if ((int) asn_length > *strlength){
@@ -876,7 +870,7 @@ unsigned char *asn_parse_bitstring( unsigned char *data,
     ASNERROR("Invalid bitstring");
     return NULL;
   }
-  // fixed
+
   memcpy((char *)string,(char *)bufp,  (int)asn_length);
   *strlength = (int)asn_length;
   *datalength -= (int)asn_length + SAFE_INT_CAST(bufp - data);
@@ -909,11 +903,9 @@ unsigned char *asn_build_bitstring( unsigned char *data,
     return NULL;
   }
   data = asn_build_header(data, datalength, type, strlength);
-  if (data == NULL)
-    return NULL;
-  if (*datalength < strlength)
-    return NULL;
-  // fixed
+  if (data == NULL)            return NULL;
+  if (*datalength < strlength) return NULL;
+
   memcpy((char *)data,(char *)string, strlength);
   *datalength -= strlength;
   return data + strlength;
@@ -943,7 +935,6 @@ unsigned char * asn_parse_unsigned_int64(  unsigned char *data,
   unsigned char *bufp = data;
   unsigned long	    asn_length;
   unsigned long low = 0, high = 0;
-  int intsize = 4;
 
   if (countersize != sizeof(struct counter64)){
     ASNERROR("not right size");
@@ -960,11 +951,11 @@ unsigned char * asn_parse_unsigned_int64(  unsigned char *data,
     return NULL;
   }
   if ((asn_length + (bufp - data)) > (unsigned long)(*datalength)){
-    ASNERROR("overflow of message");
+    ASNERROR("overflow of message (uint64)");
     return NULL;
   }
-  if (((int)asn_length > (intsize * 2 + 1)) ||
-      (((int)asn_length == (intsize * 2) + 1) && *bufp != 0x00)){
+  if (((int)asn_length > 9) ||
+      (((int)asn_length == 9) && *bufp != 0x00)){
     ASNERROR("I don't support such large integers");
     return NULL;
   }
@@ -975,7 +966,7 @@ unsigned char * asn_parse_unsigned_int64(  unsigned char *data,
   }
   while(asn_length--){
     high = (high << 8) | ((low & 0xFF000000) >> 24);
-    low = (low << 8) | *bufp++;
+    low = ((low << 8) | *bufp++) & 0xFFFFFFFF;
   }
   cp->low = low;
   cp->high = high;
@@ -1002,20 +993,19 @@ unsigned char * asn_build_unsigned_int64( unsigned char *data,
   /*
    * ASN.1 integer ::= 0x02 asnlength byte {byte}*
    */
-
-  unsigned long low, high;
-  unsigned long mask, mask2;
+  unsigned long low = cp->low;
+  unsigned long high = cp->high;
+  unsigned long mask;
+  unsigned long mask2;
   int add_null_byte = 0;
-  int intsize;
+  int intsize = 8;
 
   if (countersize != sizeof (struct counter64))
     return NULL;
-  intsize = 8;
-  low = cp->low;
-  high = cp->high;
-  mask = 0xFFul << (8 * (sizeof(long) - 1));
+
+  mask = 0xFFul << 24;
   /* mask is 0xFF000000 on a big-endian machine */
-  if ((unsigned char)((high & mask) >> (8 * (sizeof(long) - 1))) & 0x80){
+  if (((high & mask) >> 24) & 0x80){
     /* if MSB is set */
     add_null_byte = 1;
     intsize++;
@@ -1027,43 +1017,39 @@ unsigned char * asn_build_unsigned_int64( unsigned char *data,
      * There should be no sequence of 9 consecutive 1's or 0's at the most
      * significant end of the integer.
      */
-    mask2 = 0x1FFul << ((8 * (sizeof(long) - 1)) - 1);
+    mask2 = 0x1FFul << 23;
     /* mask2 is 0xFF800000 on a big-endian machine */
-    while((((high & mask2) == 0) || ((high & mask2) == mask2))
-	  && intsize > 1){
+    while ((((high & mask2) == 0) || ((high & mask2) == mask2)) &&
+	   (intsize > 1)) {
       intsize--;
-      high = (high << 8)
-	| ((low & mask) >> (8 * (sizeof(long) - 1)));
+      high = (high << 8) | ((low & mask) >> 24);
       low <<= 8;
     }
   }
   data = asn_build_header(data, datalength, type, intsize);
-  if (data == NULL)
-    return NULL;
-  if (*datalength < intsize)
-    return NULL;
+  if (data == NULL)          return NULL;
+  if (*datalength < intsize) return NULL;
   *datalength -= intsize;
   if (add_null_byte == 1){
-    *data++ = '\0';
+    *data++ = 0;
     intsize--;
   }
   while(intsize--){
-    *data++ = (unsigned char)((high & mask) >> (8 * (sizeof(long) - 1)));
-    high = (high << 8)
-      | ((low & mask) >> (8 * (sizeof(long) - 1)));
+    *data++ = (unsigned char)((high & mask) >> 24);
+    high = (high << 8) | ((low & mask) >> 24);
     low <<= 8;
-	
   }
   return data;
 }
 
 
 // create a pdu
-struct snmp_pdu * snmp_pdu_create( int command)
+struct snmp_pdu *snmp_pdu_create(int command)
 {
   struct snmp_pdu *pdu;
 
   pdu = (struct snmp_pdu *)malloc(sizeof(struct snmp_pdu));
+  if (!pdu) return pdu;
   memset((char *)pdu, 0,sizeof(struct snmp_pdu));
   pdu->command = command;
 #ifdef _SNMPv3
@@ -1151,7 +1137,7 @@ void snmp_add_var(struct snmp_pdu *pdu,
 
   // hook in the Oid portion
   vars->name = (oid *)malloc(name_length * sizeof(oid));
-  // fixed
+
   memcpy((char *)vars->name,(char *)name, name_length * sizeof(oid));
   vars->name_length = name_length;
 
@@ -1660,7 +1646,7 @@ int snmp_parse_vb(struct snmp_pdu *pdu, unsigned char *&data, int &data_len)
     if (data == NULL)
       return SNMP_CLASS_ASN1ERROR;
     op = (oid *)malloc((unsigned)vp->name_length * sizeof(oid));
-    // fixed
+
     memcpy((char *)op, (char *)objid, vp->name_length * sizeof(oid));
     vp->name = op;
 
@@ -1702,7 +1688,7 @@ int snmp_parse_vb(struct snmp_pdu *pdu, unsigned char *&data, int &data_len)
       asn_parse_objid(var_val, &len, &vp->type, objid, &vp->val_len);
       //vp->val_len *= sizeof(oid);
       vp->val.objid = (oid *)malloc((unsigned)vp->val_len * sizeof(oid));
-      // fixed
+
       memcpy((char *)vp->val.objid,
 	     (char *)objid,
 	     vp->val_len * sizeof(oid));
@@ -1881,7 +1867,7 @@ unsigned char *asn1_parse_header_data(unsigned char *buf, int *buf_len,
     return 0;
   }
 
-  debugprintf(3, "Parsed HeaderData: globalDataLength(0x%x), msg_id(0x%lx), "
+  debugprintf(3, "Parsed HeaderData: globalDataLength(0x%x), msg_id(%ld), "
 	     "msg_max_size(0x%lx), msg_flags(0x%x), msg_security_model(0x%lx)",
 	      length, *msg_id, *msg_max_size, *msg_flags, *msg_security_model);
 
@@ -1908,7 +1894,7 @@ unsigned char *asn1_build_header_data(unsigned char *outBuf, int *maxLength,
   maxMessageSize = 65535;
 #endif
 
-  debugprintf(3, "Coding msgID(0x%lx), maxMessageSize(0x%lx), "
+  debugprintf(3, "Coding msgID(%ld), maxMessageSize(0x%lx), "
 	      "msgFlags(0x%x), securityModel(0x%lx)",
               msgID, maxMessageSize, msgFlags, securityModel);
 

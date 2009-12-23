@@ -2,9 +2,9 @@
   _## 
   _##  eventlist.h  
   _##
-  _##  SNMP++v3.2.23
+  _##  SNMP++v3.2.24
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
+  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -51,7 +51,6 @@
       INFORMATION NETWORKS DIVISION
 
       NETWORK MANAGEMENT SECTION
-
 
       DESIGN + AUTHOR:         Tom Murray
 
@@ -102,18 +101,22 @@ class DLLOPT CEvents: public SnmpSynchronized {
   // find the next timeout
   virtual int GetNextTimeout(msec &sendTime) = 0;
 
-  // set up parameters for select
+  // set up parameters for select/poll
+#ifdef HAVE_POLL_SYSCALL
+  virtual int GetFdCount() = 0;
+  virtual bool GetFdArray(struct pollfd *readfds, int &remaining) = 0;
+  virtual int HandleEvents(const struct pollfd *readfds, const int fds) = 0;
+#else
   virtual void GetFdSets(int &maxfds, fd_set &readfds, fd_set &writefds,
 			   fd_set &exceptfds) = 0;
-
-  // return number of outstanding messages
-  virtual int GetCount() = 0;
-
   // process events pending on the active file descriptors
   virtual int HandleEvents(const int maxfds,
 			   const fd_set &readfds,
 			   const fd_set &writefds,
 			   const fd_set &exceptfds) = 0;
+#endif
+  // return number of outstanding messages
+  virtual int GetCount() = 0;
 
   // process any timeout events
   virtual int DoRetries(const msec &sendtime) = 0;
@@ -140,18 +143,25 @@ class DLLOPT CEventList: public SnmpSynchronized {
   // find the time of the next event that will timeout
   int GetNextTimeout(msec &sendTime);
 
-  // set up paramters for select
+#ifdef HAVE_POLL_SYSCALL
+  int GetFdCount();
+  bool GetFdArray(struct pollfd *readfds, int &remaining);
+  int HandleEvents(const struct pollfd *readfds, const int fds);
+#else
+ // set up paramters for select
   void GetFdSets(int &maxfds, fd_set &readfds, fd_set &writefds,
 		 fd_set &exceptfds);
-
-  // return number of outstanding messages
-  int GetCount() { return m_msgCount; };
 
   // process events pending on the active file descriptors
   int HandleEvents(const int maxfds,
 		   const fd_set &readfds,
 		   const fd_set &writefds,
 		   const fd_set &exceptfds);
+#endif
+
+  // return number of outstanding messages
+  int GetCount() { return m_msgCount; };
+
 
   // process any timeout events
   int DoRetries(const msec &sendtime);

@@ -2,9 +2,9 @@
   _## 
   _##  uxsnmp.h  
   _##
-  _##  SNMP++v3.2.23
+  _##  SNMP++v3.2.24
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
+  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
   _##  
   _##########################################################################*/
 
@@ -546,11 +546,10 @@ class DLLOPT Snmp: public SnmpSynchronized
 
   const IpAddress &get_listen_address() const {return listen_address; };
 
-  // this member var will simulate a global var
-  EventListHolder *eventListHolder;
-
   bool start_poll_thread(const int select_timeout);
   void stop_poll_thread();
+
+  EventListHolder *get_eventListHolder() { return eventListHolder; };
 
 protected:
 
@@ -619,9 +618,6 @@ protected:
   void map_action(unsigned short action, unsigned short &pdu_action);
 
 #ifdef _SNMPv3
-  friend void v3CallBack( int reason, Snmp *snmp, Pdu &pdu,
-			  SnmpTarget &target, void *v3cd);
-
   /**
    * Internal used callback data structure for async v3 requests.
    */
@@ -635,6 +631,10 @@ protected:
     const void *cbd;           ///< User callback data
     int reports_received;      ///< How many reports are already received
   };
+
+  friend void v3CallBack(int reason, Snmp *snmp, Pdu &pdu,
+			 SnmpTarget &target, void *v3cd);
+  friend void deleteV3Callback(struct Snmp::V3CallBackData *&cbData);
 #endif
 
   //---[ instance variables ]
@@ -644,12 +644,14 @@ protected:
 #endif
 
   IpAddress listen_address;
-  SnmpSocket iv_notify_fd;            // fd for notify session - DLD
   long current_rid;                   // current rid to use
 
   // inform receive member variables
   snmp_callback  notifycallback;
   void * notifycallback_data;
+
+  // this member var will simulate a global var
+  EventListHolder *eventListHolder;
 
 private:
 

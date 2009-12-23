@@ -2,9 +2,9 @@
   _## 
   _##  uxsnmp.cpp  
   _##
-  _##  SNMP++v3.2.23
+  _##  SNMP++v3.2.24
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,24 +23,18 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
+  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
   _##  
   _##########################################################################*/
 /*===================================================================
-
       U X S N M P . C P P
 
       UXSNMP CLASS DECLARATION
 
-
-      Description:    HPUX version of Snmp class
-
-      Language:       ANSI C++
+      Description:    Snmp class
 
       Author:         Peter E Mellquist
-
 =====================================================================*/
-
 char snmp_cpp_version[]="#(@) SNMP++ $Id$";
 
 /* CK Ng    added support for WIN32 in the whole file */
@@ -61,10 +55,6 @@ char snmp_cpp_version[]="#(@) SNMP++ $Id$";
 #endif
 #ifdef _AIX
 #define ss_family __ss_family
-#endif
-
-#ifdef HAVE_POLL_SYSCALL
-#include <poll.h>
 #endif
 
 #include <stdlib.h>        // need for malloc
@@ -100,12 +90,8 @@ extern "C"
 {
   //------------[ if using Wind-U, then bring in the ms-windows header ]
 #ifndef WIN32
-#ifdef WU_APP
-  WORD app_hinst;
-#else
   typedef short WORD;
   typedef long DWORD;
-#endif
 #endif
 }
 
@@ -137,10 +123,23 @@ const snmpTrapEnterpriseOid snmpTrapEnterprise;
 
 #ifdef _SNMPv3
 
+void deleteV3Callback(struct Snmp::V3CallBackData *&cbData)
+{
+  if (cbData->pdu) {
+    delete cbData->pdu;
+    cbData->pdu = 0;
+  }
+  if (cbData->target) {
+    delete cbData->target;
+    cbData->target = 0;
+  }
+  delete cbData;
+  cbData = 0;
+}
+
 void v3CallBack(int reason, Snmp *snmp, Pdu &pdu, SnmpTarget &target, void *v3cd)
 {
-  Snmp::V3CallBackData *cbData;
-  cbData = (Snmp::V3CallBackData*)v3cd;
+  struct Snmp::V3CallBackData *cbData = (struct Snmp::V3CallBackData*)v3cd;
 
   Vb tmpvb;
   pdu.get_vb(tmpvb,0);
@@ -184,18 +183,9 @@ void v3CallBack(int reason, Snmp *snmp, Pdu &pdu, SnmpTarget &target, void *v3cd
   }
   // save to delete it here, because either snmp_engine created a new
   // callback entry or the user specified callback has been called
-  if (cbData->pdu) {
-    delete cbData->pdu;
-    cbData->pdu = 0;
-  }
-  if (cbData->target) {
-    delete cbData->target;
-    cbData->target = 0;
-  }
-  delete cbData;
+  deleteV3Callback(cbData);
   return;
 }
-
 #endif
 
 //--------[ make the pdu request id ]-----------------------------------
@@ -715,9 +705,11 @@ void Snmp::init(int& status, IpAddress *addresses[2],
                 const unsigned short port_v4,
                 const unsigned short port_v6)
 {
+#ifdef _THREADS
 #ifdef WIN32
   m_hThread = INVALID_HANDLE_VALUE;
   m_hThreadEndEvent = ::CreateEvent(NULL, true, false, NULL);
+#endif
 #endif
 
   eventListHolder = new EventListHolder(this);
@@ -952,8 +944,10 @@ Snmp::~Snmp()
 {
   stop_poll_thread();
 
+#ifdef _THREADS
 #ifdef WIN32
   ::CloseHandle(m_hThreadEndEvent);
+#endif
 #endif
 
   // if we failed during construction then don't try
@@ -1159,7 +1153,7 @@ int Snmp::send_raw_data(unsigned char *send_buf,
 }
 
 //-----------------------[ cancel ]--------------------------------------
-int Snmp::cancel( const unsigned long request_id)
+int Snmp::cancel(const unsigned long request_id)
 {
   eventListHolder->snmpEventList()->lock();
   int status = eventListHolder->snmpEventList()->DeleteEntry(request_id);
@@ -1506,9 +1500,6 @@ int Snmp::notify_register( const OidCollection     &trapids,
   // add to the notify queue
   status = eventListHolder->notifyEventList()->AddEntry(this, trapids,
 							targets, addresses);
-
-  iv_notify_fd = eventListHolder->notifyEventList()->get_notify_fd(); // DLD
-
   return status;
 }
 
@@ -1536,8 +1527,6 @@ int Snmp::notify_unregister()
   // null out callback information
   notifycallback = 0;
   notifycallback_data = 0;
-
-  iv_notify_fd = INVALID_SOCKET;
 
   return SNMP_CLASS_SUCCESS;
 }
@@ -1780,6 +1769,8 @@ int Snmp::snmp_engine( Pdu &pdu,              // pdu to use
     SnmpMessage snmpmsg;
 
 #ifdef _SNMPv3
+    struct V3CallBackData *v3CallBackData = 0;
+
     if (version == version3)
     {
       if (!utarget)
@@ -1797,7 +1788,24 @@ int Snmp::snmp_engine( Pdu &pdu,              // pdu to use
         {
 	  // Override const here
           ((UTarget*)utarget)->set_engine_id(engine_id);
-        } // else: engineID="" --> automatic engineID discovery
+        }
+	else
+	{
+          // check if engine id discovery is enabled
+          if ((!v3MP::I->get_usm()->is_discovery_enabled()) &&
+              ((pdu_action == sNMP_PDU_GET) ||
+               (pdu_action == sNMP_PDU_SET) ||
+               (pdu_action == sNMP_PDU_GETNEXT) ||
+               (pdu_action == sNMP_PDU_GETBULK) ||
+               (pdu_action == sNMP_PDU_INFORM)))
+          {
+            // no engine id, discovery disabled and not authoritytive
+            LOG_BEGIN(ERROR_LOG | 1);
+            LOG("Not authoritative and discovery disabled. Target without engine id is invalid");
+            LOG_END;
+            return SNMP_CLASS_INVALID_TARGET;
+          }
+        }
       }
       // set context_engine_id of pdu, if it is not set
       if (pdu.get_context_engine_id().len() == 0)
@@ -1827,6 +1835,43 @@ int Snmp::snmp_engine( Pdu &pdu,              // pdu to use
       return status;
     }
 
+    // first add the message to the queue
+    if ((pdu_action != sNMP_PDU_RESPONSE) &&
+        (pdu_action != sNMP_PDU_REPORT))
+    {
+#ifdef _SNMPv3
+	if ((version == version3) && ((action == sNMP_PDU_GET_ASYNC) ||
+				      (action == sNMP_PDU_SET_ASYNC) ||
+				      (action == sNMP_PDU_GETNEXT_ASYNC) ||
+				      (action == sNMP_PDU_GETBULK_ASYNC) ||
+				      (action == sNMP_PDU_INFORM_ASYNC))) {
+	    // add callback for v3
+	    v3CallBackData = new struct V3CallBackData;
+
+	    v3CallBackData->pdu = new Pdu(pdu);
+	    v3CallBackData->pdu->set_type(backupPdu.get_type());
+	    v3CallBackData->non_reps = non_reps;
+	    v3CallBackData->max_reps = max_reps;
+
+	    v3CallBackData->target = new UTarget(*utarget);
+	    v3CallBackData->oldCallback = cb;
+	    v3CallBackData->cbd = cbd;
+	    v3CallBackData->reports_received = reports_received;
+
+	    // Add the message to the message queue
+	    eventListHolder->snmpEventList()->AddEntry(req_id, this, iv_session_used,
+		     target, pdu, snmpmsg.data(), (size_t) snmpmsg.len(),
+		     udp_address, v3CallBack, (void *)v3CallBackData);
+	}
+	else
+#endif
+	{
+	    eventListHolder->snmpEventList()->AddEntry(req_id, this, iv_session_used,
+		     target, pdu, snmpmsg.data(), (size_t) snmpmsg.len(),
+		     udp_address, cb, (void *)cbd);
+	}
+    }
+
     //------[ send the request ]
     lock();
     status = send_snmp_request(iv_session_used,
@@ -1834,53 +1879,28 @@ int Snmp::snmp_engine( Pdu &pdu,              // pdu to use
 			       udp_address);
     unlock();
 
-    if ( status != 0)
-      return SNMP_CLASS_TL_FAILED;
+    if (status != 0)
+    {
+	if ((pdu_action != sNMP_PDU_RESPONSE) &&
+	    (pdu_action != sNMP_PDU_REPORT))
+	{
+	    // remove the id from message queue
+	    eventListHolder->snmpEventList()->lock();
+	    eventListHolder->snmpEventList()->DeleteEntry(req_id);
+	    eventListHolder->snmpEventList()->unlock();
+
+#ifdef _SNMPv3
+	    // dont forget to delete this
+	    if (v3CallBackData) deleteV3Callback(v3CallBackData);
+#endif
+	}
+	return SNMP_CLASS_TL_FAILED;
+    }
 
     if ((pdu_action == sNMP_PDU_RESPONSE) ||
         (pdu_action == sNMP_PDU_REPORT))
       return SNMP_CLASS_SUCCESS; // don't wait for an answer
 
-#ifdef _SNMPv3
-    if ((version == version3) && ((action == sNMP_PDU_GET_ASYNC) ||
-                                  (action == sNMP_PDU_SET_ASYNC) ||
-                                  (action == sNMP_PDU_GETNEXT_ASYNC) ||
-                                  (action == sNMP_PDU_GETBULK_ASYNC) ||
-                                  (action == sNMP_PDU_INFORM_ASYNC))) {
-      // add callback for v3
-      struct V3CallBackData *v3CallBackData;
-      v3CallBackData = new struct V3CallBackData;
-
-      v3CallBackData->pdu = new Pdu(pdu);
-      v3CallBackData->pdu->set_type(backupPdu.get_type());
-      v3CallBackData->non_reps = non_reps;
-      v3CallBackData->max_reps = max_reps;
-
-      v3CallBackData->target = new UTarget(*utarget);
-      v3CallBackData->oldCallback = cb;
-      v3CallBackData->cbd = cbd;
-      v3CallBackData->reports_received = reports_received;
-
-      // Add the message to the message queue
-      eventListHolder->snmpEventList()->AddEntry(req_id, this, iv_session_used,
-						 target, pdu,
-						 snmpmsg.data(),
-						 (size_t) snmpmsg.len(),
-						 udp_address,
-						 v3CallBack,
-						 (void *)v3CallBackData);
-    }
-    else
-#endif
-    {
-      eventListHolder->snmpEventList()->AddEntry( req_id, this,
-						  iv_session_used,
-						  target, pdu,
-						  snmpmsg.data(),
-						  (size_t) snmpmsg.len(),
-						  udp_address,
-						  cb, (void *)cbd);
-    }
     //----[ if an async mode request then return success ]-----
     if (( action == sNMP_PDU_GET_ASYNC) ||
         ( action == sNMP_PDU_SET_ASYNC) ||
@@ -2324,8 +2344,8 @@ void Snmp::stop_poll_thread()
     while (taskIdVerify(m_hThread) == OK)
 	taskDelay(10);
 #else
-    int status;
-    pthread_join(m_hThread, (void**) &status); 
+    //int *status; // not used
+    pthread_join(m_hThread, NULL /*(void**) &status */); 
 #endif
 #endif
 }

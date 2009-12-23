@@ -2,9 +2,9 @@
   _## 
   _##  usm_v3.h  
   _##
-  _##  SNMP++v3.2.23
+  _##  SNMP++v3.2.24
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
+  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
   _##  
   _##########################################################################*/
 // $Id$
@@ -257,18 +257,18 @@ public:
    * Enables the discovery mode of the USM, i.e. the USM accepts all messages
    * with unknown engine ids and adds these engine ids to its tables.
    */
-  void set_discovery_mode() { discovery_mode = 1; };
+  void set_discovery_mode() { discovery_mode = true; };
 
   /**
    * Disables the discovery mode of the USM, i.e. the USM will not accept any
    * message with an unknown engine id.
    */
-  void unset_discovery_mode() { discovery_mode = 0; };
+  void unset_discovery_mode() { discovery_mode = false; };
 
   /**
    * Return TRUE if the USM discovery mode is enabled, FALSE else.
    */
-  int is_discovery_enabled() const { return discovery_mode; };
+  bool is_discovery_enabled() const { return discovery_mode; };
 
   /**
    * Add a new user to the usmUserNameTable. If the User is already known
@@ -516,9 +516,19 @@ public:
    * @param engine_id - the engine id
    *
    * @return - SNMPv3_USM_ERROR (not initialized),
-   *           SNMPv3_USM_OK (user deleted or not in table)
+   *           SNMPv3_USM_OK (entries deleted or not in table)
    */
   int remove_engine_id(const OctetStr &engine_id);
+
+  /**
+   * Delete the time information for the given engine id.
+   *
+   * @param engine_id - the engine id
+   *
+   * @return - SNMPv3_USM_ERROR (not initialized),
+   *           SNMPv3_USM_OK (entry deleted or not in table)
+   */
+  int remove_time_information(const OctetStr &engine_id);
 
   /**
    * Replace a localized key of the user and engineID in the
@@ -1046,7 +1056,7 @@ private:
   const v3MP *v3mp;          ///< Pointer to the v3MP that created this object
 
   // 0: don't accept messages from hosts with a unknown engine id
-  int discovery_mode;
+  bool discovery_mode;
 
    // MIB Counters
    unsigned int usmStatsUnsupportedSecLevels;

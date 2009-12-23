@@ -2,9 +2,9 @@
   _## 
   _##  snmpWalkThreads.cpp  
   _##
-  _##  SNMP++v3.2.23
+  _##  SNMP++v3.2.24
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
+  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
   _##  
   _##########################################################################*/
 /*
@@ -48,6 +48,7 @@
 char snmpwalkthreads_cpp_version[]="@(#) SNMP++ $Id$";
 
 #include "snmp_pp/snmp_pp.h"
+#include "snmp_pp/log.h"
 #include "snmp_pp/reentrant.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -247,6 +248,13 @@ int main(int argc, char **argv)
 
   Snmp::socket_startup();  // Initialize socket subsystem
 
+   // Set filter for logging
+   DefaultLog::log()->set_filter(ERROR_LOG, 15);
+   DefaultLog::log()->set_filter(WARNING_LOG, 15);
+   DefaultLog::log()->set_filter(EVENT_LOG, 8);
+   DefaultLog::log()->set_filter(INFO_LOG, 8);
+   DefaultLog::log()->set_filter(DEBUG_LOG, 0);
+
   //---------[ make a GenAddress and Oid object to retrieve ]---------------
   address[0] = UdpAddress(argv[1]);
   if ( !address[0].valid()) {           // check validity of address
@@ -393,8 +401,8 @@ int main(int argc, char **argv)
    //---------[ init SnmpV3 ]--------------------------------------------
    v3MP *v3_MP;
    if (version == version3) {
-     char *engineId = "snmpWalk";
-     char *filename = "snmpv3_boot_counter";
+     const char *engineId = "snmpWalk";
+     const char *filename = "snmpv3_boot_counter";
      unsigned int snmpEngineBoots = 0;
      int status;
 
@@ -414,6 +422,11 @@ int main(int argc, char **argv)
 
      int construct_status;
      v3_MP = new v3MP(engineId, snmpEngineBoots, construct_status);
+     if (construct_status != SNMPv3_MP_OK)
+     {
+       cout << "Error initializing v3MP: " << construct_status << endl;
+       return 1;
+     }
 
      USM *usm = v3_MP->get_usm();
      usm->add_usm_user(securityName,
@@ -457,6 +470,11 @@ int main(int argc, char **argv)
   }
 #endif
   cout << "END" << endl;
+
+#ifdef _SNMPv3
+  delete v3_MP;
+#endif
+
   Snmp::socket_cleanup();  // Shut down socket subsystem
 }
 

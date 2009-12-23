@@ -2,9 +2,9 @@
   _## 
   _##  config_snmp_pp.h  
   _##
-  _##  SNMP++v3.2.23
+  _##  SNMP++v3.2.24
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
+  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
   _##  
   _##########################################################################*/
 
@@ -38,10 +38,10 @@
 #define __unix
 #endif
 
-#define SNMP_PP_VERSION_STRING "3.2.23"
+#define SNMP_PP_VERSION_STRING "3.2.24"
 #define SNMP_PP_VERSION 3
 #define SNMP_PP_RELEASE 2
-#define SNMP_PP_PATCHLEVEL 23
+#define SNMP_PP_PATCHLEVEL 24
 
 //! The maximum size of a message that can be sent or received.
 #define MAX_SNMP_PACKET 4096
@@ -108,6 +108,9 @@
 // define this if you want to send out broadcasts
 #define SNMP_BROADCAST
 
+
+// Not fully tested!
+//#define HAVE_POLL_SYSCALL
 
 // Some older(?) compilers need a special declaration of
 // template classes
@@ -192,6 +195,9 @@ typedef unsigned long long pp_uint64;
     typedef int SnmpSocket;
 #endif
 
+#ifdef HAVE_POLL_SYSCALL
+#include <poll.h>
+#endif
 
 ///////////////////////////////////////////////////////////////////////
 // Changes below this line should not be necessary

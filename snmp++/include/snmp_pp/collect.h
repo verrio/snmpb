@@ -2,9 +2,9 @@
   _## 
   _##  collect.h  
   _##
-  _##  SNMP++v3.2.23
+  _##  SNMP++v3.2.24
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
+  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -47,18 +47,9 @@
 
   COLLECTION CLASS DEFINITION
 
-  DESIGN + AUTHOR:
-  Peter E Mellquist
+  DESIGN + AUTHOR:  Peter E Mellquist
 
-  LANGUAGE:
-  ANSI C++
-
-  OPERATING SYSTEMS:
-  Win 32
-  BSD UNIX
-
-  DESCRIPTION:
-  Simple Collection classes for SNMP++ classes.
+  DESCRIPTION: Simple Collection classes for SNMP++ classes.
 
 =====================================================================*/
 // $Id$
@@ -82,25 +73,324 @@ namespace Snmp_pp {
 
 #define MAXT 25     // elements per block
 
+template <class T> class SnmpCollection
+{
+  class cBlock
+  {
+    public:
+     cBlock(cBlock *p, cBlock *n) : prev(p), next(n) {};
+     T *item[MAXT];
+     cBlock *prev;
+     cBlock *next;
+  };
+
+ public:
+
+  /**
+   * Create an empty collection.
+   */
+  SnmpCollection()
+    : count(0), data(0,0) {};
+
+  /**
+   * Create a collection using a single template object.
+   */
+  SnmpCollection(const T &t)
+    : count(1), data(0, 0)
+  {
+    data.item[0] = (T*) (t.clone());
+  };
+
+  /**
+   * Create a collection with another collection (copy constructor).
+   */
+  SnmpCollection(const SnmpCollection<T> &c)
+    : count(0), data(0, 0)
+  {
+    if (c.count == 0) return;
+
+    // load up the new collection
+    cBlock *current = &data;
+    cBlock *nextBlock;
+    int cn = 0;
+
+    while (count < c.count)
+    {
+      if (cn >= MAXT)
+      {
+	nextBlock = new cBlock(current, 0);
+	current->next = nextBlock;
+	current = nextBlock;
+	cn=0;
+      }
+      T *tmp = 0;
+      c.get_element(tmp, count);
+      current->item[cn] = (T*) (tmp->clone());
+      count++;
+      cn++;
+    }
+  };
+
+  /**
+   * Destroy the collection.
+   */
+  ~SnmpCollection()
+  {
+    clear();  // just delete the data
+  };
+
+  /**
+   * Get the size of the collection.
+   */
+  int size() const
+  {
+    return count;
+  };
+
+  /**
+   * Append an item to the collection.
+   */
+  SnmpCollection& operator +=(const T &i)
+  {
+    cBlock *current = &data;
+    int cn = (int) count % MAXT;
+    while (current->next)
+      current = current->next;
+    if ((count > 0) && ((count % MAXT) == 0))
+    {
+      cBlock *add = new cBlock(current, 0);
+      if (!add) return *this;
+      current->next = add;
+      add->item[0] = (T*) (i.clone());
+    }
+    else
+    {
+      current->item[cn] = (T*) (i.clone());
+    }
+    count++;
+
+    return *this;
+  };
+
+  /**
+   * Assign one collection to another.
+   */
+  SnmpCollection &operator =(const SnmpCollection<T> &c)
+  {
+    if (this == &c) return *this;  // check for self assignment
+
+    clear(); // delete the data
+
+    if (c.count == 0) return *this;
+
+    // load up the new collection
+    cBlock *current = &data;
+    cBlock *nextBlock;
+    int cn = 0;
+    count = 0;
+    while (count < c.count)
+    {
+      if (cn >= MAXT)
+      {
+	nextBlock = new cBlock(current, 0);
+	current->next = nextBlock;
+	current = nextBlock;
+	cn=0;
+      }
+      T *tmp = 0;
+      c.get_element(tmp, count);
+      current->item[cn] = (T*) (tmp->clone());
+      count++;
+      cn++;
+    }
+
+    return *this;
+  };
+
+  /**
+   * Access an element in the collection.
+   *
+   * @return The requestet element or an empty element if out of bounds.
+   */
+  T operator[](const int p) const
+  {
+    if ((p < count) && (p >= 0))
+    {
+      cBlock const *current = &data;
+      int bn = (int) (p / MAXT);
+      int cn = (int) p % MAXT;
+      for (int z=0; z<bn; z++)
+	current = current->next;
+      return *(current->item[cn]);
+    }
+    else
+    {
+      // return an instance of nothing!!
+      T t;
+      return t;
+    }
+  };
+
+  /**
+   * Set an element in the collection.
+   *
+   * @return 0 on success and -1 on failure.
+   */
+  int set_element( const T& i, const int p)
+  {
+    if ((p < 0) || (p > count)) return -1; // not found!
+
+    cBlock *current = &data;
+    int bn = (int) p / MAXT;
+    int cn = (int) p % MAXT;
+    for (int z=0; z<bn; z++)
+      current = current->next;
+    delete current->item[cn];
+    current->item[cn] = (T*) (i.clone());
+    return 0;
+  };
+
+  /**
+   * Get an element in the collection.
+   *
+   * @return 0 on success and -1 on failure.
+   */
+  int get_element(T &t, const int p) const
+  {
+    if ((p < 0) || (p > count)) return -1; // not found!
+
+    cBlock const *current = &data;
+    int bn = (int) p / MAXT;
+    int cn = (int) p % MAXT;
+    for (int z=0; z<bn; z++)
+      current = current->next;
+    t = *(current->item[cn]);
+    return 0;
+  };
+
+  /**
+   * Get a pointer to an element in the collection.
+   *
+   * @return 0 on success and -1 on failure.
+   */
+  int get_element(T *&t, const int p) const
+  {
+    if ((p < 0) || (p > count)) return -1; // not found!
+
+    cBlock const *current = &data;
+    int bn = (int) p / MAXT;
+    int cn = (int) p % MAXT;
+    for (int z=0; z<bn; z++)
+      current = current->next;
+    t = current->item[cn];
+    return 0;
+  };
+
+  /**
+   * Apply an function to the entire collection, iterator.
+   */
+  void apply(void f(T&))
+  {
+    T temp;
+    for ( int z=0; z<count; z++)
+    {
+      this->get_element(temp, z);
+      f(temp);
+    }
+  };
+
+  /**
+   * Looks for an element in the collection.
+   *
+   * @return TRUE if found.
+   */
+  int find(const T& i, int &pos) const
+  {
+    T temp;
+    for (int z=0; z<count; z++)
+    {
+      this->get_element(temp, z);
+      if ( temp == i) {
+	pos = z;
+	return TRUE;
+      }
+    }
+    return FALSE;
+  };
+
+  /**
+   * Delete an element in the collection.
+   */
+  int remove(const T& i)
+  {
+    // first see if we have it
+    int pos;
+    if (find(i, pos))
+    {
+      SnmpCollection<T> newCollection;
+
+      for (int z=0; z<count; z++)
+      {
+	if (z != pos)
+	{
+	  T item;
+	  get_element(item, z);
+	  newCollection += item;
+	}
+      }
+
+      // assign new collection to 'this'
+      operator =(newCollection);
+
+      return TRUE;
+    }
+    return FALSE;   // not found thus not removed
+  };
+
+  /**
+   * Delete all elements within the collection.
+   */
+  void clear()
+  {
+    if (count == 0) return;
+
+    cBlock *current = &data;
+    int z=0;
+    int cn=0;
+    while ( z< count)
+    {
+      if (cn >= MAXT)
+      {
+	cn =0;
+	current = current->next;
+      }
+      delete current->item[cn];
+      cn++;
+      z++;
+    }
+
+    // delete the blocks
+    while (current->next)
+      current = current->next;
+    while (current->prev)
+    {
+      current = current->prev;
+      delete current->next;
+    }
+
+    count = 0;
+    data.next=0;
+    data.prev=0;
+  };
+
+ private:
+  int count;
+  cBlock data;
+};
+
 #ifdef SNMP_PP_NAMESPACE
 } // end of namespace Snmp_pp
 #endif 
-
-// If you have problems with the collection code:
-// 1. Send a mail to katz@agentpp.com with details about the used
-//    compile flags, compiler (for example g++ -dumpspecs),... 
-//    so we can change the default behaviour for your system
-// 2. comment in the define _OLD_TEMPLATE_COLLECTION in
-//    config_snmp_pp.h
-#ifdef _OLD_TEMPLATE_COLLECTION
-
-#include "snmp_pp/collect2.h"
-
-#else
-
-#include "snmp_pp/collect1.h"
-
-#endif
 
 #endif  // _COLLECTION_H_
 

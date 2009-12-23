@@ -1,4 +1,37 @@
 
+Changes snmp++v3.2.24
+=====================
+
+- Fixed: Counter64 was not encoded correctly on 64 bit
+  platforms (Alex.Agranov).
+
+- Fixed: 64bit problem in asn1.cpp on some 64bit platforms.
+- Added: Set soname in shared library for inclusion in Fedora
+  (suggested by Hayden James)
+- Improved: Compilation on MacOS 10.5
+- Changed: First step for Fedora rpm packages (Hayden James)
+- Fixed: Compilation problem in msgqueue if SNMPv3 is not defined.
+- Fixed: Various possible null pointer dereferences in ASN1 code
+  and in OctetStr::get_printableXXX functions (found from Abil George).
+- Changed: Use Snmp::get_eventListHolder() instead of 
+  Snmp::eventListHolder.
+- Fixed: Compilation problem on WIN32 if _THREADS is not defined
+  (Arnaud Compan)
+- Improved: Added get and set functions to vb class for
+  unsigned int values.
+- Fixed: Bug in Snmp::stop_poll_thread() could lead to crash at
+  application exit.
+- Improved: Snmp class will no longer send snmpv3 message if all of
+  the following is true: a) engine id discovery is diabled. b) local
+  entity is not authoritative. c) engine id is not set in target.
+  In this case an invalid target error is returned.
+- Improved: snmp++ used select() syscall. On most unix like systems
+  select() can not deal with file descriptors larger than FD_SETSIZE
+  (which is most likely defined as 1024). If HAVE_POLL_SYSCALL is
+  enabled in config_snmp_pp.h, snmp++ will use poll() syscall.
+- Fixed: Through a race condition requests could return
+  SNMPv3_MP_UNKNOWN_PDU_HANDLERS error.
+
 Changes snmp++v3.2.23
 =====================
 

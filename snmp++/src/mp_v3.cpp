@@ -2,9 +2,9 @@
   _## 
   _##  mp_v3.cpp  
   _##
-  _##  SNMP++v3.2.23
+  _##  SNMP++v3.2.24
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
+  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
   _##  
   _##########################################################################*/
 char mp_v3_cpp_version[]="@(#) SNMP++ $Id$";
@@ -642,7 +642,7 @@ v3MP::v3MP(const OctetStr& snmpEngineID,
 {
   if (I)
   {
-    debugprintf(0, "v3MP: You must not create two object of this class!");
+    debugprintf(0, "v3MP: You must not create two objects of this class!");
     construct_status = SNMPv3_MP_ERROR;
     return;
   }
@@ -763,7 +763,7 @@ int v3MP::send_report(unsigned char* scopedPDU, int scopedPDULength,
 
   clear_pdu(pdu);   // Clear pdu and free all content
 
-  debugprintf(4, "pdu->reqid = 0x%lx",pdu->reqid);
+  debugprintf(4, "pdu->reqid = %ld",pdu->reqid);
   pdu->errstat = 0;
   pdu->errindex = 0;
   pdu->command = REPORT_MSG;
@@ -862,8 +862,8 @@ int v3MP::send_report(unsigned char* scopedPDU, int scopedPDULength,
   if (pdu_type == sNMP_PDU_INFORM)
   {
     debugprintf(4, "Received a snmpInform pdu.");
-    if (snmp_session->eventListHolder->notifyEventList())
-      send_fd = snmp_session->eventListHolder->notifyEventList()->get_notify_fd();
+    if (snmp_session->get_eventListHolder()->notifyEventList())
+      send_fd = snmp_session->get_eventListHolder()->notifyEventList()->get_notify_fd();
   }
 
   status = snmp_session->send_raw_data(sendbuffer.get_ptr(),

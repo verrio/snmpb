@@ -2,9 +2,9 @@
   _## 
   _##  address.cpp  
   _##
-  _##  SNMP++v3.2.23
+  _##  SNMP++v3.2.24
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2007 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Sun Nov 11 15:10:59 CET 2007 
+  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -42,7 +42,6 @@
   or implied. User hereby grants a royalty-free license to any and all
   derivatives based upon this software code base.
 
-
   A D D R E S S. C P P
 
   ADDRESS CLASS IMPLEMENTATION
@@ -50,15 +49,17 @@
   DESIGN + AUTHOR:  Peter E. Mellquist
 
   DESCRIPTION:      Implementation file for Address classes.
-
-  LANGUAGE:         ANSI C++
-
 =====================================================================*/
 char address_cpp_version[]="@(#) SNMP++ $Id$";
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+
+#if defined(__APPLE__)
+#include <arpa/inet.h>
+#include <netdb.h>
+#endif
 
 #include "snmp_pp/address.h"
 #include "snmp_pp/v3.h"
@@ -530,7 +531,7 @@ int IpAddress::parse_coloned_ipstring(const char *inaddr)
   trim_white_space(temp);
 
   // first check for ipv6 scope
-  unsigned int scope;
+  unsigned int scope = 0;
   bool have_scope = false;
 
   {
