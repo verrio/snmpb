@@ -19,12 +19,10 @@ External packages
 ------------------
 
 Snmp++ is taken from http://www.agentpp.com
-Version: 3.2.23
+Version: 3.2.24
 
 Modified file(s):
 config_snmp_pp.h
-src/notifyqueue.cpp "Fix MacOSX build error with cont fd_set"
-src/msgqueue.cpp "Fix MacOSX build error with cont fd_set"
 v3.h "Changed debugprintf() macro to log debug messages"
 
 Libtomcrypt is taken from http://libtomcrypt.com
