@@ -481,7 +481,7 @@ void Agent::TimerExpired(void)
   // When using async requests or if we are waiting for traps or
   // informs, we must call this member function periodically, as
   // snmp++ does not use an internal thread.
-  snmp->eventListHolder->SNMPProcessPendingEvents();
+  snmp->get_eventListHolder()->SNMPProcessPendingEvents();
 }
 
 char *Agent::GetPrintableValue(SmiNode *node, Vb *vb)
@@ -517,9 +517,18 @@ char *Agent::GetPrintableValue(SmiNode *node, Vb *vb)
         {
             Oid val;
             vb->get_value(val);
-            myvalue.value.oid = (SmiSubid*)&(val[0]);
-            myvalue.len = val.len();
-            return smiRenderValue(&myvalue, type, SMI_RENDER_NAME);
+
+            int oidlen = val.len();
+            if (oidlen <= 0) return (char*)""; 
+            SmiSubid *ioid = new SmiSubid[oidlen];
+            for (int idx = 0; idx < oidlen; idx++) ioid[idx] = val[idx];
+
+            myvalue.value.oid = ioid;
+            myvalue.len = oidlen;
+            char *ret = smiRenderValue(&myvalue, type, SMI_RENDER_NAME);
+
+            delete [] ioid;
+            return ret;
         }
         case SMI_BASETYPE_OCTETSTRING:
         case SMI_BASETYPE_BITS: /* Always OCTETS case in the switch below */
@@ -562,9 +571,33 @@ char *Agent::GetPrintableValue(SmiNode *node, Vb *vb)
     return (char*)vb->get_printable_value();
 }
 
+// This routine get the sminode pointer based on the oid
+// Note that this routine must create a temporary buffer
+// because of 64 bits platform issues where an "unsigned long"
+// might be 8 bytes long ...
+SmiNode* Agent::GetNodeFromOid(Oid &oid)
+{
+    SmiNode *node = NULL;
+    int oidlen = oid.len();
+
+    if (oidlen <= 0)
+        return node; 
+
+    SmiSubid *ioid = new SmiSubid[oidlen];
+
+    for (int idx = 0; idx < oidlen; idx++)
+        ioid[idx] = oid[idx];
+
+    node = smiGetNodeByOID(oidlen, &ioid[0]);
+
+    delete [] ioid;
+
+    return node;
+}
+
 void Agent::AsyncCallbackTrap(int reason, Pdu &pdu, SnmpTarget &target)
 {
-    static unsigned long nbr = 1;
+    static unsigned int nbr = 1;
     Vb vb;
     GenAddress addr;
     TimeTicks ts;
@@ -585,7 +618,7 @@ void Agent::AsyncCallbackTrap(int reason, Pdu &pdu, SnmpTarget &target)
     UdpAddress agentUDP(addr);
     
     char buf[10];
-    sprintf(buf, "%.4lu", nbr);
+    sprintf(buf, "%.4u", nbr);
     no = QString("%1").arg(buf);
     date = QDate::currentDate().toString(Qt::ISODate);
     time = QTime::currentTime().toString(Qt::ISODate);  
@@ -593,9 +626,7 @@ void Agent::AsyncCallbackTrap(int reason, Pdu &pdu, SnmpTarget &target)
     timestamp = ts.get_printable();
   
     pdu.get_notify_id(id);
-    unsigned long* oid = &(id[0]);
-    unsigned long  oidlen = id.len();
-    SmiNode *node = smiGetNodeByOID(oidlen, (unsigned int *)oid);
+    SmiNode *node = GetNodeFromOid(id);
     if (node)
     {
         char *b = smiRenderOID(node->oidlen, node->oid, 
@@ -770,9 +801,7 @@ void Agent::AsyncCallback(int reason, Pdu &pdu,
         {
             Oid tmp;
             vb.get_oid(tmp);
-            unsigned long* oid = &(tmp[0]);
-            unsigned long  oidlen = tmp.len();
-                
+ 
             // Stop there if we're out of scope
             if (iswalk && tmp.nCompare(theoid.len(), theoid))
             {
@@ -780,7 +809,7 @@ void Agent::AsyncCallback(int reason, Pdu &pdu,
             }
             else
             {
-                SmiNode *node = smiGetNodeByOID(oidlen, (unsigned int *)oid);
+                SmiNode *node = GetNodeFromOid(tmp);
                 if (node)
                 {
                     char *b = smiRenderOID(node->oidlen, node->oid, 
@@ -943,10 +972,8 @@ void Agent::AsyncCallbackSet(int reason, Pdu &pdu, SnmpTarget &target)
         {          
             Oid tmp;
             vb.get_oid(tmp);
-            unsigned long* oid = &(tmp[0]);
-            unsigned long  oidlen = tmp.len();
 
-            SmiNode *node = smiGetNodeByOID(oidlen, (unsigned int *)oid);
+            SmiNode *node = GetNodeFromOid(tmp);
             if (node)
             {
                 char *b = smiRenderOID(node->oidlen, node->oid, 
@@ -1288,8 +1315,8 @@ void Agent::TableViewFrom(const QString& oid)
     
     /* Set the parent oid & parent node */
     Oid poid(oid.toLatin1().data());
-    SmiNode *pnode = smiGetNodeByOID(poid.len(), (SmiSubid*)&(poid[0]));
-    
+    SmiNode *pnode = GetNodeFromOid(poid);
+
     /* Make sure the parent is a table or row entry ... */
     if ((pnode->nodekind != SMI_NODEKIND_ROW) && 
         (pnode->nodekind != SMI_NODEKIND_TABLE))
@@ -1304,7 +1331,7 @@ void Agent::TableViewFrom(const QString& oid)
     if (pnode->nodekind == SMI_NODEKIND_TABLE)
     {
         pnode = smiGetFirstChildNode(pnode);
-        poid.set_data((unsigned long *)pnode->oid, pnode->oidlen);
+        poid = Oid (smiRenderOID(pnode->oidlen, pnode->oid, SMI_RENDER_NUMERIC));
     }
 
     /* Build the table header */
@@ -1356,7 +1383,7 @@ void Agent::TableViewFrom(const QString& oid)
              node = smiGetNextChildNode(node))
         {
             Vb svb;
-            toid.set_data((unsigned long *)node->oid, node->oidlen);
+            toid = Oid (smiRenderOID(node->oidlen, node->oid, SMI_RENDER_NUMERIC));
             toid += f;
             svb.set_oid(toid);    
             pdu->set_vblist(&svb, 1);
@@ -1725,7 +1752,7 @@ int Agent::SelectTableInstance(const QString& oid, QString& outinstance)
 
     /* Set the oid & node */
     Oid roid(oid.toLatin1().data());
-    SmiNode *pnode = smiGetNodeByOID(roid.len(), (SmiSubid*)&(roid[0]));
+    SmiNode *pnode = GetNodeFromOid(roid);
     
     /* Make sure the node is a column entry ... */
     if (pnode->nodekind != SMI_NODEKIND_COLUMN)

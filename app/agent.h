@@ -57,6 +57,8 @@ public:
 
     int SelectTableInstance(const QString& oid, QString& outinstance);
 
+    static SmiNode* GetNodeFromOid(Oid &oid);
+
 protected:
     int Setup(const QString& oid, SnmpTarget **t, Pdu **p, bool usevblist = false);
 

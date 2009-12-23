@@ -228,14 +228,14 @@ void MibSelection::OKButtonPressed(void)
     {
         case sNMP_SYNTAX_INT32:
             {
-                SnmpInt32 v(result_string.toInt());
+                SnmpInt32 v(result_string.toLong());
                 vb.set_value(v);
                 syntax = "INTEGER32";
                 break;
             }
         case sNMP_SYNTAX_CNTR32:
             {
-                Counter32 v((unsigned long)result_string.toUInt());
+                Counter32 v(result_string.toULong());
                 vb.set_value(v);
                 syntax = "COUNTER32";
                 break;
@@ -243,7 +243,7 @@ void MibSelection::OKButtonPressed(void)
         /*case sNMP_SYNTAX_UINT32:*/
         case sNMP_SYNTAX_GAUGE32:
             {
-                Gauge32 v((unsigned long)result_string.toUInt());
+                Gauge32 v(result_string.toULong());
                 vb.set_value(v);
                 syntax = "GAUGE32";
                 break;
@@ -352,7 +352,7 @@ void MibSelection::SetOidInfoType(const QString& oid)
 
     if (poid.valid() == true)
     {
-        thenode = smiGetNodeByOID(poid.len(), (SmiSubid*)&(poid[0]));
+        thenode = Agent::GetNodeFromOid(poid);
         if (thenode && ((thenode->oidlen >= poid.len()) || 
                         (thenode->nodekind == SMI_NODEKIND_COLUMN)))
         {

@@ -85,10 +85,8 @@ void TrapItem::PrintContent(QTreeWidget* TrapContent)
         vb = content[i];
         bd_val = QString("");
         vb->get_oid(id);
-        unsigned long* moid = &(id[0]);
-        unsigned long  oidlen = id.len();
         
-        SmiNode *node = smiGetNodeByOID(oidlen, (unsigned int *)moid);
+        SmiNode *node = Agent::GetNodeFromOid(id);
         if (node)
         {
             char *b = smiRenderOID(node->oidlen, node->oid, 
