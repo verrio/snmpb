@@ -6,15 +6,16 @@
 - Internationalize (using tr())
 - Fix tab-navigation order for gui elements
 - Add SMIv1/SMIv2 config and severity checking level for MIB editor validation
-- Add download and extract MIB from RFC from ietf.org directly
+- Feature: Add download and extract MIB from RFC from ietf.org directly
 - Feature: add packet/session sniffing tab
 - Feature: support IPv6
-- Add table mirror view
+- Feature: Add table mirror view
 - Add .mib/.smi/.pib files association to MIB editor
 
 - Fix select instance dialog on Max OS X: add cancel/OK buttons
 - Fix editFinished signal not working in mibselection.cpp on Mac OS X
 - Fix freeze/remove DNS lookup on trap window
-- Fix help window display on MAC/BSD ?
+- Fix help window display on MAC/BSD/GNOME ?
 - Fix font size in query results window
+- Fix support 64 bits platforms (Linux)
 
