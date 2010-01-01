@@ -22,6 +22,8 @@
 
 #include <qwidget.h>
 #include <qlabel.h>
+#include <qtextedit.h>
+
 #include "snmpb.h"
 #include "mibhighlighter.h"
 #include "ui_gotoline.h"
@@ -56,9 +58,9 @@ public slots:
     void ExecuteReplace(void);
     void ExecuteFindNextReplace(void);
     void ExecuteReplaceAll(void);
+    void SetCurrentFileName(const QString &FileName);
 
 private:
-    void SetCurrentFileName(const QString &FileName);
     void Find(bool reevaluate);
     bool Replace(bool doreplace);
 

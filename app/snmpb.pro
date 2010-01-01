@@ -38,6 +38,7 @@ SOURCES	+= ../snmp++/src/address.cpp \
 	mibhighlighter.cpp \
 	markerwidget.cpp \
 	mibeditor.cpp \
+	mibtextedit.cpp \
 	mibselection.cpp \
 	logsnmpb.cpp \
 	discovery.cpp \
@@ -56,6 +57,7 @@ HEADERS	+= snmpb.h \
 	mibhighlighter.h \
 	markerwidget.h \
 	mibeditor.h \
+	mibtextedit.h \
 	mibselection.h \
 	logsnmpb.h \
 	discovery.h \

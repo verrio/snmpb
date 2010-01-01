@@ -116,7 +116,7 @@ class MibSelection: public QObject
     Q_OBJECT
     
 public:
-    MibSelection(Snmpb *snmpb, QString title);
+    MibSelection(Snmpb *snmpb, QWidget *parent, QString title);
     ~MibSelection();
 
     bool run(const QString& init_oid = "", int init_syntax = -1, 

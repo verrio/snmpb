@@ -771,7 +771,7 @@
                <widget class="MarkerWidget" native="1" name="MIBFileMarker" />
               </item>
               <item>
-               <widget class="QTextEdit" name="MIBFile" >
+               <widget class="MibTextEdit" native="1" name="MIBFile" >
                 <property name="sizePolicy" >
                  <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
                   <horstretch>0</horstretch>
@@ -2269,6 +2269,12 @@
    <class>QPenWidthComboBox</class>
    <extends>QComboBox</extends>
    <header>comboboxes.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>MibTextEdit</class>
+   <extends>QTextEdit</extends>
+   <header>mibtextedit.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

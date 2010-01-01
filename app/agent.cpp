@@ -174,7 +174,7 @@ void Agent::Init(void)
              this, SLOT( SelectAgentProto() ) );
 
     vbui = new Ui_Varbinds();
-    vbd = new QDialog(); 
+    vbd = new QDialog(s->MainUI()->MIBTree); 
     vbui->setupUi(vbd);
     connect( vbui->NewOp, SIGNAL( clicked() ), this, SLOT( VarbindsNew() ));
     connect( vbui->EditOp, SIGNAL( clicked() ), this, SLOT( VarbindsEdit() ));
@@ -793,9 +793,7 @@ void Agent::AsyncCallback(int reason, Pdu &pdu,
     for ( z=start_index; z < pdu.get_vb_count(); z++)
     {
         pdu.get_vb( vb, z );
-            
-        objects++;
-            
+         
         // look for var bind exception, applies to v2 only   
         if ( vb.get_syntax() != sNMP_SYNTAX_ENDOFMIBVIEW )
         {
@@ -809,6 +807,8 @@ void Agent::AsyncCallback(int reason, Pdu &pdu,
             }
             else
             {
+                objects++;
+
                 SmiNode *node = GetNodeFromOid(tmp);
                 if (node)
                 {
@@ -963,8 +963,6 @@ void Agent::AsyncCallbackSet(int reason, Pdu &pdu, SnmpTarget &target)
 
     for ( z=start_index; z < pdu.get_vb_count(); z++)
     {
-        objects++;
-
         pdu.get_vb( vb, z );
          
         // look for var bind exception, applies to v2 only   
@@ -972,6 +970,8 @@ void Agent::AsyncCallbackSet(int reason, Pdu &pdu, SnmpTarget &target)
         {          
             Oid tmp;
             vb.get_oid(tmp);
+
+            objects++;
 
             SmiNode *node = GetNodeFromOid(tmp);
             if (node)
@@ -1270,7 +1270,7 @@ void Agent::Set(const QString& oid, bool usevblist)
 void Agent::SetFrom(const QString& oid)
 {
     // Create and run the mib selection dialog
-    MibSelection ms(s, "Set");
+    MibSelection ms(s, s->MainUI()->MIBTree, "Set");
 
     if (ms.run(oid))
     {
@@ -1466,7 +1466,7 @@ void Agent::Varbinds(void)
 void Agent::VarbindsFrom(const QString& oid)
 {
     // Do a background run of the mib selection dialog
-    MibSelection ms(s, "New VarBind");
+    MibSelection ms(s, vbd, "New VarBind");
 
     ms.bgrun(oid);
 
@@ -1499,7 +1499,7 @@ void Agent::VarbindsFrom(const QString& oid)
 void Agent::VarbindsNew(void)
 {
     // Create and run the mib selection dialog
-    MibSelection ms(s, "New VarBind");
+    MibSelection ms(s, vbd, "New VarBind");
 
     if (ms.run())
     {
@@ -1539,7 +1539,7 @@ void Agent::VarbindsEdit(void)
     }
 
     // Create and run the mib selection dialog
-    MibSelection ms(s, "Edit VarBind");
+    MibSelection ms(s, vbd, "Edit VarBind");
 
     vb_data data = items[0]->data(0, Qt::UserRole).value<vb_data>();
 
@@ -1767,7 +1767,7 @@ int Agent::SelectTableInstance(const QString& oid, QString& outinstance)
     pdu->set_vblist(&tvb, 1);
 
     // Build the instance selection dialog and show it ...
-    QDialog dlist(NULL, Qt::WindowTitleHint);
+    QDialog dlist(s->MainUI()->MIBTree, Qt::WindowTitleHint);
     dlist.resize(220, 250);
     QGridLayout gl1(&dlist);
     QGridLayout gl2;
@@ -1859,7 +1859,7 @@ void Agent::GetFromPromptInstance(const QString& oid, int op)
 {
     int res;
 
-    QDialog dprompt(NULL, Qt::WindowTitleHint);
+    QDialog dprompt(s->MainUI()->MIBTree, Qt::WindowTitleHint);
     dprompt.resize(370, 60);
     QGridLayout gl(&dprompt);
     QLabel label("Please type table instance to query", &dprompt);

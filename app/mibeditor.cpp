@@ -44,6 +44,8 @@ MibEditor::MibEditor(Snmpb *snmpb)
              this, SLOT( SelectedLogEntry ( QListWidgetItem* ) ) );
     connect( s->MainUI()->MIBFile->document(), SIGNAL(modificationChanged(bool)),
              this, SLOT( MibFileModified(bool) ));
+    connect( s->MainUI()->MIBFile, SIGNAL( FileLoaded( const QString& ) ),
+             this, SLOT( SetCurrentFileName( const QString& ) ));
     connect( s->MainUI()->actionGotoLine, SIGNAL( triggered() ),
              this, SLOT( GotoLine() ) );
     connect( s->MainUI()->actionFind, SIGNAL( triggered() ),
@@ -73,6 +75,8 @@ MibEditor::MibEditor(Snmpb *snmpb)
              this, SLOT( SetLineNumStatus() ) );
 
     SetLineNumStatus();
+
+    s->MainUI()->MIBFile->setAcceptDrops(true);
 
     find_string = "";
     replace_string = "";
@@ -109,7 +113,7 @@ void MibEditor::MibFileNew(void)
 
 void MibEditor::GotoLine(void)
 {
-    QDialog d;
+    QDialog d(s->MainUI()->MIBFile);
 
     goto_uid.setupUi(&d);
     connect( goto_uid.PushButton2, SIGNAL( clicked() ), 
@@ -166,7 +170,7 @@ void MibEditor::ExecuteGotoLine(void)
 
 void MibEditor::Find(void)
 {
-    QDialog d;
+    QDialog d(s->MainUI()->MIBFile);
 
     find_uid.setupUi(&d);
     connect( find_uid.buttonFindNext, SIGNAL( clicked() ), 
@@ -221,7 +225,7 @@ void MibEditor::Find(bool reevaluate)
 
 void MibEditor::Replace(void)
 {
-    QDialog d;
+    QDialog d(s->MainUI()->MIBFile);
 
     replace_uid.setupUi(&d);
     connect( replace_uid.buttonReplace, SIGNAL( clicked() ), 
@@ -321,9 +325,9 @@ void MibEditor::MibFileOpen(void)
                                   tr("Cannot open file %1: %2.\n")
                                   .arg(file.fileName())
                                   .arg(file.errorString()));
-            file.close();
-            return;
         }
+
+        file.close();
     }
 }
 

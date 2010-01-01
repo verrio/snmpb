@@ -154,7 +154,7 @@ void BasicMibView::CollapseFromNode(void)
 
 void BasicMibView::FindFromNode(void)
 {
-    QDialog d;
+    QDialog d(this);
 
     find_uid.setupUi(&d);
     connect( find_uid.buttonFindNext, SIGNAL( clicked() ), 

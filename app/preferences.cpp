@@ -42,7 +42,7 @@ Preferences::Preferences(Snmpb *snmpb)
 void Preferences::Init(void)
 {
     p = new Ui_Preferences();
-    pw = new QDialog();
+    pw = new QDialog(s->MainUI()->TabW);
     p->setupUi(pw);
 
     // Set some properties for the Preferences TreeView

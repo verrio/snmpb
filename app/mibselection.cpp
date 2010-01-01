@@ -25,7 +25,7 @@
 #include "mibselection.h"
 #include "agent.h"
 
-MibSelection::MibSelection(Snmpb *snmpb, QString title)
+MibSelection::MibSelection(Snmpb *snmpb, QWidget *parent, QString title)
 {
     s = snmpb;
 
@@ -37,7 +37,7 @@ MibSelection::MibSelection(Snmpb *snmpb, QString title)
     type = NULL;
     node = NULL;
 
-    dprompt = new QDialog(NULL, Qt::WindowTitleHint);
+    dprompt = new QDialog(parent, Qt::WindowTitleHint);
     dprompt->resize(400, 500);
 
     gl = new QGridLayout(dprompt);
