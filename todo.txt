@@ -14,6 +14,5 @@
 
 - Fix editFinished signal not working in mibselection.cpp on Mac OS X
 - Fix freeze/remove DNS lookup on trap window
-- Fix help window display on MAC/BSD/GNOME ?
 - Fix font size in query results window
 
