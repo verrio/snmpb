@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2004-2008  Martin Jolicoeur (snmpb1@gmail.com) 
+    Copyright (C) 2004-2010  Martin Jolicoeur (snmpb1@gmail.com) 
 
     This file is part of the SnmpB project 
     (http://sourceforge.net/projects/snmpb)
@@ -365,26 +365,21 @@ void Snmpb::TabSelected(void)
 
 void Snmpb::AboutBox(bool)
 {
-    QMessageBox mb;
-
-    mb.setWindowTitle("About SnmpB");
-    mb.setIconPixmap(QPixmap(":/images/snmpb.png"));
-
-    mb.setText(QString(
+    QMessageBox::about(MainUI()->TabW, "About SnmpB", QString(
 "<H2><b>SnmpB</b></H2><br>                                                       \
 Version %1<br>                                                                   \
 <a href=http://sourceforge.net/projects/snmpb> \
 http://sourceforge.net/projects/snmpb</a><br><br>                                \
                                                                                  \
 Copyright (c) <b>Martin Jolicoeur</b> (<a href=\"mailto:snmpb1@gmail.com\">\
-snmpb1@gmail.com</a>), 2004-2009<br><br>                                         \
+snmpb1@gmail.com</a>), 2004-2010<br><br>                                         \
                                                                                  \
 SnmpB is an SNMP MIB browser (Simple Network Management Protocol) written in QT. \
 It supports SNMPv1, SNMPv2c and SNMPv3. SnmpB can browse/edit/load/add MIB files \
-and can query SNMP agents. It also supports agent discovery, trap events, and \
+and can query SNMP agents. It also supports agent discovery, trap events, and    \
 graph plotting.<br><br>                                                          \
                                                                                  \
-This program is covered by the GNU General Public License, version 2 (GPLv2), \
+This program is covered by the GNU General Public License, version 2 (GPLv2),    \
 <a href=http://www.gnu.org/licenses>http://www.gnu.org/licenses</a><br><br>      \
                                                                                  \
 This program uses the following libraries, covered by their respective license:\
@@ -403,7 +398,5 @@ http://trolltech.com/products/qt</a>)")
         .arg(SMI_VERSION_STRING)
         .arg(QWT_VERSION_STR)
         .arg(QT_VERSION_STR));
-
-    mb.exec();
 }
 
