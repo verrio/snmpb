@@ -303,14 +303,8 @@ bool MibEditor::Replace(bool doreplace)
     return (tc.isNull()?true:false);
 }
 
-void MibEditor::MibFileOpen(void)
+void MibEditor::MibFileOpen(QString fileName)
 {
-    QString fileName = NULL;
-
-    fileName = QFileDialog::getOpenFileName(s->MainUI()->MIBFile,
-                                            tr("Open File"), "", 
-                                            "MIB Files (*-MIB *-PIB *.mib *.pib *.smi);;All Files (*)");
-
     if (!fileName.isEmpty())
     {
         QFile file(fileName);
@@ -329,6 +323,16 @@ void MibEditor::MibFileOpen(void)
 
         file.close();
     }
+}
+
+void MibEditor::MibFileOpen(void)
+{
+    QString fileName = NULL;
+
+    fileName = QFileDialog::getOpenFileName(s->MainUI()->MIBFile,
+                                            tr("Open File"), "", 
+                                            "MIB Files (*-MIB *-PIB *.mib *.pib *.smi);;All Files (*)");
+    MibFileOpen(fileName);
 }
 
 void MibEditor::MibFileSave(void)

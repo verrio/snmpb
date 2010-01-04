@@ -42,6 +42,7 @@ public:
 public slots:
     void MibFileNew(void);
     void MibFileOpen(void);
+    void MibFileOpen(QString fileName);
     void MibFileSave(void);
     void MibFileSaveAs(void);
     void VerifyMIB(void);

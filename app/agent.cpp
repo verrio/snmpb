@@ -1731,13 +1731,6 @@ void Agent::VarbindsSelected(void)
     }
 }
 
-// Callback when an item is selected in the instance dialog.
-void Agent::GetSelectedTableInstance(QListWidgetItem * item)
-{
-    tinstresult = item->text();
-    emit TableInstanceSelected(1);
-}
-
 int Agent::SelectTableInstance(const QString& oid, QString& outinstance)
 {
     // Initialize agent & pdu objects
@@ -1775,14 +1768,15 @@ int Agent::SelectTableInstance(const QString& oid, QString& outinstance)
     gl2.addWidget(&label, 0, 0, 1, 1);
     QListWidget ilist(&dlist);
     gl2.addWidget(&ilist, 1, 0, 1, 1);
+    QDialogButtonBox box(QDialogButtonBox::Ok, Qt::Horizontal, &dlist);
+    gl2.addWidget(&box, 2, 0, 1, 1);
     gl1.addLayout(&gl2, 0, 0, 1, 1);
     dlist.setWindowTitle(QApplication::translate("Dialog", 
                          "Select Instance", 0, QApplication::UnicodeUTF8));
     QMetaObject::connectSlotsByName(&dlist);
     connect(&ilist, SIGNAL(itemDoubleClicked(QListWidgetItem *)), 
-            this, SLOT(GetSelectedTableInstance(QListWidgetItem *)));
-    connect(this, SIGNAL(TableInstanceSelected(int)),
-            &dlist, SLOT(done(int)));
+            &dlist, SLOT(accept()));
+    connect(&box, SIGNAL(accepted()), &dlist, SLOT(accept()));
     dlist.setModal(true);
     dlist.show();
     dlist.raise();
@@ -1814,9 +1808,18 @@ int Agent::SelectTableInstance(const QString& oid, QString& outinstance)
     }
 
     // Wait for the result
-    res = dlist.exec();
+    dlist.exec();
 
-    outinstance = tinstresult;
+    if (ilist.selectedItems().size() != 0)
+    {
+        outinstance = ilist.selectedItems().at(0)->text();
+        res = 1;
+    }
+    else
+    {
+        outinstance = "";
+        res = 0;
+    }
 
     delete target;
     delete pdu;

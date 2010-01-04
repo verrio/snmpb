@@ -178,6 +178,11 @@ MibModule* Snmpb::MibModuleObj(void)
     return (modules);
 }
 
+MibEditor* Snmpb::MibEditorObj(void)
+{
+    return (editor);
+}
+
 AgentProfileManager* Snmpb::APManagerObj(void)
 {
     return (apm);

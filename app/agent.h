@@ -78,7 +78,6 @@ public slots:
     void SetFrom(const QString& oid);
     void Stop(void);
     void TableViewFrom(const QString& oid);
-    void GetSelectedTableInstance(QListWidgetItem * item);
     void Varbinds(void);
     void VarbindsFrom(const QString& oid);
     void GetTypedTableInstance(void);
@@ -103,7 +102,6 @@ protected slots:
     void VarbindsSelected(void);
 
 signals:
-    void TableInstanceSelected(int r);
     void StartWalk(bool);
 
 private:

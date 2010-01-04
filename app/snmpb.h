@@ -47,6 +47,7 @@ public:
     Trap* TrapObj(void);
     MibViewLoader* MibLoaderObj(void);
     MibModule* MibModuleObj(void);
+    MibEditor* MibEditorObj(void);
     AgentProfileManager* APManagerObj(void);
     USMProfileManager* UPManagerObj(void);
     Preferences* PreferencesObj(void);

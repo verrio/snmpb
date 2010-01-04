@@ -20,6 +20,9 @@
 #include <qapplication.h>
 #include <qmainwindow.h>
 #include "snmpb.h"
+#include "mibeditor.h"
+
+#include <qmessagebox.h>
 
 int main( int argc, char ** argv )
 {
@@ -31,6 +34,13 @@ int main( int argc, char ** argv )
 
     mw.show();
     a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
-    
+
+    // Load a file specified as argument in the Mib Editor
+    if (QCoreApplication::arguments().count() > 1)
+    {
+        snmpb.MibEditorObj()->MibFileOpen(QCoreApplication::arguments().at(1));
+        snmpb.MainUI()->TabW->setCurrentIndex(2); // Select the Editor Tab
+    }
+
     return a.exec();
 }
