@@ -12,7 +12,6 @@
 - Feature: Add table mirror view
 - Add .mib/.smi/.pib files association to MIB editor
 
-- Fix select instance dialog on Max OS X: add cancel/OK buttons
 - Fix editFinished signal not working in mibselection.cpp on Mac OS X
 - Fix freeze/remove DNS lookup on trap window
 - Fix help window display on MAC/BSD/GNOME ?
