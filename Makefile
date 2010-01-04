@@ -1,7 +1,7 @@
 #
 # snmpb project top-level makefile. Supports Linux, MacOSX, NetBSD & Cygwin/Windows
 #
-#    Copyright (C) 2004-2008  Martin Jolicoeur (snmpb1@gmail.com) 
+#    Copyright (C) 2004-2010  Martin Jolicoeur (snmpb1@gmail.com) 
 #
 #    This file is part of the SnmpB project 
 #    (http://sourceforge.net/projects/snmpb)
