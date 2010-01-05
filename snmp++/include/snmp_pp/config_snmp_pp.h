@@ -90,7 +90,7 @@
 #define _USE_IDEA
 
 // Enable 3DES Privacy (note this is not defined by a rfc)
-// #define _USE_3DES_EDE
+#define _USE_3DES_EDE
 
 // define _NO_THREADS here or in the Makefile if you do not want thread support
 // (default is to include thread support)
