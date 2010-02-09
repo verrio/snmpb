@@ -47,6 +47,7 @@ SOURCES	+= ../snmp++/src/address.cpp \
 	preferences.cpp
 
 HEADERS	+= snmpb.h \
+        snmpbapp.h \
 	mibnode.h \
 	mibview.h \
 	mibmodule.h \

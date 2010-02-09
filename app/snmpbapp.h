@@ -18,29 +18,33 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <qapplication.h>
-#include <qmainwindow.h>
+#include <qstring.h>
 #include "snmpb.h"
 #include "mibeditor.h"
-#include "snmpbapp.h"
 
-QString file_to_open;
+extern QString file_to_open;
 
-int main( int argc, char ** argv )
+// For MACOSX: when double-clicking on an associated file, the OS will send 
+// an event to the app instead of passing the file as a parameter: 
+// we have to process the event here.
+class SnmpBApplication : public QApplication
 {
-    Snmpb snmpb;
-    SnmpBApplication a( argc, argv );
-    QMainWindow mw;
-    snmpb.BindToGUI(&mw);
+    Q_OBJECT
 
-    mw.show();
-    a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
-
-    // Load a file specified as argument in the Mib Editor
-    if (!file_to_open.isEmpty() || QCoreApplication::arguments().count() > 1)
+public:
+    SnmpBApplication(int & argc, char ** argv): QApplication(argc, argv)
     {
-        snmpb.MibEditorObj()->MibFileOpen(file_to_open.isEmpty()?QCoreApplication::arguments().at(1):file_to_open);
-        snmpb.MainUI()->TabW->setCurrentIndex(2); // Select the Editor Tab
     }
 
-    return a.exec();
-}
+protected:
+    bool event(QEvent *event)
+    {
+        switch (event->type()) {
+        case QEvent::FileOpen:
+            file_to_open = ((QFileOpenEvent *)event)->file();
+            return true;
+        default:
+            return QApplication::event(event);
+        }
+    }
+};
