@@ -331,7 +331,7 @@ void MibEditor::MibFileOpen(void)
 
     fileName = QFileDialog::getOpenFileName(s->MainUI()->MIBFile,
                                             tr("Open File"), "", 
-                                            "MIB Files (*-MIB *-PIB *.mib *.pib *.smi);;All Files (*)");
+                                            "MIB Files (*-MIB *-PIB *.mib *.pib *.smi *.MIB *.PIB *.SMI);;All Files (*)");
     MibFileOpen(fileName);
 }
 
@@ -363,7 +363,7 @@ void MibEditor::MibFileSaveAs(void)
 
     fileName  = QFileDialog::getSaveFileName(s->MainUI()->MIBFile, 
                                              tr("Save as..."), "", 
-                                             "MIB Files (*-MIB *-PIB *.mib *.pib *.smi);;All Files (*)");
+                                             "MIB Files (*-MIB *-PIB *.mib *.pib *.smi *.MIB *.PIB *.SMI);;All Files (*)");
     if (fileName.isEmpty())
         return;
     SetCurrentFileName(fileName);
