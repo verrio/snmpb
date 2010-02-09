@@ -20,4 +20,16 @@
     <comment xml:lang="en">SNMP MIB</comment>
     <glob pattern="*.smi"/>
   </mime-type> 
+  <mime-type type="text/x-mib3">
+    <comment xml:lang="en">SNMP PIB</comment>
+    <glob pattern="*.MIB"/>
+  </mime-type> 
+  <mime-type type="text/x-pib3">
+    <comment xml:lang="en">SNMP PIB</comment>
+    <glob pattern="*.PIB"/>
+  </mime-type> 
+  <mime-type type="text/x-smi3">
+    <comment xml:lang="en">SNMP MIB</comment>
+    <glob pattern="*.SMI"/>
+  </mime-type> 
 </mime-info>
