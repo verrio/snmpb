@@ -1,0 +1,22 @@
+        <key>CFBundleDocumentTypes</key>
+        <array>
+            <dict>
+                <key>CFBundleTypeExtensions</key>
+                <array>
+                    <string>smi</string>
+                    <string>pib</string>
+                    <string>mib</string>
+                    <string>SMI</string>
+                    <string>PIB</string>
+                    <string>MIB</string>
+                </array>
+                <key>CFBundleTypeName</key>
+                <string>MIB File</string>
+                <key>CFBundleTypeRole</key>
+                <string>Editor</string>
+                <key>CFBundleTypeIconFile</key>
+                <string>snmpb.icns</string>
+                <key>LSHandlerRank</key>
+                <string>Default</string>
+            </dict>
+        </array>

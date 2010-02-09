@@ -31,7 +31,10 @@ rm -rf S* s*
 # Copy application binary in local folder
 cp -R ../../app/snmpb.app ./${APPNAME}.app
 mv ${APFILESPATH}/snmpb ${APFILESPATH}/${APPNAME} 
-sed -e "s/<string>snmpb<\/string>/<string>$APPNAME<\/string>/g" ${APPNAME}.app/Contents/Info.plist > Sinfo
+sed -e "s/<string>snmpb<\/string>/<string>$APPNAME<\/string>/g" ${APPNAME}.app/Contents/Info.plist | grep -v "/dict" | grep -v "/plist" > Sinfo
+cat fileassoc.txt >> Sinfo
+echo "</dict>" >> Sinfo
+echo "</plist>" >> Sinfo
 mv -f Sinfo ${APPNAME}.app/Contents/Info.plist
 
 # Copy and cleanup mib files to local folder
