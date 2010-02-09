@@ -741,6 +741,7 @@ void Agent::AsyncCallback(int reason, Pdu &pdu,
                           SnmpTarget &target, int iswalk)
 {
     int pdu_error;
+    int vb_error = 0;
     int pdu_index = 0;
     int start_index = 0;
     int status;
@@ -789,17 +790,21 @@ void Agent::AsyncCallback(int reason, Pdu &pdu,
     }
 
     requests++;
-        
+ 
     for ( z=start_index; z < pdu.get_vb_count(); z++)
     {
         pdu.get_vb( vb, z );
-         
+
         // look for var bind exception, applies to v2 only   
-        if ( vb.get_syntax() != sNMP_SYNTAX_ENDOFMIBVIEW )
+        if ( (vb_error = vb.get_syntax()) != sNMP_SYNTAX_ENDOFMIBVIEW )
         {
             Oid tmp;
             vb.get_oid(tmp);
- 
+
+            if ((vb_error != sNMP_SYNTAX_NOSUCHOBJECT) && 
+                (vb_error != sNMP_SYNTAX_NOSUCHINSTANCE))
+                vb_error = 0;
+
             // Stop there if we're out of scope
             if (iswalk && tmp.nCompare(theoid.len(), theoid))
             {
@@ -818,17 +823,22 @@ void Agent::AsyncCallback(int reason, Pdu &pdu,
                     while ((*b++ == *f++) && (*b != '\0') && (*f != '\0')) ;
                     /* f is now the remaining part */
                     
-                    if (pdu_error && (z+1 == pdu_index))
+                    if (vb_error || (pdu_error && (z+1 == pdu_index)))
                         msg += QString("<font color=red>ERROR on varbind #</font>");
 
                     // Print the OID part
                     msg += QString("%1: %2").arg(objects).arg(node->name);
                     if (*f != '\0') msg += QString("%1").arg(f);
 
-                    if (pdu_error && (z+1 == pdu_index))
+                    if (vb_error || (pdu_error && (z+1 == pdu_index)))
                     {
-                        msg += QString("<font color=red><br>%1</font><br>")
-                                       .arg(Snmp::error_msg(pdu_error));
+                        if (pdu_error)
+                            msg += QString("<font color=red><br>%1</font><br>")
+                                           .arg(Snmp::error_msg(pdu_error));
+                        else
+                            msg += QString("<font color=red><br>%1</font><br>")
+                                           .arg(vb_error==sNMP_SYNTAX_NOSUCHOBJECT?
+                                            "No Such Object":"No Such Instance");
                         goto end;
                     }
 
@@ -838,12 +848,17 @@ void Agent::AsyncCallback(int reason, Pdu &pdu,
                 }
                 else
                 {
-                    if (pdu_error && (z+1 == pdu_index))
+                    if (vb_error || (pdu_error && (z+1 == pdu_index)))
                     {
                         msg += QString("<font color=red>ERROR on varbind #</font>%1: %2")
                                        .arg(objects).arg(vb.get_printable_oid());
-                        msg += QString("<font color=red><br>%3</font><br>")
-                                       .arg(Snmp::error_msg(pdu_error));
+                        if (pdu_error)
+                            msg += QString("<font color=red><br>%3</font><br>")
+                                           .arg(Snmp::error_msg(pdu_error));
+                        else
+                            msg += QString("<font color=red><br>%3</font><br>")
+                                           .arg(vb_error==sNMP_SYNTAX_NOSUCHOBJECT?
+                                            "No Such Object":"No Such Instance");
                     }
                     else
                     {
@@ -917,6 +932,7 @@ cleanup:
 void Agent::AsyncCallbackSet(int reason, Pdu &pdu, SnmpTarget &target)
 {
     int pdu_error;
+    int vb_error = 0;
     int pdu_index = 0;
     int start_index = 0;
     int z = 0;
@@ -966,10 +982,14 @@ void Agent::AsyncCallbackSet(int reason, Pdu &pdu, SnmpTarget &target)
         pdu.get_vb( vb, z );
          
         // look for var bind exception, applies to v2 only   
-        if ( vb.get_syntax() != sNMP_SYNTAX_ENDOFMIBVIEW )
+        if ( (vb_error = vb.get_syntax()) != sNMP_SYNTAX_ENDOFMIBVIEW )
         {          
             Oid tmp;
             vb.get_oid(tmp);
+
+            if ((vb_error != sNMP_SYNTAX_NOSUCHOBJECT) && 
+                (vb_error != sNMP_SYNTAX_NOSUCHINSTANCE))
+                vb_error = 0;
 
             objects++;
 
@@ -982,17 +1002,22 @@ void Agent::AsyncCallbackSet(int reason, Pdu &pdu, SnmpTarget &target)
                 while ((*b++ == *f++) && (*b != '\0') && (*f != '\0')) ;
                 /* f is now the remaining part */
 
-                if (pdu_error && (z+1 == pdu_index))
+                if (vb_error || (pdu_error && (z+1 == pdu_index)))
                     msg += QString("<font color=red>ERROR on varbind #</font>");
 
                 // Print the OID part
                 msg += QString("%1: %2").arg(objects).arg(node->name);
                 if (*f != '\0') msg += QString("%1").arg(f);
 
-                if (pdu_error && (z+1 == pdu_index))
+                if (vb_error || (pdu_error && (z+1 == pdu_index)))
                 {
-                    msg += QString("<font color=red><br>%1</font><br>")
-                                   .arg(Snmp::error_msg(pdu_error));
+                    if (pdu_error)
+                        msg += QString("<font color=red><br>%1</font><br>")
+                                       .arg(Snmp::error_msg(pdu_error));
+                    else
+                        msg += QString("<font color=red><br>%1</font><br>")
+                                       .arg(vb_error==sNMP_SYNTAX_NOSUCHOBJECT?
+                                            "No Such Object":"No Such Instance");
                     goto end;
                 }
 
@@ -1003,12 +1028,17 @@ void Agent::AsyncCallbackSet(int reason, Pdu &pdu, SnmpTarget &target)
             else
             {
                 /* Unknown OID */
-                if (pdu_error && (z+1 == pdu_index))
+                if (vb_error || (pdu_error && (z+1 == pdu_index)))
                 {
                     msg += QString("<font color=red>ERROR on varbind #</font>%1: %2")
                                    .arg(objects).arg(vb.get_printable_oid());
-                    msg += QString("<font color=red><br>%3</font><br>")
-                                   .arg(Snmp::error_msg(pdu_error));
+                    if (pdu_error)
+                        msg += QString("<font color=red><br>%3</font><br>")
+                                       .arg(Snmp::error_msg(pdu_error));
+                    else
+                        msg += QString("<font color=red><br>%3</font><br>")
+                                       .arg(vb_error==sNMP_SYNTAX_NOSUCHOBJECT?
+                                            "No Such Object":"No Such Instance");
                 }
                 else
                 {
