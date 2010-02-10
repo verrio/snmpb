@@ -11,5 +11,8 @@
 - Feature: support IPv6
 - Feature: Add table mirror view
 
+Bugs:
 - Fix editFinished signal not working in mibselection.cpp on Mac OS X
 - Fix freeze/remove DNS lookup on trap window
+- Multiple varbind dialog: cannot get/getnext a varbind without entering a value.
+
