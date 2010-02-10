@@ -321,7 +321,7 @@
               <property name="font" >
                <font>
                 <family>Fixed [Misc]</family>
-                <pointsize>9</pointsize>
+                <pointsize>12</pointsize>
                 <weight>50</weight>
                 <italic>false</italic>
                 <bold>false</bold>
@@ -781,7 +781,7 @@
                 <property name="font" >
                  <font>
                   <family>Courier</family>
-                  <pointsize>10</pointsize>
+                  <pointsize>12</pointsize>
                  </font>
                 </property>
                 <property name="frameShape" >
