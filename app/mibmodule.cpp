@@ -46,7 +46,7 @@ void LoadedMibModule::PrintProperties(QString& text)
         text += QString("<tr><td><b>Last revision:</b></td><td>%1</td></tr>").arg(asctime(gmtime(&rev->date)));
     
     // Add the description
-    text += QString("<tr><td><b>Description:</b></td><td><font face=fixed size=-1 color=blue>");
+    text += QString("<tr><td><b>Description:</b></td><td><font face=fixed color=blue>");
     text += Qt::convertFromPlainText (module->description);
     text += QString("</font></td></tr>");
     
@@ -79,7 +79,7 @@ void LoadedMibModule::PrintProperties(QString& text)
     text += QString("</td></tr>");
     
     // Add contact info
-    text += QString("<tr><td><b>Contact Info:</b></td><td><font face=fixed size=-1>");
+    text += QString("<tr><td><b>Contact Info:</b></td><td><font face=fixed>");
     text += Qt::convertFromPlainText (module->contactinfo);
     text += QString("</font></td></tr>");
              

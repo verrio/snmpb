@@ -318,17 +318,6 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <property name="font" >
-               <font>
-                <family>Fixed [Misc]</family>
-                <pointsize>12</pointsize>
-                <weight>50</weight>
-                <italic>false</italic>
-                <bold>false</bold>
-                <underline>false</underline>
-                <strikeout>false</strikeout>
-               </font>
-              </property>
               <property name="frameShape" >
                <enum>QFrame::WinPanel</enum>
               </property>
@@ -664,17 +653,6 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <property name="font" >
-               <font>
-                <family>Courier</family>
-                <pointsize>11</pointsize>
-                <weight>50</weight>
-                <italic>false</italic>
-                <bold>false</bold>
-                <underline>false</underline>
-                <strikeout>false</strikeout>
-               </font>
-              </property>
               <property name="frameShape" >
                <enum>QFrame::WinPanel</enum>
               </property>
@@ -781,7 +759,7 @@
                 <property name="font" >
                  <font>
                   <family>Courier</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>11</pointsize>
                  </font>
                 </property>
                 <property name="frameShape" >

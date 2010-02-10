@@ -57,12 +57,12 @@ void TrapItem::PrintProperties(QString& text)
     text += QString("<tr><td><b>Module:</b></td><td>%1</td></tr>").arg(smiGetNodeModule(Node)->name);
 
     // Add the reference
-    text += QString("<tr><td><b>Reference:</b></td><td><font face=fixed size=-1 color=blue>");
+    text += QString("<tr><td><b>Reference:</b></td><td><font face=fixed color=blue>");
     text += Qt::convertFromPlainText (Node->reference);
     text += QString("</font></td></tr>");
        
     // Add the description
-    text += QString("<tr><td><b>Description:</b></td><td><font face=fixed size=-1 color=blue>");
+    text += QString("<tr><td><b>Description:</b></td><td><font face=fixed color=blue>");
     text += Qt::convertFromPlainText (Node->description);
     text += QString("</font></td></tr>");
 	   
