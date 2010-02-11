@@ -288,7 +288,7 @@ void MibSelection::OKButtonPressed(void)
                 syntax = "OBJECT IDENTIFIER";
                 Oid oid(result_string.toLatin1().data());
                 if (oid.valid() || result_string.isEmpty())
-                    vb.set_value(oid);
+                    vb.set_value(oid.valid()?oid:"0");
                 else
                 {
                     QMessageBox::critical( NULL, "MIB Operation", 
