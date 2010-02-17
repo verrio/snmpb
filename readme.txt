@@ -46,7 +46,7 @@ lib/snprintf.c, "Upgraded snprintf.c from source to support 64 bits printing on 
 lib/smi.c  "Fixed stack overwrite in smiRenderValue due to uint64 format"
 
 QWT is taken from http://qwt.sourceforge.net
-Version: 5.1.0
+Version: 5.2.0
 
 Modified file(s):
 qwtconfig.pri
