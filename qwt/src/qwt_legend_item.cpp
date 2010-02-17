@@ -202,9 +202,9 @@ int QwtLegendItem::identifierMode() const
 
   \param width New width
 
-  \sa identifierMode(), identifierWidth
+  \sa identifierMode(), identifierWidth()
 */
-void QwtLegendItem::setIdentfierWidth(int width)
+void QwtLegendItem::setIdentifierWidth(int width)
 {
     width = qwtMax(width, 0);
     if ( width != d_data->identifierWidth )
@@ -217,7 +217,7 @@ void QwtLegendItem::setIdentfierWidth(int width)
 /*!
    Return the width of the identifier
 
-   \sa setIdentfierWidth
+   \sa setIdentifierWidth()
 */
 int QwtLegendItem::identifierWidth() const
 {
@@ -310,7 +310,7 @@ void QwtLegendItem::drawIdentifier(
     if ( (d_data->identifierMode & ShowLine ) && (d_data->curvePen.style() != Qt::NoPen) )
     {
         painter->save();
-        painter->setPen(d_data->curvePen);
+        painter->setPen(QwtPainter::scaledPen(d_data->curvePen));
         QwtPainter::drawLine(painter, rect.left(), rect.center().y(), 
             rect.right(), rect.center().y());
         painter->restore();
@@ -345,7 +345,7 @@ void QwtLegendItem::drawIdentifier(
 
         painter->save();
         painter->setBrush(d_data->symbol->brush());
-        painter->setPen(d_data->symbol->pen());
+        painter->setPen(QwtPainter::scaledPen(d_data->symbol->pen()));
         d_data->symbol->draw(painter, symbolRect);
         painter->restore();
     }
@@ -444,7 +444,7 @@ void QwtLegendItem::mousePressEvent(QMouseEvent *e)
             default:;
         }
     }
-    return QwtTextLabel::mousePressEvent(e);
+    QwtTextLabel::mousePressEvent(e);
 }
 
 //! Handle mouse release events
@@ -466,7 +466,7 @@ void QwtLegendItem::mouseReleaseEvent(QMouseEvent *e)
             default:;
         }
     }
-    return QwtTextLabel::mouseReleaseEvent(e);
+    QwtTextLabel::mouseReleaseEvent(e);
 }
 
 //! Handle key press events
@@ -492,7 +492,7 @@ void QwtLegendItem::keyPressEvent(QKeyEvent *e)
         }
     }
 
-    return QwtTextLabel::keyPressEvent(e);
+    QwtTextLabel::keyPressEvent(e);
 }
 
 //! Handle key release events
@@ -516,7 +516,7 @@ void QwtLegendItem::keyReleaseEvent(QKeyEvent *e)
         }
     }
 
-    return QwtTextLabel::keyReleaseEvent(e);
+    QwtTextLabel::keyReleaseEvent(e);
 }
 
 /*!

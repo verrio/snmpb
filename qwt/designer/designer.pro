@@ -64,7 +64,10 @@ contains(CONFIG, QwtDesigner) {
     unix:LIBS      += -L$${QWT_ROOT}/lib -l$${LIBNAME}
     win32-msvc:LIBS  += $${QWT_ROOT}/lib/$${LIBNAME}.lib
     win32-msvc.net:LIBS  += $${QWT_ROOT}/lib/$${LIBNAME}.lib
+    win32-msvc2002:LIBS += $${QWT_ROOT}/lib/$${LIBNAME}.lib
+    win32-msvc2003:LIBS += $${QWT_ROOT}/lib/$${LIBNAME}.lib
     win32-msvc2005:LIBS += $${QWT_ROOT}/lib/$${LIBNAME}.lib
+    win32-msvc2008:LIBS += $${QWT_ROOT}/lib/$${LIBNAME}.lib
     win32-g++:LIBS   += -L$${QWT_ROOT}/lib -l$${LIBNAME}
 
     # isEmpty(QT_VERSION) does not work with Qt-4.1.0/MinGW

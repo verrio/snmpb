@@ -22,6 +22,16 @@ that is only available with a commercial Qt license.
 You need a release of qtmmlwidget >= 2.1.
 Copy the files qtmmlwidget.[cpp|h] to textengines/mathml.
 
+Documentation
+==========================
+
+Qwt includes a class documentation, that is available in various formats:
+
+- Html files
+- PDF document 
+- Qt Compressed Help (*.qch ) for the Qt assistant. 
+- Man pages ( UNIX only )
+
 A) Unix Qt3/Qt4
 ==========================
 

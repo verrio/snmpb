@@ -148,10 +148,14 @@ void Plot::printPlot()
     printer.setOrientation(QPrinter::Landscape);
 #if QT_VERSION < 0x040000
     printer.setColorMode(QPrinter::Color);
+#if 0
     printer.setOutputFileName("/tmp/spectrogram.ps");
+#endif
     if (printer.setup())
 #else
+#if 0
     printer.setOutputFileName("/tmp/spectrogram.pdf");
+#endif
     QPrintDialog dialog(&printer);
     if ( dialog.exec() )
 #endif

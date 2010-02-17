@@ -59,7 +59,6 @@ MainWin::MainWin():
     yMap[i].setScaleInterval(0.0, 6.28);
 
     curve[i].setPen(QPen(QColor(150,150,200),2));
-    curve[i].setCurveType(QwtPlotCurve::Xfy);
     curve[i].setStyle(QwtPlotCurve::Lines);
     curve[i].setCurveAttribute(QwtPlotCurve::Fitted, true);
     curveFitter = new QwtSplineCurveFitter();
@@ -81,7 +80,7 @@ MainWin::MainWin():
     i++;
     xMap[i].setScaleInterval(0.0, 6.28);
     yMap[i].setScaleInterval(-3.0, 1.1);
-    curve[i].setPen(QPen(QColor(200,150,50), 1, Qt::DashDotDotLine));
+    curve[i].setPen(QPen(QColor(200,150,50)));
     curve[i].setStyle(QwtPlotCurve::Sticks);
     curve[i].setSymbol(QwtSymbol(QwtSymbol::Ellipse,
         QColor(Qt::blue), QColor(Qt::yellow), QSize(5,5)));

@@ -3,18 +3,18 @@
 ######################################################################
 
 VER_MAJ      = 5
-VER_MIN      = 1
+VER_MIN      = 2
 VER_PAT      = 0
-VERSION      = $$VER_MAJ.$$VER_MIN.$$VER_PAT
+VERSION      = $${VER_MAJ}.$${VER_MIN}.$${VER_PAT}
 
 unix {
-    INSTALLBASE    = /usr/local/qwt-5.1.0
+    INSTALLBASE    = /usr/local/qwt-5.2.0
 }
 
 win32 {
-    INSTALLBASE    = C:/Qwt-5.1.0
+    INSTALLBASE    = C:/Qwt-5.2.0
     QMAKE_CXXFLAGS += -mno-cygwin
- }
+}
 
 target.path    = $$INSTALLBASE/lib
 headers.path   = $$INSTALLBASE/include
@@ -50,7 +50,7 @@ else {
         # Enable debug_and_release + build_all if you want to build both.
 
         CONFIG           += release     # release/debug/debug_and_release
-        #CONFIG           += debug_and_release
+        #CONFIG           += release_and_release
         #CONFIG           += build_all
     }
     else {

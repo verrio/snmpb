@@ -71,7 +71,6 @@ HEADERS += \
     qwt_picker.h \
     qwt_picker_machine.h \
     qwt_polygon.h \
-    qwt_rect.h \
     qwt_round_scale_draw.h \
     qwt_scale_div.h \
     qwt_scale_draw.h \
@@ -98,7 +97,6 @@ SOURCES += \
     qwt_panner.cpp \
     qwt_painter.cpp \
     qwt_picker.cpp \
-    qwt_rect.cpp \
     qwt_round_scale_draw.cpp \
     qwt_scale_div.cpp \
     qwt_scale_draw.cpp \
@@ -135,6 +133,7 @@ contains(CONFIG, QwtPlot) {
         qwt_plot_spectrogram.h \
         qwt_plot_scaleitem.h \
         qwt_plot_canvas.h \
+        qwt_plot_rescaler.h \
         qwt_plot_panner.h \
         qwt_plot_picker.h \
         qwt_plot_zoomer.h \
@@ -161,9 +160,10 @@ contains(CONFIG, QwtPlot) {
         qwt_plot_marker.cpp \
         qwt_plot_layout.cpp \
         qwt_plot_printfilter.cpp \
-        qwt_plot_canvas.cpp \
-        qwt_plot_panner.cpp \
         qwt_plot_rasteritem.cpp \
+        qwt_plot_canvas.cpp \
+        qwt_plot_rescaler.cpp \
+        qwt_plot_panner.cpp \
         qwt_plot_picker.cpp \
         qwt_plot_zoomer.cpp \
         qwt_plot_magnifier.cpp \
@@ -216,7 +216,7 @@ contains(CONFIG, QwtWidgets) {
 # Install directives
 
 headers.files  = $$HEADERS
-doc.files      = $${QWT_ROOT}/doc/html
+doc.files      = $${QWT_ROOT}/doc/html $${QWT_ROOT}/doc/qwt-5.2.0.qch
 unix {
     doc.files      += $${QWT_ROOT}/doc/man
 }

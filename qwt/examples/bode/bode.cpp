@@ -197,7 +197,7 @@ MainWin::MainWin(QWidget *parent):
 
 void MainWin::print()
 {
-#if 0
+#if 1
     QPrinter printer;
 #else
     QPrinter printer(QPrinter::HighResolution);

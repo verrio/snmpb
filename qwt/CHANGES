@@ -1,3 +1,64 @@
+Release 5.2.0
+===================
+
+Changes
+-------
+1) Ported to Qt 4.5.x 
+2) Scaling of non cosmetic pens (for printing to devices in high resolution)
+3) Clipping of polygons for SVG rendering 
+4) QwtRect removed
+   use QwtClipper instead
+5) QwtPlotRescaler 
+   Introduced
+6) QwtDoubleInterval 
+   BorderMode introduced
+7) QwtPlotCurve
+   Performance of incremental curve painting ( = draw(from, to) ) improved.
+8) QwtLegendItem
+   setIdentfierMode renamed to setIdentifierMode
+9) QwtPlotCanvas::replot() introduced
+   code from QwtPlot::replot shifted
+10)QwtPlot 
+   drawCanvas(), updateAxes() changed from protected to public
+11)QwtScaleEngine 
+   loMargin/hiMargin renamed to lowerMargin/upperMargin
+12)QwtScaleDiv 
+   lBound/hBound renamed to lowerBound/upperBound
+13)QwtSpline
+   cofficientA/B/C introduced
+14)QwtDial
+   counter clockwise scales introduced
+15)QwtPlotMarker
+   Vertical text labels
+16)doc/qwt-5.2.0.qch added foe browsing the Qwt docs in the Qt assistant 
+
+Bug Fixes
+---------
+1) QwtLinearScaleEngine
+   Rounding problems fixed
+2) Again some print layout problems fixed
+3) QwtPlotScaleItem: 1 pixel offset fixed
+4) QwtPlotSpectrogram, clipping of contour lines 
+   against the bounding rect
+5) QwtPlotZoomer::setZoomStack for stacks with unlimited depth
+6) Printing of rotated tick labels
+
+
+Release 5.1.1
+===================
+
+Bug Fixes
+---------
+1) Several compiler incompatibilities fixed
+2) DBL_EPSILON removed 
+   Using DBL_EPSILON in the calculations of the dials/sliders and the 
+   scale engines leads to problems with the inaccuracy of floating points.
+   The behaviour has been reverted to 5.0.x.
+3) QwtSlider/QwtKnob
+   setScaleDraw() fixed.
+4) QwtRect
+   Pointless private declaration removed
+
 Release 5.1.0
 ===================
 

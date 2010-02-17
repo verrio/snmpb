@@ -5,6 +5,7 @@
 #include <qwt_legend.h>
 #include <qwt_data.h>
 #include <qwt_text.h>
+#include <qwt_math.h>
 #include <math.h>
 
 //-----------------------------------------------------------------
@@ -102,9 +103,11 @@ Plot::Plot()
     //  ...a vertical line at x = 2 * pi
     QwtPlotMarker *mX = new QwtPlotMarker();
     mX->setLabel(QString::fromLatin1("x = 2 pi"));
-    mX->setLabelAlignment(Qt::AlignRight|Qt::AlignTop);
+    mX->setLabelAlignment(Qt::AlignLeft | Qt::AlignBottom);
+    mX->setLabelOrientation(Qt::Vertical);
     mX->setLineStyle(QwtPlotMarker::VLine);
-    mX->setXValue(6.284);
+    mX->setLinePen(QPen(Qt::black, 0, Qt::DashDotLine));
+    mX->setXValue(2.0 * M_PI);
     mX->attach(this);
 }
 

@@ -238,7 +238,7 @@ inline void QwtPolygonClipperF::addPoint(QwtPolygonF &pa, uint pos, const QwtDou
     if ( uint(pa.size()) <= pos ) 
         pa.resize(pos + 5);
 
-    pa[pos] = point;
+    pa[(int)pos] = point;
 }
 
 //! Sutherland-Hodgman polygon clipping
@@ -338,7 +338,7 @@ void QwtPolygonClipperF::clipEdge(Edge edge,
     const uint nPoints = pa.size();
     for ( uint i = 1; i < nPoints; i++ )
     {
-        const QwtDoublePoint p2 = pa[i];
+        const QwtDoublePoint p2 = pa[(int)i];
         if ( insideEdge(p2, edge) )
         {
             if ( insideEdge(p1, edge) )
@@ -468,6 +468,14 @@ QList<QwtDoublePoint> QwtCircleClipper::cuttingPoints(
 }
 #endif
     
+/*! 
+   Sutherland-Hodgman polygon clipping
+
+   \param clipRect Clip rectangle
+   \param polygon Polygon
+
+   \return Clipped polygon
+*/
 QwtPolygon QwtClipper::clipPolygon(
     const QRect &clipRect, const QwtPolygon &polygon)
 {
@@ -475,6 +483,14 @@ QwtPolygon QwtClipper::clipPolygon(
     return clipper.clipPolygon(polygon);
 }
 
+/*! 
+   Sutherland-Hodgman polygon clipping
+
+   \param clipRect Clip rectangle
+   \param polygon Polygon
+
+   \return Clipped polygon
+*/
 QwtPolygonF QwtClipper::clipPolygonF(
     const QwtDoubleRect &clipRect, const QwtPolygonF &polygon)
 {
@@ -483,6 +499,19 @@ QwtPolygonF QwtClipper::clipPolygonF(
 }
 
 #if QT_VERSION >= 0x040000
+/*! 
+   Circle clipping
+
+   clipCircle() devides a circle into intervals of angles representing arcs
+   of the circle. When the circle is completely inside the clip rectangle 
+   an interval [0.0, 2 * M_PI] is returned.
+
+   \param clipRect Clip rectangle
+   \param center Center of the circle
+   \param radius Radius of the circle
+
+   \return Arcs of the circle
+*/
 QwtArray<QwtDoubleInterval> QwtClipper::clipCircle(
     const QwtDoubleRect &clipRect, 
     const QwtDoublePoint &center, double radius)

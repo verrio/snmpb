@@ -8,7 +8,7 @@
 ###################################################################
 
 QwtBuild = dll
-QwtVersion = 5.1.0
+QwtVersion = 5.2.0
 
 unix {
     QwtBase    = /usr/local/qwt-$${QwtVersion}

@@ -5,9 +5,6 @@
 #include <qwt_symbol.h>
 #include <qcolor.h>
 #include <qpainter.h>
-#if QT_VERSION >= 0x040000
-#include <qpaintengine.h>
-#endif
 #include <math.h>
 
 //------------------------------------------------------------
@@ -172,12 +169,8 @@ void MainWin::drawContents(QPainter *painter)
         yMap.setPaintInterval(r.top(), r.bottom());
 
 #if QT_VERSION >= 0x040000
-        const QPaintEngine *pe = painter->device()->paintEngine();
-        if (pe->hasFeature(QPaintEngine::Antialiasing) )
-        {
-            painter->setRenderHint(QPainter::Antialiasing,
-                crv[i].testRenderHint(QwtPlotItem::RenderAntialiased) );
-        }
+        painter->setRenderHint(QPainter::Antialiasing,
+            crv[i].testRenderHint(QwtPlotItem::RenderAntialiased) );
 #endif
         crv[i].draw(painter, xMap, yMap, r);
 

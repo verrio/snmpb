@@ -93,27 +93,19 @@ void IncrementalPlot::appendData(double *x, double *y, int size)
     const bool cacheMode = 
         canvas()->testPaintAttribute(QwtPlotCanvas::PaintCached);
 
-#if QT_VERSION >= 0x040000
-    const bool oldDirectPaint = 
-        canvas()->testAttribute(Qt::WA_PaintOutsidePaintEvent);
+#if QT_VERSION >= 0x040000 && defined(Q_WS_X11)
+    // Even if not recommended by TrollTech, Qt::WA_PaintOutsidePaintEvent 
+    // works on X11. This has an tremendous effect on the performance..
 
-    const QPaintEngine *pe = canvas()->paintEngine();
-    bool directPaint = pe->hasFeature(QPaintEngine::PaintOutsidePaintEvent);
-    if ( pe->type() == QPaintEngine::X11 )
-    {
-        // Even if not recommended by TrollTech, Qt::WA_PaintOutsidePaintEvent 
-        // works on X11. This has an tremendous effect on the performance..
-        directPaint = true;
-    }
-    canvas()->setAttribute(Qt::WA_PaintOutsidePaintEvent, directPaint);
+    canvas()->setAttribute(Qt::WA_PaintOutsidePaintEvent, true);
 #endif
 
     canvas()->setPaintAttribute(QwtPlotCanvas::PaintCached, false);
     d_curve->draw(d_curve->dataSize() - size, d_curve->dataSize() - 1);
     canvas()->setPaintAttribute(QwtPlotCanvas::PaintCached, cacheMode);
 
-#if QT_VERSION >= 0x040000
-    canvas()->setAttribute(Qt::WA_PaintOutsidePaintEvent, oldDirectPaint);
+#if QT_VERSION >= 0x040000 && defined(Q_WS_X11)
+    canvas()->setAttribute(Qt::WA_PaintOutsidePaintEvent, false);
 #endif
 }
 
