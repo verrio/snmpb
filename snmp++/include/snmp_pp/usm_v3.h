@@ -2,9 +2,9 @@
   _## 
   _##  usm_v3.h  
   _##
-  _##  SNMP++v3.2.24
+  _##  SNMP++v3.2.25
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
+  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 // $Id$
@@ -43,7 +43,9 @@
 namespace Snmp_pp {
 #endif
 
+#ifndef MAXUINT32
 #define MAXUINT32 4294967295u
+#endif
 
 // the maximum allowed length of the username
 #define MAXLEN_USMUSERNAME 32
@@ -276,6 +278,9 @@ public:
    * The USM will compute a userName for the given securityName, which
    * will be the same as securityName (recommended).
    *
+   * If discovery mode is enabled, localized user entries are
+   * automatically created for new engine ids.
+   *
    * @param security_name - Unique securityName
    * @param auth_protocol - Possible values are:
    *                              SNMP_AUTHPROTOCOL_NONE,
@@ -379,10 +384,8 @@ public:
    * from the USM.
    *
    * @param security_name - the securityName of the user
-   *
-   * @return - SNMPv3_USM_OK, SNMPv3_USM_ERROR (not initialized)
    */
-  int delete_usm_user(const OctetStr& security_name);
+  void delete_usm_user(const OctetStr& security_name);
 
 
   /**

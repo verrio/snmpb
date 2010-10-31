@@ -2,9 +2,9 @@
   _## 
   _##  mp_v3.cpp  
   _##
-  _##  SNMP++v3.2.24
+  _##  SNMP++v3.2.25
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
+  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 char mp_v3_cpp_version[]="@(#) SNMP++ $Id$";
@@ -50,15 +50,12 @@ namespace Snmp_pp {
 
 #define MAX_MPMSGID 2147483647
 
-#define ASN_UNI_PRIV (ASN_UNIVERSAL | ASN_PRIMITIVE)
-#define ASN_SEQ_CON (ASN_SEQUENCE | ASN_CONSTRUCTOR)
-
 #define CACHE_LOCAL_REQ true
 #define CACHE_REMOTE_REQ false
 
 v3MP *v3MP::I = 0;
 
-// Use locking on access methods in an multithreading enviroment.
+// Use locking on access methods in an multithreaded environment.
 #ifdef _THREADS
 #define BEGIN_REENTRANT_CODE_BLOCK SnmpSynchronize auto_lock(lock)
 #define BEGIN_REENTRANT_CODE_BLOCK_CONST  \
@@ -84,7 +81,7 @@ v3MP::EngineIdTable::EngineIdTable(int initial_size)
   }
 }
 
-// Denstruct enigne id table
+// Destruct enigne id table
 v3MP::EngineIdTable::~EngineIdTable()
 {
   if (table)
@@ -809,7 +806,7 @@ int v3MP::send_report(unsigned char* scopedPDU, int scopedPDULength,
     case SNMPv3_MP_UNSUPPORTED_SECURITY_MODEL: {
       counterVb.set_oid(oidSnmpUnknownSecurityModels);
       counterVb.set_value(Counter32(get_stats_unknown_security_models()));
-      sModel = SecurityModel_USM;
+      sModel = SNMP_SECURITY_MODEL_USM;
       sLevel = SNMP_SECURITY_LEVEL_NOAUTH_NOPRIV;
     break;
     }
@@ -829,7 +826,7 @@ int v3MP::send_report(unsigned char* scopedPDU, int scopedPDULength,
     default: {
       counterVb.set_oid(oidSnmpInvalidMsgs);
       counterVb.set_value(Counter32(get_stats_invalid_msgs()));
-      sModel = SecurityModel_USM;
+      sModel = SNMP_SECURITY_MODEL_USM;
       sLevel = SNMP_SECURITY_LEVEL_NOAUTH_NOPRIV;
       sName.set_data(0, 0);
 
@@ -934,8 +931,7 @@ int v3MP::snmp_parse(Snmp *snmp_session,
   }
 
   // get the version
-  inBuf = asn_parse_int(inBuf, &inBufLength,
-                        &type, &version, sizeof(version));
+  inBuf = asn_parse_int(inBuf, &inBufLength, &type, &version);
   if (inBuf == NULL){
     debugprintf(0, "snmp_parse: bad parse of version");
     return SNMPv3_MP_PARSE_ERROR;
@@ -1009,7 +1005,7 @@ int v3MP::snmp_parse(Snmp *snmp_session,
     return SNMPv3_MP_ERROR;
 
   switch (msgSecurityModel) {
-    case SecurityModel_USM:
+    case SNMP_SECURITY_MODEL_USM:
       {
         rc = usm->process_msg(
                            msgMaxSize,
@@ -1094,7 +1090,7 @@ int v3MP::snmp_parse(Snmp *snmp_session,
          (pdu->command == TRP_REQ_MSG) || (pdu->command == INFORM_REQ_MSG)  ||
          (pdu->command == TRP2_REQ_MSG)))
     {
-      //  RFC 2572 § 4.2.2.1 (2a)
+      //  RFC 2572 ï¿½ 4.2.2.1 (2a)
       debugprintf(2, "mp: received request message with zero length"
                   " contextEngineID -> unknownPduHandlers.");
       inc_stats_unknown_pdu_handlers();
@@ -1125,7 +1121,7 @@ int v3MP::snmp_parse(Snmp *snmp_session,
   if ((pdu->command == GET_RSP_MSG) || (pdu->command == REPORT_MSG)) {
     rc = cache.get_entry(msgID, true, &centry);
     if (rc != SNMPv3_MP_OK) {
-      // RFC 2572 § 4
+      // RFC 2572 ï¿½ 4
       debugprintf(2, "Received rspMsg without outstanding request."
                   " -> SnmpUnknownPduHandler");
       usm->delete_sec_state_reference(securityStateReference);
@@ -1135,6 +1131,13 @@ int v3MP::snmp_parse(Snmp *snmp_session,
     if (((pdu->reqid == 0) || (pdu->reqid == 0x7fffffff))
 	&& (pdu->command == REPORT_MSG))
       pdu->reqid = centry.req_id;
+#ifdef BUGGY_REPORT_REQID
+    if ((pdu->reqid != centry.req_id) && (pdu->command == REPORT_MSG))
+    {
+      debugprintf(0, "WARNING: setting reqid of REPORT PDU (from) (to): (%ld) (%ld)",  pdu->reqid, centry.req_id);
+      pdu->reqid = centry.req_id;
+    }
+#endif
   }
 
   if (pdu->command == REPORT_MSG) {
@@ -1144,7 +1147,7 @@ int v3MP::snmp_parse(Snmp *snmp_session,
     if (/*((securityEngineID != centry.sec_engine_id)
 	  && (centry.sec_engine_id.len() != 0)) ||*/
         ((msgSecurityModel != centry.sec_model)
-         && (msgSecurityModel != SecurityModel_USM)) ||
+         && (msgSecurityModel != SNMP_SECURITY_MODEL_USM)) ||
         ((securityName != centry.sec_name)
          && (securityName.len() != 0)))
     {
@@ -1277,7 +1280,7 @@ bool v3MP::is_v3_msg(unsigned char *buffer, int length)
   }
 
   // get the version
-  buffer = asn_parse_int(buffer, &length, &type, &version, sizeof(version));
+  buffer = asn_parse_int(buffer, &length, &type, &version);
   if (!buffer)
   {
     LOG_BEGIN(WARNING_LOG | 1);
@@ -1327,7 +1330,7 @@ int v3MP::snmp_build(struct snmp_pdu *pdu,
     if (securityEngineID.len() == 0) {
       // First Contact => use user  noAuthNoPriv and USM
       securityLevel = SNMP_SECURITY_LEVEL_NOAUTH_NOPRIV;
-      securityModel = SecurityModel_USM;
+      securityModel = SNMP_SECURITY_MODEL_USM;
     }
 
     cur_msg_id_lock.lock();
@@ -1462,7 +1465,7 @@ int v3MP::snmp_build(struct snmp_pdu *pdu,
   globalDataLength = SAFE_INT_CAST(globalDataPtr - (unsigned char *)&globalData);
 
   switch (securityModel) {
-    case SecurityModel_USM: {
+    case SNMP_SECURITY_MODEL_USM: {
       int use_own_engine_id = 0;
       if ((pdu->command == TRP_REQ_MSG) || (pdu->command == GET_RSP_MSG) ||
           (pdu->command == REPORT_MSG)  || (pdu->command == TRP2_REQ_MSG)) {

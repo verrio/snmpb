@@ -2,9 +2,9 @@
   _## 
   _##  ctr64.h  
   _##
-  _##  SNMP++v3.2.24
+  _##  SNMP++v3.2.25
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
+  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -108,37 +108,6 @@ class DLLOPT Counter64: public  SnmpSyntax
    * Destructor (ensure that SnmpSyntax::~SnmpSyntax() is overridden).
    */
   ~Counter64() {};
-
-  //-----------[ conversion from/to long double ]----------------------
-
-  /**
-   * Get the value of the object as long double.
-   *
-   * @note DEPRECATED - Use conversions from/to unsigned long long
-   *
-   * @param c64 - The Counter64 object whose value should be returned
-   * @return value as a long double
-   */
-  static long double c64_to_ld(const Counter64 &c64);
-
-  /**
-   * Get the value of this object as long double.
-   *
-   * @note DEPRECATED - Use conversions from/to unsigned long long
-   *
-   * @return value as a long double
-   */
-  long double c64_to_ld() const;
-
-  /**
-   * Convert a long double to a Counter64.
-   *
-   * @note DEPRECATED - Use conversions from/to unsigned long long
-   *
-   * @param ld - the value to convert
-   * @return A Counter64 object with the value of the param ld.
-   */
-  static Counter64 ld_to_c64(const long double &ld);
 
   //-----------[ conversion from/to unsigned long long ]----------------
 
@@ -343,12 +312,6 @@ class DLLOPT Counter64: public  SnmpSyntax
    */
   DLLOPT friend bool operator>=(const Counter64 &lhs, const Counter64 &rhs);
 
-  bool to_asn1(unsigned char *&data,
-	       int &datalength,
-	       const unsigned char type);
-  bool from_asn1(unsigned char *&data,
-		 int &datalength,
-		 unsigned char &type);
  private:
 
   SNMP_PP_MUTABLE char output_buffer[CTR64OUTBUF];

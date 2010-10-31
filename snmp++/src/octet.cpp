@@ -2,9 +2,9 @@
   _## 
   _##  octet.cpp  
   _##
-  _##  SNMP++v3.2.24
+  _##  SNMP++v3.2.25
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
+  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -95,7 +95,7 @@ OctetStr::OctetStr(const char *str)
   size_t z;
 
   // check for null string
-  if (!str || !(z = strlen(str)))
+  if (!str || !((z = strlen(str))))
     return;
 
   // get mem needed
@@ -225,7 +225,7 @@ OctetStr& OctetStr::operator=(const char *str)
   m_changed = true;
 
   // if empty then we are done; get the string size
-  if (!str || !(nz = strlen(str)))
+  if (!str || !((nz = strlen(str))))
   {
     validity = true;
     return *this;
@@ -397,7 +397,7 @@ OctetStr& OctetStr::operator+=(const OctetStr& octet)
   unsigned char *tmp;
   size_t slen, nlen;
 
-  if (!octet.validity || !(slen = (size_t)octet.len()))
+  if (!octet.validity || !((slen = (size_t)octet.len())))
     return *this;
 
   nlen = slen + (size_t) smival.value.string.len;  // total len of new octet
@@ -625,7 +625,7 @@ SnmpSyntax& OctetStr::operator=(const SnmpSyntax &val)
 OctetStr OctetStr::from_hex_string(const OctetStr &hex_string)
 {
   OctetStr val;
-  unsigned int p = 0;
+  unsigned int p;
   unsigned int hex_len = 0;
 
   // make sure the string has at least one byte
@@ -809,7 +809,7 @@ bool OctetStr::set_linefeed_chars(const char* lf_chars)
 }
 
 //===============[ append or shorten the data buffer ]================
-bool OctetStr::set_len(const unsigned char new_len)
+bool OctetStr::set_len(const unsigned long new_len)
 {
   unsigned char *tmp;
 

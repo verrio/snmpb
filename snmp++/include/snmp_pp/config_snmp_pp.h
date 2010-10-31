@@ -4,7 +4,7 @@
   _##
   _##  SNMP++v3.2.24
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
+  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010
   _##  
   _##########################################################################*/
 
@@ -38,10 +38,10 @@
 #define __unix
 #endif
 
-#define SNMP_PP_VERSION_STRING "3.2.24"
+#define SNMP_PP_VERSION_STRING "3.2.25"
 #define SNMP_PP_VERSION 3
 #define SNMP_PP_RELEASE 2
-#define SNMP_PP_PATCHLEVEL 24
+#define SNMP_PP_PATCHLEVEL 25
 
 //! The maximum size of a message that can be sent or received.
 #define MAX_SNMP_PACKET 4096
@@ -136,7 +136,25 @@
 
 // can we use the reentrant version of these functions or
 // are the standard functions thread safe
-#ifdef __GNUC__
+#ifdef __CYGWIN32__
+#define HAVE_LOCALTIME_R
+#define HAVE_REENTRANT_LOCALTIME
+#define HAVE_REENTRANT_GETHOSTBYADDR
+#define HAVE_REENTRANT_GETHOSTBYNAME
+#undef  HAVE_GETHOSTBYNAME2
+#elif __MINGW32__
+//FIXME: snmp++/src/address.cpp:865: error: `inet_ntop' was not declared in this scope
+//FIXME: snmp++/src/address.cpp:988: error: `inet_pton' was not declared in this scope
+//FIXME: snmp++/src/notifyqueue.cpp:538: error: `inet_pton' was not declared in this scope
+#undef  HAVE_INET_ATON
+#undef  HAVE_GETHOSTBYNAME2
+#define HAVE_REENTRANT_GETHOSTBYNAME
+#define HAVE_REENTRANT_LOCALTIME
+#define HAVE_REENTRANT_GETHOSTBYADDR
+#elif __APPLE__
+#define HAVE_LOCALTIME_R
+#define HAVE_REENTRANT_LOCALTIME
+#elif __GNUC__
 #ifndef WIN32
 #ifndef BSD
 #define HAVE_GETHOSTBYNAME_R

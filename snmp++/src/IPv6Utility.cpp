@@ -2,9 +2,9 @@
   _## 
   _##  IPv6Utility.cpp  
   _##
-  _##  SNMP++v3.2.24
+  _##  SNMP++v3.2.25
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
+  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*
@@ -53,11 +53,38 @@
   Adapted and integrated into snmp++ by Ragavan Tetchinamourty
 
 =====================================================================*/
-char ipv6utility_cpp_version[]="@(#) SNMP++ $Id: $";
+//XXX char ipv6utility_cpp_version[] = "@(#) SNMP++ $Id: $";
 
+#include <stdio.h>  //use vsnprintf
 #include "snmp_pp/IPv6Utility.h"
 
-#if defined(_MSC_VER) && defined(SNMP_PP_IPv6)
+//FIXME #if defined(_MSC_VER) && defined(SNMP_PP_IPv6)
+#if defined(WIN32) && defined(SNMP_PP_IPv6)
+
+#define NS_INT16SZ      2
+#define NS_INADDRSZ     4
+#define NS_IN6ADDRSZ    16
+#define EAFNOSUPPORT    WSAEAFNOSUPPORT
+#define ENOSPC          28
+
+/*
+ * WARNING: Don't even consider trying to compile this on a system where
+ * sizeof(int) < 4.  sizeof(int) > 4 is fine; all the world's not a VAX.
+ */
+
+
+static const char *inet_ntop4(const unsigned char *src, char *dst, size_t size);
+
+#ifdef AF_INET6
+static const char *inet_ntop6(const unsigned char *src, char *dst, size_t size);
+#endif
+
+static int inet_pton4(const char *src, unsigned char *dst);
+#ifdef AF_INET6
+static int inet_pton6(const char *src, unsigned char *dst);
+#endif
+
+
 
 /* char *
  * isc_net_ntop(af, src, dst, size)
@@ -83,6 +110,8 @@ inet_ntop(int af, const void *src, char *dst, size_t size)
 	}
 	/* NOTREACHED */
 }
+
+#if defined(_MSC_VER)
 static int
 snprintf (char *str, int n, char *fmt, ...)
 {
@@ -92,6 +121,7 @@ int ret = vsnprintf (str, n, fmt, a);
 va_end (a);
 return ret;
 }
+#endif
 
 /* const char *
  * inet_ntop4(src, dst, size)

@@ -1,3 +1,16 @@
+Changes snmp++v3.2.25
+=====================
+
+- Improved: Request id and salt initializations; Makefile target improvements;
+  Documentation of Snmp::start/stop_poll_thread functions (Dominik Vogt)
+- Fixed: Possible off-by-one error in various XAddress::parse_Y() functions,
+  if input values are filled with spaces. (Dave White)
+- Fixed: Async inform requests did not work because of incorrect PDU type
+  (APP-2)
+- Changed: The QtExample now uses Qt4 (Don Radick).
+- Fixed: Snmp::notify_unregister() did not work.
+- Changed: Removed AddressCollection param of Snmp::notify_register()
+  function.
 
 Changes snmp++v3.2.24
 =====================

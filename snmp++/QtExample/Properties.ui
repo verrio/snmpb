@@ -339,9 +339,10 @@
     <include location="local" impldecl="in implementation">Properties.ui.h</include>
 </includes>
 <forwards>
-    <forward>#ifdef SNMP_PP_NAMESPACE</forward>
+    <forward>// The following is a hack, but I don't know a better way to do this //</forward>
+    <forward>// At this place the namespace is not defined, so create it and use it //</forward>
+    <forward>namespace Snmp_pp {}</forward>
     <forward>using namespace Snmp_pp</forward>
-    <forward>#endif</forward>
 </forwards>
 <variables>
     <variable access="private">Snmp *snmp;</variable>

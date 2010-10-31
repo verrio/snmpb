@@ -2,9 +2,9 @@
   _## 
   _##  receive_trap.cpp  
   _##
-  _##  SNMP++v3.2.24
+  _##  SNMP++v3.2.25
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
+  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 
@@ -143,44 +143,44 @@ int main(int argc, char **argv)
 
    // users at UCD
    usm->add_usm_user("SHADESUser",
-		     SNMPv3_usmHMACSHAAuthProtocol, SNMPv3_usmDESPrivProtocol,
+		     SNMP_AUTHPROTOCOL_HMACSHA, SNMP_PRIVPROTOCOL_DES,
 		     "The UCD Demo Password", "The UCD Demo Password");
 
   usm->add_usm_user("SHAMD5User",
-		    SNMPv3_usmHMACMD5AuthProtocol, SNMPv3_usmDESPrivProtocol,
+		    SNMP_AUTHPROTOCOL_HMACMD5, SNMP_PRIVPROTOCOL_DES,
 		    "The UCD Demo Password", "The UCD Demo Password");
 
   usm->add_usm_user("noAuthUser",
-		    SNMPv3_usmHMACMD5AuthProtocol, SNMPv3_usmDESPrivProtocol,
+		    SNMP_AUTHPROTOCOL_HMACMD5, SNMP_PRIVPROTOCOL_DES,
 		    "Password", "Password");
 
   // testusers
   usm->add_usm_user("unsecureUser",
-		    SNMPv3_usmNoAuthProtocol, SNMPv3_usmNoPrivProtocol, 
+		    SNMP_AUTHPROTOCOL_NONE, SNMP_PRIVPROTOCOL_NONE, 
 		    "", "");
 
   usm->add_usm_user("MD5",
-		    SNMPv3_usmHMACMD5AuthProtocol, SNMPv3_usmNoPrivProtocol,
+		    SNMP_AUTHPROTOCOL_HMACMD5, SNMP_PRIVPROTOCOL_NONE,
 		    "MD5UserAuthPassword", "");
 
   usm->add_usm_user("SHA",
-		    SNMPv3_usmHMACSHAAuthProtocol, SNMPv3_usmNoPrivProtocol,
+		    SNMP_AUTHPROTOCOL_HMACSHA, SNMP_PRIVPROTOCOL_NONE,
 		    "SHAUserAuthPassword", "");
 
   usm->add_usm_user("MD5DES",
-		    SNMPv3_usmHMACMD5AuthProtocol, SNMPv3_usmDESPrivProtocol,
+		    SNMP_AUTHPROTOCOL_HMACMD5, SNMP_PRIVPROTOCOL_DES,
 		    "MD5DESUserAuthPassword", "MD5DESUserPrivPassword");
 
   usm->add_usm_user("SHADES",
-		    SNMPv3_usmHMACSHAAuthProtocol, SNMPv3_usmDESPrivProtocol,
+		    SNMP_AUTHPROTOCOL_HMACSHA, SNMP_PRIVPROTOCOL_DES,
 		    "SHADESUserAuthPassword", "SHADESUserPrivPassword");
 
   usm->add_usm_user("MD5IDEA",
-		    SNMPv3_usmHMACMD5AuthProtocol, SNMPv3_usmIDEAPrivProtocol,
+		    SNMP_AUTHPROTOCOL_HMACMD5, SNMP_PRIVPROTOCOL_IDEA,
 		    "MD5IDEAUserAuthPassword", "MD5IDEAUserPrivPassword");
 
   usm->add_usm_user("SHAIDEA",
-		    SNMPv3_usmHMACSHAAuthProtocol, SNMPv3_usmIDEAPrivProtocol,
+		    SNMP_AUTHPROTOCOL_HMACSHA, SNMP_PRIVPROTOCOL_IDEA,
 		    "SHAIDEAUserAuthPassword", "SHAIDEAUserPrivPassword");
 
 #endif

@@ -2,9 +2,9 @@
   _## 
   _##  msgqueue.cpp  
   _##
-  _##  SNMP++v3.2.24
+  _##  SNMP++v3.2.25
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
+  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -595,18 +595,20 @@ int CSNMPMessageQueue::HandleEvents(const struct pollfd *readfds,
 #else // HAVE_POLL_SYSCALL
 
 void CSNMPMessageQueue::GetFdSets(int &maxfds, fd_set &readfds,
-				  fd_set &, fd_set &) REENTRANT ({
+                                  fd_set &, fd_set &)
+{
+  SnmpSynchronize _synchronize(*this); // REENTRANT
   CSNMPMessageQueueElt *msgEltPtr = m_head.GetNext();
   SnmpSocket sock;
 
   while (msgEltPtr){
     sock = msgEltPtr->GetMessage()->GetSocket();
     FD_SET(sock, &readfds);
-    if (maxfds < sock+1)
+    if (maxfds < SAFE_INT_CAST(sock+1))
       maxfds = SAFE_INT_CAST(sock+1);
     msgEltPtr = msgEltPtr->GetNext();
   }
-})
+}
 
 int CSNMPMessageQueue::HandleEvents(const int maxfds,
 				    const fd_set &readfds,

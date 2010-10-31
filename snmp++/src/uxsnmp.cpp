@@ -2,9 +2,9 @@
   _## 
   _##  uxsnmp.cpp  
   _##
-  _##  SNMP++v3.2.24
+  _##  SNMP++v3.2.25
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
+  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -716,7 +716,7 @@ void Snmp::init(int& status, IpAddress *addresses[2],
   // initialize the request_id
   eventListHolder->snmpEventList()->lock();
 //  srand(time(0)); // better than nothing
-  current_rid = (rand() % (PDU_MAX_RID - PDU_MIN_RID -1)) + PDU_MIN_RID;
+  current_rid = (rand() % (PDU_MAX_RID - PDU_MIN_RID +1)) + PDU_MIN_RID;
   debugprintf(4, "Initialized request_id to %i.", current_rid);
   eventListHolder->snmpEventList()->unlock();
 
@@ -1204,7 +1204,7 @@ int Snmp::inform(Pdu &pdu,                // pdu to send
     return SNMP_CLASS_INVALID_OPERATION;
   }
 
-  pdu.set_type( sNMP_PDU_INFORM);
+  pdu.set_type(sNMP_PDU_INFORM_ASYNC);
   check_notify_timestamp(pdu);
   return snmp_engine( pdu, 0, 0, target, callback, callback_data);
 }
@@ -1287,8 +1287,8 @@ int Snmp::trap(Pdu &pdu,                        // pdu to send
       if (version != version3) {
 #endif
         my_get_community = security_name;
-        if ((security_model != SecurityModel_v1) &&
-            (security_model != SecurityModel_v2)) {
+        if ((security_model != SNMP_SECURITY_MODEL_V1) &&
+            (security_model != SNMP_SECURITY_MODEL_V2)) {
           debugprintf(0, "-- SNMP++, Target contains invalid security_model/version combination");
           return SNMP_CLASS_INVALID_TARGET;
         }
@@ -1454,20 +1454,17 @@ void Snmp::check_notify_timestamp(Pdu &pdu)
 }
 
 //-----------------------[ read the notification filters ]----------------
-int Snmp::get_notify_filter( OidCollection &trapids,
-                             TargetCollection &targets,
-			     AddressCollection &listen_addresses)
+int Snmp::get_notify_filter(OidCollection &trapids,
+                            TargetCollection &targets)
 {
   CNotifyEvent *e = eventListHolder->notifyEventList()->GetEntry(this);
 
   if (!e)  return SNMP_CLASS_INVALID;
 
-  e->get_filter(trapids, targets, listen_addresses);
+  e->get_filter(trapids, targets);
 
   return SNMP_CLASS_SUCCESS;
 }
-
-
 
 // Set the port for listening to traps and informs.
 void Snmp::notify_set_listen_port(const int port)
@@ -1482,45 +1479,25 @@ int Snmp::notify_get_listen_port()
 }
 
 //-----------------------[ register to get traps]-------------------------
-int Snmp::notify_register( const OidCollection     &trapids,
-                           const TargetCollection  &targets,
-                           const AddressCollection &addresses,
-                           const snmp_callback      callback,
-                           const void              *callback_data)
+int Snmp::notify_register(const OidCollection     &trapids,
+                          const TargetCollection  &targets,
+                          const snmp_callback      callback,
+                          const void              *callback_data)
 {
-  int status;
+  // remove any previous filters for this session
+  notify_unregister();
 
   // assign callback and callback data info
   notifycallback = callback;
   notifycallback_data = (void *)callback_data;
 
-  // remove any previous filters for this session
-  eventListHolder->notifyEventList()->DeleteEntry(this);
-
   // add to the notify queue
-  status = eventListHolder->notifyEventList()->AddEntry(this, trapids,
-							targets, addresses);
-  return status;
-}
-
-// alternate form for local listen specification
-//-----------------------[ register to get traps]-------------------------
-int Snmp::notify_register( const OidCollection    &trapids,
-                           const TargetCollection &targets,
-                           const snmp_callback     callback,
-                           const void             *callback_data)
-{
-  AddressCollection addresses;
-
-  return notify_register(trapids, targets, addresses,
-                         callback, callback_data);
+  return eventListHolder->notifyEventList()->AddEntry(this, trapids, targets);
 }
 
 //-----------------------[ un-register to get traps]----------------------
 int Snmp::notify_unregister()
 {
-  /// @todo Return error if not registered before!
-
   // remove from the notify queue
   eventListHolder->notifyEventList()->DeleteEntry(this);
 
@@ -1671,8 +1648,8 @@ int Snmp::snmp_engine( Pdu &pdu,              // pdu to use
       {
 #endif
         community_string = security_name;
-        if (((version == version1) && (security_model != SecurityModel_v1)) ||
-	    ((version == version2c) && (security_model != SecurityModel_v2)))
+        if (((version == version1) && (security_model != SNMP_SECURITY_MODEL_V1)) ||
+	    ((version == version2c) && (security_model != SNMP_SECURITY_MODEL_V2)))
 	{
           LOG_BEGIN(ERROR_LOG | 1);
           LOG("Snmp: Target does not match SNMP version: (security model) (version)");
@@ -2278,11 +2255,11 @@ int Snmp::broadcast_discovery(UdpAddressCollection &addresses,
 }
 
 //     Starts the working thread for the recovery of the pending events
-bool Snmp::start_poll_thread(const int select_timeout)
+bool Snmp::start_poll_thread(const int timeout)
 {
 #ifdef _THREADS	
     // store the timeout value for later
-    m_iPollTimeOut = select_timeout;
+    m_iPollTimeOut = timeout;
 
     // if we are already running return ok
     if (m_bThreadRunning == true) return true;

@@ -2,9 +2,9 @@
   _## 
   _##  log.h  
   _##
-  _##  SNMP++v3.2.24
+  _##  SNMP++v3.2.25
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
+  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 
@@ -62,6 +62,8 @@ namespace Snmp_pp {
 #define LOG(x)		
 #define LOG_END		
 
+#define LOG_UNUSED(x)
+
 #else
 
 #define LOG_BEGIN(x)						\
@@ -79,6 +81,8 @@ namespace Snmp_pp {
 		DefaultLog::log()->unlock();			\
 	}							\
 }
+
+#define LOG_UNUSED(x) x
 
 #endif
 
@@ -461,8 +465,8 @@ protected:
  * The DefaultLog class has a static Log member, that is used by the
  * AGENT++ API for logging.
  *
- * @version 3.5.4
- * @author Frank Fock (singlton pattern -> Philippe Roger)
+ * @version 3.5.24
+ * @author Frank Fock (singleton pattern -> Philippe Roger)
  */  
 
 class DLLOPT DefaultLog {
@@ -470,9 +474,15 @@ public:
 	DefaultLog() { }
 	~DefaultLog() { }
 
-	/** 
+	/**
 	 * Initialize the default logger with the given logging implementation.
 	 *
+	 * @note Call cleanup function before the application exits
+	 * @note The DefaultLog class takes ownership of the pointer. Do
+	 *       not delete it yourself.
+	 * @note This method is NOT THREADSAFE. It must be called in main()
+	 *       before any logging takes place.
+	 * 
 	 * @param logger
 	 *    an AgentLog instance to be used as default logger. A previously
 	 *    set logger will be deleted.
@@ -481,13 +491,35 @@ public:
 	  { if (instance) delete instance; instance = logger; }
 
 	/**
+	 * Initialize the default logger with the given logging implementation
+	 * if there is currently no logger instance set.
+	 *
+	 * @note Call cleanup function before the application exits
+	 * @note The DefaultLog class takes ownership of the pointer. Do
+	 *       not delete it yourself.
+	 * @note This method is THREADSAFE. 
+	 * 
+	 * @param logger
+	 *    an AgentLog instance to be used as default logger.
+	 * @return
+	 *    the existing logger (if there was any) or the new logger pointer.
+	 * @since 3.5.24
+	 */
+	static AgentLog* init_ts(AgentLog* logger);
+
+	/**
+	 * Free the logging implementation.
+	 * @note This method is THREADSAFE. 
+	 */
+	static void cleanup();
+
+	/**
 	 * Return the default logger. 
 	 *
 	 * @return
 	 *    a pointer to an AgentLog instance.
 	 */
-	static AgentLog* log() 
-	  { if (!instance) init(new AgentLogImpl()); return instance; }
+	static AgentLog* log(); 
 
 	/**
 	 * Create a new log entry or reuse an existing one.
@@ -518,6 +550,7 @@ protected:
 
 	static AgentLog* instance;
 	static LogEntry* entry;
+	static SnmpSynchronized mutex;
 };
 
 

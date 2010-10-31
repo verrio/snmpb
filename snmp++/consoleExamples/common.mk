@@ -2,9 +2,9 @@
   ## 
   ##  common.mk  
   ##
-  ##  SNMP++v3.2.24
+  ##  SNMP++v3.2.25
   ##  -----------------------------------------------
-  ##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
+  ##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
   ##
   ##  This software is based on SNMP++2.6 from Hewlett Packard:
   ##  
@@ -23,7 +23,7 @@
   ##  hereby grants a royalty-free license to any and all derivatives based
   ##  upon this software code base. 
   ##  
-  ##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
+  ##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   ##  
   ##########################################################################*
 
@@ -70,6 +70,7 @@ TARGETS =  $(GET) $(SET) $(NEXTASYNC) $(NEXT) $(WALK) \
 	   $(BULKWALK) $(TRAPSEND) $(TRAPRECEIVE) $(INFORM) $(PASSWD) \
 	   $(WALKTHREADS) $(DISCOVER)
 
+RM = rm
 #
 # Installation directories
 #
@@ -170,9 +171,9 @@ strip:	$(TARGETS) $(TESTAPP)
 	-strip $(TARGETS) $(TESTAPP)
 
 clean:
-	-rm -f *.o *.a *~ core
-	-rm -rf ptrepository cxx_repository/  SunWS_cache/
+	$(RM) -f *.o *.a *~ core
+	$(RM) -rf ptrepository cxx_repository/ SunWS_cache/
 
 clobber: clean
-	-rm -f $(TARGETS) $(TESTAPP) snmpv3_boot_counter
+	$(RM) -f $(TARGETS) $(TESTAPP) snmpv3_boot_counter
 

@@ -2,9 +2,9 @@
   _## 
   _##  snmp_pp.h  
   _##
-  _##  SNMP++v3.2.24
+  _##  SNMP++v3.2.25
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
+  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -71,10 +71,8 @@
 #include "snmp_pp/uxsnmp.h"
 #include "snmp_pp/asn1.h"
 #include "snmp_pp/msec.h"
-
-// WinSNMP is not supported by SNMP++v3 so the unix functions need
-// to be included on non UNIX systems too
 #include "snmp_pp/eventlist.h"
 #include "snmp_pp/eventlistholder.h"
+#include "snmp_pp/log.h"
 
 #endif //_SNMP_PP_H_

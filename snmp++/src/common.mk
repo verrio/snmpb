@@ -2,9 +2,9 @@
   ## 
   ##  common.mk  
   ##
-  ##  SNMP++v3.2.24
+  ##  SNMP++v3.2.25
   ##  -----------------------------------------------
-  ##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
+  ##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
   ##
   ##  This software is based on SNMP++2.6 from Hewlett Packard:
   ##  
@@ -23,13 +23,13 @@
   ##  hereby grants a royalty-free license to any and all derivatives based
   ##  upon this software code base. 
   ##  
-  ##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
+  ##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   ##  
   ##########################################################################*
 
 # Versions for shared library
-SOVERSION	= 1.0.0
-SOVERSION_MAIN	= 1
+SOVERSION	= 2.0.0
+SOVERSION_MAIN	= 2
 
 LIBDESDIR	= ../../libdes
 LIBTOMCRYPTDIR	= ../../crypt
@@ -91,7 +91,7 @@ endif
 #
 #  Build rules
 #
-all: $(LIBPATH) $(LIBSNMPPLUS) $(LIBSNMPPLUS_SHARED)
+all: lib shlib
 
 lib: $(LIBPATH) $(LIBSNMPPLUS)
 
@@ -110,20 +110,24 @@ $(LIBSNMPPLUS_SHARED): $(OBJS_SHARED)
 	ln -s $(LIBSNMPPLUS_SHARED)  $(LIBSNMPPLUS_SHARED_MAIN)
 
 clean:
-	-rm -f core *.o *.rpo *~ a.out ../include/snmp_pp/*~
+	-rm -f core core.* *.o *.rpo *~ a.out ../include/snmp_pp/*~
 
 clobber: clean
 	-rm -f $(LIBSNMPPLUS) $(LIBSNMPPLUS_SHARED)
 	-rm -f $(LIBSNMPPLUS_SHARED_MAIN) $(LIBSNMPPLUS_SHARED_NOVERSION)
 
-install: all
+install-common:
 	install -d $(DESTDIR)$(INSTLIBPATH)
 	install -d $(DESTDIR)$(INSTINCPATH)/snmp_pp/
-	install $(LIBSNMPPLUS) $(DESTDIR)$(INSTLIBPATH)
-ifneq ($(wildcard $(LIBSNMPPLUS_SHARED)),)
-	install $(LIBSNMPPLUS_SHARED) $(DESTDIR)$(INSTLIBPATH)
-endif
 	install $(HEADERS) $(DESTDIR)$(INSTINCPATH)/snmp_pp/
+
+install-static: lib install-common
+	install $(LIBSNMPPLUS) $(DESTDIR)$(INSTLIBPATH)
+
+install-shared: shlib install-common
+	install $(LIBSNMPPLUS_SHARED) $(DESTDIR)$(INSTLIBPATH)
+
+install: install-static install-shared
 
 #
 #  Dependency rules

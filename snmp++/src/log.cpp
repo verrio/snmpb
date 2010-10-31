@@ -2,9 +2,9 @@
   _## 
   _##  log.cpp  
   _##
-  _##  SNMP++v3.2.24
+  _##  SNMP++v3.2.25
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
+  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 
@@ -371,4 +371,40 @@ pthread_mutex_t logmutex = PTHREAD_MUTEX_INITIALIZER;
 
 AgentLog* DefaultLog::instance = 0;
 LogEntry* DefaultLog::entry = 0;
+SnmpSynchronized DefaultLog::mutex;
 
+/*------------------------ class DefaultLog -------------------------*/
+
+void DefaultLog::cleanup() 
+{
+  mutex.lock(); 
+  if (instance) delete instance; 
+  instance = 0; 
+  mutex.unlock();
+}
+
+AgentLog* DefaultLog::init_ts(AgentLog* logger)
+{ 
+  AgentLog* r = instance;
+  if (!instance) { 
+    mutex.lock(); 
+    if (!instance) { 
+      instance = logger;
+      r = instance;
+    } 
+    mutex.unlock(); 
+  }
+  return r;
+}
+
+AgentLog* DefaultLog::log() 
+{ 
+  AgentLog* r = instance;
+  if (!r) {
+    r = new AgentLogImpl();
+    AgentLog* l = init_ts(r);
+    if (r != l) delete r;
+    r = l;
+  } 
+  return r; 
+}

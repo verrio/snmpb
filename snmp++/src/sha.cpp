@@ -2,9 +2,9 @@
   _## 
   _##  sha.cpp  
   _##
-  _##  SNMP++v3.2.24
+  _##  SNMP++v3.2.25
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
+  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 char sha_cpp_version[]="#(@) SNMP++ $Id$";
@@ -75,7 +75,7 @@ static void SHATransform(SHA_CTX *ctx, const unsigned char *X)
 {
   unsigned /* long */ int a, b, c, d, e, temp = 0;
   unsigned /* long */ int W[80]; /* Work array for SHS    */
-  int               i = 0;
+  int i;
 
 #ifdef _IBMR2
     unsigned long int *p = (unsigned long int *)X;
@@ -167,9 +167,6 @@ void SHAInit(SHA_CTX *ctx)
 
 void SHAUpdate(SHA_CTX *ctx, const unsigned char *buf, unsigned int lenBuf)
 {
-  int i = 0;
-
-
   /* Do we have any bytes? */
   if (lenBuf == 0) return;
 
@@ -181,7 +178,7 @@ void SHAUpdate(SHA_CTX *ctx, const unsigned char *buf, unsigned int lenBuf)
 
   /* Fill the hash working buffer for the first run, if  */
   /* we have enough data...                              */
-  i = 64 - ctx->index;  /* either fill it up to 64 bytes */
+  int i = 64 - ctx->index;  /* either fill it up to 64 bytes */
   if ((int)lenBuf < i) i = lenBuf; /* or put the whole data...*/
 
   lenBuf -= i;  /* Reflect the data we'll put in the buf */

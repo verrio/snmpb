@@ -2,9 +2,9 @@
   _## 
   _##  usm_v3.cpp  
   _##
-  _##  SNMP++v3.2.24
+  _##  SNMP++v3.2.25
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
+  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 char usm_v3_cpp_version[]="@(#) SNMP++ $Id$";
@@ -791,7 +791,7 @@ USM::USM(unsigned int engine_boots, const OctetStr &engine_id,
   desplaintext[7] = "abcdefghijklmnopqrstuvwxyz123456789ABCD";
   desplaintext[8] = "abcdefghijklmnopqrstuvwxyz123456789ABCDE";
   desplaintext[9] = "abcdefghijklmnopqrstuvwxyz123456789ABCDEF";
-  
+
   unsigned char desencrypted[80];
   unsigned char desdecrypted[80];
   unsigned char desprivparams[8];
@@ -1271,9 +1271,9 @@ struct UsmUser *USM::get_user(const OctetStr &engine_id,
         res->securityName = v3strcpy(entry->usmUserSecurityName,
 				     entry->usmUserSecurityNameLength);
         res->securityNameLength = entry->usmUserSecurityNameLength;
-        res->authProtocol = SNMPv3_usmNoAuthProtocol;
+        res->authProtocol = SNMP_AUTHPROTOCOL_NONE;
         res->authKey = 0;        res->authKeyLength = 0;
-        res->privProtocol = SNMPv3_usmNoPrivProtocol;
+        res->privProtocol = SNMP_PRIVPROTOCOL_NONE;
         res->privKey = 0;        res->privKeyLength = 0;
 
 	if ((res->usmUserNameLength  && !res->usmUserName) ||
@@ -1308,10 +1308,10 @@ struct UsmUser *USM::get_user(const OctetStr &engine_id,
 	                          name_table_entry->usmUserSecurityName.data(),
 				  name_table_entry->usmUserSecurityName.len());
       res->securityNameLength = name_table_entry->usmUserSecurityName.len();
-      res->authProtocol       = SNMPv3_usmNoAuthProtocol;
+      res->authProtocol       = SNMP_AUTHPROTOCOL_NONE;
       res->authKey            = 0;
       res->authKeyLength      = 0;
-      res->privProtocol       = SNMPv3_usmNoPrivProtocol;
+      res->privProtocol       = SNMP_PRIVPROTOCOL_NONE;
       res->privKey            = 0;
       res->privKeyLength      = 0;
 
@@ -1415,7 +1415,7 @@ struct UsmUser *USM::get_user(const OctetStr &engine_id,
   user_table_entry->usmUserPrivKey = 0;
 
   usm_user_table->delete_cloned_entry(user_table_entry);
- 
+
   return res;
 }
 
@@ -1445,7 +1445,7 @@ void USM::free_user(struct UsmUser *&user)
   user = 0;
 }
 
-int USM::delete_usm_user(const OctetStr& security_name)
+void USM::delete_usm_user(const OctetStr& security_name)
 {
   usm_user_name_table->delete_security_name(security_name);
 
@@ -1455,8 +1455,7 @@ int USM::delete_usm_user(const OctetStr& security_name)
   if ((get_user_name(username, &length,
 		     security_name.data(), security_name.len()))
       == SNMPv3_USM_OK)
-    return delete_localized_user(OctetStr(username, length));
-  return SNMPv3_USM_ERROR;
+    delete_localized_user(OctetStr(username, length));
 }
 
 int USM::get_security_name(const unsigned char *user_name,
@@ -2034,8 +2033,7 @@ int USM::generate_msg(
       return return_value;
     }
 
-    bufPtr = asn_build_string(bufPtr, &restLength,
-                              (unsigned char)(ASN_UNIVERSAL | ASN_PRIMITIVE | ASN_OCTET_STR),
+    bufPtr = asn_build_string(bufPtr, &restLength, ASN_UNI_PRIM | ASN_OCTET_STR,
                               buf2Ptr, buf2Length);
     if (!bufPtr) {
       debugprintf(0, "usm: Encoding Error");
@@ -2202,15 +2200,13 @@ int USM::process_msg(
     security_engine_id.set_data(data, len);
   }
 
-  sp = asn_parse_int(sp, &spLength,
-                     &type, &engineBoots, sizeof(engineBoots));
+  sp = asn_parse_int(sp, &spLength, &type, &engineBoots);
   if ((sp == NULL) || (engineBoots < 0)) {
     debugprintf(0, "bad parse of engineBoots");
     return SNMPv3_USM_PARSE_ERROR;
   }
 
-  sp = asn_parse_int(sp, &spLength,
-                     &type, &engineTime, sizeof(engineTime));
+  sp = asn_parse_int(sp, &spLength, &type, &engineTime);
   if ((sp == NULL) || (engineTime < 0)) {
     debugprintf(0, "bad parse of engineTime");
     return SNMPv3_USM_PARSE_ERROR;
@@ -2350,9 +2346,9 @@ int USM::process_msg(
   }
 
   if (((securityLevel > SNMP_SECURITY_LEVEL_NOAUTH_NOPRIV) &&
-       (user->authProtocol == SNMPv3_usmNoAuthProtocol)) ||
+       (user->authProtocol == SNMP_AUTHPROTOCOL_NONE)) ||
       ((securityLevel == SNMP_SECURITY_LEVEL_AUTH_PRIV) &&
-       (user->privProtocol == SNMPv3_usmNoPrivProtocol))) {
+       (user->privProtocol == SNMP_PRIVPROTOCOL_NONE))) {
     inc_stats_unsupported_sec_levels();
     debugprintf(0, "usmProcessMsg: unsupported Securitylevel");
     free_user(user);
@@ -2506,7 +2502,7 @@ unsigned char *USM::build_sec_params(unsigned char *outBuf, int *maxLength,
   debugprintf(5, "Coding octstr sp.msgAuthoritativeEngineID, length = 0x%lx",
 	      sp.msgAuthoritativeEngineIDLength);
   bufPtr = asn_build_string(bufPtr, &length,
-                            (unsigned char)(ASN_UNIVERSAL | ASN_PRIMITIVE | ASN_OCTET_STR),
+                            ASN_UNI_PRIM | ASN_OCTET_STR,
                             sp.msgAuthoritativeEngineID,
                             sp.msgAuthoritativeEngineIDLength);
   if (bufPtr == NULL) {
@@ -2516,10 +2512,8 @@ unsigned char *USM::build_sec_params(unsigned char *outBuf, int *maxLength,
 
   debugprintf(5, "Coding int sp.msgAuthoritativeEngineBoots = 0x%lx",
 	      sp.msgAuthoritativeEngineBoots);
-  bufPtr = asn_build_int(bufPtr, &length,
-                         (unsigned char )(ASN_UNIVERSAL | ASN_PRIMITIVE | ASN_INTEGER),
-                         (long*)&sp.msgAuthoritativeEngineBoots,
-                         sizeof(sp.msgAuthoritativeEngineBoots));
+  bufPtr = asn_build_int(bufPtr, &length, ASN_UNI_PRIM | ASN_INTEGER,
+                         &sp.msgAuthoritativeEngineBoots);
 
   if (bufPtr == NULL) {
     debugprintf(0, "usmBuildSecurityParameters error coding engineboots");
@@ -2528,10 +2522,8 @@ unsigned char *USM::build_sec_params(unsigned char *outBuf, int *maxLength,
 
   debugprintf(5, "Coding int sp.msgAuthoritativeEngineTime = 0x%lx",
 	      sp.msgAuthoritativeEngineTime);
-  bufPtr = asn_build_int(bufPtr, &length,
-                         (unsigned char )(ASN_UNIVERSAL | ASN_PRIMITIVE | ASN_INTEGER),
-                         (long*)&sp.msgAuthoritativeEngineTime,
-                         sizeof(sp.msgAuthoritativeEngineTime));
+  bufPtr = asn_build_int(bufPtr, &length, ASN_UNI_PRIM | ASN_INTEGER,
+                         &sp.msgAuthoritativeEngineTime);
 
   if (bufPtr == NULL) {
     debugprintf(0, "usmBuildSecurityParameters error coding enginetime");
@@ -2540,10 +2532,8 @@ unsigned char *USM::build_sec_params(unsigned char *outBuf, int *maxLength,
 
   debugprintf(5, "Coding octstr sp.msgUserName, length = 0x%lx",
 	      sp.msgUserNameLength);
-  bufPtr = asn_build_string(bufPtr, &length,
-                            (unsigned char)(ASN_UNIVERSAL | ASN_PRIMITIVE | ASN_OCTET_STR),
-                            sp.msgUserName,
-                            sp.msgUserNameLength);
+  bufPtr = asn_build_string(bufPtr, &length, ASN_UNI_PRIM | ASN_OCTET_STR,
+                            sp.msgUserName, sp.msgUserNameLength);
   if (bufPtr == NULL) {
     debugprintf(0, "usmBuildSecurityParameters error coding msgusername");
     return NULL;
@@ -2553,8 +2543,7 @@ unsigned char *USM::build_sec_params(unsigned char *outBuf, int *maxLength,
 
   debugprintf(5, "Coding octstr sp.msgAu..Para.. , length = 0x%lx",
 	      sp.msgAuthenticationParametersLength);
-  bufPtr = asn_build_string(bufPtr, &length,
-                            (unsigned char)(ASN_UNIVERSAL | ASN_PRIMITIVE | ASN_OCTET_STR),
+  bufPtr = asn_build_string(bufPtr, &length, ASN_UNI_PRIM | ASN_OCTET_STR,
                             sp.msgAuthenticationParameters,
                             sp.msgAuthenticationParametersLength);
 
@@ -2565,8 +2554,7 @@ unsigned char *USM::build_sec_params(unsigned char *outBuf, int *maxLength,
 
   debugprintf(5, "Coding octstr sp.msgPr..Para.. , length = 0x%lx",
 	      sp.msgPrivacyParametersLength);
-  bufPtr = asn_build_string(bufPtr, &length,
-                            (unsigned char)(ASN_UNIVERSAL | ASN_PRIMITIVE | ASN_OCTET_STR),
+  bufPtr = asn_build_string(bufPtr, &length, ASN_UNI_PRIM | ASN_OCTET_STR,
                             sp.msgPrivacyParameters,
                             sp.msgPrivacyParametersLength);
 
@@ -2578,8 +2566,7 @@ unsigned char *USM::build_sec_params(unsigned char *outBuf, int *maxLength,
   totalLength = SAFE_INT_CAST(bufPtr - buf.get_ptr());
 
   debugprintf(5, "Coding sequence (securityPar), length = 0x%x", totalLength);
-  outBufPtr = asn_build_sequence(outBufPtr, maxLength,
-                                 (unsigned char)(ASN_SEQUENCE | ASN_CONSTRUCTOR),
+  outBufPtr = asn_build_sequence(outBufPtr, maxLength, ASN_SEQ_CON,
                                  totalLength);
 
   if (outBufPtr == NULL) {
@@ -2629,10 +2616,8 @@ unsigned char *USM::build_whole_msg(
 
   long int dummyVersion = 3;
   debugprintf(3, "Coding int snmpVersion = 0x%lx",dummyVersion);
-  bufPtr = asn_build_int(bufPtr, &length,
-                         (unsigned char )(ASN_UNIVERSAL | ASN_PRIMITIVE | ASN_INTEGER),
-                         (long*)&dummyVersion,
-                         sizeof(dummyVersion));
+  bufPtr = asn_build_int(bufPtr, &length, ASN_UNI_PRIM | ASN_INTEGER,
+                         &dummyVersion);
   if (bufPtr == NULL) {
     debugprintf(0, "usmBuildWholeMsg error");
     return NULL;
@@ -2653,8 +2638,7 @@ unsigned char *USM::build_whole_msg(
 
   debugprintf(3, "Coding octstr securityParameter, length = 0x%lx",
               secParLength);
-  bufPtr = asn_build_string(bufPtr, &length,
-                            (unsigned char)(ASN_UNIVERSAL | ASN_PRIMITIVE | ASN_OCTET_STR),
+  bufPtr = asn_build_string(bufPtr, &length, ASN_UNI_PRIM | ASN_OCTET_STR,
                             secPar.get_ptr(), secParLength);
 
   if (bufPtr == NULL) {
@@ -2678,8 +2662,7 @@ unsigned char *USM::build_whole_msg(
 
   debugprintf(3, "Coding sequence (wholeMsg), length = 0x%x", totalLength);
 
-  outBufPtr = asn_build_sequence(outBufPtr, maxLength,
-                                 (unsigned char)(ASN_SEQUENCE | ASN_CONSTRUCTOR),
+  outBufPtr = asn_build_sequence(outBufPtr, maxLength, ASN_SEQ_CON,
                                  totalLength);
 
   if (outBufPtr == NULL) {
@@ -2921,7 +2904,7 @@ int USMTimeTable::delete_entry(const OctetStr &engine_id)
 	table[i] = table[entries - 1];
 
       entries--;
-	    
+
       return SNMPv3_USM_OK;
     }
 
@@ -3358,11 +3341,13 @@ int USMUserNameTable::get_security_name(const unsigned char *user_name,
       LOG(table[i].usmUserName.get_printable());
       LOG(security_name.get_printable());
       LOG_END;
-	  
+
       return SNMPv3_USM_OK;
     }
 
-  LOG_BEGIN(WARNING_LOG | 5);
+  int logclass = WARNING_LOG;
+  if (user_name_len == 0) logclass = INFO_LOG;
+  LOG_BEGIN(logclass | 5);
   LOG("USMUserNameTable: No entry for (user name) in table");
   LOG(OctetStr(user_name, user_name_len).get_printable());
   LOG_END;
@@ -3390,10 +3375,11 @@ int USMUserNameTable::get_user_name(unsigned char *user_name,
     {
       if (buf_len < table[i].usmUserName.len())
       {
-	LOG(ERROR_LOG | 1);
-	LOG("USMUserNameTable: Buffer for user name too small (is) (should)");
-	LOG(buf_len);
-	LOG(table[i].usmUserName.len());
+          LOG_BEGIN(ERROR_LOG | 1);
+          LOG("USMUserNameTable: Buffer for user name too small (is) (should)");
+          LOG(buf_len);
+          LOG(table[i].usmUserName.len());
+          LOG_END;
 
         return SNMPv3_USM_ERROR;
       }
@@ -3406,11 +3392,13 @@ int USMUserNameTable::get_user_name(unsigned char *user_name,
       LOG(table[i].usmUserSecurityName.get_printable());
       LOG(table[i].usmUserName.get_printable());
       LOG_END;
-	  
+
       return SNMPv3_USM_OK;
     }
 
-  LOG_BEGIN(WARNING_LOG | 5);
+  int logclass = WARNING_LOG;
+  if (security_name_len == 0) logclass = INFO_LOG;
+  LOG_BEGIN(logclass | 5);
   LOG("USMUserNameTable: No entry for (security  name) in table");
   LOG(OctetStr(security_name, security_name_len).get_printable());
   LOG_END;
@@ -3498,7 +3486,7 @@ int USMUserNameTable::save_to_file(const char *name, AuthPriv *ap)
       if (fwrite(encoded, 2 * table[i].privPasswordLength + 1, 1,
 		 file_out) != 1)
       { failed = true; break; }
-    
+
       if (table[i].usmUserAuthProtocol == SNMP_AUTHPROTOCOL_NONE)
       {
 	if (fwrite("none\n", 5, 1, file_out) != 1)
@@ -3791,7 +3779,9 @@ int USMUserTable::get_user_name(unsigned char       *user_name,
       return SNMPv3_USM_OK;
     }
 
-  LOG_BEGIN(WARNING_LOG | 5);
+  int logclass = WARNING_LOG;
+  if (sec_name_len == 0) logclass = INFO_LOG;
+  LOG_BEGIN(logclass | 5);
   LOG("USMUserTable: No entry for (security  name) in table");
   LOG(OctetStr(sec_name, sec_name_len).get_printable());
   LOG_END;
@@ -3819,11 +3809,13 @@ int USMUserTable::get_security_name(const unsigned char *user_name,
       LOG(OctetStr(table[i].usmUserName, table[i].usmUserNameLength).get_printable());
       LOG(sec_name.get_printable());
       LOG_END;
-	  
+
       return SNMPv3_USM_OK;
     }
 
-  LOG_BEGIN(WARNING_LOG | 5);
+  int logclass = WARNING_LOG;
+  if (user_name_len == 0) logclass = INFO_LOG;
+  LOG_BEGIN(logclass | 5);
   LOG("USMUserTable: No entry for (user name) in table");
   LOG(OctetStr(user_name, user_name_len).get_printable());
   LOG_END;
@@ -4262,7 +4254,7 @@ int USMUserTable::save_to_file(const char *name, AuthPriv *ap)
       if (fwrite(encoded, 2 * table[i].usmUserPrivKeyLength + 1, 1,
 		 file_out) != 1)
       { failed = true; break; }
-    
+
       if (table[i].usmUserAuthProtocol == SNMP_AUTHPROTOCOL_NONE)
       {
 	if (fwrite("none\n", 5, 1, file_out) != 1)
@@ -4479,6 +4471,6 @@ const UsmUserTableEntry *USMUserTable::peek_next(
 
 #ifdef SNMP_PP_NAMESPACE
 }; // end of namespace Snmp_pp
-#endif 
+#endif
 
 #endif // _SNMPv3

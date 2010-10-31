@@ -2,9 +2,9 @@
   _## 
   _##  address.cpp  
   _##
-  _##  SNMP++v3.2.24
+  _##  SNMP++v3.2.25
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
+  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -449,7 +449,7 @@ int IpAddress::parse_dotted_ipstring(const char *inaddr)
   // check len, an ip can never be bigger than 15
   // 123456789012345
   // XXX.XXX.XXX.XXX
-  if (!inaddr || (strlen(inaddr) > 30)) return FALSE;
+  if (!inaddr || (strlen(inaddr) >= sizeof(temp))) return FALSE;
 
   strcpy(temp, inaddr);
   trim_white_space(temp);
@@ -526,7 +526,7 @@ int IpAddress::parse_coloned_ipstring(const char *inaddr)
   // check len, an ipv6 can never be bigger than 39 + 11
   // 123456789012345678901234567890123456789
   // 1BCD:2BCD:3BCD:4BCD:5BCD:6BCD:7BCD:8BCD%4123456789
-  if (!inaddr || (strlen(inaddr) > 60)) return FALSE;
+  if (!inaddr || (strlen(inaddr) >= sizeof(temp))) return FALSE;
   strcpy(temp, inaddr);
   trim_white_space(temp);
 
@@ -706,7 +706,7 @@ int IpAddress::parse_coloned_ipstring(const char *inaddr)
         else
           return FALSE;
       }
-      digit_count = 0;
+      //digit_count = 0;
     }
     else
       return FALSE;
@@ -725,7 +725,7 @@ int IpAddress::parse_coloned_ipstring(const char *inaddr)
     int len_first  = SAFE_INT_CAST(end_first_part - (char*)tmp_address_buffer);
     int len_second = SAFE_INT_CAST(out_ptr - second);
 
-    int i=0;
+    int i;
     for (i=0; i<IP6LEN_NO_SCOPE-(len_first + len_second); i++)
       *end_first_part++ = 0;
     for (i=0; i<len_second; i++)
@@ -1440,7 +1440,6 @@ bool UdpAddress::parse_address(const char *inaddr)
 
   char buffer[MAX_FRIENDLY_NAME];
 
-  unsigned short port = 0;
   if (inaddr && (strlen(inaddr)< MAX_FRIENDLY_NAME))
   {
     strcpy(buffer, inaddr);
@@ -1528,6 +1527,7 @@ bool UdpAddress::parse_address(const char *inaddr)
   }
 
   bool result;
+  unsigned short port;
 
   if (found)
   {
@@ -1805,7 +1805,7 @@ bool IpxAddress::parse_address(const char *inaddr)
   size_t z, tmplen;
 
   // save the orginal source
-  if (!inaddr || (strlen(inaddr) >(sizeof(temp)-1))) return FALSE;
+  if (!inaddr || (strlen(inaddr) >= sizeof(temp))) return FALSE;
   strcpy(temp, inaddr);
   trim_white_space(temp);
   tmplen = strlen(temp);
@@ -2274,9 +2274,8 @@ bool MacAddress::parse_address(const char *inaddr)
   char unsigned *tmp;
   size_t z;
 
-
   // save the orginal source
-  if (!inaddr || (strlen(inaddr) > 30)) return FALSE;
+  if (!inaddr || (strlen(inaddr) >= sizeof(temp))) return FALSE;
   strcpy(temp, inaddr);
   trim_white_space(temp);
 

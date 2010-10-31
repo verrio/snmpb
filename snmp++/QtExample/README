@@ -1,4 +1,5 @@
-This simple example uses Trolltechs Qt 3.
+This simple example uses Trolltechs Qt 4 with Qt 3 support enabled,
+as it was ported from Qt 3.
 
 It is tested under Linux, FreeBSD and Windows 2000. Patches or fixes for other
 systems are welcome.

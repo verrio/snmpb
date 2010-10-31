@@ -2,9 +2,9 @@
   _## 
   _##  idea.h  
   _##
-  _##  SNMP++v3.2.24
+  _##  SNMP++v3.2.25
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
+  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 // $Id$
@@ -115,6 +115,8 @@ namespace Snmp_pp {
 #ifndef GETPUT_H
 #define GETPUT_H
 
+#ifdef _USE_IDEA
+
 /*------------ macros for storing/extracting msb first words -------------*/
 
 #define GET_32BIT(cp) (((unsigned long)(unsigned char)(cp)[0] << 24) | \
@@ -156,6 +158,8 @@ namespace Snmp_pp {
 #define PUT_16BIT_LSB_FIRST(cp, value) do { \
   (cp)[0] = (value); \
   (cp)[1] = (value) >> 8; } while (0)
+
+#endif // _USE_IDEA
 
 #ifdef SNMP_PP_NAMESPACE
 } // end of namespace Snmp_pp

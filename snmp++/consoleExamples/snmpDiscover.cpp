@@ -2,9 +2,9 @@
   _## 
   _##  snmpDiscover.cpp  
   _##
-  _##  SNMP++v3.2.24
+  _##  SNMP++v3.2.25
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,13 +23,14 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
+  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 
 char snmpdiscover_cpp_version[]="@(#) SNMP++ $Id$";
 
 #include "snmp_pp/snmp_pp.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -60,6 +61,12 @@ int main(int argc, char **argv)
 	  cout << "         -tN , timeout in hundredths of seconds; default is N = 100\n";
 	  return 1;
    }
+   // Set filter for logging
+   DefaultLog::log()->set_filter(ERROR_LOG, 7);
+   DefaultLog::log()->set_filter(WARNING_LOG, 7);
+   DefaultLog::log()->set_filter(EVENT_LOG, 7);
+   DefaultLog::log()->set_filter(INFO_LOG, 7);
+   DefaultLog::log()->set_filter(DEBUG_LOG, 7);
 
    Snmp::socket_startup();  // Initialize socket subsystem
 

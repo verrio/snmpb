@@ -2,9 +2,9 @@
   ## 
   ##  Makefile.bcc  
   ##
-  ##  SNMP++v3.2.24
+  ##  SNMP++v3.2.25
   ##  -----------------------------------------------
-  ##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
+  ##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
   ##
   ##  This software is based on SNMP++2.6 from Hewlett Packard:
   ##  
@@ -23,7 +23,7 @@
   ##  hereby grants a royalty-free license to any and all derivatives based
   ##  upon this software code base. 
   ##  
-  ##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
+  ##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   ##  
   ##########################################################################*
 
@@ -38,32 +38,39 @@ INCLUDES = -I..\include -I.\ -I$(LIBDESDIR)
 #
 #  Header Files
 #
-USERHEADERS = ..\include\address.h ..\include\counter.h ..\include\ctr64.h \
-	..\include\gauge.h ..\include\octet.h ..\include\oid.h \
-	..\include\pdu.h ..\include\smi.h ..\include\target.h \
-	..\include\timetick.h ..\include\vb.h ..\include\snmp_pp.h \
-	..\include\integer.h ..\include\smival.h ..\include\snmperrs.h \
-	..\include\collect.h ..\include\oid_def.h ..\include\asn1.h \
-	..\include\snmpmsg.h ..\include\v3.h ..\include\sha.h \
-        ..\include\usm_v3.h ..\include\mp_v3.h ..\include\idea.h \
-	..\include\config_snmp_pp.h ..\include\auth_priv.h  \
-	..\include\reentrant.h
-
-UXHEADERS = ..\include\msgqueue.h ..\include\userdefined.h \
-	..\include\usertimeout.h ..\include\eventlist.h \
-	..\include\msec.h ..\include\notifyqueue.h
-
-
-HEADERS = $(USERHEADERS) $(UXHEADERS) 
+HEADERS = ../include/snmp_pp/address.h          ../include/snmp_pp/octet.h \
+	../include/snmp_pp/asn1.h             ../include/snmp_pp/oid_def.h \
+	../include/snmp_pp/auth_priv.h        ../include/snmp_pp/oid.h \
+	../include/snmp_pp/collect.h          ../include/snmp_pp/pdu.h \
+	../include/snmp_pp/config_snmp_pp.h   ../include/snmp_pp/reentrant.h \
+	../include/snmp_pp/counter.h          ../include/snmp_pp/sha.h \
+	../include/snmp_pp/ctr64.h            ../include/snmp_pp/smi.h \
+	../include/snmp_pp/eventlist.h        ../include/snmp_pp/smival.h \
+	../include/snmp_pp/eventlistholder.h  ../include/snmp_pp/snmperrs.h \
+	../include/snmp_pp/gauge.h            ../include/snmp_pp/snmpmsg.h \
+	../include/snmp_pp/idea.h             ../include/snmp_pp/snmp_pp.h \
+	../include/snmp_pp/integer.h          ../include/snmp_pp/target.h \
+	../include/snmp_pp/IPv6Utility.h      ../include/snmp_pp/timetick.h \
+	../include/snmp_pp/log.h              ../include/snmp_pp/Transport.h \
+	../include/snmp_pp/md5.h              ../include/snmp_pp/usm_v3.h \
+	../include/snmp_pp/mp_v3.h            ../include/snmp_pp/uxsnmp.h \
+	../include/snmp_pp/msec.h             ../include/snmp_pp/v3.h \
+	../include/snmp_pp/msgqueue.h         ../include/snmp_pp/vb.h \
+	../include/snmp_pp/notifyqueue.h
 
 #
 #  Object Files produced
 #
-OBJS =	address.obj counter.obj ctr64.obj gauge.obj integer.obj octet.obj \
-	oid.obj pdu.obj target.obj timetick.obj vb.obj asn1.obj snmpmsg.obj \
-	uxsnmp.obj eventlist.obj msgqueue.obj userdefined.obj usertimeout.obj \
-	msec.obj notifyqueue.obj sha.obj v3.obj usm_v3.obj mp_v3.obj idea.obj \
-	auth_priv.obj reentrant.obj md5c.obj
+OBJS =	address.obj          IPv6Utility.obj  reentrant.obj \
+	asn1.obj             log.obj          sha.obj \
+	auth_priv.obj        md5c.obj         snmpmsg.obj \
+	counter.obj          mp_v3.obj        target.obj \
+	ctr64.obj            msec.obj         timetick.obj \
+	eventlist.obj        msgqueue.obj     usm_v3.obj \
+	eventlistholder.obj  notifyqueue.obj  uxsnmp.obj \
+	gauge.obj            octet.obj        v3.obj \
+	idea.obj             oid.obj          vb.obj \
+	integer.obj          pdu.obj
 
 #
 #  Libraries:  dependencies and produced
@@ -75,7 +82,6 @@ SNMP_PP_DLL = snmp_pp.dll
 #
 #  Here for a quick sanity check upon completing a build...
 #
-#PROG1 = test_app.exe
 
 .SUFFIXES: .cpp .C
 

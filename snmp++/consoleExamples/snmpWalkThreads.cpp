@@ -2,9 +2,9 @@
   _## 
   _##  snmpWalkThreads.cpp  
   _##
-  _##  SNMP++v3.2.24
+  _##  SNMP++v3.2.25
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
+  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*
@@ -48,8 +48,8 @@
 char snmpwalkthreads_cpp_version[]="@(#) SNMP++ $Id$";
 
 #include "snmp_pp/snmp_pp.h"
-#include "snmp_pp/log.h"
 #include "snmp_pp/reentrant.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -85,12 +85,12 @@ OctetStr community("public");                        // read community
 OctetStr privPassword("");
 OctetStr authPassword("");
 OctetStr securityName("");
-int securityModel = SecurityModel_USM;
-int securityLevel = SecurityLevel_authPriv;
+int securityModel = SNMP_SECURITY_MODEL_USM;
+int securityLevel = SNMP_SECURITY_LEVEL_AUTH_PRIV;
 OctetStr contextName("");
 OctetStr contextEngineID("");
-long authProtocol = SNMPv3_usmNoAuthProtocol;
-long privProtocol = SNMPv3_usmNoPrivProtocol;
+long authProtocol = SNMP_AUTHPROTOCOL_NONE;
+long privProtocol = SNMP_PRIVPROTOCOL_NONE;
 
 #endif
 #define BULK_MAX 10
@@ -312,11 +312,13 @@ int main(int argc, char **argv)
      if ( strstr( argv[x],"-auth") != 0) {
        ptr = argv[x]; ptr+=5;
        if (strcasecmp(ptr, "SHA") == 0)
-	   authProtocol = SNMP_AUTHPROTOCOL_HMACSHA;
+	 authProtocol = SNMP_AUTHPROTOCOL_HMACSHA;
        else if (strcasecmp(ptr, "MD5") == 0)
-	   authProtocol = SNMP_AUTHPROTOCOL_HMACMD5;
+	 authProtocol = SNMP_AUTHPROTOCOL_HMACMD5;
+       else if (strcasecmp(ptr, "NONE") == 0)
+	 authProtocol = SNMP_AUTHPROTOCOL_NONE;
        else
-	   authProtocol = SNMP_AUTHPROTOCOL_NONE;
+	 cout << "Warning: ignoring unknown auth protocol: " << ptr << endl;
        continue;
      }
      if ( strstr( argv[x],"-priv") != 0) {
@@ -333,9 +335,10 @@ int main(int argc, char **argv)
 	   privProtocol = SNMP_PRIVPROTOCOL_AES192;
        else if (strcasecmp(ptr, "AES256") == 0)
 	   privProtocol = SNMP_PRIVPROTOCOL_AES256;
-       else
+       else if (strcasecmp(ptr, "NONE") == 0)
 	   privProtocol = SNMP_PRIVPROTOCOL_NONE;
-       printf("\n\nPrivProt : %ld\n", privProtocol);
+       else
+	 cout << "Warning: ignoring unknown priv protocol: " << ptr << endl;
        continue;
      }
      if ( strstr( argv[x],"-sn")!=0) {
@@ -346,17 +349,17 @@ int main(int argc, char **argv)
      if ( strstr( argv[x], "-sl")!=0) {
        ptr = argv[x]; ptr+=3;
        securityLevel = atoi( ptr);
-       if (( securityLevel < SecurityLevel_noAuthNoPriv) ||
-           ( securityLevel > SecurityLevel_authPriv))
-         securityLevel = SecurityLevel_authPriv;
+       if (( securityLevel < SNMP_SECURITY_LEVEL_NOAUTH_NOPRIV) ||
+           ( securityLevel > SNMP_SECURITY_LEVEL_AUTH_PRIV))
+         securityLevel = SNMP_SECURITY_LEVEL_AUTH_PRIV;
        continue;
      }
      if ( strstr( argv[x], "-sm")!=0) {
        ptr = argv[x]; ptr+=3;
        securityModel = atoi( ptr);
-       if (( securityModel < SecurityModel_v1) ||
-           ( securityModel > SecurityModel_USM))
-         securityModel = SecurityModel_USM;
+       if (( securityModel < SNMP_SECURITY_MODEL_V1) ||
+           ( securityModel > SNMP_SECURITY_MODEL_USM))
+         securityModel = SNMP_SECURITY_MODEL_USM;
        continue;
      }
      if ( strstr( argv[x],"-cn")!=0) {

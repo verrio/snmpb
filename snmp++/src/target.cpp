@@ -2,9 +2,9 @@
   _## 
   _##  target.cpp  
   _##
-  _##  SNMP++v3.2.24
+  _##  SNMP++v3.2.25
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
+  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -247,9 +247,9 @@ void CTarget::clear()
 UTarget::UTarget()
   : security_name(INITIAL_USER),
 #ifdef _SNMPv3
-  security_model(SecurityModel_USM), engine_id("")
+  security_model(SNMP_SECURITY_MODEL_USM), engine_id("")
 #else
-  security_model(SecurityModel_v1)
+  security_model(SNMP_SECURITY_MODEL_V1)
 #endif
 {
 #ifdef _SNMPv3
@@ -295,9 +295,9 @@ UTarget::UTarget( const Address &address,
 UTarget::UTarget( const Address &address)
   : SnmpTarget(address), security_name(INITIAL_USER),
 #ifdef _SNMPv3
-    security_model(SecurityModel_USM), engine_id("")
+    security_model(SNMP_SECURITY_MODEL_USM), engine_id("")
 #else
-    security_model(SecurityModel_v1)
+    security_model(SNMP_SECURITY_MODEL_V1)
 #endif
 {
 #ifdef _SNMPv3
@@ -394,11 +394,11 @@ void UTarget::clear()
   SnmpTarget::clear();
   security_name = INITIAL_USER;
 #ifdef _SNMPv3
-  security_model = SecurityModel_USM;
+  security_model = SNMP_SECURITY_MODEL_USM;
   engine_id.clear();
   version = version3;
 #else
-  security_model = SecurityModel_v1;
+  security_model = SNMP_SECURITY_MODEL_V1;
 #endif
   ttype = type_utarget;
 }

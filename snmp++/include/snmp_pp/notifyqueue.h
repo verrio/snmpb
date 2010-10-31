@@ -2,9 +2,9 @@
   _## 
   _##  notifyqueue.h  
   _##
-  _##  SNMP++v3.2.24
+  _##  SNMP++v3.2.25
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
+  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -104,21 +104,18 @@ class DLLOPT CNotifyEvent
 
   CNotifyEvent(Snmp* snmp,
 	       const OidCollection &trapids,
-	       const TargetCollection &targets,
-	       const AddressCollection &addresses);
+	       const TargetCollection &targets);
   ~CNotifyEvent();
   Snmp * GetId() { return m_snmp; };
   int notify_filter(const Oid &trapid, SnmpTarget &target) const;
   int Callback(SnmpTarget &target, Pdu &pdu, SnmpSocket fd, int status);
-  void get_filter(OidCollection &o, TargetCollection &t,
-		  AddressCollection &a)
-    { o = *notify_ids; t = *notify_targets; a = *notify_addresses; };
+  void get_filter(OidCollection &o, TargetCollection &t)
+    { o = *notify_ids; t = *notify_targets; };
 
  protected:
   Snmp              *m_snmp;
   TargetCollection  *notify_targets;
   OidCollection     *notify_ids;
-  AddressCollection *notify_addresses;
 };
 
   /*-----------------------------------------------------------*/
@@ -132,8 +129,7 @@ class DLLOPT CNotifyEventQueue: public CEvents
     ~CNotifyEventQueue();
     int AddEntry(Snmp * snmp,
 		 const OidCollection &trapids,
-		 const TargetCollection &targets,
-		 const AddressCollection &addresses);
+		 const TargetCollection &targets);
     CNotifyEvent * GetEntry(Snmp * snmp);
     void DeleteEntry(Snmp * snmp);
 
@@ -160,8 +156,7 @@ class DLLOPT CNotifyEventQueue: public CEvents
     int Done() { return 0; }; // we are never done
     void set_listen_port(int port) { m_listen_port = port; };
     int get_listen_port() { return m_listen_port; };
-    SnmpSocket get_notify_fd(const UdpAddress match_addr) const;
-    SnmpSocket get_notify_fd(const int i = 0) const;
+    SnmpSocket get_notify_fd() const;
 
   protected:
 
@@ -180,7 +175,7 @@ class DLLOPT CNotifyEventQueue: public CEvents
       ~CNotifyEventQueueElt();
       CNotifyEventQueueElt *GetNext() { return m_Next; };
       CNotifyEvent *GetNotifyEvent() { return m_notifyevent; };
-      CNotifyEvent *TestId(Snmp * snmp);
+      CNotifyEvent *TestId(Snmp *snmp);
 
     private:
 
@@ -189,14 +184,15 @@ class DLLOPT CNotifyEventQueue: public CEvents
       class CNotifyEventQueueElt *m_previous;
     };
 
+    void cleanup();
+
     CNotifyEventQueueElt m_head;
     int                  m_msgCount;
-    SnmpSocket          *m_notify_fds;
-    int                  m_notify_fd_count;
+    SnmpSocket           m_notify_fd;
     int                  m_listen_port;
     EventListHolder *my_holder;
     Snmp *m_snmpSession;
-    AddressCollection m_notify_addrs;
+    UdpAddress m_notify_addr;
 };
 
 #ifdef SNMP_PP_NAMESPACE

@@ -2,9 +2,9 @@
   _## 
   _##  uxsnmp.h  
   _##
-  _##  SNMP++v3.2.24
+  _##  SNMP++v3.2.25
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
+  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 
@@ -457,27 +457,6 @@ class DLLOPT Snmp: public SnmpSynchronized
                               const void *callback_data=0);
 
   /**
-   * Register to get traps and informs.
-   *
-   * @note The AddressCollection param is currently ignored.
-   *
-   * @note Every call to one of the notify_register() methods overwrites
-   *       the previous given values.
-   *
-   * @param trapids       - ids to listen for
-   * @param targets       - targets to listen for
-   * @param listen_addresses - interfaces to listen on
-   * @param callback      - User callback function to use
-   * @param callback_data - User definable data pointer
-   *
-   * @return SNMP_CLASS_SUCCESS, SNMP_CLASS_TL_FAILED or SNMP_CLASS_TL_IN_USE
-   */
-  virtual int notify_register( const OidCollection    &trapids,
-                               const TargetCollection &targets,
-                               const AddressCollection &listen_addresses,
-                               const snmp_callback callback,
-                               const void *callback_data=0);
-  /**
    * Unregister to get traps and informs.
    * Undo the call to notify_register().
    *
@@ -493,23 +472,8 @@ class DLLOPT Snmp: public SnmpSynchronized
    *
    * @return SNMP_CLASS_SUCCESS or SNMP_CLASS_INVALID if not registered
    */
-  virtual int get_notify_filter( OidCollection &trapids,
-				 TargetCollection &targets)
-    { AddressCollection a; return get_notify_filter(trapids, targets, a); }
-
-  /**
-   * Get notify register info.
-   *
-   * @param trapids       - ids listened for
-   * @param targets       - targets listened for
-   * @param listen_addresses - interfaces listened on
-   *
-   * @return SNMP_CLASS_SUCCESS or SNMP_CLASS_INVALID if not registered
-   */
-  virtual int get_notify_filter( OidCollection &trapids,
-				 TargetCollection &targets,
-				 AddressCollection &listen_addresses);
-
+  virtual int get_notify_filter(OidCollection &trapids,
+				 TargetCollection &targets);
 
   //-----------------------[ access the trap reception info ]---------------
   /**
@@ -546,7 +510,30 @@ class DLLOPT Snmp: public SnmpSynchronized
 
   const IpAddress &get_listen_address() const {return listen_address; };
 
-  bool start_poll_thread(const int select_timeout);
+  /**
+   * Start one thread listening for responses and notifications.
+   * This method is used to start response and notification processing in a
+   * multi threadded setup.
+   *
+   * @note start_poll_thread() itself is not thread safe. The caller must make
+   *       sure that only one thread is calling start_poll_thread() or
+   *       stop_poll_thread() at any point in time.
+   *
+   * @param timeout - Timeout for each call of the select() or poll()
+   *                  system call.
+   *
+   * @return true if the thread is now running and false if it failed to start.
+   */
+  bool start_poll_thread(const int timeout);
+
+  /**
+   * Stop the thread listening for responses and notifications.
+   * This method is used to stop the thread started with start_poll_thread().
+   *
+   * @note stop_poll_thread() itself is not thread safe. The caller must make
+   *       sure that only one thread is calling start_poll_thread() or
+   *       stop_poll_thread() at any point in time.
+   */
   void stop_poll_thread();
 
   EventListHolder *get_eventListHolder() { return eventListHolder; };

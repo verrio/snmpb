@@ -2,9 +2,9 @@
   ## 
   ##  Makefile.bcc  
   ##
-  ##  SNMP++v3.2.24
+  ##  SNMP++v3.2.25
   ##  -----------------------------------------------
-  ##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
+  ##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
   ##
   ##  This software is based on SNMP++2.6 from Hewlett Packard:
   ##  
@@ -23,7 +23,7 @@
   ##  hereby grants a royalty-free license to any and all derivatives based
   ##  upon this software code base. 
   ##  
-  ##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
+  ##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   ##  
   ##########################################################################*
 
@@ -77,14 +77,25 @@ SNMPPLUSDIR = ..
 SNMPLIBPATH = $(SNMPPLUSDIR)\lib
 RSAEURODIR = ..\..\rsaeuro
 
-HEADERS = ..\include\address.h ..\include\counter.h ..\include\ctr64.h \
-	..\include\gauge.h ..\include\octet.h ..\include\oid.h \
-	..\include\pdu.h ..\include\smi.h ..\include\target.h \
-	..\include\timetick.h ..\include\vb.h ..\include\snmp_pp.h \
-	..\include\integer.h ..\include\smival.h ..\include\msgqueue.h \
-	..\include\userdefined.h ..\include\usertimeout.h \
-	..\include\eventlist.h ..\include\msec.h ..\include\usm_v3.h \
-	..\include\v3.h ..\include\mp_v3.h ..\include\sha.h
+HEADERS = ../include/snmp_pp/address.h          ../include/snmp_pp/octet.h \
+	../include/snmp_pp/asn1.h             ../include/snmp_pp/oid_def.h \
+	../include/snmp_pp/auth_priv.h        ../include/snmp_pp/oid.h \
+	../include/snmp_pp/collect.h          ../include/snmp_pp/pdu.h \
+	../include/snmp_pp/config_snmp_pp.h   ../include/snmp_pp/reentrant.h \
+	../include/snmp_pp/counter.h          ../include/snmp_pp/sha.h \
+	../include/snmp_pp/ctr64.h            ../include/snmp_pp/smi.h \
+	../include/snmp_pp/eventlist.h        ../include/snmp_pp/smival.h \
+	../include/snmp_pp/eventlistholder.h  ../include/snmp_pp/snmperrs.h \
+	../include/snmp_pp/gauge.h            ../include/snmp_pp/snmpmsg.h \
+	../include/snmp_pp/idea.h             ../include/snmp_pp/snmp_pp.h \
+	../include/snmp_pp/integer.h          ../include/snmp_pp/target.h \
+	../include/snmp_pp/IPv6Utility.h      ../include/snmp_pp/timetick.h \
+	../include/snmp_pp/log.h              ../include/snmp_pp/Transport.h \
+	../include/snmp_pp/md5.h              ../include/snmp_pp/usm_v3.h \
+	../include/snmp_pp/mp_v3.h            ../include/snmp_pp/uxsnmp.h \
+	../include/snmp_pp/msec.h             ../include/snmp_pp/v3.h \
+	../include/snmp_pp/msgqueue.h         ../include/snmp_pp/vb.h \
+	../include/snmp_pp/notifyqueue.h
 
 LIBSNMPPLUS = $(SNMPLIBPATH)\libsnmp_pp.lib
 LIBDES      = $(LIBDESDIR)\libdes.lib

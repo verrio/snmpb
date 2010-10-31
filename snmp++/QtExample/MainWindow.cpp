@@ -2,9 +2,9 @@
   _## 
   _##  MainWindow.cpp  
   _##
-  _##  SNMP++v3.2.24
+  _##  SNMP++v3.2.25
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2009 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,7 +23,7 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Fri May 29 22:35:14 CEST 2009 
+  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 #ifndef _MSC_VER
@@ -35,7 +35,7 @@
 #include <qlineedit.h>
 #include <qmessagebox.h>
 #include <qtimer.h>
-#include <qtextedit.h>
+#include <q3textedit.h>
 #include <qpushbutton.h>
 #include <qcombobox.h>
 #include <qspinbox.h>
@@ -150,7 +150,7 @@ void MainWindow::async_callback(int reason, Snmp * /*snmp*/, Pdu &pdu,
   }
 }
 
-MainWindow::MainWindow(QWidget* parent, const char* name, WFlags fl)
+MainWindow::MainWindow(QWidget* parent, const char* name, Qt::WFlags fl)
   : MainWindowPrivate(parent, name, fl)
 {
   int status;
@@ -171,8 +171,8 @@ MainWindow::MainWindow(QWidget* parent, const char* name, WFlags fl)
   connect(&timer, SIGNAL(timeout()), this, SLOT(timer_expired()));
 
   // get the Boot counter (you may use any own method for this)
-  char *engineId = "not_needed";
-  char *filename = "snmpv3_boot_counter";
+  char engineId[] = "not_needed";
+  char filename[] = "snmpv3_boot_counter";
   unsigned int snmpEngineBoots = 0;
 
   status = getBootCounter(filename, engineId, snmpEngineBoots);
@@ -394,7 +394,7 @@ void MainWindow::timer_expired()
   // When using async requests or if we are waiting for traps or
   // informs, we must call this member function periodically, as
   // snmp++ does not use an internal thread.
-  snmp->eventListHolder->SNMPProcessPendingEvents();
+  snmp->get_eventListHolder()->SNMPProcessPendingEvents();
 }
 
 

@@ -13,14 +13,16 @@ win32 {
 # Activate either libtomcrypt or libdes:
 unix {
 #  LIBS += -lsnmp++ -L../lib -ldes -L../../libdes
- LIBS += -lsnmp++ -L../lib -ltomcrypt -L../../crypt
+  LIBS += -lsnmp++ -L../lib -ltomcrypt -L../../crypt
 }
 win32 {
 #  LIBS += ../libsnmp_pp.lib ../../libdes/libdes.lib
- LIBS += ../libsnmp_pp.lib ../../crypt/libtomcrypt.lib
+  LIBS += ../libsnmp_pp.lib ../../crypt/libtomcrypt.lib
 }
 
 # Input
 HEADERS += MainWindow.h
-INTERFACES += MainWindowPrivate.ui Properties.ui DialogAddUser.ui
+FORMS3 += MainWindowPrivate.ui Properties.ui DialogAddUser.ui
 SOURCES += main.cpp MainWindow.cpp
+QT +=  qt3support 
+CONFIG += uic3
