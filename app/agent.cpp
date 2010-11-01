@@ -844,7 +844,7 @@ void Agent::AsyncCallback(int reason, Pdu &pdu,
 
                     // Print the value part
                     msg += QString("    <font color=blue>%1</font>")
-                                   .arg(GetPrintableValue(node, &vb));
+                                   .arg(Qt::escape(GetPrintableValue(node, &vb)));
                 }
                 else
                 {
@@ -1023,7 +1023,7 @@ void Agent::AsyncCallbackSet(int reason, Pdu &pdu, SnmpTarget &target)
 
                 // Print the value part
                 msg += QString("    <font color=blue>%1</font>")
-                           .arg(GetPrintableValue(node, &vb));
+                           .arg(Qt::escape(GetPrintableValue(node, &vb)));
             }
             else
             {
@@ -1435,7 +1435,7 @@ void Agent::TableViewFrom(const QString& oid)
                 msg += QString("<td>not available</td>");
             }
             else
-                msg += QString("<td>%1</td>").arg(GetPrintableValue(node, &svb));
+                msg += QString("<td>%1</td>").arg(Qt::escape(GetPrintableValue(node, &svb)));
         }
         msg += QString("</tr>");
         rows++;
