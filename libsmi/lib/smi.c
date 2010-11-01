@@ -2144,7 +2144,7 @@ char *smiRenderValue(SmiValue *smiValuePtr, SmiType *smiTypePtr, int flags)
 		smiAsprintf(&s, "");
 		for (i=0; i < smiValuePtr->len; i++) {
 		    ss = s;
-		    smiAsprintf(&s, "%s%02x", ss, smiValuePtr->value.ptr[i]);
+		    smiAsprintf(&s, "%s%02X ", ss, (smiValuePtr->value.ptr[i]&0xFF));
 		    smiFree(ss);
 		}
 	    } else {

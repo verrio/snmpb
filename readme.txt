@@ -44,6 +44,7 @@ lib/data.c, loadModule() -> changed allowed mib files extensions
 lib/util.c, smiIsPath() -> removed condition for "." in filename
 lib/snprintf.c, "Upgraded snprintf.c from source to support 64 bits printing on Windows"
 lib/smi.c  "Fixed stack overwrite in smiRenderValue due to uint64 format"
+lib/smi.c  "Fixed display for non-printable octet-strings -tracker 3096221"
 
 QWT is taken from http://qwt.sourceforge.net
 Version: 5.2.0
