@@ -2137,7 +2137,8 @@ char *smiRenderValue(SmiValue *smiValuePtr, SmiType *smiTypePtr, int flags)
 	    (!smiTypePtr->format &&
 	     (smiTypePtr->name && strcmp( smiTypePtr->name, "IpAddress")) ) ) {
 	    for (i = 0; i < smiValuePtr->len; i++) {
-		if (!isprint((int)smiValuePtr->value.ptr[i])) break;
+                int val = smiValuePtr->value.ptr[i];
+		if (!(isprint(val) || ((val >= 0x9) && (val <= 0xd)))) break; /* HTAB,VTAB,LF,FF,CR */
 	    }
 	    if ((i < smiValuePtr->len) ||
 		!(flags & SMI_RENDER_PRINTABLE)) {
