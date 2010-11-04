@@ -184,11 +184,17 @@ void MibModule::RebuildTotalList(void)
         while ( it.hasNext() ) {
             fi = &it.next();
             // Exclude -orig files
-            // Accept only .smi, mib, .pib, or no extension files
+            // Accept only .smi, mib, .pib (and variants)
             QString ext = QFileInfo(fi->toLatin1()).suffix();
             if (!(((str = strstr(fi->toLatin1().data(), "-orig")) != NULL) 
                 && (strlen(str) == 5)) &&
-                (ext.isEmpty() || (ext == "smi") || (ext == "mib") || (ext == "pib")))
+                ((ext.isEmpty() && 
+                ((((str = strstr(fi->toLatin1().data(), "-MIB")) != NULL)
+                && (strlen(str) == 4)) || 
+                (((str = strstr(fi->toLatin1().data(), "-PIB")) != NULL)
+                && (strlen(str) == 4)))) || 
+                (ext == "smi") || (ext == "mib") || (ext == "pib") || 
+                (ext == "SMI") || (ext == "MIB") || (ext == "PIB")))
                 Total.append(QFileInfo(fi->toLatin1()).fileName());
         }    
     }
