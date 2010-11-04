@@ -10,6 +10,7 @@
 - Feature: add packet/session sniffing tab
 - Feature: support IPv6
 - Feature: Add table mirror view
+- Feature: Add send trap/inform tool
 
 Bugs:
 - Fix editFinished signal not working in mibselection.cpp on Mac OS X
