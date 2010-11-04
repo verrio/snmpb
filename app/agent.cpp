@@ -726,12 +726,12 @@ void Agent::AsyncCallbackTrap(int reason, Pdu &pdu, SnmpTarget &target)
         ti->AddVarBind(vb);
     }
   
-    // If its a inform, we have to reply ...
+    // If its an inform, we have to reply ...
     if (pdu.get_type() == sNMP_PDU_INFORM)
     {
-        vb.set_value("OK, message received.");
-        pdu.set_vb(vb, 0);
-        snmp->response(pdu, target);
+        // Reuse the PDU object to feed back in the response
+        snmp->response(pdu, target, 
+                       snmp->get_eventListHolder()->notifyEventList()->get_notify_fd());
     }
   
     nbr++;
