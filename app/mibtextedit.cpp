@@ -39,7 +39,7 @@ void MibTextEdit::insertFromMimeData( const QMimeData *source )
     // This is simply pasted text, just add it to the textedit
     if ((source->hasText() == true) && (source->hasUrls() == false))
     {
-        setPlainText(source->text());
+        insertPlainText(source->text());
         return;
     }
 
