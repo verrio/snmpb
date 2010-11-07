@@ -116,8 +116,7 @@ void TrapItem::PrintContent(QTreeWidget* TrapContent)
                                            .arg(vb->get_printable_value());
         }
         
-        QTreeWidgetItem *v = new QTreeWidgetItem(bd, QStringList(bd_val));
-        v->setExpanded(_expand);
+        new QTreeWidgetItem(bd, QStringList(bd_val));
     }
 }
 
