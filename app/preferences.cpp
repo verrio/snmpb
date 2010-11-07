@@ -69,6 +69,10 @@ void Preferences::Init(void)
              this, SLOT( SetHorizontalSplit(bool) ) );
     connect( p->TrapPort, SIGNAL( valueChanged( int ) ), 
              this, SLOT ( SetTrapPort() ) );
+    connect( p->ExpandTrapBinding, SIGNAL( toggled(bool) ),
+             this, SLOT( SetExpandTrapBinding(bool) ) );
+    connect( p->ShowAgentName, SIGNAL( toggled(bool) ),
+             this, SLOT( SetShowAgentName(bool) ) );
     connect( p->ModulePathsReset, 
              SIGNAL( clicked() ), this, SLOT( ModuleReset() ));
     connect( p->ModulePathsAdd, 
@@ -81,6 +85,13 @@ void Preferences::Init(void)
     p->HorizontalSplit->setCheckState((horizontalsplit == true)?
                                      Qt::Checked:Qt::Unchecked);
 
+    expandtrapbinding = settings->value("expandtrapbinding", true).toBool();
+    p->ExpandTrapBinding->setCheckState((expandtrapbinding == true)?
+                                       Qt::Checked:Qt::Unchecked);
+
+    showagentname = settings->value("showagentname", false).toBool();
+    p->ShowAgentName->setCheckState((showagentname == true)?
+                                    Qt::Checked:Qt::Unchecked);
     char    *dir, *smipath;
     char    sep[2] = {PATH_SEPARATOR, 0};
     smipath = strdup(smiGetPath());
@@ -112,6 +123,8 @@ void Preferences::Execute (void)
         // Save preferences
         settings->setValue("horizontalsplit", horizontalsplit);
         settings->setValue("trapport", trapport);
+        settings->setValue("expandtrapbinding", expandtrapbinding);
+        settings->setValue("showagentname", showagentname);
 
         if (pathschanged == true)
         {
@@ -215,9 +228,29 @@ void Preferences::SetHorizontalSplit(bool checked)
     s->MainUI()->QuerySplitter->setOrientation(checked==true?Qt::Vertical:Qt::Horizontal);
 }
 
-void Preferences::SetTrapPort()
+void Preferences::SetTrapPort(void)
 {
     trapport = p->TrapPort->value();
+}
+
+void Preferences::SetExpandTrapBinding(bool checked)
+{
+    expandtrapbinding = checked;
+}
+
+void Preferences::SetShowAgentName(bool checked)
+{
+    showagentname = checked;
+}
+
+bool Preferences::GetExpandTrapBinding(void)
+{
+    return expandtrapbinding;
+}
+
+bool Preferences::GetShowAgentName(void)
+{
+    return showagentname;
 }
 
 int Preferences::GetTrapPort(void)
@@ -271,6 +304,8 @@ void Preferences::SelectedPreferences(QTreeWidgetItem * item, QTreeWidgetItem *)
         p->PreferencesProps->setCurrentIndex(2);
 
         p->TrapPort->setValue(trapport);
+        p->ExpandTrapBinding->setCheckState(expandtrapbinding==true?Qt::Checked:Qt::Unchecked);
+        p->ShowAgentName->setCheckState(showagentname==true?Qt::Checked:Qt::Unchecked);
     }
 }
 

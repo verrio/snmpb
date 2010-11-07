@@ -28,7 +28,7 @@ class TrapItem : public QTreeWidgetItem
 public:
     TrapItem(Oid &id, QTreeWidget* parent, const QStringList &values,
              QString community, QString seclevel,
-             QString ctxname, QString ctxid, QString msgid);
+             QString ctxname, QString ctxid, QString msgid, bool expand);
 
     void PrintProperties(QString& text);
     void PrintContent(QTreeWidget* TrapContent);
@@ -41,6 +41,8 @@ private:
     QString _ctxname;
     QString _ctxid;
     QString _msgid;
+
+    bool _expand;
 
     QList<Vb*> content;
 };

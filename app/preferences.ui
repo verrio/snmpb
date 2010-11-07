@@ -1,5 +1,6 @@
-<ui version="4.0" >
-<comment>
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <comment>
     Copyright (C) 2004-2010  Martin Jolicoeur (snmpb1@gmail.com) 
 
     This file is part of the SnmpB project 
@@ -19,8 +20,8 @@
     along with this program.  If not, see http://www.gnu.org/licenses/.
 </comment>
  <class>Preferences</class>
- <widget class="QDialog" name="Preferences" >
-  <property name="geometry" >
+ <widget class="QDialog" name="Preferences">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -28,67 +29,69 @@
     <height>425</height>
    </rect>
   </property>
-  <property name="sizePolicy" >
-   <sizepolicy>
-    <hsizetype>0</hsizetype>
-    <vsizetype>0</vsizetype>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Preferences</string>
   </property>
-  <property name="windowIcon" >
-   <iconset>images/snmpb.png</iconset>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>images/snmpb.png</normaloff>images/snmpb.png</iconset>
   </property>
-  <layout class="QGridLayout" >
-   <property name="margin" >
+  <layout class="QGridLayout">
+   <property name="margin">
     <number>9</number>
    </property>
-   <property name="spacing" >
+   <property name="spacing">
     <number>6</number>
    </property>
-   <item row="0" column="0" >
-    <widget class="QTreeWidget" name="PreferencesTree" >
-     <property name="sizePolicy" >
-      <sizepolicy>
-       <hsizetype>5</hsizetype>
-       <vsizetype>5</vsizetype>
+   <item row="0" column="0">
+    <widget class="QTreeWidget" name="PreferencesTree">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <column>
+      <property name="text">
+       <string notr="true">1</string>
+      </property>
+     </column>
     </widget>
    </item>
-   <item row="0" column="1" >
-    <widget class="QStackedWidget" name="PreferencesProps" >
-     <property name="currentIndex" >
-      <number>0</number>
+   <item row="0" column="1">
+    <widget class="QStackedWidget" name="PreferencesProps">
+     <property name="currentIndex">
+      <number>2</number>
      </property>
-     <widget class="QWidget" name="MIBTreeProps" >
-      <layout class="QGridLayout" >
-       <property name="margin" >
+     <widget class="QWidget" name="MIBTreeProps">
+      <layout class="QGridLayout">
+       <property name="margin">
         <number>9</number>
        </property>
-       <property name="spacing" >
+       <property name="spacing">
         <number>6</number>
        </property>
-       <item row="2" column="0" >
-        <widget class="QGroupBox" name="WindowPrefs" >
-         <property name="title" >
+       <item row="2" column="0">
+        <widget class="QGroupBox" name="WindowPrefs">
+         <property name="title">
           <string>Window preferences</string>
          </property>
-         <layout class="QGridLayout" >
-          <property name="margin" >
+         <layout class="QGridLayout">
+          <property name="margin">
            <number>9</number>
           </property>
-          <property name="spacing" >
+          <property name="spacing">
            <number>6</number>
           </property>
-          <item row="0" column="0" >
-           <widget class="QCheckBox" name="HorizontalSplit" >
-            <property name="text" >
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="HorizontalSplit">
+            <property name="text">
              <string>Horizontal Split</string>
             </property>
            </widget>
@@ -96,12 +99,12 @@
          </layout>
         </widget>
        </item>
-       <item row="3" column="0" >
+       <item row="3" column="0">
         <spacer>
-         <property name="orientation" >
+         <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
            <height>81</height>
@@ -109,25 +112,25 @@
          </property>
         </spacer>
        </item>
-       <item row="0" column="0" >
-        <widget class="QLabel" name="MIBTreePropsL" >
-         <property name="text" >
-          <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+       <item row="0" column="0">
+        <widget class="QLabel" name="MIBTreePropsL">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'Sans Serif'; font-size:12pt; font-weight:400; font-style:normal; text-decoration:none;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-size:18pt; font-weight:600;">MIB Tree Properties&lt;/span>&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:12pt; font-weight:400; font-style:normal; text-decoration:none;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:18pt; font-weight:600;&quot;&gt;MIB Tree Properties&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="0" >
+       <item row="1" column="0">
         <spacer>
-         <property name="orientation" >
+         <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeType" >
+         <property name="sizeType">
           <enum>QSizePolicy::Fixed</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
            <height>40</height>
@@ -137,113 +140,120 @@ p, li { white-space: pre-wrap; }
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="ModulesProps" >
-      <layout class="QGridLayout" >
-       <property name="margin" >
+     <widget class="QWidget" name="ModulesProps">
+      <layout class="QGridLayout">
+       <property name="margin">
         <number>9</number>
        </property>
-       <property name="spacing" >
+       <property name="spacing">
         <number>6</number>
        </property>
-       <item row="2" column="0" colspan="3" >
-        <widget class="QListWidget" name="ModulePaths" >
-         <property name="dragDropMode" >
+       <item row="2" column="0" colspan="3">
+        <widget class="QListWidget" name="ModulePaths">
+         <property name="dragDropMode">
           <enum>QAbstractItemView::InternalMove</enum>
          </property>
-         <property name="selectionMode" >
+         <property name="selectionMode">
           <enum>QAbstractItemView::ExtendedSelection</enum>
          </property>
         </widget>
        </item>
-       <item row="3" column="0" >
-        <widget class="QPushButton" name="ModulePathsReset" >
-         <property name="text" >
+       <item row="3" column="0">
+        <widget class="QPushButton" name="ModulePathsReset">
+         <property name="text">
           <string>Reset to defaults</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="0" colspan="3" >
-        <widget class="QLabel" name="ModulePathsL" >
-         <property name="text" >
+       <item row="1" column="0" colspan="3">
+        <widget class="QLabel" name="ModulePathsL">
+         <property name="text">
           <string>MIB Module Search Paths</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="0" colspan="3" >
-        <widget class="QLabel" name="ModulesPropsL" >
-         <property name="text" >
-          <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+       <item row="0" column="0" colspan="3">
+        <widget class="QLabel" name="ModulesPropsL">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'Sans Serif'; font-size:12pt; font-weight:400; font-style:normal; text-decoration:none;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-size:18pt; font-weight:600;">Modules Properties&lt;/span>&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:12pt; font-weight:400; font-style:normal; text-decoration:none;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:18pt; font-weight:600;&quot;&gt;Modules Properties&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="2" >
-        <widget class="QPushButton" name="ModulePathsDelete" >
-         <property name="text" >
+       <item row="3" column="2">
+        <widget class="QPushButton" name="ModulePathsDelete">
+         <property name="text">
           <string>Delete</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="1" >
-        <widget class="QPushButton" name="ModulePathsAdd" >
-         <property name="text" >
+       <item row="3" column="1">
+        <widget class="QPushButton" name="ModulePathsAdd">
+         <property name="text">
           <string>Add</string>
          </property>
         </widget>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="TrapProps" >
+     <widget class="QWidget" name="TrapProps">
       <layout class="QGridLayout" >
-       <property name="margin" >
-        <number>9</number>
-       </property>
-       <property name="spacing" >
-        <number>6</number>
-       </property>
-       <item row="3" column="0" >
+       <item row="0" column="0">
+        <widget class="QLabel" name="TrapsPropsL">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:12pt; font-weight:400; font-style:normal; text-decoration:none;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:18pt; font-weight:600;&quot;&gt;Traps Properties&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
         <spacer>
-         <property name="orientation" >
+         <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeType">
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
-           <height>111</height>
+           <height>40</height>
           </size>
          </property>
         </spacer>
        </item>
-       <item row="2" column="0" >
-        <widget class="QGroupBox" name="BindingTrapPort" >
-         <property name="title" >
+       <item row="2" column="0">
+        <widget class="QGroupBox" name="BindingTrapPort">
+         <property name="title">
           <string>Binding Trap Port</string>
          </property>
-         <layout class="QGridLayout" >
-          <property name="margin" >
+         <layout class="QGridLayout">
+          <property name="margin">
            <number>9</number>
           </property>
-          <property name="spacing" >
+          <property name="spacing">
            <number>6</number>
           </property>
-          <item row="0" column="1" >
-           <widget class="QSpinBox" name="TrapPort" >
-            <property name="maximum" >
-             <number>65535</number>
-            </property>
-            <property name="minimum" >
+          <item row="0" column="1">
+           <widget class="QSpinBox" name="TrapPort">
+            <property name="minimum">
              <number>1</number>
             </property>
-            <property name="value" >
+            <property name="maximum">
+             <number>65535</number>
+            </property>
+            <property name="value">
              <number>1</number>
             </property>
            </widget>
           </item>
-          <item row="0" column="0" >
-           <widget class="QLabel" name="TrapPortL" >
-            <property name="text" >
+          <item row="0" column="0">
+           <widget class="QLabel" name="TrapPortL">
+            <property name="text">
              <string>Port number</string>
             </property>
            </widget>
@@ -251,28 +261,47 @@ p, li { white-space: pre-wrap; }
          </layout>
         </widget>
        </item>
-       <item row="0" column="0" >
-        <widget class="QLabel" name="TrapsPropsL" >
-         <property name="text" >
-          <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
-p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'Sans Serif'; font-size:12pt; font-weight:400; font-style:normal; text-decoration:none;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-size:18pt; font-weight:600;">Traps Properties&lt;/span>&lt;/p>&lt;/body>&lt;/html></string>
+       <item row="3" column="0">
+        <widget class="QGroupBox" name="Display">
+         <property name="title">
+          <string>Display</string>
          </property>
+         <layout class="QGridLayout" >
+          <property name="margin">
+           <number>9</number>
+          </property>
+          <property name="spacing">
+           <number>6</number>
+          </property>
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="ShowAgentName">
+            <property name="text">
+             <string>Show agent hostname (DNS resolve) </string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="ExpandTrapBinding">
+            <property name="text">
+             <string>Always expand trap content bindings</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
-       <item row="1" column="0" >
+       <item row="4" column="0">
         <spacer>
-         <property name="orientation" >
+         <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeType" >
-          <enum>QSizePolicy::Fixed</enum>
+         <property name="sizeType">
+          <enum>QSizePolicy::Expanding</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
-           <height>40</height>
+           <height>111</height>
           </size>
          </property>
         </spacer>
@@ -281,17 +310,20 @@ p, li { white-space: pre-wrap; }
      </widget>
     </widget>
    </item>
-   <item row="1" column="0" colspan="2" >
-    <widget class="QDialogButtonBox" name="OKCancelBox" >
-     <property name="orientation" >
+   <item row="1" column="0" colspan="2">
+    <widget class="QDialogButtonBox" name="OKCancelBox">
+     <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <property name="standardButtons" >
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>
   </layout>
+  <zorder>PreferencesTree</zorder>
+  <zorder>PreferencesProps</zorder>
+  <zorder>OKCancelBox</zorder>
  </widget>
  <resources/>
  <connections>
@@ -301,11 +333,11 @@ p, li { white-space: pre-wrap; }
    <receiver>Preferences</receiver>
    <slot>accept()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>258</x>
      <y>499</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>157</x>
      <y>274</y>
     </hint>
@@ -317,11 +349,11 @@ p, li { white-space: pre-wrap; }
    <receiver>Preferences</receiver>
    <slot>reject()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>326</x>
      <y>499</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
     </hint>

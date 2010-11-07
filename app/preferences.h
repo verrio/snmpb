@@ -36,6 +36,8 @@ public:
     void Init(void);
     void Execute(void);
     int GetTrapPort(void);
+    bool GetExpandTrapBinding(void);
+    bool GetShowAgentName(void);
     void SaveCurrentProfile(QString &name, int proto);
     int GetCurrentProfile(QString &name);
 
@@ -43,6 +45,8 @@ protected slots:
     void SelectedPreferences( QTreeWidgetItem * item, QTreeWidgetItem * old);
     void SetHorizontalSplit(bool checked);
     void SetTrapPort(void);
+    void SetExpandTrapBinding(bool checked);
+    void SetShowAgentName(bool checked);
     void ModuleReset(void);
     void ModuleAdd(void);
     void ModuleDelete(void);
@@ -62,6 +66,8 @@ private:
 
     bool horizontalsplit;
     int trapport;
+    bool expandtrapbinding;
+    bool showagentname;
     QString curprofile;
     int curproto;
     QStringList mibpaths;

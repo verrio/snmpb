@@ -20,10 +20,11 @@
 #include "smi.h"
 #include "trap.h"
 #include "agent.h"
+#include "preferences.h"
 
 TrapItem::TrapItem(Oid &id, QTreeWidget* parent, const QStringList &values,
                    QString community, QString seclevel, 
-                   QString ctxname, QString ctxid, QString msgid):
+                   QString ctxname, QString ctxid, QString msgid, bool expand):
                    QTreeWidgetItem(parent, values)
 {
     oid = id;
@@ -33,6 +34,8 @@ TrapItem::TrapItem(Oid &id, QTreeWidget* parent, const QStringList &values,
     _ctxname = ctxname;
     _ctxid = ctxid;
     _msgid = msgid;
+
+    _expand = expand;
 }
 
 void TrapItem::PrintProperties(QString& text)
@@ -72,10 +75,14 @@ void TrapItem::PrintProperties(QString& text)
 void TrapItem::PrintContent(QTreeWidget* TrapContent)
 {
     TrapContent->clear();
+
+    QString com_title = QString("Community: %1").arg(_community);
+    new QTreeWidgetItem(TrapContent, QStringList(com_title));
      
     QString bd_title = QString("Bindings (%1)").arg(content.count());
     QTreeWidgetItem *bd = new QTreeWidgetItem(TrapContent, QStringList(bd_title));
-     
+    bd->setExpanded(_expand);
+ 
     Vb *vb;
     Oid id;
     QString bd_val;
@@ -109,11 +116,9 @@ void TrapItem::PrintContent(QTreeWidget* TrapContent)
                                            .arg(vb->get_printable_value());
         }
         
-        new QTreeWidgetItem(bd, QStringList(bd_val));
+        QTreeWidgetItem *v = new QTreeWidgetItem(bd, QStringList(bd_val));
+        v->setExpanded(_expand);
     }
-
-    QString com_title = QString("Community: %1").arg(_community);
-    new QTreeWidgetItem(TrapContent, QStringList(com_title));
 }
 
 void TrapItem::AddVarBind(Vb& vb)
@@ -142,7 +147,8 @@ TrapItem* Trap::Add(Oid &id, const QStringList &values,
     // Create the trap item
     TrapItem *ti = new TrapItem(id, s->MainUI()->TrapLog, 
                                 values, community, seclevel, 
-                                ctxname, ctxid, msgid);
+                                ctxname, ctxid, msgid,
+                                s->PreferencesObj()->GetExpandTrapBinding());
     
     return (ti);
 }
