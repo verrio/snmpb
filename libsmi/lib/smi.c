@@ -1314,9 +1314,14 @@ SmiNode *smiGetNode(SmiModule *smiModulePtr, const char *node)
     }
 
     if (isdigit((int)node2[0])) {
-	for (oidlen = 0, p = strtok(node2, ". "); p;
+	for (oidlen = 0, p = strtok(node2, ". ");
+	     p && oidlen < sizeof(oid)/sizeof(oid[0]);
 	     oidlen++, p = strtok(NULL, ". ")) {
 	    oid[oidlen] = strtoul(p, NULL, 0);
+	}
+	if (p) {
+            /* the numeric OID is too long */
+            return NULL;
 	}
 	nodePtr = getNode(oidlen, oid);
 	if (nodePtr) {
