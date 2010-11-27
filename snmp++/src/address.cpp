@@ -1084,26 +1084,11 @@ void IpAddress::format_output() const
       sprintf((char *) output_buffer,"%d.%d.%d.%d",address_buffer[0],
                address_buffer[1], address_buffer[2], address_buffer[3]);
     else
-      if (have_ipv6_scope)
-	sprintf((char *) output_buffer,
-		"%02x%02x:%02x%02x:%02x%02x:%02x%02x:"
-		"%02x%02x:%02x%02x:%02x%02x:%02x%02x%%%d",
-		address_buffer[ 0], address_buffer[ 1], address_buffer[ 2],
-		address_buffer[ 3], address_buffer[ 4], address_buffer[ 5],
-		address_buffer[ 6], address_buffer[ 7], address_buffer[ 8],
-		address_buffer[ 9], address_buffer[10], address_buffer[11],
-		address_buffer[12], address_buffer[13], address_buffer[14],
-		address_buffer[15], get_scope());
-      else
-        sprintf((char *) output_buffer,
-		"%02x%02x:%02x%02x:%02x%02x:%02x%02x:"
-		"%02x%02x:%02x%02x:%02x%02x:%02x%02x",
-		address_buffer[ 0], address_buffer[ 1], address_buffer[ 2],
-		address_buffer[ 3], address_buffer[ 4], address_buffer[ 5],
-		address_buffer[ 6], address_buffer[ 7], address_buffer[ 8],
-		address_buffer[ 9], address_buffer[10], address_buffer[11],
-		address_buffer[12], address_buffer[13], address_buffer[14],
-		address_buffer[15]);
+    {
+      if (inet_ntop(AF_INET6, address_buffer, (char *)output_buffer, 
+                    sizeof(output_buffer)) && have_ipv6_scope)
+        sprintf((char*)&output_buffer[strlen(output_buffer)], "%%%d", get_scope());
+    }
   }
   else
     *(char *)output_buffer = 0;
