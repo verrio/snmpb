@@ -85,10 +85,10 @@ Agent::Agent(Snmpb *snmpb)
     Snmp::socket_startup();  // Initialize socket subsystem
     
     // Create our SNMP session object
-    snmp = new Snmp(status);
+    snmp = new Snmp(status, UdpAddress("0.0.0.0"), UdpAddress("::"));
     if (status != SNMP_CLASS_SUCCESS)
     {
-        QString err = QString("Could not create SNMP++ session:\n")
+        QString err = QString("Could not create SNMP++ session: %1\n")
                               .arg(Snmp::error_msg(status));
         printf("FATAL error: %s\n", err.toLatin1().data());
         exit(-1);
@@ -676,7 +676,7 @@ void Agent::AsyncCallbackTrap(int reason, Pdu &pdu, SnmpTarget &target)
         version = "Unknown";
         break;
     }
-  
+    
     char *add = (char*)agent.get_printable();
     char *name;
 
