@@ -86,6 +86,7 @@ char notifyqueue_version[]="#(@) SNMP++ $Id$";
 #include "snmp_pp/snmperrs.h"
 #include "snmp_pp/pdu.h"
 #include "snmp_pp/log.h"
+#include "snmp_pp/IPv6Utility.h"
 
 #ifdef SNMP_PP_NAMESPACE
 namespace Snmp_pp {
