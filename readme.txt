@@ -19,11 +19,13 @@ External packages
 ------------------
 
 Snmp++ is taken from http://www.agentpp.com
-Version: 3.2.24
+Version: 3.2.25
 
 Modified file(s):
 config_snmp_pp.h
 v3.h "Changed debugprintf() macro to log debug messages"
+notifyqueue.cpp "Added missing ipv6 include required for compilation on WIN32"
+address.cpp "Replaced custom get_printable for IPv6 addresses by inet_ntop()"
 
 Libtomcrypt is taken from http://libtomcrypt.com
 Version: 1.16
