@@ -26,6 +26,7 @@ SOURCES	+= ../snmp++/src/address.cpp \
 	../snmp++/src/uxsnmp.cpp \
 	../snmp++/src/v3.cpp \
 	../snmp++/src/vb.cpp \
+	../snmp++/src/IPv6Utility.cpp \
 	main.cpp \
 	snmpb.cpp \
 	mibnode.cpp \
