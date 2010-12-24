@@ -129,5 +129,6 @@ install:
 	rm -f /tmp/snmpb-assoc
 	update-mime-database ${INSTALL_PREFIX}/share/mime
 	$(INSTALL) -v -m 444 -o root app/images/snmpb.png ${INSTALL_PREFIX}/share/icons/hicolor/128x128/apps
+	$(INSTALL) -v -m 444 -o root app/images/snmpb.png ${INSTALL_PREFIX}/share/pixmaps
 	$(INSTALL) -v -m 444 -o root app/images/snmpb.svg ${INSTALL_PREFIX}/share/icons/hicolor/scalable/apps
 
