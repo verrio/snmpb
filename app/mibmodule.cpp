@@ -115,8 +115,8 @@ MibModule::MibModule(Snmpb *snmpb)
     connect(this, SIGNAL ( LogError(QString) ),
             s->MainUI()->LogOutput, SLOT ( append (QString) ));
 
+    RebuildTotalList(0);
     InitLib(0);
-    RebuildTotalList();
 
     // Connect some signals
     connect( s->MainUI()->UnloadedModules, 
@@ -164,16 +164,42 @@ void MibModule::ShowModuleInfo(void)
     }    
 }
 
-void MibModule::RebuildTotalList(void)
+// For sorting total module list based on name
+bool compareModule(QStringList s1, QStringList s2)
 {
-    char    *dir, *smipath, *str;
+    return s1[0] < s2[0];
+}
+
+char *mystrtok_r(char *s1, const char *s2, char **lasts)
+{
+  char *ret;
+  if (s1 == NULL) s1 = *lasts;
+  while(*s1 && strchr(s2, *s1)) ++s1;
+  if(*s1 == '\0') return NULL;
+  ret = s1;
+  while(*s1 && !strchr(s2, *s1)) ++s1;
+  if(*s1) *s1++ = '\0';
+  *lasts = s1;
+  return ret;
+}
+
+void MibModule::RebuildTotalList(int restart)
+{
+    char    *dir, *smipath, *str, *svptr = NULL;
     char    sep[2] = {PATH_SEPARATOR, 0};
- 
+
+    if (!restart) 
+    { 
+        smiInit(NULL);
+        smiReadConfig(s->GetPathConfigFile().toLatin1().data(), NULL);
+    }
     smipath = strdup(smiGetPath());
    
     Total.clear();
     
-    for (dir = strtok(smipath, sep); dir; dir = strtok(NULL, sep)) {
+    for (dir = mystrtok_r(smipath, sep, &svptr); dir; 
+         dir = mystrtok_r(NULL, sep, &svptr))
+    {
         QDir d(dir, QString::null, QDir::Unsorted, 
                QDir::Files | QDir::Readable | QDir::NoSymLinks);
         QStringList list = d.entryList();
@@ -195,13 +221,86 @@ void MibModule::RebuildTotalList(void)
                 && (strlen(str) == 4)))) || 
                 (ext == "smi") || (ext == "mib") || (ext == "pib") || 
                 (ext == "SMI") || (ext == "MIB") || (ext == "PIB")))
-                Total.append(QFileInfo(fi->toLatin1()).fileName());
-        }    
+            {
+                // Load each module and build a list of possible root oids
+                // This is used for module auto-loading on mib walk
+                QStringList module;
+                module += QFileInfo(fi->toLatin1()).fileName();
+                SmiModule *smiModule = smiGetModule(smiLoadModule(fi->toLatin1()));
+                if (smiModule)
+                {
+                    SmiNode *node = smiGetModuleIdentityNode(smiModule);
+                    if (node)
+                        module += smiRenderOID(node->oidlen, 
+                                               node->oid, SMI_RENDER_NUMERIC); 
+                    node = smiGetFirstNode(smiModule, 
+                                           SMI_NODEKIND_NODE|SMI_NODEKIND_SCALAR);
+                    if (node)
+                    {
+                        module += smiRenderOID(node->oidlen, 
+                                               node->oid, SMI_RENDER_NUMERIC); 
+                        node = smiGetNextNode(node, 
+                                              SMI_NODEKIND_NODE|SMI_NODEKIND_SCALAR);
+                        if (node)
+                            module += smiRenderOID(node->oidlen, 
+                                                   node->oid, SMI_RENDER_NUMERIC); 
+                    }
+                }
+                Total.append(module);
+            }
+        }
     }
-    
-    Total.sort();
-    
+
+    qSort(Total.begin(), Total.end(), compareModule);
+    if (!restart)
+        smiExit();
     free(smipath);
+}
+
+// Attempts to identify and load a mib module that resolves a specific oid
+//
+// Returns the mib module's filename if there is a match, otherwise
+// returns an empty string
+QString MibModule::LoadBestModule(QString oid)
+{
+    QString best_file = "";
+    QString best_oid = "";
+
+    // Loop though all mibs
+    for (int k=0;k<Total.count();k++)
+    {
+        // Loop through all possible root oids for each mib
+        for (int l=1;l<Total[k].count();l++)
+        {
+            // If we have a possible match better than the best so far ...
+            if (((Total[k][l] != "") && oid.startsWith(Total[k][l]) && 
+                (Total[k][l].size() > best_oid.size())))
+            {
+                // ...and it is not loaded ...
+                for (int m=0;m<Unloaded.count();m++)
+                {
+                    if (Total[k][0] == Unloaded[m])
+                    {
+                        // ... note it as best match so far and continue.
+                        best_file = Total[k][0];
+                        best_oid = Total[k][l];
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    // We have a match, load it
+    if (best_file != "")
+    {
+        Wanted.append(best_file.toLatin1().data());
+        Refresh();
+        SaveWantedModules();
+        s->TabSelected();
+    }
+
+    return best_file;
 }
 
 bool lessThanLoadedMibModule(const LoadedMibModule *lm1, 
@@ -254,7 +353,7 @@ void MibModule::RebuildUnloadedList(void)
     
     for(int i=0; i < Total.count(); i++)
     {
-        current = Total[i];
+        current = Total[i][0];
         LoadedMibModule *lmodule = NULL;
 
         for(j = 0; j < Loaded.count(); j++)
@@ -329,14 +428,12 @@ void MibModule::Refresh(void)
     s->MainUI()->UnloadedModules->sortByColumn(0, Qt::AscendingOrder);
 }
 
-
 void MibModule::RefreshPathChange(void)
 {
     smiReadConfig(s->GetPathConfigFile().toLatin1().data(), NULL);
 
+    RebuildTotalList(1);
     InitLib(1);
-
-    RebuildTotalList();
 
     smiReadConfig(s->GetMibConfigFile().toLatin1().data(), NULL);
 

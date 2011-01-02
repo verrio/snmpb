@@ -23,6 +23,7 @@
 
 #include "mibview.h"
 #include "agent.h"
+#include "mibmodule.h"
 #include "snmp_pp/notifyqueue.h"
 #include "preferences.h"
 #include "mibselection.h"
@@ -816,7 +817,21 @@ void Agent::AsyncCallback(int reason, Pdu &pdu,
             {
                 objects++;
 
+node_restart:
                 SmiNode *node = GetNodeFromOid(tmp);
+
+                // Oid not fully resolved, attempting to load mib that will
+                if (!node)
+                {
+                    QString mod = 
+                        s->MibModuleObj()->LoadBestModule(tmp.get_printable());
+                    if (mod != "")
+                    {
+                        msg += QString("[<font color=red>Loading %1</font>]<br>").arg(mod);
+                        goto node_restart;
+                    }
+                }
+
                 if (node)
                 {
                     char *b = smiRenderOID(node->oidlen, node->oid, 
@@ -824,7 +839,19 @@ void Agent::AsyncCallback(int reason, Pdu &pdu,
                     char *f = (char*)vb.get_printable_oid();
                     while ((*b++ == *f++) && (*b != '\0') && (*f != '\0')) ;
                     /* f is now the remaining part */
-                    
+
+                    // Oid not fully resolved, attempting to load mib that will
+                    if (strcmp(f,".0"))
+                    {
+                        QString mod = 
+                            s->MibModuleObj()->LoadBestModule(tmp.get_printable());
+                        if (mod != "")
+                        {
+                            msg += QString("[<font color=red>Loading %1</font>]<br>").arg(mod);
+                            goto node_restart;
+                        }
+                    }
+         
                     if (vb_error || (pdu_error && (z+1 == pdu_index)))
                         msg += QString("<font color=red>ERROR on varbind #</font>");
 

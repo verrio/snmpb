@@ -47,6 +47,7 @@ public:
     void Refresh(void);
     void RefreshPathChange(void);
     void SendLogError(const QString& text) { emit LogError(text); }
+    QString LoadBestModule(QString oid);
 
 public slots:
     void AddModule(void);
@@ -59,7 +60,7 @@ signals:
 
 private:
     void InitLib(int restart);
-    void RebuildTotalList(void);
+    void RebuildTotalList(int restart);
     void RebuildLoadedList(void);
     void RebuildUnloadedList(void);
     void SaveWantedModules(void);
@@ -69,7 +70,7 @@ private:
 
     QStringList Unloaded;
     QList<LoadedMibModule*> Loaded;
-    QStringList Total;
+    QList<QStringList> Total;
     QStringList Wanted;
 };
 
