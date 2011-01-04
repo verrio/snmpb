@@ -852,6 +852,22 @@ node_restart:
                         }
                     }
          
+                    // If the VB type is an OID, make sure the best module 
+                    // resolving it is loaded
+                    SmiType *type = smiGetNodeType(node);
+                    if (type && (type->basetype == SMI_BASETYPE_OBJECTIDENTIFIER))
+                    {
+                        Oid val_oid;
+                        vb.get_value(val_oid);
+                        QString mod = 
+                            s->MibModuleObj()->LoadBestModule(val_oid.get_printable());
+                        if (mod != "")
+                        {
+                            msg += QString("[<font color=red>Loading %1</font>]<br>").arg(mod);
+                            goto node_restart;
+                        }
+                    }
+
                     if (vb_error || (pdu_error && (z+1 == pdu_index)))
                         msg += QString("<font color=red>ERROR on varbind #</font>");
 

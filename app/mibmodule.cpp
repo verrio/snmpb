@@ -232,18 +232,14 @@ void MibModule::RebuildTotalList(int restart)
                     SmiNode *node = smiGetModuleIdentityNode(smiModule);
                     if (node)
                         module += smiRenderOID(node->oidlen, 
-                                               node->oid, SMI_RENDER_NUMERIC); 
-                    node = smiGetFirstNode(smiModule, 
-                                           SMI_NODEKIND_NODE|SMI_NODEKIND_SCALAR);
-                    if (node)
+                                               node->oid, SMI_RENDER_NUMERIC);
+
+                    for(node = smiGetFirstNode(smiModule, SMI_NODEKIND_NODE); 
+                        node; node = smiGetNextNode(node, SMI_NODEKIND_NODE))
                     {
-                        module += smiRenderOID(node->oidlen, 
-                                               node->oid, SMI_RENDER_NUMERIC); 
-                        node = smiGetNextNode(node, 
-                                              SMI_NODEKIND_NODE|SMI_NODEKIND_SCALAR);
-                        if (node)
+                        if (node->decl == SMI_DECL_VALUEASSIGNMENT)
                             module += smiRenderOID(node->oidlen, 
-                                                   node->oid, SMI_RENDER_NUMERIC); 
+                                                   node->oid, SMI_RENDER_NUMERIC);
                     }
                 }
                 Total.append(module);
