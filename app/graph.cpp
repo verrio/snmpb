@@ -24,10 +24,9 @@
 #include "agent.h"
 #include "comboboxes.h"
 
-GraphItem::GraphItem(Snmpb *snmpb)
+GraphItem::GraphItem(Snmpb *snmpb):QwtPlot(snmpb->MainUI()->GraphName->currentText())
 {
     s = snmpb;
-    QwtPlot::QwtPlot(s->MainUI()->GraphName->currentText());
     s->MainUI()->GraphTab->addTab(this, s->MainUI()->GraphName->currentText());
     dataCount = 0;
     timerID = 0;
