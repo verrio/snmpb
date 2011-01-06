@@ -28,8 +28,20 @@
     <comment xml:lang="en">SNMP PIB</comment>
     <glob pattern="*.PIB"/>
   </mime-type> 
-  <mime-type type="text/x-smi3">
+  <mime-type type="text/x-smi2">
     <comment xml:lang="en">SNMP MIB</comment>
     <glob pattern="*.SMI"/>
+  </mime-type> 
+  <mime-type type="text/x-smi3">
+    <comment xml:lang="en">SNMP MIB</comment>
+    <glob pattern="*-SMI"/>
+  </mime-type> 
+  <mime-type type="text/x-smi4">
+    <comment xml:lang="en">SNMP MIB</comment>
+    <glob pattern="*-TC"/>
+  </mime-type> 
+  <mime-type type="text/x-smi5">
+    <comment xml:lang="en">SNMP MIB</comment>
+    <glob pattern="*-TYPES"/>
   </mime-type> 
 </mime-info>

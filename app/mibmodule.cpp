@@ -217,6 +217,12 @@ void MibModule::RebuildTotalList(int restart)
                 ((ext.isEmpty() && 
                 ((((str = strstr(fi->toLatin1().data(), "-MIB")) != NULL)
                 && (strlen(str) == 4)) || 
+                (((str = strstr(fi->toLatin1().data(), "-SMI")) != NULL)
+                && (strlen(str) == 4)) || 
+                (((str = strstr(fi->toLatin1().data(), "-TC")) != NULL)
+                && (strlen(str) == 3)) || 
+                (((str = strstr(fi->toLatin1().data(), "-TYPES")) != NULL)
+                && (strlen(str) == 6)) || 
                 (((str = strstr(fi->toLatin1().data(), "-PIB")) != NULL)
                 && (strlen(str) == 4)))) || 
                 (ext == "smi") || (ext == "mib") || (ext == "pib") || 
