@@ -124,7 +124,7 @@ install:
 	$(INSTALL) -v -d ${INSTALL_PREFIX}/share/applications ${INSTALL_PREFIX}/share/mime/packages ${INSTALL_PREFIX}/share/icons/hicolor/128x128/apps ${INSTALL_PREFIX}/share/icons/hicolor/scalable/apps
 	$(INSTALL) -v -m 444 -o root app/snmpb.desktop ${INSTALL_PREFIX}/share/applications
 	$(INSTALL) -v -m 444 -o root app/snmpb.xml ${INSTALL_PREFIX}/share/mime/packages
-	cat ${INSTALL_PREFIX}/share/applications/defaults.list | grep -v "text\/x-mib=" | grep -v "text\/x-mib2=" | grep -v "text\/x-pib=" | grep -v "text\/x-pib2=" | grep -v "text\/x-smi=" > /tmp/snmpb-assoc; cat app/defaults.list >> /tmp/snmpb-assoc;
+	cat ${INSTALL_PREFIX}/share/applications/defaults.list | grep -v "text\/x-mib=" | grep -v "text\/x-mib2=" | grep -v "text\/x-pib=" | grep -v "text\/x-pib2=" | grep -v "text\/x-smi=" | grep -v "text\/x-smi2=" | grep -v "text\/x-smi3=" | grep -v "text\/x-smi4=" | grep -v "text\/x-smi5=" > /tmp/snmpb-assoc; cat app/defaults.list >> /tmp/snmpb-assoc;
 	$(INSTALL) -v -m 444 -o root /tmp/snmpb-assoc ${INSTALL_PREFIX}/share/applications/defaults.list
 	rm -f /tmp/snmpb-assoc
 	update-mime-database ${INSTALL_PREFIX}/share/mime
