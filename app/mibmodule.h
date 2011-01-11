@@ -43,11 +43,14 @@ class MibModule: public QObject
     Q_OBJECT
     
 public:
+    enum AutomaticLoadingPolicy {MIBLOAD_ALL, MIBLOAD_DEFAULT, MIBLOAD_NONE};
+
     MibModule(Snmpb *snmpb);
     void Refresh(void);
     void RefreshPathChange(void);
     void SendLogError(const QString& text) { emit LogError(text); }
     QString LoadBestModule(QString oid);
+    void SetLoadingPolicy(enum AutomaticLoadingPolicy p) {Policy = p;}
 
 public slots:
     void AddModule(void);
@@ -57,6 +60,7 @@ public slots:
 signals:
     void ModuleProperties(const QString& text);
     void LogError(const QString& text);
+    void StopAgentTimer(void);
 
 private:
     void InitLib(int restart);
@@ -72,6 +76,7 @@ private:
     QList<LoadedMibModule*> Loaded;
     QList<QStringList> Total;
     QStringList Wanted;
+    enum AutomaticLoadingPolicy Policy; 
 };
 
 #endif /* MIBMODULE_H */

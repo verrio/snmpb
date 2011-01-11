@@ -25,6 +25,8 @@
 #include <qtextstream.h>
 
 #include "mibmodule.h"
+#include "agent.h"
+#include "preferences.h"
 
 LoadedMibModule::LoadedMibModule(SmiModule* mod)
 {
@@ -106,6 +108,7 @@ char* LoadedMibModule::GetMibLanguage(void)
 MibModule::MibModule(Snmpb *snmpb)
 {
     s = snmpb;
+    Policy = MIBLOAD_DEFAULT;
 
     QStringList columns;
     columns << "Module" << "Required" << "Language" << "Path"; 
@@ -134,6 +137,8 @@ MibModule::MibModule(Snmpb *snmpb)
              SIGNAL( clicked() ), this, SLOT( AddModule() ));
     connect( s->MainUI()->ModuleDelete, 
              SIGNAL( clicked() ), this, SLOT( RemoveModule() ));
+    connect( this, SIGNAL( StopAgentTimer() ), 
+             s->AgentObj(), SLOT( StopTimer() ));
 
     for(SmiModule *mod = smiGetFirstModule(); 
         mod; mod = smiGetNextModule(mod))
@@ -172,15 +177,15 @@ bool compareModule(QStringList s1, QStringList s2)
 
 char *mystrtok_r(char *s1, const char *s2, char **lasts)
 {
-  char *ret;
-  if (s1 == NULL) s1 = *lasts;
-  while(*s1 && strchr(s2, *s1)) ++s1;
-  if(*s1 == '\0') return NULL;
-  ret = s1;
-  while(*s1 && !strchr(s2, *s1)) ++s1;
-  if(*s1) *s1++ = '\0';
-  *lasts = s1;
-  return ret;
+    char *ret;
+    if (s1 == NULL) s1 = *lasts;
+    while(*s1 && strchr(s2, *s1)) ++s1;
+    if(*s1 == '\0') return NULL;
+    ret = s1;
+    while(*s1 && !strchr(s2, *s1)) ++s1;
+    if(*s1) *s1++ = '\0';
+    *lasts = s1;
+    return ret;
 }
 
 void MibModule::RebuildTotalList(int restart)
@@ -265,6 +270,11 @@ void MibModule::RebuildTotalList(int restart)
 // returns an empty string
 QString MibModule::LoadBestModule(QString oid)
 {
+    // If automatic loading is disabled, return
+    if ((s->PreferencesObj()->GetAutomaticLoading() == 3) || 
+        (Policy == MIBLOAD_NONE))
+        return "";
+
     QString best_file = "";
     QString best_oid = "";
 
@@ -293,9 +303,40 @@ QString MibModule::LoadBestModule(QString oid)
         }
     }
 
-    // We have a match, load it
+    // We have a match, try to load it
     if (best_file != "")
     {
+        // If automatic loading prompt is enabled and load policy is not set to all
+        if ((s->PreferencesObj()->GetAutomaticLoading() == 2) &&
+            (Policy != MIBLOAD_ALL))
+        {
+            emit StopAgentTimer();
+            int ret = QMessageBox::question (
+                        s->MainUI()->MIBTree,
+                        "SnmpB automatic MIB loading",
+                        QString("Unknown OID %1\nAttempting to load resolving MIB module ?").arg(oid),
+                        QMessageBox::Yes | QMessageBox::No | 
+                        QMessageBox::YesToAll | QMessageBox::NoToAll,
+                        QMessageBox::Yes
+                      );
+
+            switch (ret)
+            {
+                case QMessageBox::NoToAll:
+                    Policy = MIBLOAD_NONE;
+                    // fallthrough
+                case QMessageBox::No:
+                    return "";
+                case QMessageBox::YesToAll:
+                    Policy = MIBLOAD_ALL;
+                    break;
+                case QMessageBox::Yes:
+                default:
+                    break;
+            }
+        }
+
+        // Load the module
         Wanted.append(best_file.toLatin1().data());
         Refresh();
         SaveWantedModules();

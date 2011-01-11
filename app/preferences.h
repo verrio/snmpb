@@ -38,6 +38,7 @@ public:
     int GetTrapPort(void);
     bool GetExpandTrapBinding(void);
     bool GetShowAgentName(void);
+    int GetAutomaticLoading(void);
     void SaveCurrentProfile(QString &name, int proto);
     int GetCurrentProfile(QString &name);
 
@@ -47,6 +48,7 @@ protected slots:
     void SetTrapPort(void);
     void SetExpandTrapBinding(bool checked);
     void SetShowAgentName(bool checked);
+    void SelectAutomaticLoading(void);
     void ModuleReset(void);
     void ModuleAdd(void);
     void ModuleDelete(void);
@@ -68,6 +70,7 @@ private:
     int trapport;
     bool expandtrapbinding;
     bool showagentname;
+    int automaticloading;
     QString curprofile;
     int curproto;
     QStringList mibpaths;

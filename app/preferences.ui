@@ -100,6 +100,42 @@
         </widget>
        </item>
        <item row="3" column="0">
+        <widget class="QGroupBox" name="AutomaticLoading">
+         <property name="title">
+          <string>Automatic MIB loading on walk</string>
+         </property>
+         <layout class="QGridLayout">
+          <property name="margin">
+           <number>9</number>
+          </property>
+          <property name="spacing">
+           <number>6</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="QRadioButton" name="MibLoadingEnable">
+            <property name="text">
+             <string>Enable</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QRadioButton" name="MibLoadingEnablePrompt">
+            <property name="text">
+             <string>Enable and prompt for loading</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QRadioButton" name="MibLoadingDisable">
+            <property name="text">
+             <string>Disable</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="4" column="0">
         <spacer>
          <property name="orientation">
           <enum>Qt::Vertical</enum>

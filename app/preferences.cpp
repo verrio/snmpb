@@ -71,6 +71,12 @@ void Preferences::Init(void)
              this, SLOT ( SetTrapPort() ) );
     connect( p->ExpandTrapBinding, SIGNAL( toggled(bool) ),
              this, SLOT( SetExpandTrapBinding(bool) ) );
+    connect( p->MibLoadingEnable, SIGNAL( toggled(bool) ),
+             this, SLOT( SelectAutomaticLoading() ) );
+    connect( p->MibLoadingEnablePrompt, SIGNAL( toggled(bool) ),
+             this, SLOT( SelectAutomaticLoading() ) );
+    connect( p->MibLoadingDisable, SIGNAL( toggled(bool) ),
+             this, SLOT( SelectAutomaticLoading() ) );
     connect( p->ShowAgentName, SIGNAL( toggled(bool) ),
              this, SLOT( SetShowAgentName(bool) ) );
     connect( p->ModulePathsReset, 
@@ -92,6 +98,12 @@ void Preferences::Init(void)
     showagentname = settings->value("showagentname", false).toBool();
     p->ShowAgentName->setCheckState((showagentname == true)?
                                     Qt::Checked:Qt::Unchecked);
+
+    automaticloading = settings->value("automaticloading", 2).toInt();
+    if (automaticloading == 1) p->MibLoadingEnable->setChecked(true);
+    else if (automaticloading == 2) p->MibLoadingEnablePrompt->setChecked(true);
+    else if (automaticloading == 3) p->MibLoadingDisable->setChecked(true);
+
     char    *dir, *smipath;
     char    sep[2] = {PATH_SEPARATOR, 0};
     smipath = strdup(smiGetPath());
@@ -125,6 +137,7 @@ void Preferences::Execute (void)
         settings->setValue("trapport", trapport);
         settings->setValue("expandtrapbinding", expandtrapbinding);
         settings->setValue("showagentname", showagentname);
+        settings->setValue("automaticloading", automaticloading);
 
         if (pathschanged == true)
         {
@@ -243,6 +256,13 @@ void Preferences::SetShowAgentName(bool checked)
     showagentname = checked;
 }
 
+void Preferences::SelectAutomaticLoading(void)
+{
+    if (p->MibLoadingEnable->isChecked()) automaticloading = 1;
+    else if (p->MibLoadingEnablePrompt->isChecked()) automaticloading = 2;
+    else if (p->MibLoadingDisable->isChecked()) automaticloading = 3;
+}
+
 bool Preferences::GetExpandTrapBinding(void)
 {
     return expandtrapbinding;
@@ -251,6 +271,11 @@ bool Preferences::GetExpandTrapBinding(void)
 bool Preferences::GetShowAgentName(void)
 {
     return showagentname;
+}
+
+int Preferences::GetAutomaticLoading(void)
+{
+    return automaticloading;
 }
 
 int Preferences::GetTrapPort(void)
@@ -290,6 +315,9 @@ void Preferences::SelectedPreferences(QTreeWidgetItem * item, QTreeWidgetItem *)
         p->PreferencesProps->setCurrentIndex(0);
 
         p->HorizontalSplit->setCheckState(horizontalsplit==true?Qt::Checked:Qt::Unchecked);
+        if (automaticloading == 1) p->MibLoadingEnable->setChecked(true);
+        else if (automaticloading == 2) p->MibLoadingEnablePrompt->setChecked(true);
+        else if (automaticloading == 3) p->MibLoadingDisable->setChecked(true);
     }
     else
     if (item == modules)

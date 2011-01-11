@@ -81,6 +81,7 @@ public slots:
     void Varbinds(void);
     void VarbindsFrom(const QString& oid);
     void GetTypedTableInstance(void);
+    void StopTimer(void);
 
 protected slots:
     void TimerExpired(void);    

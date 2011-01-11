@@ -123,6 +123,12 @@ void Agent::StartTrapTimer(void)
     timer.start(TRAP_TIMER_MSEC);
 }
 
+void Agent::StopTimer(void)
+{
+    // Stop the timer
+    timer.stop();
+}
+
 void Agent::Init(void)
 {
     int status;
@@ -750,7 +756,7 @@ void Agent::AsyncCallback(int reason, Pdu &pdu,
     int status;
     Vb vb;   // empty Vb
     int z = 0;
- 
+
     switch(reason)
     {
     case SNMP_CLASS_NOTIFICATION:
@@ -970,6 +976,7 @@ cleanup:
     s->MainUI()->Query->append(msg);
     // Dont stop the timer, but put it back to the lower-rate trap timer value
     timer.start(TRAP_TIMER_MSEC);
+    s->MibModuleObj()->SetLoadingPolicy(MibModule::MIBLOAD_DEFAULT);
     emit StartWalk(false);
     s->MainUI()->actionStop->setEnabled(false);
 }
