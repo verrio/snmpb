@@ -738,8 +738,18 @@ void Agent::AsyncCallbackTrap(int reason, Pdu &pdu, SnmpTarget &target)
     // If its an inform, we have to reply ...
     if (pdu.get_type() == sNMP_PDU_INFORM)
     {
-        // Reuse the PDU object to feed back in the response
-        snmp->response(pdu, target, 
+        // Copy the PDU object to feed back in the response
+        Pdu ipdu = pdu;
+        Vb t(Oid("1.3.6.1.2.1.1.3.0"));
+        t.set_value(ts);
+        Vb d(Oid("1.3.6.1.6.3.1.1.4.1.0"));
+        d.set_value(id);
+        ipdu.trim(pdu.get_vb_count()); // Remove all varbinds first
+        ipdu += t; ipdu += d;
+        for (int i=0; i < pdu.get_vb_count(); i++)
+            ipdu += pdu[i];
+
+        snmp->response(ipdu, target, 
                        snmp->get_eventListHolder()->notifyEventList()->get_notify_fd());
     }
   
