@@ -86,8 +86,8 @@ private:
     LogSnmpb *logsnmpb;
     Discovery *discovery;
 
-    QString bind_msg;
-    bool bind_issuccess;
+    QString start_msg;
+    bool start_issuccess;
 };
 
 #endif /* SNMPB_H */

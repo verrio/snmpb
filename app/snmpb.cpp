@@ -67,31 +67,20 @@ static QDir SnmpbDir = QDir::homePath() + "/" + SNMPB_CONFIG_DIR;
 
 Snmpb::Snmpb(void)
 {
-    // First thing to do is to give up root privileges and allow permission to
+    // First thing to do is to give up root privileges that allow permission to
     // bind on privileged ports (<1024). This is needed to bind on 
     // the RFC-defined trap port number 162 on UNIX machines.
-    //
-    // All code in this constructor is forbidden to do any GUI-related calls.
-    agent = new Agent(this);
-    prefs = NULL;
-
-    // If the preferences file exists, get the trap port number from it, otherwise
-    // bind to the standard trap port
-    if (QFile(GetPrefsConfigFile()).exists())
-    {
-        prefs = new Preferences(this);
+    prefs = new Preferences(this);
 #ifndef WIN32 
-        // Allows to bind on privileged ports only if it is the standard trap port...
-        if (prefs->GetTrapPort() != STANDARD_TRAP_PORT)
-            setuid(getuid());
+    // Allows to bind on privileged ports only if it is the standard trap port...
+    if (! (((prefs->GetEnableIPv4() == true) && 
+            (prefs->GetTrapPort() == STANDARD_TRAP_PORT)) ||
+           ((prefs->GetEnableIPv6() == true) && 
+            (prefs->GetTrapPort6() == STANDARD_TRAP_PORT))))
+        setuid(getuid());
 #endif
-        bind_issuccess = agent->BindTrapPort(prefs->GetTrapPort(), bind_msg);
-    }
-    else
-    {
-        // The default trap port is the standard one ...
-        bind_issuccess = agent->BindTrapPort(STANDARD_TRAP_PORT, bind_msg);
-    }
+    agent = new Agent(this);
+    start_issuccess = agent->GetStartupResult(start_msg);    
 #ifndef WIN32 
     // Drop root privileges
     if (setuid(getuid()) < 0)
@@ -102,20 +91,28 @@ Snmpb::Snmpb(void)
     // Note: beware as anything BEFORE this point is run as root on UNIX ... 
 
     CheckForConfigFiles();
-
-    if (!prefs)
-        prefs = new Preferences(this);
 }
 
 void Snmpb::BindToGUI(QMainWindow* mw)
 {
-    if (bind_issuccess != true)
+    if (start_issuccess == false)
     {
-        QMessageBox::warning ( NULL, "SnmpB", bind_msg,
+        QMessageBox::critical( NULL, "SnmpB", start_msg,
                                QMessageBox::Ok, Qt::NoButton);
+
+        // Desperate measures: delete the preferences file so 
+        // at the next startup, the app might have a chance to start
+        QFile prefs(GetPrefsConfigFile());
+        prefs.remove();
+        exit (-1);
     }
     else
+    {
+        if (start_msg != "")
+            QMessageBox::warning ( NULL, "SnmpB", start_msg,
+                                   QMessageBox::Ok, Qt::NoButton);
         agent->StartTrapTimer();
+    }
 
     w.setupUi(mw);
 

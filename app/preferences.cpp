@@ -36,7 +36,10 @@ Preferences::Preferences(Snmpb *snmpb)
 
     settings = new QSettings(s->GetPrefsConfigFile(), QSettings::IniFormat, this);
 
+    enableipv4 = settings->value("enableipv4", true).toBool();
     trapport = settings->value("trapport", 162).toInt();
+    enableipv6 = settings->value("enableipv6", true).toBool();
+    trapport6 = settings->value("trapport6", 162).toInt();
 }
 
 void Preferences::Init(void)
@@ -55,6 +58,8 @@ void Preferences::Init(void)
     p->PreferencesTree->setFrameShadow(QFrame::Plain);
     p->PreferencesTree->setRootIsDecorated( TRUE );
 
+    transport = new QTreeWidgetItem(p->PreferencesTree);
+    transport->setText(0, "Transport");
     mibtree = new QTreeWidgetItem(p->PreferencesTree);
     mibtree->setText(0, "MIB Tree");
     modules = new QTreeWidgetItem(p->PreferencesTree);
@@ -69,6 +74,12 @@ void Preferences::Init(void)
              this, SLOT( SetHorizontalSplit(bool) ) );
     connect( p->TrapPort, SIGNAL( valueChanged( int ) ), 
              this, SLOT ( SetTrapPort() ) );
+    connect( p->TrapPort6, SIGNAL( valueChanged( int ) ), 
+             this, SLOT ( SetTrapPort6() ) );
+    connect( p->EnableIPv4, SIGNAL( toggled(bool) ),
+             this, SLOT( SetEnableIPv4(bool) ) );
+    connect( p->EnableIPv6, SIGNAL( toggled(bool) ),
+             this, SLOT( SetEnableIPv6(bool) ) );
     connect( p->ExpandTrapBinding, SIGNAL( toggled(bool) ),
              this, SLOT( SetExpandTrapBinding(bool) ) );
     connect( p->MibLoadingEnable, SIGNAL( toggled(bool) ),
@@ -90,6 +101,11 @@ void Preferences::Init(void)
     horizontalsplit = settings->value("horizontalsplit", false).toBool();
     p->HorizontalSplit->setCheckState((horizontalsplit == true)?
                                      Qt::Checked:Qt::Unchecked);
+
+    p->EnableIPv4->setCheckState((enableipv4 == true)?
+                                 Qt::Checked:Qt::Unchecked);
+    p->EnableIPv6->setCheckState((enableipv6 == true)?
+                                 Qt::Checked:Qt::Unchecked);
 
     expandtrapbinding = settings->value("expandtrapbinding", true).toBool();
     p->ExpandTrapBinding->setCheckState((expandtrapbinding == true)?
@@ -126,15 +142,21 @@ void Preferences::Execute (void)
 {
     if(pw->exec() == QDialog::Accepted)
     {
-        // Warn if trap port changed ...
-        if(trapport != settings->value("trapport", 162).toInt())
-            QMessageBox::information(NULL, "SnmpB trap port changed", 
+        // Warn if trap port or transport changed ...
+        if((trapport != settings->value("trapport", 162).toInt()) ||
+           (trapport6 != settings->value("trapport6", 162).toInt()) ||
+           (enableipv4 != settings->value("enableipv4", true).toInt()) ||
+           (enableipv6 != settings->value("enableipv6", true).toInt()))
+            QMessageBox::information(NULL, "SnmpB transport protocol or trap port changed", 
                                      "Please restart SnmpB for the change to take effect.", 
                                      QMessageBox::Ok, Qt::NoButton);
 
         // Save preferences
         settings->setValue("horizontalsplit", horizontalsplit);
         settings->setValue("trapport", trapport);
+        settings->setValue("trapport6", trapport6);
+        settings->setValue("enableipv4", enableipv4);
+        settings->setValue("enableipv6", enableipv6);
         settings->setValue("expandtrapbinding", expandtrapbinding);
         settings->setValue("showagentname", showagentname);
         settings->setValue("automaticloading", automaticloading);
@@ -246,6 +268,39 @@ void Preferences::SetTrapPort(void)
     trapport = p->TrapPort->value();
 }
 
+void Preferences::SetTrapPort6(void)
+{
+    trapport6 = p->TrapPort6->value();
+}
+
+void Preferences::SetEnableIPv4(bool checked)
+{
+    if ((checked == false) && (enableipv6 == false))
+    {
+        QMessageBox::critical(NULL, "SnmpB error", 
+                              "Must enable at least one transport protocol.", 
+                              QMessageBox::Ok, Qt::NoButton);
+        p->EnableIPv4->setCheckState(Qt::Checked);
+        return;
+    }
+
+    enableipv4 = checked;
+}
+
+void Preferences::SetEnableIPv6(bool checked)
+{
+    if ((checked == false) && (enableipv4 == false))
+    {
+        QMessageBox::critical(NULL, "SnmpB error", 
+                              "Must enable at least one transport protocol.", 
+                              QMessageBox::Ok, Qt::NoButton);
+        p->EnableIPv6->setCheckState(Qt::Checked);
+        return;
+    }
+
+    enableipv6 = checked;
+}
+
 void Preferences::SetExpandTrapBinding(bool checked)
 {
     expandtrapbinding = checked;
@@ -273,6 +328,16 @@ bool Preferences::GetShowAgentName(void)
     return showagentname;
 }
 
+bool Preferences::GetEnableIPv4(void)
+{
+    return enableipv4;
+}
+
+bool Preferences::GetEnableIPv6(void)
+{
+    return enableipv6;
+}
+
 int Preferences::GetAutomaticLoading(void)
 {
     return automaticloading;
@@ -281,6 +346,11 @@ int Preferences::GetAutomaticLoading(void)
 int Preferences::GetTrapPort(void)
 {
     return trapport;
+}
+
+int Preferences::GetTrapPort6(void)
+{
+    return trapport6;
 }
 
 void Preferences::SaveCurrentProfile(QString &name, int proto)
@@ -310,9 +380,17 @@ void Preferences::ModuleRefresh(void)
 
 void Preferences::SelectedPreferences(QTreeWidgetItem * item, QTreeWidgetItem *)
 {
-    if (item == mibtree)
+    if (item == transport)
     {
         p->PreferencesProps->setCurrentIndex(0);
+
+        p->EnableIPv4->setCheckState(enableipv4==true?Qt::Checked:Qt::Unchecked);
+        p->EnableIPv6->setCheckState(enableipv6==true?Qt::Checked:Qt::Unchecked);
+    }
+    else
+    if (item == mibtree)
+    {
+        p->PreferencesProps->setCurrentIndex(1);
 
         p->HorizontalSplit->setCheckState(horizontalsplit==true?Qt::Checked:Qt::Unchecked);
         if (automaticloading == 1) p->MibLoadingEnable->setChecked(true);
@@ -322,16 +400,17 @@ void Preferences::SelectedPreferences(QTreeWidgetItem * item, QTreeWidgetItem *)
     else
     if (item == modules)
     {
-        p->PreferencesProps->setCurrentIndex(1);
+        p->PreferencesProps->setCurrentIndex(2);
 
         ModuleRefresh();
     }
     else
     if (item == traps)
     {
-        p->PreferencesProps->setCurrentIndex(2);
+        p->PreferencesProps->setCurrentIndex(3);
 
         p->TrapPort->setValue(trapport);
+        p->TrapPort6->setValue(trapport6);
         p->ExpandTrapBinding->setCheckState(expandtrapbinding==true?Qt::Checked:Qt::Unchecked);
         p->ShowAgentName->setCheckState(showagentname==true?Qt::Checked:Qt::Unchecked);
     }

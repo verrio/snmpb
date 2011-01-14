@@ -81,27 +81,80 @@ Agent::Agent(Snmpb *snmpb)
 {
     s = snmpb;
 
-    int status;
+    int status, status2;
 
     Snmp::socket_startup();  // Initialize socket subsystem
-    
+
+    bool v4 = s->PreferencesObj()->GetEnableIPv4();
+    bool v6 = s->PreferencesObj()->GetEnableIPv6();
+    int port4 = s->PreferencesObj()->GetTrapPort();
+    int port6 = s->PreferencesObj()->GetTrapPort6();
+
+    start_err = ""; 
+    start_result = true;
+
     // Create our SNMP session object
-    snmp = new Snmp(status, UdpAddress("0.0.0.0"), UdpAddress("::"));
-    if (status != SNMP_CLASS_SUCCESS)
+    if (v4 && v6)
     {
-        QString err = QString("Could not create SNMP++ session: %1\n")
-                              .arg(Snmp::error_msg(status));
-        printf("FATAL error: %s\n", err.toLatin1().data());
-        exit(-1);
+        snmp = new Snmp(status, UdpAddress("0.0.0.0"), UdpAddress("::"));
+        if (status != SNMP_CLASS_SUCCESS)
+        {
+            status2 = status;
+            // Try dropping IPv6
+            snmp = new Snmp(status, UdpAddress("0.0.0.0"));
+            if (status != SNMP_CLASS_SUCCESS)
+            {
+                start_err = QString("Could not create IPv4 session.\n%1")
+                                    .arg(Snmp::error_msg(status));
+                // Try dropping IPv4
+                snmp = new Snmp(status, UdpAddress("::"));
+                if (status != SNMP_CLASS_SUCCESS)
+                {
+                    start_err = QString("Could not create IPv4 and IPv6 sessions.\n%1\nAborting.")
+                                        .arg(Snmp::error_msg(status));
+                    start_result = false;
+                    return;
+                }
+            }
+            else
+            {
+                start_err = QString("Could not create IPv6 session.\n%1")
+                                    .arg(Snmp::error_msg(status2));
+            }
+        }
     }
-}
+    else if (v4)
+    {
+        snmp = new Snmp(status, UdpAddress("0.0.0.0"));
+        if (status != SNMP_CLASS_SUCCESS)
+        {
+            start_err = QString("Could not create IPv4 session.\n%1\nAborting.")
+                                .arg(Snmp::error_msg(status));
+            start_result = false;
+            return;
+        }
+    }
+    else if (v6)
+    {
+        snmp = new Snmp(status, UdpAddress("::"));
+        if (status != SNMP_CLASS_SUCCESS)
+        {
+            start_err = QString("Could not create IPv6 session.\n%1\nAborting.")
+                                .arg(Snmp::error_msg(status));
+            start_result = false;
+            return;
+        }
+    }
+    else
+    {
+        start_err = QString("No transport protocol enabled. Aborting.");
+        start_result = false;
+        return;
+    }
 
-bool Agent::BindTrapPort(int Port, QString &err)
-{
-    int status;
-
-    // Bind on the SNMP trap port
-    snmp->notify_set_listen_port(Port);
+    // Bind on the SNMP trap ports
+    snmp->notify_set_listen_port(port4);
+    snmp->notify_set_listen_port6(port6);
 
     OidCollection oidc;
     TargetCollection targetc;
@@ -109,12 +162,18 @@ bool Agent::BindTrapPort(int Port, QString &err)
     status = snmp->notify_register(oidc, targetc, callback_trap, this);
     if (status != SNMP_CLASS_SUCCESS)
     {
-        err = QString("Could not bind on trap port %1:\n%2\n")
-                       .arg(Port).arg(Snmp::error_msg(status));
-        return false;
+        start_err = QString("Could not bind on either IPv4 trap\nport \
+%1 or IPv6 trap port %2.\n\n%3\nTrap reception disabled.")
+            .arg(port4)
+            .arg(port6)
+            .arg(Snmp::error_msg(status));
     }
+}
 
-    return true;
+bool Agent::GetStartupResult(QString &err)
+{
+    err = start_err;
+    return start_result;
 }
 
 void Agent::StartTrapTimer(void)

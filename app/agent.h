@@ -36,7 +36,7 @@ class Agent: public QObject
     
 public:
     Agent(Snmpb *snmpb);
-    bool BindTrapPort(int Port, QString &Err);
+    bool GetStartupResult(QString &Err);
     void StartTrapTimer(void);
     void Init(void);
     void AsyncCallback(int reason, Pdu &pdu, 
@@ -107,7 +107,9 @@ signals:
 
 private:
     Snmpb *s;
-    
+    bool start_result;
+    QString start_err;
+ 
     Snmp *snmp;
     v3MP *v3mp;
     QTimer timer;

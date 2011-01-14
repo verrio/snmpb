@@ -36,6 +36,9 @@ public:
     void Init(void);
     void Execute(void);
     int GetTrapPort(void);
+    int GetTrapPort6(void);
+    bool GetEnableIPv4(void);
+    bool GetEnableIPv6(void);
     bool GetExpandTrapBinding(void);
     bool GetShowAgentName(void);
     int GetAutomaticLoading(void);
@@ -46,6 +49,9 @@ protected slots:
     void SelectedPreferences( QTreeWidgetItem * item, QTreeWidgetItem * old);
     void SetHorizontalSplit(bool checked);
     void SetTrapPort(void);
+    void SetTrapPort6(void);
+    void SetEnableIPv4(bool checked);
+    void SetEnableIPv6(bool checked);
     void SetExpandTrapBinding(bool checked);
     void SetShowAgentName(bool checked);
     void SelectAutomaticLoading(void);
@@ -62,12 +68,16 @@ private:
     QDialog *pw;
     QSettings *settings;
 
+    QTreeWidgetItem *transport;
     QTreeWidgetItem *mibtree;
     QTreeWidgetItem *modules;
     QTreeWidgetItem *traps;
 
     bool horizontalsplit;
     int trapport;
+    int trapport6;
+    bool enableipv4;
+    bool enableipv6;
     bool expandtrapbinding;
     bool showagentname;
     int automaticloading;
