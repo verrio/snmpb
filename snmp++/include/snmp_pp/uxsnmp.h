@@ -432,11 +432,13 @@ class DLLOPT Snmp: public SnmpSynchronized
    *       otherwise the default port is used.
    */
   virtual void notify_set_listen_port(const int port);
+  virtual void notify_set_listen_port6(const int port);
 
   /**
    * Get the port that is used for listening to traps and informs.
    */
   virtual int notify_get_listen_port();
+  virtual int notify_get_listen_port6();
 
   /**
    * Register to get traps and informs.
@@ -509,6 +511,7 @@ class DLLOPT Snmp: public SnmpSynchronized
                             SnmpSocket fd = INVALID_SOCKET);
 
   const IpAddress &get_listen_address() const {return listen_address; };
+  const IpAddress &get_listen_address6() const {return listen_address6; };
 
   /**
    * Start one thread listening for responses and notifications.
@@ -631,6 +634,7 @@ protected:
 #endif
 
   IpAddress listen_address;
+  IpAddress listen_address6;
   long current_rid;                   // current rid to use
 
   // inform receive member variables

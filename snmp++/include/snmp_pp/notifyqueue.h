@@ -156,7 +156,10 @@ class DLLOPT CNotifyEventQueue: public CEvents
     int Done() { return 0; }; // we are never done
     void set_listen_port(int port) { m_listen_port = port; };
     int get_listen_port() { return m_listen_port; };
+    void set_listen_port6(int port) { m_listen_port6 = port; };
+    int get_listen_port6() { return m_listen_port6; };
     SnmpSocket get_notify_fd() const;
+    SnmpSocket get_notify_fd6() const;
 
   protected:
 
@@ -190,6 +193,9 @@ class DLLOPT CNotifyEventQueue: public CEvents
     int                  m_msgCount;
     SnmpSocket           m_notify_fd;
     int                  m_listen_port;
+    SnmpSocket           m_notify_fd6;
+    UdpAddress           m_notify_addr6;
+    int                  m_listen_port6;
     EventListHolder *my_holder;
     Snmp *m_snmpSession;
     UdpAddress m_notify_addr;

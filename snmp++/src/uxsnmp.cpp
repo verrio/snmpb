@@ -629,10 +629,10 @@ Snmp::Snmp(int &status, const unsigned short port, const bool bind_ipv6)
 
   if (bind_ipv6)
   {
-    listen_address = "::";
+    listen_address6 = "::";
 
     addresses[0] = NULL;
-    addresses[1] = &listen_address;
+    addresses[1] = &listen_address6;
 
     init(status, addresses, 0, port);
   }
@@ -654,18 +654,18 @@ Snmp::Snmp( int &status, const UdpAddress& addr)
 {
   IpAddress *addresses[2];
 
-  listen_address = addr;
-
-  if (listen_address.get_ip_version() == Address::version_ipv4)
+  if (addr.get_ip_version() == Address::version_ipv4)
   {
+    listen_address = addr;
     addresses[0] = &listen_address;
     addresses[1] = NULL;
     init(status, addresses, addr.get_port(), 0);
   }
   else
   {
+    listen_address6 = addr;
     addresses[0] = NULL;
-    addresses[1] = &listen_address;
+    addresses[1] = &listen_address6;
     init(status, addresses, 0, addr.get_port());
   }
 }
@@ -678,9 +678,9 @@ Snmp::Snmp( int &status,  const UdpAddress& addr_v4,
   IpAddress *addresses[2];
 
   listen_address = addr_v4;
-  IpAddress address_v6((IpAddress)addr_v6);
+  listen_address6 = addr_v6;
   addresses[0] = &listen_address;
-  addresses[1] = &address_v6;
+  addresses[1] = &listen_address6;
 
   init(status, addresses, addr_v4.get_port(), addr_v6.get_port());
 }
@@ -1476,6 +1476,18 @@ void Snmp::notify_set_listen_port(const int port)
 int Snmp::notify_get_listen_port()
 {
   return eventListHolder->notifyEventList()->get_listen_port();
+}
+
+// Set the port for listening to traps and informs.
+void Snmp::notify_set_listen_port6(const int port)
+{
+  eventListHolder->notifyEventList()->set_listen_port6(port);
+}
+
+// Get the port that is used for listening to traps and informs.
+int Snmp::notify_get_listen_port6()
+{
+  return eventListHolder->notifyEventList()->get_listen_port6();
 }
 
 //-----------------------[ register to get traps]-------------------------
