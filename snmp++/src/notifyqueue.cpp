@@ -505,6 +505,7 @@ int CNotifyEventQueue::AddEntry(Snmp *snmp,
 
       // If IPv4 address is enabled, bind IPv6 socket for IPv6 only 
       // (i.e. no ipv4-mapped addresses)
+#ifndef WIN32
       int on = 0;
       if (m_notify_addr.valid())
         on = 1;
@@ -516,6 +517,7 @@ int CNotifyEventQueue::AddEntry(Snmp *snmp,
         cleanup();
         return SNMP_CLASS_TL_FAILED;
       }
+#endif
 
       mgr_addr6.sin6_family = AF_INET6;
       mgr_addr6.sin6_port = htons(m_notify_addr6.get_port());
