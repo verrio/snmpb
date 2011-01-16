@@ -808,8 +808,7 @@ void Agent::AsyncCallbackTrap(int reason, Pdu &pdu, SnmpTarget &target)
         for (int i=0; i < pdu.get_vb_count(); i++)
             ipdu += pdu[i];
 
-        snmp->response(ipdu, target, 
-                       snmp->get_eventListHolder()->notifyEventList()->get_notify_fd());
+        snmp->response(ipdu, target, snmp->get_notify_callback_fd());
     }
   
     nbr++;
