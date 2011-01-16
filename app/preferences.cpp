@@ -145,8 +145,8 @@ void Preferences::Execute (void)
         // Warn if trap port or transport changed ...
         if((trapport != settings->value("trapport", 162).toInt()) ||
            (trapport6 != settings->value("trapport6", 162).toInt()) ||
-           (enableipv4 != settings->value("enableipv4", true).toInt()) ||
-           (enableipv6 != settings->value("enableipv6", true).toInt()))
+           (enableipv4 != settings->value("enableipv4", true).toBool()) ||
+           (enableipv6 != settings->value("enableipv6", true).toBool()))
             QMessageBox::information(NULL, "SnmpB transport protocol or trap port changed", 
                                      "Please restart SnmpB for the change to take effect.", 
                                      QMessageBox::Ok, Qt::NoButton);
