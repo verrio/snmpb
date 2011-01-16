@@ -262,6 +262,8 @@ int CNotifyEvent::Callback(SnmpTarget &target, Pdu &pdu, SnmpSocket fd, int stat
     else
       reason = SNMP_CLASS_NOTIFICATION;
 
+    m_snmp->set_notify_callback_fd(fd);
+
     //------[ call into the callback function ]-------------------------
     if (m_snmp->get_notify_callback())
       (m_snmp->get_notify_callback())(

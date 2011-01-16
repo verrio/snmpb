@@ -492,6 +492,9 @@ class DLLOPT Snmp: public SnmpSynchronized
    */
   void *get_notify_callback_data() { return notifycallback_data; };
 
+  SnmpSocket get_notify_callback_fd() { return notifycallback_fd; };
+  void set_notify_callback_fd(SnmpSocket fd) { notifycallback_fd = fd; };
+ 
   //@}
 
   /**
@@ -640,6 +643,7 @@ protected:
   // inform receive member variables
   snmp_callback  notifycallback;
   void * notifycallback_data;
+  SnmpSocket notifycallback_fd;
 
   // this member var will simulate a global var
   EventListHolder *eventListHolder;
