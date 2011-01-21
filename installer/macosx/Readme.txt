@@ -2,7 +2,7 @@ Welcome to SnmpB for Mac OS X !
 
 First, you need to download & install QT for Mac OS X from here: 
 
-http://www.qtsoftware.com/downloads/mac-os-cpp
+http://qt.nokia.com/downloads/qt-for-open-source-cpp-development-on-mac-os-x
 
 Once this is done, you can install SnmpB
 
