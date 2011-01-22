@@ -106,6 +106,8 @@ Agent::Agent(Snmpb *snmpb)
             {
                 start_err = QString("Could not create IPv4 session.\n%1")
                                     .arg(Snmp::error_msg(status));
+                // Disable IPv4, for the current run only
+                s->PreferencesObj()->SetEnableIPv4(false);
                 // Try dropping IPv4
                 snmp = new Snmp(status, UdpAddress("::"));
                 if (status != SNMP_CLASS_SUCCESS)
@@ -120,6 +122,8 @@ Agent::Agent(Snmpb *snmpb)
             {
                 start_err = QString("Could not create IPv6 session.\n%1")
                                     .arg(Snmp::error_msg(status2));
+                // Disable IPv6, for the current run only
+                s->PreferencesObj()->SetEnableIPv6(false);
             }
         }
     }

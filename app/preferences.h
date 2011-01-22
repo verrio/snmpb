@@ -45,13 +45,15 @@ public:
     void SaveCurrentProfile(QString &name, int proto);
     int GetCurrentProfile(QString &name);
 
+public slots:
+    void SetEnableIPv4(bool checked);
+    void SetEnableIPv6(bool checked);
+
 protected slots:
     void SelectedPreferences( QTreeWidgetItem * item, QTreeWidgetItem * old);
     void SetHorizontalSplit(bool checked);
     void SetTrapPort(void);
     void SetTrapPort6(void);
-    void SetEnableIPv4(bool checked);
-    void SetEnableIPv6(bool checked);
     void SetExpandTrapBinding(bool checked);
     void SetShowAgentName(bool checked);
     void SelectAutomaticLoading(void);

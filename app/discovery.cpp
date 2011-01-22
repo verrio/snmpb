@@ -21,6 +21,7 @@
 #include <QContextMenuEvent>
 
 #include "discovery.h"
+#include "preferences.h"
 #include "agent.h"
 #include "snmp_pp/snmp_pp.h"
 #include "snmp_pp/snmpmsg.h"
@@ -75,7 +76,7 @@ Discovery::Discovery(Snmpb *snmpb)
     s = snmpb;
 
     QStringList columns;
-    columns << "Name" << "Address:Port" << "Protocol" << "Up Time" 
+    columns << "Name" << "Address/Port" << "Protocol" << "Up Time" 
             << "Contact Person" << "System Location" << "System Description";
     s->MainUI()->DiscoveryOutput->setHeaderLabels(columns);
 
@@ -133,7 +134,17 @@ DiscoveryThread::DiscoveryThread(QObject *parent):QThread(parent)
     s = (Snmpb*)parent;
 
     // Create our SNMP session object
-    snmp = new DiscoverySnmp(status);
+    bool v4 = s->PreferencesObj()->GetEnableIPv4();
+    bool v6 = s->PreferencesObj()->GetEnableIPv6();
+
+    if (v4 && v6)
+        snmp = new DiscoverySnmp(status, UdpAddress("0.0.0.0"), UdpAddress("::"));
+    else if (v4)
+        snmp = new DiscoverySnmp(status, UdpAddress("0.0.0.0"));
+    else if (v6)
+        snmp = new DiscoverySnmp(status, UdpAddress("::"));
+    else
+        status = SNMP_CLASS_ERROR;
 
     snmp->aborting = false;
 };
@@ -179,7 +190,6 @@ void DiscoveryThread::SendAgentInfo(Pdu pdu, UdpAddress a, snmp_version v)
     }
 
     address = a.get_printable();
-    address.replace('/', ':');
     protocol = (v == version3)?DISC_SNMP_V3: 
                ((v == version2c)?DISC_SNMP_V2C:DISC_SNMP_V1);
 
@@ -198,6 +208,16 @@ void DiscoveryThread::Progress(void)
 void DiscoveryThread::Abort(void)
 {
     snmp->aborting = true;
+}
+
+DiscoverySnmp::DiscoverySnmp(int &status, const UdpAddress &addr)
+    :Snmp(status, addr)
+{
+}
+
+DiscoverySnmp::DiscoverySnmp(int &status, const UdpAddress& addr_v4, 
+    const UdpAddress& addr_v6):Snmp(status, addr_v4, addr_v6)
+{
 }
 
 void DiscoverySnmp::discover(const UdpAddress &start_addr, int num_addr,
@@ -256,7 +276,6 @@ void DiscoverySnmp::discover(const UdpAddress &start_addr, int num_addr,
         {
             if (iv_snmp_session != (int)INVALID_SOCKET)
                 sock = iv_snmp_session;
-#ifndef WIN32
             else
             {
                 uaddr.map_to_ipv6();
@@ -266,7 +285,6 @@ void DiscoverySnmp::discover(const UdpAddress &start_addr, int num_addr,
         else
         {
             sock = iv_snmp_session_ipv6;
-#endif
         }
 
         if (version != version3)
@@ -402,7 +420,7 @@ void DiscoveryThread::run(void)
     if (s->MainUI()->DiscoveryLocal->isChecked())
         address_str = "255.255.255.255/" + ap->GetPort();
     else
-        address_str = s->MainUI()->DiscoveryFrom->text() + ":" + ap->GetPort();
+        address_str = s->MainUI()->DiscoveryFrom->text() + "/" + ap->GetPort();
 
     UdpAddress start_address(address_str.toLatin1().data());
 
@@ -516,17 +534,17 @@ void Discovery::AddAgentToProfiles(void)
 {
     QList<QTreeWidgetItem *> item_list = 
                              s->MainUI()->DiscoveryOutput->selectedItems();
-    char buf[30];
+    char buf[52]; // for IPv6 addr/port = 45+/+5+NULL
 
     for (int i = 0; i < item_list.size(); i++)
     {
         strcpy(buf, item_list[i]->text(1).toLatin1().data());
-        QString address(strtok(buf, ":"));
+        QString address(strtok(buf, "/"));
 
         s->APManagerObj()->Add(item_list[i]->text(0).isEmpty()?
                                address:item_list[i]->text(0), 
                                address, 
-                               QString(strstr(item_list[i]->text(1).toLatin1().data(), ":") + 1), 
+                               QString(strstr(item_list[i]->text(1).toLatin1().data(), "/") + 1), 
                                strstr(item_list[i]->text(2).toLatin1().data(), 
                                       DISC_SNMP_V1)?true:false, 
                                strstr(item_list[i]->text(2).toLatin1().data(), 

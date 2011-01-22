@@ -29,8 +29,8 @@ class DiscoveryThread;
 class DiscoverySnmp: public Snmp
 {
 public:
-    DiscoverySnmp(int &status):Snmp(status) {};
-
+    DiscoverySnmp(int &status, const UdpAddress &addr);
+    DiscoverySnmp(int &status,  const UdpAddress& addr_v4, const UdpAddress& addr_v6);
     void discover(const UdpAddress &start_addr, int num_addr,
                   const int timeout_sec, const snmp_version version,
                   QString readcomm, QString secname, int seclevel, 
