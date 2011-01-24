@@ -415,58 +415,81 @@ void DiscoveryThread::run(void)
 
     emit SignalStartStop(1);
 
-    QString address_str;
-
-    if (s->MainUI()->DiscoveryLocal->isChecked())
-        address_str = "255.255.255.255/" + ap->GetPort();
-    else
-        address_str = s->MainUI()->DiscoveryFrom->text() + "/" + ap->GetPort();
-
-    UdpAddress start_address(address_str.toLatin1().data());
+    bool v4 = s->PreferencesObj()->GetEnableIPv4();
+    bool v6 = s->PreferencesObj()->GetEnableIPv6();
 
     current_progress = 0;
 
-    for (int i = 0; i < 3; i++)
+    for (int t = 0; t < 2; t++) // for all transports
     {
-        switch(i)
+        QString address_str;
+
+        if (s->MainUI()->DiscoveryLocal->isChecked())
         {
-            case 0:
-                if (s->MainUI()->DiscoveryV1->isChecked())
-                {
-                    cur_version  = version1;
-                    break;
-                }
-                else
-                    continue;
-            case 1:
-                if (s->MainUI()->DiscoveryV2c->isChecked())
-                {
-                    cur_version  = version2c;
-                    break;
-                }
-                else
-                    continue;
-            case 2:
-                if (s->MainUI()->DiscoveryV3->isChecked())
-                {
-                    cur_version  = version3;
-                    break;
-                }
-                else
-                    continue;
-            default:
-                break;
+            if ((t == 0) && (v4 == true))
+                address_str = "255.255.255.255/";
+            else if ((t == 1) && (v6 == true))
+                address_str = "ff02::1/";
+            else 
+                continue;
+            address_str += ap->GetPort();
+        }
+        else
+        {
+            address_str = s->MainUI()->DiscoveryFrom->text() + "/" + ap->GetPort();
+
+            Address::version_type v = 
+                UdpAddress(address_str.toLatin1().data()).get_ip_version(); 
+            if (!(((t == 0) && (v == Address::version_ipv4) && (v4 == true)) ||
+                  ((t == 1) && (v == Address::version_ipv6) && (v6 == true))))
+                continue;
         }
 
-        snmp->aborting = false;
-        snmp->discover(start_address, num_addresses, 
-                       wait_time, cur_version, ap->GetReadComm(), 
-                       ap->GetSecName(), ap->GetSecLevel(), 
-                       ap->GetContextName(), ap->GetContextEngineID(), 
-                       s->MainUI()->DiscoverySNMPv3Probe->isChecked(), this);
-        if (snmp->aborting == true) break;
+        UdpAddress start_address(address_str.toLatin1().data());
+
+        for (int i = 0; i < 3; i++) // For all SNMP protocols
+        {
+            switch(i)
+            {
+                case 0:
+                    if (s->MainUI()->DiscoveryV1->isChecked())
+                    {
+                        cur_version  = version1;
+                        break;
+                    }
+                    else
+                        continue;
+                case 1:
+                    if (s->MainUI()->DiscoveryV2c->isChecked())
+                    {
+                        cur_version  = version2c;
+                        break;
+                    }
+                    else
+                        continue;
+                case 2:
+                    if (s->MainUI()->DiscoveryV3->isChecked())
+                    {
+                        cur_version  = version3;
+                        break;
+                    }
+                    else
+                        continue;
+                default:
+                    break;
+            }
+
+            snmp->aborting = false;
+            snmp->discover(start_address, num_addresses, 
+                    wait_time, cur_version, ap->GetReadComm(), 
+                    ap->GetSecName(), ap->GetSecLevel(), 
+                    ap->GetContextName(), ap->GetContextEngineID(), 
+                    s->MainUI()->DiscoverySNMPv3Probe->isChecked(), this);
+            if (snmp->aborting == true) goto discover_end;
+        }
     }
 
+discover_end:
     emit SignalStartStop(0);
 }
 
@@ -558,6 +581,7 @@ void Discovery::AddAgentToProfiles(void)
 
 void Discovery::Discover(void)
 {
+    int num_transport = 0;
     dt->num_proto = 0;
     dt->num_addresses = 0;
 
@@ -575,6 +599,8 @@ void Discovery::Discover(void)
 
     if (s->MainUI()->DiscoveryLocal->isChecked())
     {
+        if (s->PreferencesObj()->GetEnableIPv4()) num_transport++;
+        if (s->PreferencesObj()->GetEnableIPv6()) num_transport++;
         dt->num_addresses = 1;
     }
     else
@@ -626,10 +652,12 @@ void Discovery::Discover(void)
             return;
         }
 
+        num_transport = 1;
         dt->num_addresses = addr_to[3] - addr_from[3] + 1;
     }
 
-    s->MainUI()->DiscoveryProgress->setRange(0, dt->num_proto*dt->wait_time);
+    s->MainUI()->DiscoveryProgress->setRange(0, 
+        num_transport*dt->num_proto*dt->wait_time);
 
     dt->start();
 }
