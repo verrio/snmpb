@@ -1,5 +1,5 @@
 ; SNMPB win32 installer
-; Martin Jolicoeur, 2006-2010
+; Martin Jolicoeur, 2006-2011
 
 !include "MUI.nsh"
 !include "FileFunc.nsh"
@@ -205,7 +205,7 @@ NoOwn:
   ;Name and file
   Name "SnmpB"
 ;  OutFile "snmpb-v${NOW}.exe"
-  OutFile "snmpb-0.8.exe"
+  OutFile "snmpb-1.0.exe"
   Icon "..\..\app\images\snmpb.ico"
 
   ;Default installation folder

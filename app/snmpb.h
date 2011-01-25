@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2004-2010  Martin Jolicoeur (snmpb1@gmail.com) 
+    Copyright (C) 2004-2011 Martin Jolicoeur (snmpb1@gmail.com) 
 
     This file is part of the SnmpB project 
     (http://sourceforge.net/projects/snmpb)
@@ -22,7 +22,7 @@
 
 #include "ui_mainw.h"
 
-#define SNMPB_VERSION_STRING "0.8"
+#define SNMPB_VERSION_STRING "1.0"
 
 class MibModule;
 class Trap;

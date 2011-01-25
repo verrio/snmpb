@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2004-2010  Martin Jolicoeur (snmpb1@gmail.com) 
+    Copyright (C) 2004-2011 Martin Jolicoeur (snmpb1@gmail.com) 
 
     This file is part of the SnmpB project 
     (http://sourceforge.net/projects/snmpb)
@@ -369,7 +369,7 @@ Version %1<br>                                                                  
 http://sourceforge.net/projects/snmpb</a><br><br>                                \
                                                                                  \
 Copyright (c) <b>Martin Jolicoeur</b> (<a href=\"mailto:snmpb1@gmail.com\">\
-snmpb1@gmail.com</a>), 2004-2010<br><br>                                         \
+snmpb1@gmail.com</a>), 2004-2011<br><br>                                         \
                                                                                  \
 SnmpB is an SNMP MIB browser (Simple Network Management Protocol) written in QT. \
 It supports SNMPv1, SNMPv2c and SNMPv3. SnmpB can browse/edit/load/add MIB files \

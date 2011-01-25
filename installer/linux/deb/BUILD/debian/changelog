@@ -1,3 +1,9 @@
+snmpb (1.0) stable; urgency=low
+
+  * Release 1.0 (TBD) 
+
+ -- Martin Jolicoeur <snmpb1@gmail.com>  Sun, 21 Jun 2109 11:00:00 -0500
+
 snmpb (0.8) stable; urgency=low
 
   * Release 0.8 

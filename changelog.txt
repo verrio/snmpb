@@ -1,3 +1,6 @@
+1.0
+TBD
+
 0.8 (Sun, 21 Jun 2009)
 - Added support for SNMP SET
 - Added support for SNMP GET-BULK 

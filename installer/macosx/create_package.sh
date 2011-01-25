@@ -21,7 +21,7 @@
 # Martin Jolicoeur, March 2009
 #
 
-VERSION=0.8
+VERSION=1.0
 APPNAME=SnmpB
 APFILESPATH=${APPNAME}.app/Contents/MacOS
 

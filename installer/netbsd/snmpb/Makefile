@@ -1,4 +1,4 @@
-DISTNAME=	snmpb-0.8
+DISTNAME=	snmpb-1.0
 PKGREVISION=	1
 CATEGORIES=	x11 net 
 MASTER_SITES=	http://downloads.sf.net/snmpb/
