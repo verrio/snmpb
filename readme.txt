@@ -10,10 +10,11 @@ Tested & compiles on Cygwin/Windows, Linux, MacOSX (Leopard) and NetBSD
 
 Required installed packages for compilation:
 - bison & flex
+- autoconf and automake
 - GNU make
 - QT4 development package
 - GNU install
-- gcc
+- gcc and g++
 
 External packages
 ------------------
