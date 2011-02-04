@@ -588,6 +588,7 @@ bool MibSelection::run(const QString& init_oid, int init_syntax, const QString& 
     }
 
     disconnect( bmv, SIGNAL( SelectedOid(const QString&) ), 0, 0);
+    bmv->clearSelection();
 
     return status;
 }
