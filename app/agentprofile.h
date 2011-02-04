@@ -51,6 +51,7 @@ public:
     void SetProfileName(void);
 
     void SetAddress(void);
+    void SetAddress(QString a) {address = a;};
     QString GetAddress(void);
     void SetPort(void);
     QString GetPort(void);

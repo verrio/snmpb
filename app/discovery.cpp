@@ -30,6 +30,37 @@
 #define DISC_SNMP_V2C "V2c"
 #define DISC_SNMP_V3  "V3"
 
+/* Conversion routines to/from bytes array to integer value for IP addresses */
+#define IPV4_FROM_UCHAR(array, integer)                         \
+    do {                                                        \
+        for (int _a = 4; _a > 0; _a--)                          \
+            integer |= (unsigned int)array[_a-1] << ((4-_a)*8); \
+    } while(0)
+
+#define IPV6_FROM_UCHAR(array, hillint, lollint)                      \
+    do {                                                              \
+        for (int _a = 8; _a > 0; _a--)                                \
+        {                                                             \
+            hillint |= (unsigned long long)array[_a-1] << ((8-_a)*8); \
+            lollint |= (unsigned long long)array[_a+7] << ((8-_a)*8); \
+        }                                                             \
+    } while(0)
+
+#define IPV4_TO_UCHAR(array, integer)                     \
+    do {                                                  \
+        for (int _a = 4; _a > 0; _a--)                    \
+            array[_a-1] = (integer >> ((4-_a)*8)) & 0xFF; \
+    } while(0)
+
+#define IPV6_TO_UCHAR(array, hillint, lollint)            \
+    do {                                                  \
+        for (int _a = 8; _a > 0; _a--)                    \
+        {                                                 \
+            array[_a-1] = (hillint >> ((8-_a)*8)) & 0xFF; \
+            array[_a+7] = (lollint >> ((8-_a)*8)) & 0xFF; \
+        }                                                 \
+    } while(0)
+
 /* Internal SNMP++ routine */
 extern int receive_snmp_response(SnmpSocket sock, Snmp &snmp_session,
                                  Pdu &pdu, UdpAddress &fromaddress,
@@ -220,7 +251,7 @@ DiscoverySnmp::DiscoverySnmp(int &status, const UdpAddress& addr_v4,
 {
 }
 
-void DiscoverySnmp::discover(const UdpAddress &start_addr, int num_addr,
+void DiscoverySnmp::discover(const UdpAddress &start_addr, unsigned long long num_addr,
                              const int timeout_sec, const snmp_version version,
                              QString readcomm, QString secname, int seclevel, 
                              QString ctxname, QString ctxengineid, 
@@ -228,10 +259,12 @@ void DiscoverySnmp::discover(const UdpAddress &start_addr, int num_addr,
 {
     unsigned char *message = NULL;
     int message_length = 0;
-    unsigned int sock = iv_snmp_session;
+    unsigned int sock;
     SnmpMessage *snmpmsg = NULL;
     Pdu pdu;
     OctetStr get_community;
+    unsigned long long hicuraddr = 0, locuraddr = 0;
+    unsigned int curaddr = 0;
 
     // Prepare pdu
     if ((version != version3) || (use_snmpv3_probe == false))
@@ -268,25 +301,21 @@ void DiscoverySnmp::discover(const UdpAddress &start_addr, int num_addr,
 
     // Send probe packets
     UdpAddress cur_address = start_addr;
-    for(int j = 0; j < num_addr; j++)
+
+    // First, convert the address to incrementable integer(s)
+    if (cur_address.get_ip_version() == Address::version_ipv4)
     {
-        UdpAddress uaddr(cur_address);
+        sock = iv_snmp_session;
+        IPV4_FROM_UCHAR(cur_address, curaddr);
+    }
+    else
+    {
+        sock = iv_snmp_session_ipv6;
+        IPV6_FROM_UCHAR(cur_address, hicuraddr, locuraddr);
+    }
 
-        if (uaddr.get_ip_version() == Address::version_ipv4)
-        {
-            if (iv_snmp_session != (int)INVALID_SOCKET)
-                sock = iv_snmp_session;
-            else
-            {
-                uaddr.map_to_ipv6();
-                sock = iv_snmp_session_ipv6;
-            }
-        }
-        else
-        {
-            sock = iv_snmp_session_ipv6;
-        }
-
+    for(unsigned long long j = 0; j < num_addr; j++)
+    {
         if (version != version3)
         {
             pdu.set_request_id(MyMakeReqId()); // determine request id to use
@@ -313,7 +342,7 @@ void DiscoverySnmp::discover(const UdpAddress &start_addr, int num_addr,
                 OctetStr engine_id;
                 pdu.set_request_id(MyMakeReqId()); // determine request id to use
                 v3MP::I->get_from_engine_id_table(engine_id, 
-                                                  uaddr.get_printable());
+                                                  cur_address.get_printable());
 
                 snmpmsg = new SnmpMessage();
                 if (snmpmsg->loadv3( pdu, engine_id, secname.toLatin1().data(),
@@ -326,7 +355,7 @@ void DiscoverySnmp::discover(const UdpAddress &start_addr, int num_addr,
             }
         }
 
-        if (send_raw_data(message, message_length, uaddr) < 0)
+        if (send_raw_data(message, message_length, cur_address) < 0)
         {
             if (snmpmsg) delete snmpmsg;
             return;
@@ -339,7 +368,19 @@ next_addr:
             snmpmsg = NULL;
         }
 
-        cur_address[3]++;
+        // Increment the address according to transport protocol version
+        if (cur_address.get_ip_version() == Address::version_ipv4)
+        {
+            curaddr++;
+            IPV4_TO_UCHAR(cur_address, curaddr);
+        }
+        else
+        {
+            if (locuraddr == 0xFFFFFFFFFFFFFFFFULL) // locuraddr overflow
+                hicuraddr++;
+            locuraddr++;
+            IPV6_TO_UCHAR(cur_address, hicuraddr, locuraddr);
+        }
 
         if (aborting == true)
             return;
@@ -608,52 +649,106 @@ void Discovery::Discover(void)
         IpAddress addr_from(s->MainUI()->DiscoveryFrom->text().toLatin1().data());
         IpAddress addr_to(s->MainUI()->DiscoveryTo->text().toLatin1().data());
 
-        // From must a valid IPv4 address
-        if (!addr_from.valid() || 
-            (addr_from.get_ip_version() != Address::version_ipv4) || 
-            (addr_from[0] == 0))
+        // From must be a valid IP address
+        if (!addr_from.valid() || (addr_from[0] == 0))
         {
-            QString err = QString("Invalid Address or DNS Name: %1")
+            QString err = QString("Invalid Address: %1")
                                   .arg(s->MainUI()->DiscoveryFrom->text());
             QMessageBox::critical ( NULL, "From address", err, 
                                     QMessageBox::Ok, Qt::NoButton);
             return;
         }
 
-        // To must a valid IPv4 address
-        if (!addr_to.valid() || 
-            (addr_to.get_ip_version() != Address::version_ipv4) || 
-            (addr_to[0] == 0))
+        // To must be a valid IP address
+        if (!addr_to.valid() || (addr_to[0] == 0))
         {
-            QString err = QString("Invalid Address or DNS Name: %1")
+            QString err = QString("Invalid Address: %1")
                                   .arg(s->MainUI()->DiscoveryTo->text());
             QMessageBox::critical ( NULL, "To address", err, 
                                     QMessageBox::Ok, Qt::NoButton);
             return;
         }
 
-        // Must have a valid address range
-        if (addr_from > addr_to)
+        Address::version_type vfrom = addr_from.get_ip_version();
+        Address::version_type vto = addr_to.get_ip_version();
+
+        // IP versions must match
+        if (vfrom != vto) 
         {
-            QString err = QString("'To address' must be greater than 'From address'");
-            QMessageBox::critical ( NULL, "Invalid address range", err, 
+            QString err = QString("IP address version mismatch: %1 -> %2")
+                                  .arg(vfrom==Address::version_ipv4?"IPv4":"IPv6")
+                                  .arg(vto==Address::version_ipv4?"IPv4":"IPv6");
+            QMessageBox::critical ( NULL, "IP version mismatch", err, 
                                     QMessageBox::Ok, Qt::NoButton);
             return;
         }
 
-        // Address must be in the same /24 subnet (limitation for now)
-        if ((addr_to[0] != addr_from[0]) ||
-            (addr_to[1] != addr_from[1]) ||
-            (addr_to[2] != addr_from[2]))
+        // Do checks based on IP version and compute the number of addresses
+        if (vfrom == Address::version_ipv4)
         {
-            QString err = QString("'To address' must be in same /24 subnet than 'From address'");
-            QMessageBox::critical ( NULL, "Invalid address range", err, 
+            unsigned int from = 0, to = 0;
+
+            if (s->PreferencesObj()->GetEnableIPv4() == false)
+            {
+                QString err = QString("IPv4 address specified but transport is ") +
+                    QString("unavailable (see Options menu->preferences->transport)");
+                QMessageBox::critical ( NULL, "IP transport", err, 
+                                        QMessageBox::Ok, Qt::NoButton);
+                return;
+            }
+
+            IPV4_FROM_UCHAR(addr_from, from);
+            IPV4_FROM_UCHAR(addr_to, to);
+
+            if (from <= to)
+                dt->num_addresses = to - from + 1;
+            else
+            {
+                QString err = QString("'To address' must be greater than 'From address'");
+                QMessageBox::critical ( NULL, "Invalid address range", err, 
+                                        QMessageBox::Ok, Qt::NoButton);
+                return;
+            }
+        }
+        else
+        if (vfrom == Address::version_ipv6)
+        {
+            unsigned long long lofrom = 0, hifrom = 0, loto = 0, hito = 0;
+
+            if (s->PreferencesObj()->GetEnableIPv6() == false)
+            {
+                QString err = QString("IPv6 address specified but transport is ") +
+                    QString("unavailable (see Options menu->preferences->transport)");
+                QMessageBox::critical ( NULL, "IP transport", err, 
+                                        QMessageBox::Ok, Qt::NoButton);
+                return;
+            }
+
+            IPV6_FROM_UCHAR(addr_from, hifrom, lofrom);
+            IPV6_FROM_UCHAR(addr_to, hito, loto);
+
+            if (((hito - hifrom) == 0) && (lofrom <= loto))
+                dt->num_addresses = loto - lofrom + 1;
+            else if (((hito - hifrom) == 1) && (lofrom > loto))
+                dt->num_addresses = ~lofrom + loto + 1;
+            else
+            {
+                QString err = QString("'To address' must be greater than 'From") +
+                    QString(" address' with a range no larger than 2^64 addresses");
+                QMessageBox::critical ( NULL, "Invalid address range", err, 
+                        QMessageBox::Ok, Qt::NoButton);
+                return;
+            }
+        }
+        else
+        {
+            QString err = QString("Unsupported transport type");
+            QMessageBox::critical ( NULL, "Transport", err, 
                                     QMessageBox::Ok, Qt::NoButton);
             return;
         }
 
         num_transport = 1;
-        dt->num_addresses = addr_to[3] - addr_from[3] + 1;
     }
 
     s->MainUI()->DiscoveryProgress->setRange(0, 

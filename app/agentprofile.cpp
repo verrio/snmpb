@@ -95,7 +95,12 @@ AgentProfileManager::AgentProfileManager(Snmpb *snmpb)
         Add();
         currentprofile = GetAgentProfile("newagent");
         currentprofile->SetName("localhost");
+        Add();
+        currentprofile = GetAgentProfile("newagent");
+        currentprofile->SetName("localhostipv6");
+        currentprofile->SetAddress("::1");
         WriteConfigFile();
+        Delete();
         Delete();
     }
 

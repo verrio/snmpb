@@ -31,7 +31,7 @@ class DiscoverySnmp: public Snmp
 public:
     DiscoverySnmp(int &status, const UdpAddress &addr);
     DiscoverySnmp(int &status,  const UdpAddress& addr_v4, const UdpAddress& addr_v6);
-    void discover(const UdpAddress &start_addr, int num_addr,
+    void discover(const UdpAddress &start_addr, unsigned long long num_addr,
                   const int timeout_sec, const snmp_version version,
                   QString readcomm, QString secname, int seclevel, 
                   QString cxtname, QString ctxengineid, bool use_snmpv3_probe,
@@ -53,7 +53,7 @@ public:
 
 public:
     int num_proto;
-    int num_addresses;
+    unsigned long long num_addresses;
     int wait_time;
 
 signals:

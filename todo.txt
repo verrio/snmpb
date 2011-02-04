@@ -8,7 +8,6 @@
 - Add SMIv1/SMIv2 config and severity checking level for MIB editor validation
 - Feature: Add download and extract MIB from RFC from ietf.org directly
 - Feature: add packet/session sniffing tab
-- Feature: support IPv6
 - Feature: Add table mirror view
 - Feature: Add send trap/inform tool
 
@@ -16,4 +15,6 @@ MacOSX bugs:
 - Fix editFinished signal not working in mibselection.cpp
 - Find solution to bind port < 1024
 - Fix broken package (does not install properly, at least on 10.6+)
+
+- Crash multiple varbinds -> trigs autoloading
 
