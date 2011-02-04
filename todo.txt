@@ -15,6 +15,3 @@ MacOSX bugs:
 - Fix editFinished signal not working in mibselection.cpp
 - Find solution to bind port < 1024
 - Fix broken package (does not install properly, at least on 10.6+)
-
-- Crash multiple varbinds -> trigs autoloading
-
