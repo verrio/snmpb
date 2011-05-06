@@ -270,9 +270,7 @@ Section "SnmpB application" SecApp
   File ..\..\app\release\snmpb.exe
   File $%QTDIR%\bin\QtCore4.dll
   File $%QTDIR%\bin\QtGui4.dll
-  File $%QTDIR%\bin\QtNetwork4.dll
-  File $%QTDIR%\bin\QtSql4.dll
-  File $%QTDIR%\bin\QtXml4.dll
+  File $%QTDIR%\bin\libgcc*
   File $%QTDIR%\bin\mingw*
 
   ;Store installation folder

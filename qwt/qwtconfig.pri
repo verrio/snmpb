@@ -13,7 +13,7 @@ unix {
 
 win32 {
     INSTALLBASE    = C:/Qwt-5.2.0
-    QMAKE_CXXFLAGS += -mno-cygwin
+    QMAKE_CXX      = mingw32-g++
 }
 
 target.path    = $$INSTALLBASE/lib

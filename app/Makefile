@@ -26,20 +26,14 @@ snmpb_app: makefile.snmpb
 
 makefile.snmpb:
 ifneq ($(findstring CYGWIN,${os}),)
-	export DIR_SEPARATOR="/"; qmake -makefile -o makefile.snmpb snmpb.pro
-	sed -e 's/.*qtmain.prl/Makefile/g;s/c:/\/cygdrive\/c/g;s/C:.*moc.exe/moc.exe/g' makefile.snmpb > makefile.tmp
-	mv makefile.tmp makefile.snmpb
-	sed -e 's/c:/\/cygdrive\/c/g;s/C:.*moc.exe/moc.exe/g' makefile.snmpb.Debug > makefile.tmp
-	mv makefile.tmp makefile.snmpb.Debug
-	sed -e 's/c:/\/cygdrive\/c/g;s/C:.*moc.exe/moc.exe/g' makefile.snmpb.Release > makefile.tmp
-	mv makefile.tmp makefile.snmpb.Release
+	qmake -o makefile.snmpb snmpb.pro
 else
 ifneq ($(findstring Darwin,${os}),)
 	# MacOSX
-	qmake -makefile -spec macx-g++ -o makefile.snmpb snmpb.pro
+	qmake -spec macx-g++ -o makefile.snmpb snmpb.pro
 else
 	# Linux/BSD
-	qmake-qt4 -makefile -o makefile.snmpb snmpb.pro
+	qmake-qt4 -o makefile.snmpb snmpb.pro
 endif
 endif
 

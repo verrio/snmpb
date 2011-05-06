@@ -47,14 +47,14 @@ endif
 
 libtomcrypt/libtomcrypt.a:
 ifneq ($(findstring CYGWIN,${os}),)
-	export CFLAGS="-mno-cygwin"; $(MAKE) -C libtomcrypt
+	$(MAKE) -C libtomcrypt CC=mingw32-gcc
 else
 	$(MAKE) -C libtomcrypt
 endif
 
 ifneq ($(findstring CYGWIN,${os}),)
 libsmi/win/libsmi.a:
-	$(MAKE) -C libsmi/win -f Makefile.mingw
+	$(MAKE) -C libsmi/win -f Makefile.mingw CC=mingw32-gcc
 else
 libsmi/lib/.libs/libsmi.a: libsmi/Makefile
 	$(MAKE) -C libsmi
@@ -74,19 +74,7 @@ qwt/lib/libqwt.a: qwt/Makefile
 
 qwt/Makefile:
 ifneq ($(findstring CYGWIN,${os}),)
-	cd qwt; export DIR_SEPARATOR="/"; qmake qwt.pro
-	sed -e 's/c:\//\/cygdrive\/c\//g;s/C:.*moc.exe/moc.exe/g' qwt/Makefile > qwt/Makefile.tmp
-	mv qwt/Makefile.tmp qwt/Makefile
-	cd qwt/src; export DIR_SEPARATOR="/"; qmake src.pro -win32 -o Makefile
-	sed -e 's/c:\//\/cygdrive\/c\//g;s/C:.*moc.exe/moc.exe/g' qwt/src/Makefile > qwt/src/Makefile.tmp
-	mv qwt/src/Makefile.tmp qwt/src/Makefile
-	sed -e 's/c:\//\/cygdrive\/c\//g;s/C:.*moc.exe/moc.exe/g' qwt/src/Makefile.Debug > qwt/src/Makefile.tmp
-	mv qwt/src/Makefile.tmp qwt/src/Makefile.Debug
-	sed -e 's/c:\//\/cygdrive\/c\//g;s/C:.*moc.exe/moc.exe/g' qwt/src/Makefile.Release > qwt/src/Makefile.tmp
-	mv qwt/src/Makefile.tmp qwt/src/Makefile.Release
-	cd qwt/textengines; export DIR_SEPARATOR="/"; qmake textengines.pro -win32 -o Makefile
-	sed -e 's/c:\//\/cygdrive\/c\//g;s/C:.*moc.exe/moc.exe/g' qwt/textengines/Makefile > qwt/textengines/Makefile.tmp
-	mv qwt/textengines/Makefile.tmp qwt/textengines/Makefile
+	cd qwt; qmake qwt.pro
 else
 ifneq ($(findstring Darwin,${os}),)
 	# MacOSX

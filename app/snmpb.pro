@@ -67,23 +67,26 @@ HEADERS	+= snmpb.h \
 	usmprofile.h \
 	preferences.h
 
+FORMS	= mainw.ui agentprofile.ui usmprofile.ui preferences.ui gotoline.ui find.ui replace.ui varbinds.ui
+TEMPLATE	= app
+CONFIG	+= qt warn_on debug
+RESOURCES     = snmpb.qrc
+INCLUDEPATH	+= ../snmp++/include ../libtomcrypt/src/headers ../libsmi/lib ../qwt/src
+LIBS	+= -L. -L../libtomcrypt -L../libsmi/lib/.libs -L../qwt/lib -lsmi -ltomcrypt -lqwt
+LANGUAGE	= C++
+
 unix {
   UI_DIR = .ui
   MOC_DIR = .moc
   OBJECTS_DIR = .obj
 }
-FORMS	= mainw.ui agentprofile.ui usmprofile.ui preferences.ui gotoline.ui find.ui replace.ui varbinds.ui
-TEMPLATE	= app
-CONFIG	+= qt warn_on debug
-win32:CONFIG += release
-win32:DEFINES	+= WIN32
-win32:QMAKE_CXXFLAGS += -mno-cygwin
-win32:QMAKE_LFLAGS += -mno-cygwin
-win32:RC_FILE = snmpb.rc
+win32 {
+  CONFIG += release
+  QMAKE_CXX = mingw32-g++
+  QMAKE_LINK = mingw32-g++
+  RC_FILE = snmpb.rc
+  QMAKE_RC = windres --preprocessor="$$[QT_INSTALL_PREFIX]\\..\\..\\..\\..\\mingw\\bin\\cpp.exe"
+  LIBS	+= -lws2_32 -L../libsmi/win
+}
 macx:ICON = images/snmpb.icns
-RESOURCES     = snmpb.qrc
-INCLUDEPATH	+= ../snmp++/include ../libtomcrypt/src/headers ../libsmi/lib ../qwt/src
-LIBS	+= -L. -L../libtomcrypt -L../libsmi/lib/.libs -L../qwt/lib -lsmi -ltomcrypt -lqwt
-win32:LIBS	+= -lws2_32 -L../libsmi/win
-LANGUAGE	= C++
 
