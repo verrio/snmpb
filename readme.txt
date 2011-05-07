@@ -1,6 +1,8 @@
 To compile:
 
-# make (or gmake)
+# make (linux, macosx, unix)
+# gmake (*BSD)
+> mingw32-make (Windows)
 
 To install in places other than /usr, add INSTALL_PREFIX=<prefix> to the make command.
 
@@ -54,12 +56,12 @@ lib/smi.c  "Fixed display for non-printable octet-strings -tracker 3096221"
 lib/smi.c  "Allows OCTET STRING to be printable with \v, \t , \r, \n, \f"
 
 QWT is taken from http://qwt.sourceforge.net
-Version: 5.2.0
+Version: 6.0.0
 
 Modified file(s):
 qwtconfig.pri
-+ do not import the doc sub-directory for space's sake
++ do not import the doc and examples sub-directories for space's sake
 
 --------------------------------
 
-Martin Jolicoeur, April 2008
+Martin Jolicoeur, April 2011

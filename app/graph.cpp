@@ -24,12 +24,37 @@
 #include "agent.h"
 #include "comboboxes.h"
 
+#include <qwt_plot_zoomer.h>
+#include <qwt_plot_layout.h>
+
+class tracker: public QwtPlotZoomer
+{
+public:
+    tracker(QwtPlotCanvas *canvas):
+        QwtPlotZoomer(canvas)
+    {
+        setTrackerMode(AlwaysOn);
+    }
+
+    virtual QwtText trackerText(const QPoint &pos) const
+    {
+        QColor bg(Qt::white);
+        bg.setAlpha(200);
+
+        QwtText text = QwtPlotZoomer::trackerText(pos);
+        text.setBackgroundBrush( QBrush( bg ));
+        return text;
+    }
+};
+
 GraphItem::GraphItem(Snmpb *snmpb):QwtPlot(snmpb->MainUI()->GraphName->currentText())
 {
     s = snmpb;
     s->MainUI()->GraphTab->addTab(this, s->MainUI()->GraphName->currentText());
     dataCount = 0;
     timerID = 0;
+
+    new tracker(canvas());
     
     for ( int i = 0; i < PLOT_HISTORY; i++ )
         timeData[i] = i;
@@ -130,7 +155,8 @@ void GraphItem::timerEvent(QTimerEvent *)
     
     for ( int c = 0; c < 1/* TODO */; c++ )
     {
-        curves[c].object->setRawData(timeData, curves[c].data, dataCount);
+        if (curves[c].object)
+            curves[c].object->setRawSamples(timeData, curves[c].data, dataCount);
     }
 
     replot();
