@@ -343,9 +343,6 @@ TextLabelInterface::TextLabelInterface(QObject *parent):
     d_name = "QwtTextLabel";
     d_include = "qwt_text_label.h";
 
-#ifdef __GNUC__
-#endif
-
     d_icon = QPixmap(":/pixmaps/qwtwidget.png");
     d_domXml = 
         "<widget class=\"QwtTextLabel\" name=\"TextLabel\">\n"

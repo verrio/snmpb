@@ -10,16 +10,6 @@
 #ifndef QWT_DESIGNER_PLUGIN_H
 #define QWT_DESIGNER_PLUGIN_H
 
-#include <qglobal.h>
-
-#if QT_VERSION < 0x040000
-
-#ifdef __GNUC__
-#error This code is Qt4 only
-#endif
-
-#endif
-
 #include <QDesignerCustomWidgetInterface>
 #include <QDesignerTaskMenuExtension>
 #include <QExtensionFactory>
@@ -230,7 +220,7 @@ public:
     QAction *preferredEditAction() const;
     QList<QAction *> taskActions() const;
 
-private slots:
+private Q_SLOTS:
     void editProperties();
     void applyProperties(const QString &);
 
