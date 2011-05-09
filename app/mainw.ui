@@ -1,4 +1,5 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <comment>
     Copyright (C) 2004-2011 Martin Jolicoeur (snmpb1@gmail.com) 
 
@@ -19,8 +20,8 @@
     along with this program.  If not, see http://www.gnu.org/licenses/.
 </comment>
  <class>MainW</class>
- <widget class="QMainWindow" name="MainW" >
-  <property name="geometry" >
+ <widget class="QMainWindow" name="MainW">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -28,189 +29,146 @@
     <height>600</height>
    </rect>
   </property>
-  <property name="sizePolicy" >
-   <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>SnmpB</string>
   </property>
-  <property name="windowIcon" >
-   <iconset resource="snmpb.qrc" >:/images/snmpb.png</iconset>
+  <property name="windowIcon">
+   <iconset resource="snmpb.qrc">
+    <normaloff>:/images/snmpb.png</normaloff>:/images/snmpb.png</iconset>
   </property>
-  <property name="windowIconText" >
+  <property name="windowIconText">
    <string>SnmpB - SNMP MIB Browser</string>
   </property>
-  <widget class="QWidget" name="widget" >
-   <layout class="QGridLayout" >
-    <property name="leftMargin" >
+  <widget class="QWidget" name="widget">
+   <layout class="QGridLayout">
+    <property name="margin">
      <number>11</number>
     </property>
-    <property name="topMargin" >
-     <number>11</number>
-    </property>
-    <property name="rightMargin" >
-     <number>11</number>
-    </property>
-    <property name="bottomMargin" >
-     <number>11</number>
-    </property>
-    <property name="horizontalSpacing" >
+    <property name="spacing">
      <number>6</number>
     </property>
-    <property name="verticalSpacing" >
-     <number>6</number>
-    </property>
-    <item row="0" column="0" >
-     <widget class="QTabWidget" name="TabW" >
-      <property name="focusPolicy" >
+    <item row="0" column="0">
+     <widget class="QTabWidget" name="TabW">
+      <property name="focusPolicy">
        <enum>Qt::ClickFocus</enum>
       </property>
-      <property name="tabShape" >
+      <property name="tabShape">
        <enum>QTabWidget::Rounded</enum>
       </property>
-      <property name="currentIndex" >
+      <property name="currentIndex">
        <number>0</number>
       </property>
-      <widget class="QWidget" name="TreeTab" >
-       <attribute name="title" >
+      <widget class="QWidget" name="TreeTab">
+       <attribute name="title">
         <string>Tree</string>
        </attribute>
-       <layout class="QGridLayout" >
-        <property name="leftMargin" >
+       <layout class="QGridLayout">
+        <property name="margin">
          <number>0</number>
         </property>
-        <property name="topMargin" >
-         <number>0</number>
-        </property>
-        <property name="rightMargin" >
-         <number>0</number>
-        </property>
-        <property name="bottomMargin" >
-         <number>0</number>
-        </property>
-        <property name="horizontalSpacing" >
+        <property name="spacing">
          <number>6</number>
         </property>
-        <property name="verticalSpacing" >
-         <number>6</number>
-        </property>
-        <item row="0" column="0" >
-         <widget class="QSplitter" name="QuerySplitter" >
-          <property name="orientation" >
+        <item row="0" column="0">
+         <widget class="QSplitter" name="QuerySplitter">
+          <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
-          <widget class="QSplitter" name="NodeInfoSplitter" >
-           <property name="orientation" >
+          <widget class="QSplitter" name="NodeInfoSplitter">
+           <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
-           <widget class="QWidget" name="MIBTreeLayout" >
-            <layout class="QVBoxLayout" >
-             <property name="spacing" >
+           <widget class="QWidget" name="MIBTreeLayout">
+            <layout class="QVBoxLayout">
+             <property name="spacing">
               <number>0</number>
              </property>
-             <property name="leftMargin" >
-              <number>0</number>
-             </property>
-             <property name="topMargin" >
-              <number>0</number>
-             </property>
-             <property name="rightMargin" >
-              <number>0</number>
-             </property>
-             <property name="bottomMargin" >
+             <property name="margin">
               <number>0</number>
              </property>
              <item>
-              <widget class="QGroupBox" name="AgentProperties" >
-               <property name="title" >
+              <widget class="QGroupBox" name="AgentProperties">
+               <property name="title">
                 <string>Remote SNMP Agent</string>
                </property>
-               <layout class="QGridLayout" >
-                <property name="leftMargin" >
+               <layout class="QGridLayout">
+                <property name="margin">
                  <number>1</number>
                 </property>
-                <property name="topMargin" >
-                 <number>1</number>
-                </property>
-                <property name="rightMargin" >
-                 <number>1</number>
-                </property>
-                <property name="bottomMargin" >
-                 <number>1</number>
-                </property>
-                <property name="horizontalSpacing" >
+                <property name="spacing">
                  <number>3</number>
                 </property>
-                <property name="verticalSpacing" >
-                 <number>3</number>
-                </property>
-                <item row="0" column="4" >
-                 <widget class="QRadioButton" name="AgentProtoV3" >
-                  <property name="sizePolicy" >
-                   <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+                <item row="0" column="4">
+                 <widget class="QRadioButton" name="AgentProtoV3">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
                   </property>
-                  <property name="text" >
+                  <property name="text">
                    <string>SNMPv3</string>
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="3" >
-                 <widget class="QRadioButton" name="AgentProtoV2" >
-                  <property name="sizePolicy" >
-                   <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+                <item row="0" column="3">
+                 <widget class="QRadioButton" name="AgentProtoV2">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
                   </property>
-                  <property name="text" >
+                  <property name="text">
                    <string>SNMPv2c</string>
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="0" >
-                 <widget class="QComboBox" name="AgentProfile" >
-                  <property name="sizePolicy" >
-                   <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+                <item row="0" column="0">
+                 <widget class="QComboBox" name="AgentProfile">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="1" >
-                 <widget class="QPushButton" name="AgentSettings" >
-                  <property name="sizePolicy" >
-                   <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+                <item row="0" column="1">
+                 <widget class="QPushButton" name="AgentSettings">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
                   </property>
-                  <property name="text" >
+                  <property name="text">
                    <string/>
                   </property>
-                  <property name="icon" >
-                   <iconset>:/images/agentsettings.png</iconset>
+                  <property name="icon">
+                   <iconset resource="snmpb.qrc">
+                    <normaloff>:/images/agentsettings.png</normaloff>:/images/agentsettings.png</iconset>
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="2" >
-                 <widget class="QRadioButton" name="AgentProtoV1" >
-                  <property name="sizePolicy" >
-                   <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+                <item row="0" column="2">
+                 <widget class="QRadioButton" name="AgentProtoV1">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
                   </property>
-                  <property name="text" >
+                  <property name="text">
                    <string>SNMPv1</string>
                   </property>
-                  <property name="autoRepeat" >
+                  <property name="autoRepeat">
                    <bool>false</bool>
                   </property>
                  </widget>
@@ -219,19 +177,19 @@
               </widget>
              </item>
              <item>
-              <widget class="QLabel" name="MIBTreeL" >
-               <property name="text" >
+              <widget class="QLabel" name="MIBTreeL">
+               <property name="text">
                 <string>MIB Tree</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="MibView" native="1" name="MIBTree" >
-               <property name="enabled" >
+              <widget class="MibView" name="MIBTree" native="true">
+               <property name="enabled">
                 <bool>true</bool>
                </property>
-               <property name="sizePolicy" >
-                <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -240,42 +198,33 @@
              </item>
             </layout>
            </widget>
-           <widget class="QWidget" name="NodeInfoLayout" >
-            <layout class="QVBoxLayout" >
-             <property name="spacing" >
+           <widget class="QWidget" name="NodeInfoLayout">
+            <layout class="QVBoxLayout">
+             <property name="spacing">
               <number>0</number>
              </property>
-             <property name="leftMargin" >
-              <number>0</number>
-             </property>
-             <property name="topMargin" >
-              <number>0</number>
-             </property>
-             <property name="rightMargin" >
-              <number>0</number>
-             </property>
-             <property name="bottomMargin" >
+             <property name="margin">
               <number>0</number>
              </property>
              <item>
-              <widget class="QLabel" name="NodeInfoL" >
-               <property name="text" >
+              <widget class="QLabel" name="NodeInfoL">
+               <property name="text">
                 <string>Node Info</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QTextEdit" name="NodeInfo" >
-               <property name="frameShape" >
+              <widget class="QTextEdit" name="NodeInfo">
+               <property name="frameShape">
                 <enum>QFrame::WinPanel</enum>
                </property>
-               <property name="frameShadow" >
+               <property name="frameShadow">
                 <enum>QFrame::Plain</enum>
                </property>
-               <property name="autoFormatting" >
+               <property name="autoFormatting">
                 <set>QTextEdit::AutoAll</set>
                </property>
-               <property name="readOnly" >
+               <property name="readOnly">
                 <bool>true</bool>
                </property>
               </widget>
@@ -283,66 +232,57 @@
             </layout>
            </widget>
           </widget>
-          <widget class="QWidget" name="QueryLayout" >
-           <layout class="QVBoxLayout" >
-            <property name="spacing" >
+          <widget class="QWidget" name="QueryLayout">
+           <layout class="QVBoxLayout">
+            <property name="spacing">
              <number>0</number>
             </property>
-            <property name="leftMargin" >
-             <number>0</number>
-            </property>
-            <property name="topMargin" >
-             <number>0</number>
-            </property>
-            <property name="rightMargin" >
-             <number>0</number>
-            </property>
-            <property name="bottomMargin" >
+            <property name="margin">
              <number>0</number>
             </property>
             <item>
-             <widget class="QLabel" name="QueryL" >
-              <property name="text" >
+             <widget class="QLabel" name="QueryL">
+              <property name="text">
                <string>Query Results</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QTextEdit" name="Query" >
-              <property name="enabled" >
+             <widget class="QTextEdit" name="Query">
+              <property name="enabled">
                <bool>true</bool>
               </property>
-              <property name="sizePolicy" >
-               <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <property name="frameShape" >
+              <property name="frameShape">
                <enum>QFrame::WinPanel</enum>
               </property>
-              <property name="frameShadow" >
+              <property name="frameShadow">
                <enum>QFrame::Plain</enum>
               </property>
-              <property name="verticalScrollBarPolicy" >
+              <property name="verticalScrollBarPolicy">
                <enum>Qt::ScrollBarAlwaysOn</enum>
               </property>
-              <property name="horizontalScrollBarPolicy" >
+              <property name="horizontalScrollBarPolicy">
                <enum>Qt::ScrollBarAlwaysOn</enum>
               </property>
-              <property name="autoFormatting" >
+              <property name="autoFormatting">
                <set>QTextEdit::AutoNone</set>
               </property>
-              <property name="undoRedoEnabled" >
+              <property name="undoRedoEnabled">
                <bool>false</bool>
               </property>
-              <property name="lineWrapMode" >
+              <property name="lineWrapMode">
                <enum>QTextEdit::NoWrap</enum>
               </property>
-              <property name="readOnly" >
+              <property name="readOnly">
                <bool>true</bool>
               </property>
-              <property name="overwriteMode" >
+              <property name="overwriteMode">
                <bool>false</bool>
               </property>
              </widget>
@@ -353,119 +293,89 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="ModulesTab" >
-       <attribute name="title" >
+      <widget class="QWidget" name="ModulesTab">
+       <attribute name="title">
         <string>Modules</string>
        </attribute>
-       <layout class="QGridLayout" >
-        <property name="leftMargin" >
+       <layout class="QGridLayout">
+        <property name="margin">
          <number>0</number>
         </property>
-        <property name="topMargin" >
-         <number>0</number>
-        </property>
-        <property name="rightMargin" >
-         <number>0</number>
-        </property>
-        <property name="bottomMargin" >
-         <number>0</number>
-        </property>
-        <property name="horizontalSpacing" >
+        <property name="spacing">
          <number>6</number>
         </property>
-        <property name="verticalSpacing" >
-         <number>6</number>
-        </property>
-        <item row="0" column="0" >
-         <widget class="QSplitter" name="ModuleInfoSplitter" >
-          <property name="orientation" >
+        <item row="0" column="0">
+         <widget class="QSplitter" name="ModuleInfoSplitter">
+          <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
-          <widget class="QSplitter" name="ModulesSplitter" >
-           <property name="orientation" >
+          <widget class="QSplitter" name="ModulesSplitter">
+           <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
-           <widget class="QWidget" name="UnloadedLayout" >
-            <layout class="QHBoxLayout" >
-             <property name="spacing" >
+           <widget class="QWidget" name="UnloadedLayout">
+            <layout class="QHBoxLayout">
+             <property name="spacing">
               <number>0</number>
              </property>
-             <property name="leftMargin" >
-              <number>0</number>
-             </property>
-             <property name="topMargin" >
-              <number>0</number>
-             </property>
-             <property name="rightMargin" >
-              <number>0</number>
-             </property>
-             <property name="bottomMargin" >
+             <property name="margin">
               <number>0</number>
              </property>
              <item>
-              <layout class="QVBoxLayout" >
-               <property name="spacing" >
+              <layout class="QVBoxLayout">
+               <property name="spacing">
                 <number>0</number>
                </property>
-               <property name="leftMargin" >
-                <number>0</number>
-               </property>
-               <property name="topMargin" >
-                <number>0</number>
-               </property>
-               <property name="rightMargin" >
-                <number>0</number>
-               </property>
-               <property name="bottomMargin" >
+               <property name="margin">
                 <number>0</number>
                </property>
                <item>
-                <widget class="QLabel" name="UnloadedLabel" >
-                 <property name="sizePolicy" >
-                  <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
+                <widget class="QLabel" name="UnloadedLabel">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
-                 <property name="minimumSize" >
+                 <property name="minimumSize">
                   <size>
                    <width>100</width>
                    <height>0</height>
                   </size>
                  </property>
-                 <property name="text" >
+                 <property name="text">
                   <string>Available MIB modules</string>
                  </property>
                 </widget>
                </item>
                <item>
-                <widget class="QTreeWidget" name="UnloadedModules" >
-                 <property name="sizePolicy" >
-                  <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+                <widget class="QTreeWidget" name="UnloadedModules">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
-                 <property name="minimumSize" >
+                 <property name="minimumSize">
                   <size>
                    <width>100</width>
                    <height>0</height>
                   </size>
                  </property>
-                 <property name="frameShape" >
+                 <property name="frameShape">
                   <enum>QFrame::WinPanel</enum>
                  </property>
-                 <property name="frameShadow" >
+                 <property name="frameShadow">
                   <enum>QFrame::Plain</enum>
                  </property>
-                 <property name="selectionMode" >
+                 <property name="selectionMode">
                   <enum>QAbstractItemView::ExtendedSelection</enum>
                  </property>
-                 <property name="rootIsDecorated" >
+                 <property name="rootIsDecorated">
                   <bool>false</bool>
                  </property>
                  <column>
-                  <property name="text" >
+                  <property name="text">
                    <string>Module</string>
                   </property>
                  </column>
@@ -474,31 +384,22 @@
               </layout>
              </item>
              <item>
-              <layout class="QVBoxLayout" >
-               <property name="spacing" >
+              <layout class="QVBoxLayout">
+               <property name="spacing">
                 <number>6</number>
                </property>
-               <property name="leftMargin" >
-                <number>0</number>
-               </property>
-               <property name="topMargin" >
-                <number>0</number>
-               </property>
-               <property name="rightMargin" >
-                <number>0</number>
-               </property>
-               <property name="bottomMargin" >
+               <property name="margin">
                 <number>0</number>
                </property>
                <item>
                 <spacer>
-                 <property name="orientation" >
+                 <property name="orientation">
                   <enum>Qt::Vertical</enum>
                  </property>
-                 <property name="sizeType" >
+                 <property name="sizeType">
                   <enum>QSizePolicy::Expanding</enum>
                  </property>
-                 <property name="sizeHint" >
+                 <property name="sizeHint" stdset="0">
                   <size>
                    <width>10</width>
                    <height>40</height>
@@ -507,58 +408,58 @@
                 </spacer>
                </item>
                <item>
-                <widget class="QPushButton" name="ModuleAdd" >
-                 <property name="sizePolicy" >
-                  <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+                <widget class="QPushButton" name="ModuleAdd">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
-                 <property name="maximumSize" >
+                 <property name="maximumSize">
                   <size>
                    <width>30</width>
                    <height>16777215</height>
                   </size>
                  </property>
-                 <property name="layoutDirection" >
+                 <property name="layoutDirection">
                   <enum>Qt::LeftToRight</enum>
                  </property>
-                 <property name="autoFillBackground" >
+                 <property name="autoFillBackground">
                   <bool>false</bool>
                  </property>
-                 <property name="text" >
-                  <string>-></string>
+                 <property name="text">
+                  <string>-&gt;</string>
                  </property>
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="ModuleDelete" >
-                 <property name="sizePolicy" >
-                  <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+                <widget class="QPushButton" name="ModuleDelete">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
-                 <property name="maximumSize" >
+                 <property name="maximumSize">
                   <size>
                    <width>30</width>
                    <height>16777215</height>
                   </size>
                  </property>
-                 <property name="text" >
+                 <property name="text">
                   <string>&lt;-</string>
                  </property>
                 </widget>
                </item>
                <item>
                 <spacer>
-                 <property name="orientation" >
+                 <property name="orientation">
                   <enum>Qt::Vertical</enum>
                  </property>
-                 <property name="sizeType" >
+                 <property name="sizeType">
                   <enum>QSizePolicy::Expanding</enum>
                  </property>
-                 <property name="sizeHint" >
+                 <property name="sizeHint" stdset="0">
                   <size>
                    <width>10</width>
                    <height>40</height>
@@ -570,46 +471,37 @@
              </item>
             </layout>
            </widget>
-           <widget class="QWidget" name="LoadedLayout" >
-            <layout class="QVBoxLayout" >
-             <property name="spacing" >
+           <widget class="QWidget" name="LoadedLayout">
+            <layout class="QVBoxLayout">
+             <property name="spacing">
               <number>0</number>
              </property>
-             <property name="leftMargin" >
-              <number>0</number>
-             </property>
-             <property name="topMargin" >
-              <number>0</number>
-             </property>
-             <property name="rightMargin" >
-              <number>0</number>
-             </property>
-             <property name="bottomMargin" >
+             <property name="margin">
               <number>0</number>
              </property>
              <item>
-              <widget class="QLabel" name="LoadedLabel" >
-               <property name="text" >
+              <widget class="QLabel" name="LoadedLabel">
+               <property name="text">
                 <string>Loaded MIB modules</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QTreeWidget" name="LoadedModules" >
-               <property name="frameShape" >
+              <widget class="QTreeWidget" name="LoadedModules">
+               <property name="frameShape">
                 <enum>QFrame::WinPanel</enum>
                </property>
-               <property name="frameShadow" >
+               <property name="frameShadow">
                 <enum>QFrame::Plain</enum>
                </property>
-               <property name="selectionMode" >
+               <property name="selectionMode">
                 <enum>QAbstractItemView::ExtendedSelection</enum>
                </property>
-               <property name="rootIsDecorated" >
+               <property name="rootIsDecorated">
                 <bool>false</bool>
                </property>
                <column>
-                <property name="text" >
+                <property name="text">
                  <string>1</string>
                 </property>
                </column>
@@ -618,54 +510,45 @@
             </layout>
            </widget>
           </widget>
-          <widget class="QWidget" name="ModuleInfoLayout" >
-           <layout class="QVBoxLayout" >
-            <property name="spacing" >
+          <widget class="QWidget" name="ModuleInfoLayout">
+           <layout class="QVBoxLayout">
+            <property name="spacing">
              <number>0</number>
             </property>
-            <property name="leftMargin" >
-             <number>0</number>
-            </property>
-            <property name="topMargin" >
-             <number>0</number>
-            </property>
-            <property name="rightMargin" >
-             <number>0</number>
-            </property>
-            <property name="bottomMargin" >
+            <property name="margin">
              <number>0</number>
             </property>
             <item>
-             <widget class="QLabel" name="ModuleInfoL" >
-              <property name="text" >
+             <widget class="QLabel" name="ModuleInfoL">
+              <property name="text">
                <string>Module info</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QTextEdit" name="ModuleInfo" >
-              <property name="enabled" >
+             <widget class="QTextEdit" name="ModuleInfo">
+              <property name="enabled">
                <bool>true</bool>
               </property>
-              <property name="sizePolicy" >
-               <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <property name="frameShape" >
+              <property name="frameShape">
                <enum>QFrame::WinPanel</enum>
               </property>
-              <property name="frameShadow" >
+              <property name="frameShadow">
                <enum>QFrame::Plain</enum>
               </property>
-              <property name="autoFormatting" >
+              <property name="autoFormatting">
                <set>QTextEdit::AutoAll</set>
               </property>
-              <property name="readOnly" >
+              <property name="readOnly">
                <bool>true</bool>
               </property>
-              <property name="overwriteMode" >
+              <property name="overwriteMode">
                <bool>false</bool>
               </property>
              </widget>
@@ -676,102 +559,72 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="EditorTab" >
-       <attribute name="title" >
+      <widget class="QWidget" name="EditorTab">
+       <attribute name="title">
         <string>Editor</string>
        </attribute>
-       <layout class="QGridLayout" >
-        <property name="leftMargin" >
+       <layout class="QGridLayout">
+        <property name="margin">
          <number>9</number>
         </property>
-        <property name="topMargin" >
-         <number>9</number>
-        </property>
-        <property name="rightMargin" >
-         <number>9</number>
-        </property>
-        <property name="bottomMargin" >
-         <number>9</number>
-        </property>
-        <property name="horizontalSpacing" >
+        <property name="spacing">
          <number>6</number>
         </property>
-        <property name="verticalSpacing" >
-         <number>6</number>
-        </property>
-        <item row="0" column="0" >
-         <widget class="QSplitter" name="MIBSplitter" >
-          <property name="orientation" >
+        <item row="0" column="0">
+         <widget class="QSplitter" name="MIBSplitter">
+          <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
-          <widget class="QWidget" name="MIBFileLayout" >
-           <layout class="QVBoxLayout" >
-            <property name="spacing" >
+          <widget class="QWidget" name="MIBFileLayout">
+           <layout class="QVBoxLayout">
+            <property name="spacing">
              <number>0</number>
             </property>
-            <property name="leftMargin" >
-             <number>0</number>
-            </property>
-            <property name="topMargin" >
-             <number>0</number>
-            </property>
-            <property name="rightMargin" >
-             <number>0</number>
-            </property>
-            <property name="bottomMargin" >
+            <property name="margin">
              <number>0</number>
             </property>
             <item>
-             <widget class="QLabel" name="MIBFileL" >
-              <property name="text" >
+             <widget class="QLabel" name="MIBFileL">
+              <property name="text">
                <string>Loaded MIB file</string>
               </property>
              </widget>
             </item>
             <item>
-             <layout class="QHBoxLayout" >
-              <property name="spacing" >
+             <layout class="QHBoxLayout">
+              <property name="spacing">
                <number>6</number>
               </property>
-              <property name="leftMargin" >
-               <number>0</number>
-              </property>
-              <property name="topMargin" >
-               <number>0</number>
-              </property>
-              <property name="rightMargin" >
-               <number>0</number>
-              </property>
-              <property name="bottomMargin" >
+              <property name="margin">
                <number>0</number>
               </property>
               <item>
-               <widget class="MarkerWidget" native="1" name="MIBFileMarker" />
+               <widget class="MarkerWidget" name="MIBFileMarker" native="true"/>
               </item>
               <item>
-               <widget class="MibTextEdit" native="1" name="MIBFile" >
-                <property name="sizePolicy" >
-                 <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+               <widget class="MibTextEdit" name="MIBFile">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
-                <property name="font" >
+                <property name="font">
                  <font>
                   <family>Courier</family>
                   <pointsize>11</pointsize>
                  </font>
                 </property>
-                <property name="frameShape" >
+                <property name="frameShape">
                  <enum>QFrame::WinPanel</enum>
                 </property>
-                <property name="frameShadow" >
+                <property name="frameShadow">
                  <enum>QFrame::Plain</enum>
                 </property>
-                <property name="readOnly" >
+                <property name="readOnly">
                  <bool>false</bool>
                 </property>
-                <property name="overwriteMode" >
+                <property name="overwriteMode">
                  <bool>false</bool>
                 </property>
                </widget>
@@ -779,50 +632,41 @@
              </layout>
             </item>
             <item>
-             <widget class="QStatusBar" name="MIBFileStatus" >
-              <property name="sizeGripEnabled" >
+             <widget class="QStatusBar" name="MIBFileStatus">
+              <property name="sizeGripEnabled">
                <bool>false</bool>
               </property>
              </widget>
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="MIBLogLayout" >
-           <layout class="QVBoxLayout" >
-            <property name="spacing" >
+          <widget class="QWidget" name="MIBLogLayout">
+           <layout class="QVBoxLayout">
+            <property name="spacing">
              <number>0</number>
             </property>
-            <property name="leftMargin" >
-             <number>0</number>
-            </property>
-            <property name="topMargin" >
-             <number>0</number>
-            </property>
-            <property name="rightMargin" >
-             <number>0</number>
-            </property>
-            <property name="bottomMargin" >
+            <property name="margin">
              <number>0</number>
             </property>
             <item>
-             <widget class="QLabel" name="MIBLogL" >
-              <property name="text" >
+             <widget class="QLabel" name="MIBLogL">
+              <property name="text">
                <string>Verification log</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QListWidget" name="MIBLog" >
-              <property name="sizePolicy" >
-               <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+             <widget class="QListWidget" name="MIBLog">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <property name="frameShape" >
+              <property name="frameShape">
                <enum>QFrame::WinPanel</enum>
               </property>
-              <property name="frameShadow" >
+              <property name="frameShadow">
                <enum>QFrame::Plain</enum>
               </property>
              </widget>
@@ -833,86 +677,62 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="DiscoveryTab" >
-       <attribute name="title" >
+      <widget class="QWidget" name="DiscoveryTab">
+       <attribute name="title">
         <string>Discovery</string>
        </attribute>
-       <layout class="QGridLayout" >
-        <property name="leftMargin" >
+       <layout class="QGridLayout">
+        <property name="margin">
          <number>9</number>
         </property>
-        <property name="topMargin" >
-         <number>9</number>
-        </property>
-        <property name="rightMargin" >
-         <number>9</number>
-        </property>
-        <property name="bottomMargin" >
-         <number>9</number>
-        </property>
-        <property name="horizontalSpacing" >
+        <property name="spacing">
          <number>6</number>
         </property>
-        <property name="verticalSpacing" >
-         <number>6</number>
-        </property>
-        <item rowspan="2" row="1" column="1" >
-         <widget class="QGroupBox" name="DiscoveryOptions" >
-          <property name="title" >
+        <item row="1" column="1" rowspan="2">
+         <widget class="QGroupBox" name="DiscoveryOptions">
+          <property name="title">
            <string>Options</string>
           </property>
-          <layout class="QGridLayout" >
-           <property name="leftMargin" >
+          <layout class="QGridLayout">
+           <property name="margin">
             <number>6</number>
            </property>
-           <property name="topMargin" >
+           <property name="spacing">
             <number>6</number>
            </property>
-           <property name="rightMargin" >
-            <number>6</number>
-           </property>
-           <property name="bottomMargin" >
-            <number>6</number>
-           </property>
-           <property name="horizontalSpacing" >
-            <number>6</number>
-           </property>
-           <property name="verticalSpacing" >
-            <number>6</number>
-           </property>
-           <item row="1" column="2" >
-            <widget class="QLabel" name="DiscoveryWaitTimeL2" >
-             <property name="text" >
+           <item row="1" column="2">
+            <widget class="QLabel" name="DiscoveryWaitTimeL2">
+             <property name="text">
               <string>secs.</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="1" >
-            <widget class="QSpinBox" name="DiscoveryWaitTime" >
-             <property name="minimum" >
+           <item row="1" column="1">
+            <widget class="QSpinBox" name="DiscoveryWaitTime">
+             <property name="minimum">
               <number>1</number>
              </property>
-             <property name="maximum" >
+             <property name="maximum">
               <number>1000</number>
              </property>
-             <property name="value" >
+             <property name="value">
               <number>3</number>
              </property>
             </widget>
            </item>
-           <item row="1" column="0" >
-            <widget class="QLabel" name="DiscoveryWaitTimeL" >
-             <property name="text" >
+           <item row="1" column="0">
+            <widget class="QLabel" name="DiscoveryWaitTimeL">
+             <property name="text">
               <string>Wait time per protocol version</string>
              </property>
             </widget>
            </item>
-           <item row="0" column="0" colspan="2" >
-            <widget class="QCheckBox" name="DiscoverySNMPv3Probe" >
-             <property name="text" >
+           <item row="0" column="0" colspan="2">
+            <widget class="QCheckBox" name="DiscoverySNMPv3Probe">
+             <property name="text">
               <string>Use probe packet for SNMPv3</string>
              </property>
-             <property name="checked" >
+             <property name="checked">
               <bool>true</bool>
              </property>
             </widget>
@@ -920,86 +740,75 @@
           </layout>
          </widget>
         </item>
-        <item row="0" column="1" colspan="2" >
-         <widget class="QGroupBox" name="DiscoveryAgentProperties" >
-          <property name="sizePolicy" >
-           <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+        <item row="0" column="1" colspan="2">
+         <widget class="QGroupBox" name="DiscoveryAgentProperties">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="title" >
+          <property name="title">
            <string>Use settings from SNMP Agent profile</string>
           </property>
-          <layout class="QGridLayout" >
-           <property name="leftMargin" >
+          <layout class="QGridLayout">
+           <property name="margin">
             <number>6</number>
            </property>
-           <property name="topMargin" >
+           <property name="spacing">
             <number>6</number>
            </property>
-           <property name="rightMargin" >
-            <number>6</number>
-           </property>
-           <property name="bottomMargin" >
-            <number>6</number>
-           </property>
-           <property name="horizontalSpacing" >
-            <number>6</number>
-           </property>
-           <property name="verticalSpacing" >
-            <number>6</number>
-           </property>
-           <item row="0" column="2" >
-            <widget class="QCheckBox" name="DiscoveryV1" >
-             <property name="text" >
+           <item row="0" column="2">
+            <widget class="QCheckBox" name="DiscoveryV1">
+             <property name="text">
               <string>SNMPv1</string>
              </property>
-             <property name="checked" >
+             <property name="checked">
               <bool>true</bool>
              </property>
             </widget>
            </item>
-           <item row="0" column="3" >
-            <widget class="QCheckBox" name="DiscoveryV2c" >
-             <property name="text" >
+           <item row="0" column="3">
+            <widget class="QCheckBox" name="DiscoveryV2c">
+             <property name="text">
               <string>SNMPv2c</string>
              </property>
-             <property name="checked" >
+             <property name="checked">
               <bool>true</bool>
              </property>
             </widget>
            </item>
-           <item row="0" column="4" >
-            <widget class="QCheckBox" name="DiscoveryV3" >
-             <property name="text" >
+           <item row="0" column="4">
+            <widget class="QCheckBox" name="DiscoveryV3">
+             <property name="text">
               <string>SNMPv3</string>
              </property>
-             <property name="checked" >
+             <property name="checked">
               <bool>true</bool>
              </property>
             </widget>
            </item>
-           <item row="0" column="1" >
-            <widget class="QPushButton" name="DiscoveryAgentSettings" >
-             <property name="sizePolicy" >
-              <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+           <item row="0" column="1">
+            <widget class="QPushButton" name="DiscoveryAgentSettings">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
-             <property name="text" >
+             <property name="text">
               <string/>
              </property>
-             <property name="icon" >
-              <iconset>:/images/agentsettings.png</iconset>
+             <property name="icon">
+              <iconset resource="snmpb.qrc">
+               <normaloff>:/images/agentsettings.png</normaloff>:/images/agentsettings.png</iconset>
              </property>
             </widget>
            </item>
-           <item row="0" column="0" >
-            <widget class="QComboBox" name="DiscoveryAgentProfile" >
-             <property name="sizePolicy" >
-              <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+           <item row="0" column="0">
+            <widget class="QComboBox" name="DiscoveryAgentProfile">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -1009,45 +818,33 @@
           </layout>
          </widget>
         </item>
-        <item rowspan="4" row="0" column="0" >
-         <widget class="QGroupBox" name="DiscoveryRange" >
-          <property name="title" >
+        <item row="0" column="0" rowspan="4">
+         <widget class="QGroupBox" name="DiscoveryRange">
+          <property name="title">
            <string>Discovery range</string>
           </property>
-          <layout class="QGridLayout" >
-           <property name="leftMargin" >
+          <layout class="QGridLayout">
+           <property name="margin">
             <number>9</number>
            </property>
-           <property name="topMargin" >
-            <number>9</number>
-           </property>
-           <property name="rightMargin" >
-            <number>9</number>
-           </property>
-           <property name="bottomMargin" >
-            <number>9</number>
-           </property>
-           <property name="horizontalSpacing" >
+           <property name="spacing">
             <number>6</number>
            </property>
-           <property name="verticalSpacing" >
-            <number>6</number>
-           </property>
-           <item row="3" column="2" colspan="2" >
-            <widget class="QLineEdit" name="DiscoveryTo" >
-             <property name="sizePolicy" >
-              <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
+           <item row="3" column="2" colspan="2">
+            <widget class="QLineEdit" name="DiscoveryTo">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
-             <property name="minimumSize" >
+             <property name="minimumSize">
               <size>
                <width>180</width>
                <height>0</height>
               </size>
              </property>
-             <property name="maximumSize" >
+             <property name="maximumSize">
               <size>
                <width>180</width>
                <height>16777215</height>
@@ -1055,15 +852,15 @@
              </property>
             </widget>
            </item>
-           <item row="2" column="0" >
+           <item row="2" column="0">
             <spacer>
-             <property name="orientation" >
+             <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>
-             <property name="sizeType" >
+             <property name="sizeType">
               <enum>QSizePolicy::Fixed</enum>
              </property>
-             <property name="sizeHint" >
+             <property name="sizeHint" stdset="0">
               <size>
                <width>25</width>
                <height>20</height>
@@ -1071,15 +868,15 @@
              </property>
             </spacer>
            </item>
-           <item row="3" column="0" >
+           <item row="3" column="0">
             <spacer>
-             <property name="orientation" >
+             <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>
-             <property name="sizeType" >
+             <property name="sizeType">
               <enum>QSizePolicy::Fixed</enum>
              </property>
-             <property name="sizeHint" >
+             <property name="sizeHint" stdset="0">
               <size>
                <width>25</width>
                <height>20</height>
@@ -1087,65 +884,65 @@
              </property>
             </spacer>
            </item>
-           <item row="3" column="1" >
-            <widget class="QLabel" name="DiscoveryToL" >
-             <property name="text" >
+           <item row="3" column="1">
+            <widget class="QLabel" name="DiscoveryToL">
+             <property name="text">
               <string>To address</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="1" >
-            <widget class="QLabel" name="DiscoveryFromL" >
-             <property name="text" >
+           <item row="2" column="1">
+            <widget class="QLabel" name="DiscoveryFromL">
+             <property name="text">
               <string>From address</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="2" colspan="2" >
-            <widget class="QLineEdit" name="DiscoveryFrom" >
-             <property name="sizePolicy" >
-              <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
+           <item row="2" column="2" colspan="2">
+            <widget class="QLineEdit" name="DiscoveryFrom">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
-             <property name="minimumSize" >
+             <property name="minimumSize">
+              <size>
+               <width>180</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
               <size>
                <width>180</width>
                <height>16777215</height>
               </size>
              </property>
-             <property name="maximumSize" >
-              <size>
-               <width>180</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text" >
+             <property name="text">
               <string/>
              </property>
             </widget>
            </item>
-           <item row="0" column="0" colspan="2" >
-            <widget class="QRadioButton" name="DiscoveryLocal" >
-             <property name="text" >
+           <item row="0" column="0" colspan="2">
+            <widget class="QRadioButton" name="DiscoveryLocal">
+             <property name="text">
               <string>Local subnet(s)</string>
              </property>
-             <property name="checked" >
+             <property name="checked">
               <bool>true</bool>
              </property>
             </widget>
            </item>
-           <item row="0" column="2" >
-            <widget class="QLabel" name="DiscoveryLocal2" >
-             <property name="text" >
-              <string>-> 255.255.255.255/FF02::1</string>
+           <item row="0" column="2">
+            <widget class="QLabel" name="DiscoveryLocal2">
+             <property name="text">
+              <string>-&gt; 255.255.255.255/FF02::1</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="0" colspan="2" >
-            <widget class="QRadioButton" name="DiscoveryNetworks" >
-             <property name="text" >
+           <item row="1" column="0" colspan="2">
+            <widget class="QRadioButton" name="DiscoveryNetworks">
+             <property name="text">
               <string>IP networks</string>
              </property>
             </widget>
@@ -1153,179 +950,158 @@
           </layout>
          </widget>
         </item>
-        <item row="4" column="0" colspan="3" >
-         <widget class="QTreeWidget" name="DiscoveryOutput" >
-          <property name="frameShape" >
+        <item row="4" column="0" colspan="3">
+         <widget class="QTreeWidget" name="DiscoveryOutput">
+          <property name="frameShape">
            <enum>QFrame::WinPanel</enum>
           </property>
-          <property name="frameShadow" >
+          <property name="frameShadow">
            <enum>QFrame::Plain</enum>
           </property>
-          <property name="selectionMode" >
+          <property name="selectionMode">
            <enum>QAbstractItemView::ExtendedSelection</enum>
           </property>
-          <property name="rootIsDecorated" >
+          <property name="rootIsDecorated">
            <bool>false</bool>
           </property>
           <column>
-           <property name="text" >
+           <property name="text">
             <string>1</string>
            </property>
           </column>
          </widget>
         </item>
-        <item row="1" column="2" >
-         <widget class="QPushButton" name="DiscoveryAbortButton" >
-          <property name="enabled" >
+        <item row="1" column="2">
+         <widget class="QPushButton" name="DiscoveryAbortButton">
+          <property name="enabled">
            <bool>false</bool>
           </property>
-          <property name="sizePolicy" >
-           <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="text" >
+          <property name="text">
            <string>Abort</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="2" >
-         <widget class="QPushButton" name="DiscoveryButton" >
-          <property name="sizePolicy" >
-           <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+        <item row="2" column="2">
+         <widget class="QPushButton" name="DiscoveryButton">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="text" >
+          <property name="text">
            <string>Discover</string>
           </property>
          </widget>
         </item>
-        <item row="3" column="1" colspan="2" >
-         <widget class="QProgressBar" name="DiscoveryProgress" >
-          <property name="value" >
+        <item row="3" column="1" colspan="2">
+         <widget class="QProgressBar" name="DiscoveryProgress">
+          <property name="value">
            <number>0</number>
           </property>
-          <property name="orientation" >
+          <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
-          <property name="invertedAppearance" >
+          <property name="invertedAppearance">
            <bool>false</bool>
           </property>
          </widget>
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="TrapsTab" >
-       <attribute name="title" >
+      <widget class="QWidget" name="TrapsTab">
+       <attribute name="title">
         <string>Traps</string>
        </attribute>
-       <layout class="QGridLayout" >
-        <property name="leftMargin" >
+       <layout class="QGridLayout">
+        <property name="margin">
          <number>0</number>
         </property>
-        <property name="topMargin" >
-         <number>0</number>
-        </property>
-        <property name="rightMargin" >
-         <number>0</number>
-        </property>
-        <property name="bottomMargin" >
-         <number>0</number>
-        </property>
-        <property name="horizontalSpacing" >
+        <property name="spacing">
          <number>6</number>
         </property>
-        <property name="verticalSpacing" >
-         <number>6</number>
-        </property>
-        <item row="0" column="0" >
-         <widget class="QSplitter" name="TrapLogSplitter" >
-          <property name="orientation" >
+        <item row="0" column="0">
+         <widget class="QSplitter" name="TrapLogSplitter">
+          <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
-          <widget class="QWidget" name="TrapLogLayout" >
-           <layout class="QVBoxLayout" >
-            <property name="spacing" >
+          <widget class="QWidget" name="TrapLogLayout">
+           <layout class="QVBoxLayout">
+            <property name="spacing">
              <number>0</number>
             </property>
-            <property name="leftMargin" >
-             <number>0</number>
-            </property>
-            <property name="topMargin" >
-             <number>0</number>
-            </property>
-            <property name="rightMargin" >
-             <number>0</number>
-            </property>
-            <property name="bottomMargin" >
+            <property name="margin">
              <number>0</number>
             </property>
             <item>
-             <widget class="QLabel" name="TrapLogL" >
-              <property name="text" >
+             <widget class="QLabel" name="TrapLogL">
+              <property name="text">
                <string>Trap log</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QTreeWidget" name="TrapLog" >
-              <property name="frameShape" >
+             <widget class="QTreeWidget" name="TrapLog">
+              <property name="frameShape">
                <enum>QFrame::WinPanel</enum>
               </property>
-              <property name="frameShadow" >
+              <property name="frameShadow">
                <enum>QFrame::Plain</enum>
               </property>
-              <property name="rootIsDecorated" >
+              <property name="rootIsDecorated">
                <bool>false</bool>
               </property>
-              <property name="allColumnsShowFocus" >
+              <property name="allColumnsShowFocus">
                <bool>true</bool>
               </property>
               <column>
-               <property name="text" >
+               <property name="text">
                 <string>No</string>
                </property>
               </column>
               <column>
-               <property name="text" >
+               <property name="text">
                 <string>Date</string>
                </property>
               </column>
               <column>
-               <property name="text" >
+               <property name="text">
                 <string>Time</string>
                </property>
               </column>
               <column>
-               <property name="text" >
+               <property name="text">
                 <string>Timestamp</string>
                </property>
               </column>
               <column>
-               <property name="text" >
+               <property name="text">
                 <string>Notification Type</string>
                </property>
               </column>
               <column>
-               <property name="text" >
+               <property name="text">
                 <string>Message Type</string>
                </property>
               </column>
               <column>
-               <property name="text" >
+               <property name="text">
                 <string>Version</string>
                </property>
               </column>
               <column>
-               <property name="text" >
+               <property name="text">
                 <string>Agent Address</string>
                </property>
               </column>
               <column>
-               <property name="text" >
+               <property name="text">
                 <string>Agent port</string>
                </property>
               </column>
@@ -1333,50 +1109,41 @@
             </item>
            </layout>
           </widget>
-          <widget class="QSplitter" name="TrapSplitter" >
-           <property name="orientation" >
+          <widget class="QSplitter" name="TrapSplitter">
+           <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
-           <widget class="QWidget" name="TrapContentLayout" >
-            <layout class="QVBoxLayout" >
-             <property name="spacing" >
+           <widget class="QWidget" name="TrapContentLayout">
+            <layout class="QVBoxLayout">
+             <property name="spacing">
               <number>0</number>
              </property>
-             <property name="leftMargin" >
-              <number>0</number>
-             </property>
-             <property name="topMargin" >
-              <number>0</number>
-             </property>
-             <property name="rightMargin" >
-              <number>0</number>
-             </property>
-             <property name="bottomMargin" >
+             <property name="margin">
               <number>0</number>
              </property>
              <item>
-              <widget class="QLabel" name="TrapContentL" >
-               <property name="text" >
+              <widget class="QLabel" name="TrapContentL">
+               <property name="text">
                 <string>Trap content</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QTreeWidget" name="TrapContent" >
-               <property name="enabled" >
+              <widget class="QTreeWidget" name="TrapContent">
+               <property name="enabled">
                 <bool>true</bool>
                </property>
-               <property name="frameShape" >
+               <property name="frameShape">
                 <enum>QFrame::WinPanel</enum>
                </property>
-               <property name="frameShadow" >
+               <property name="frameShadow">
                 <enum>QFrame::Plain</enum>
                </property>
-               <property name="rootIsDecorated" >
+               <property name="rootIsDecorated">
                 <bool>true</bool>
                </property>
                <column>
-                <property name="text" >
+                <property name="text">
                  <string>Column 1</string>
                 </property>
                </column>
@@ -1384,48 +1151,39 @@
              </item>
             </layout>
            </widget>
-           <widget class="QWidget" name="TrapInfoLayout" >
-            <layout class="QVBoxLayout" >
-             <property name="spacing" >
+           <widget class="QWidget" name="TrapInfoLayout">
+            <layout class="QVBoxLayout">
+             <property name="spacing">
               <number>0</number>
              </property>
-             <property name="leftMargin" >
-              <number>0</number>
-             </property>
-             <property name="topMargin" >
-              <number>0</number>
-             </property>
-             <property name="rightMargin" >
-              <number>0</number>
-             </property>
-             <property name="bottomMargin" >
+             <property name="margin">
               <number>0</number>
              </property>
              <item>
-              <widget class="QLabel" name="TrapInfoL" >
-               <property name="text" >
+              <widget class="QLabel" name="TrapInfoL">
+               <property name="text">
                 <string>Trap info</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QTextEdit" name="TrapInfo" >
-               <property name="sizePolicy" >
-                <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+              <widget class="QTextEdit" name="TrapInfo">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
-               <property name="frameShape" >
+               <property name="frameShape">
                 <enum>QFrame::WinPanel</enum>
                </property>
-               <property name="frameShadow" >
+               <property name="frameShadow">
                 <enum>QFrame::Plain</enum>
                </property>
-               <property name="readOnly" >
+               <property name="readOnly">
                 <bool>true</bool>
                </property>
-               <property name="overwriteMode" >
+               <property name="overwriteMode">
                 <bool>false</bool>
                </property>
               </widget>
@@ -1437,63 +1195,39 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="GraphsTab" >
-       <attribute name="title" >
+      <widget class="QWidget" name="GraphsTab">
+       <attribute name="title">
         <string>Graphs</string>
        </attribute>
-       <layout class="QGridLayout" >
-        <property name="leftMargin" >
+       <layout class="QGridLayout">
+        <property name="margin">
          <number>0</number>
         </property>
-        <property name="topMargin" >
-         <number>0</number>
-        </property>
-        <property name="rightMargin" >
-         <number>0</number>
-        </property>
-        <property name="bottomMargin" >
-         <number>0</number>
-        </property>
-        <property name="horizontalSpacing" >
+        <property name="spacing">
          <number>6</number>
         </property>
-        <property name="verticalSpacing" >
-         <number>6</number>
-        </property>
-        <item row="0" column="0" >
-         <widget class="QTabWidget" name="GraphTab" >
-          <widget class="QWidget" name="SettingsTab" >
-           <attribute name="title" >
+        <item row="0" column="0">
+         <widget class="QTabWidget" name="GraphTab">
+          <widget class="QWidget" name="SettingsTab">
+           <attribute name="title">
             <string>Settings</string>
            </attribute>
-           <layout class="QGridLayout" >
-            <property name="leftMargin" >
+           <layout class="QGridLayout">
+            <property name="margin">
              <number>0</number>
             </property>
-            <property name="topMargin" >
-             <number>0</number>
-            </property>
-            <property name="rightMargin" >
-             <number>0</number>
-            </property>
-            <property name="bottomMargin" >
-             <number>0</number>
-            </property>
-            <property name="horizontalSpacing" >
+            <property name="spacing">
              <number>6</number>
             </property>
-            <property name="verticalSpacing" >
-             <number>6</number>
-            </property>
-            <item row="1" column="0" >
+            <item row="1" column="0">
              <spacer>
-              <property name="orientation" >
+              <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeType" >
+              <property name="sizeType">
                <enum>QSizePolicy::Fixed</enum>
               </property>
-              <property name="sizeHint" >
+              <property name="sizeHint" stdset="0">
                <size>
                 <width>60</width>
                 <height>20</height>
@@ -1501,15 +1235,15 @@
               </property>
              </spacer>
             </item>
-            <item row="1" column="2" >
+            <item row="1" column="2">
              <spacer>
-              <property name="orientation" >
+              <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeType" >
+              <property name="sizeType">
                <enum>QSizePolicy::Fixed</enum>
               </property>
-              <property name="sizeHint" >
+              <property name="sizeHint" stdset="0">
                <size>
                 <width>60</width>
                 <height>20</height>
@@ -1517,15 +1251,15 @@
               </property>
              </spacer>
             </item>
-            <item row="0" column="1" >
+            <item row="0" column="1">
              <spacer>
-              <property name="orientation" >
+              <property name="orientation">
                <enum>Qt::Vertical</enum>
               </property>
-              <property name="sizeType" >
+              <property name="sizeType">
                <enum>QSizePolicy::Fixed</enum>
               </property>
-              <property name="sizeHint" >
+              <property name="sizeHint" stdset="0">
                <size>
                 <width>20</width>
                 <height>16</height>
@@ -1533,15 +1267,15 @@
               </property>
              </spacer>
             </item>
-            <item row="2" column="1" >
+            <item row="2" column="1">
              <spacer>
-              <property name="orientation" >
+              <property name="orientation">
                <enum>Qt::Vertical</enum>
               </property>
-              <property name="sizeType" >
+              <property name="sizeType">
                <enum>QSizePolicy::Minimum</enum>
               </property>
-              <property name="sizeHint" >
+              <property name="sizeHint" stdset="0">
                <size>
                 <width>20</width>
                 <height>20</height>
@@ -1549,83 +1283,62 @@
               </property>
              </spacer>
             </item>
-            <item row="1" column="1" >
-             <layout class="QVBoxLayout" >
-              <property name="spacing" >
+            <item row="1" column="1">
+             <layout class="QVBoxLayout">
+              <property name="spacing">
                <number>6</number>
               </property>
-              <property name="leftMargin" >
-               <number>0</number>
-              </property>
-              <property name="topMargin" >
-               <number>0</number>
-              </property>
-              <property name="rightMargin" >
-               <number>0</number>
-              </property>
-              <property name="bottomMargin" >
+              <property name="margin">
                <number>0</number>
               </property>
               <item>
-               <widget class="QGroupBox" name="Graph" >
-                <property name="title" >
+               <widget class="QGroupBox" name="Graph">
+                <property name="title">
                  <string>Graph</string>
                 </property>
-                <layout class="QGridLayout" >
-                 <property name="leftMargin" >
+                <layout class="QGridLayout">
+                 <property name="margin">
                   <number>11</number>
                  </property>
-                 <property name="topMargin" >
-                  <number>11</number>
-                 </property>
-                 <property name="rightMargin" >
-                  <number>11</number>
-                 </property>
-                 <property name="bottomMargin" >
-                  <number>11</number>
-                 </property>
-                 <property name="horizontalSpacing" >
+                 <property name="spacing">
                   <number>6</number>
                  </property>
-                 <property name="verticalSpacing" >
-                  <number>6</number>
-                 </property>
-                 <item row="1" column="0" colspan="2" >
-                  <widget class="QPushButton" name="GraphCreate" >
-                   <property name="text" >
+                 <item row="1" column="0" colspan="2">
+                  <widget class="QPushButton" name="GraphCreate">
+                   <property name="text">
                     <string>Create graph</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="1" column="2" >
-                  <widget class="QPushButton" name="GraphDelete" >
-                   <property name="text" >
+                 <item row="1" column="2">
+                  <widget class="QPushButton" name="GraphDelete">
+                   <property name="text">
                     <string>Delete graph</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="0" column="0" >
-                  <widget class="QLabel" name="GraphNameL" >
-                   <property name="sizePolicy" >
-                    <sizepolicy vsizetype="Preferred" hsizetype="Fixed" >
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="GraphNameL">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
-                   <property name="text" >
+                   <property name="text">
                     <string>Name</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="0" column="1" colspan="2" >
-                  <widget class="QComboBox" name="GraphName" >
-                   <property name="sizePolicy" >
-                    <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                 <item row="0" column="1" colspan="2">
+                  <widget class="QComboBox" name="GraphName">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
-                   <property name="editable" >
+                   <property name="editable">
                     <bool>true</bool>
                    </property>
                   </widget>
@@ -1634,101 +1347,80 @@
                </widget>
               </item>
               <item>
-               <widget class="QGroupBox" name="Plot" >
-                <property name="title" >
+               <widget class="QGroupBox" name="Plot">
+                <property name="title">
                  <string>Plot</string>
                 </property>
-                <layout class="QGridLayout" >
-                 <property name="leftMargin" >
+                <layout class="QGridLayout">
+                 <property name="margin">
                   <number>11</number>
                  </property>
-                 <property name="topMargin" >
-                  <number>11</number>
-                 </property>
-                 <property name="rightMargin" >
-                  <number>11</number>
-                 </property>
-                 <property name="bottomMargin" >
-                  <number>11</number>
-                 </property>
-                 <property name="horizontalSpacing" >
+                 <property name="spacing">
                   <number>6</number>
                  </property>
-                 <property name="verticalSpacing" >
-                  <number>6</number>
-                 </property>
-                 <item row="0" column="0" colspan="2" >
-                  <layout class="QHBoxLayout" >
-                   <property name="spacing" >
+                 <item row="0" column="0" colspan="2">
+                  <layout class="QHBoxLayout">
+                   <property name="spacing">
                     <number>6</number>
                    </property>
-                   <property name="leftMargin" >
-                    <number>0</number>
-                   </property>
-                   <property name="topMargin" >
-                    <number>0</number>
-                   </property>
-                   <property name="rightMargin" >
-                    <number>0</number>
-                   </property>
-                   <property name="bottomMargin" >
+                   <property name="margin">
                     <number>0</number>
                    </property>
                    <item>
-                    <widget class="QLabel" name="PlotObjectL" >
-                     <property name="text" >
+                    <widget class="QLabel" name="PlotObjectL">
+                     <property name="text">
                       <string>Object</string>
                      </property>
                     </widget>
                    </item>
                    <item>
-                    <widget class="QComboBox" name="PlotObject" >
-                     <property name="sizePolicy" >
-                      <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                    <widget class="QComboBox" name="PlotObject">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
                      </property>
-                     <property name="editable" >
+                     <property name="editable">
                       <bool>true</bool>
                      </property>
                     </widget>
                    </item>
                    <item>
-                    <widget class="QLabel" name="PlotIndexL" >
-                     <property name="text" >
+                    <widget class="QLabel" name="PlotIndexL">
+                     <property name="text">
                       <string>Index</string>
                      </property>
                     </widget>
                    </item>
                    <item>
-                    <widget class="QComboBox" name="PlotIndex" >
-                     <property name="editable" >
+                    <widget class="QComboBox" name="PlotIndex">
+                     <property name="editable">
                       <bool>true</bool>
                      </property>
                     </widget>
                    </item>
                   </layout>
                  </item>
-                 <item rowspan="3" row="1" column="0" >
-                  <widget class="BasicMibView" native="1" name="PlotMIBTree" >
-                   <property name="sizePolicy" >
-                    <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+                 <item row="1" column="0" rowspan="3">
+                  <widget class="BasicMibView" name="PlotMIBTree" native="true">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
                   </widget>
                  </item>
-                 <item row="3" column="1" >
+                 <item row="3" column="1">
                   <spacer>
-                   <property name="orientation" >
+                   <property name="orientation">
                     <enum>Qt::Vertical</enum>
                    </property>
-                   <property name="sizeType" >
+                   <property name="sizeType">
                     <enum>QSizePolicy::Expanding</enum>
                    </property>
-                   <property name="sizeHint" >
+                   <property name="sizeHint" stdset="0">
                     <size>
                      <width>20</width>
                      <height>40</height>
@@ -1736,15 +1428,15 @@
                    </property>
                   </spacer>
                  </item>
-                 <item row="1" column="1" >
+                 <item row="1" column="1">
                   <spacer>
-                   <property name="orientation" >
+                   <property name="orientation">
                     <enum>Qt::Vertical</enum>
                    </property>
-                   <property name="sizeType" >
+                   <property name="sizeType">
                     <enum>QSizePolicy::Expanding</enum>
                    </property>
-                   <property name="sizeHint" >
+                   <property name="sizeHint" stdset="0">
                     <size>
                      <width>20</width>
                      <height>40</height>
@@ -1752,69 +1444,57 @@
                    </property>
                   </spacer>
                  </item>
-                 <item row="2" column="1" >
-                  <layout class="QGridLayout" >
-                   <property name="leftMargin" >
+                 <item row="2" column="1">
+                  <layout class="QGridLayout">
+                   <property name="margin">
                     <number>0</number>
                    </property>
-                   <property name="topMargin" >
-                    <number>0</number>
-                   </property>
-                   <property name="rightMargin" >
-                    <number>0</number>
-                   </property>
-                   <property name="bottomMargin" >
-                    <number>0</number>
-                   </property>
-                   <property name="horizontalSpacing" >
+                   <property name="spacing">
                     <number>6</number>
                    </property>
-                   <property name="verticalSpacing" >
-                    <number>6</number>
-                   </property>
-                   <item row="1" column="1" >
-                    <widget class="QPenStyleComboBox" name="PlotShape" />
+                   <item row="1" column="1">
+                    <widget class="QPenStyleComboBox" name="PlotShape"/>
                    </item>
-                   <item row="2" column="0" >
-                    <widget class="QLabel" name="PlotWidthL" >
-                     <property name="text" >
+                   <item row="2" column="0">
+                    <widget class="QLabel" name="PlotWidthL">
+                     <property name="text">
                       <string>Width</string>
                      </property>
                     </widget>
                    </item>
-                   <item row="2" column="1" >
-                    <widget class="QPenWidthComboBox" name="PlotWidth" />
+                   <item row="2" column="1">
+                    <widget class="QPenWidthComboBox" name="PlotWidth"/>
                    </item>
-                   <item row="1" column="0" >
-                    <widget class="QLabel" name="PlotShapeL" >
-                     <property name="text" >
+                   <item row="1" column="0">
+                    <widget class="QLabel" name="PlotShapeL">
+                     <property name="text">
                       <string>Shape</string>
                      </property>
                     </widget>
                    </item>
-                   <item row="0" column="0" >
-                    <widget class="QLabel" name="PlotColorL" >
-                     <property name="text" >
+                   <item row="0" column="0">
+                    <widget class="QLabel" name="PlotColorL">
+                     <property name="text">
                       <string>Color</string>
                      </property>
                     </widget>
                    </item>
-                   <item row="3" column="0" colspan="2" >
-                    <widget class="QPushButton" name="PlotAdd" >
-                     <property name="text" >
+                   <item row="3" column="0" colspan="2">
+                    <widget class="QPushButton" name="PlotAdd">
+                     <property name="text">
                       <string>Add plot</string>
                      </property>
                     </widget>
                    </item>
-                   <item row="4" column="0" colspan="2" >
-                    <widget class="QPushButton" name="PlotDelete" >
-                     <property name="text" >
+                   <item row="4" column="0" colspan="2">
+                    <widget class="QPushButton" name="PlotDelete">
+                     <property name="text">
                       <string>Remove plot</string>
                      </property>
                     </widget>
                    </item>
-                   <item row="0" column="1" >
-                    <widget class="QColorComboBox" name="PlotColor" />
+                   <item row="0" column="1">
+                    <widget class="QColorComboBox" name="PlotColor"/>
                    </item>
                   </layout>
                  </item>
@@ -1829,135 +1509,108 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="LogTab" >
-       <attribute name="title" >
+      <widget class="QWidget" name="LogTab">
+       <attribute name="title">
         <string>Log</string>
        </attribute>
-       <layout class="QVBoxLayout" >
-        <property name="spacing" >
+       <layout class="QVBoxLayout">
+        <property name="spacing">
          <number>6</number>
         </property>
-        <property name="leftMargin" >
-         <number>9</number>
-        </property>
-        <property name="topMargin" >
-         <number>9</number>
-        </property>
-        <property name="rightMargin" >
-         <number>9</number>
-        </property>
-        <property name="bottomMargin" >
+        <property name="margin">
          <number>9</number>
         </property>
         <item>
-         <layout class="QHBoxLayout" >
-          <property name="spacing" >
+         <layout class="QHBoxLayout">
+          <property name="spacing">
            <number>6</number>
           </property>
-          <property name="leftMargin" >
-           <number>0</number>
-          </property>
-          <property name="topMargin" >
-           <number>0</number>
-          </property>
-          <property name="rightMargin" >
-           <number>0</number>
-          </property>
-          <property name="bottomMargin" >
+          <property name="margin">
            <number>0</number>
           </property>
           <item>
-           <widget class="QCheckBox" name="LogEnable" >
-            <property name="text" >
+           <widget class="QCheckBox" name="LogEnable">
+            <property name="text">
              <string>Enable SNMP stack logging</string>
             </property>
-            <property name="checked" >
+            <property name="checked">
              <bool>true</bool>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QGroupBox" name="LogLevels" >
-            <property name="enabled" >
+           <widget class="QGroupBox" name="LogLevels">
+            <property name="enabled">
              <bool>false</bool>
             </property>
-            <property name="title" >
+            <property name="title">
              <string>Logging levels</string>
             </property>
-            <layout class="QHBoxLayout" >
-             <property name="spacing" >
+            <layout class="QHBoxLayout">
+             <property name="spacing">
               <number>6</number>
              </property>
-             <property name="leftMargin" >
-              <number>9</number>
-             </property>
-             <property name="topMargin" >
-              <number>9</number>
-             </property>
-             <property name="rightMargin" >
-              <number>9</number>
-             </property>
-             <property name="bottomMargin" >
+             <property name="margin">
               <number>9</number>
              </property>
              <item>
-              <widget class="QCheckBox" name="LogError" >
-               <property name="text" >
+              <widget class="QCheckBox" name="LogError">
+               <property name="text">
                 <string>Error</string>
                </property>
-               <property name="checked" >
+               <property name="checked">
                 <bool>true</bool>
                </property>
-               <property name="tristate" >
+               <property name="tristate">
                 <bool>false</bool>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QCheckBox" name="LogWarning" >
-               <property name="text" >
+              <widget class="QCheckBox" name="LogWarning">
+               <property name="text">
                 <string>Warning</string>
                </property>
-               <property name="checked" >
+               <property name="checked">
                 <bool>true</bool>
                </property>
-               <property name="tristate" >
+               <property name="tristate">
                 <bool>false</bool>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QCheckBox" name="LogEvent" >
-               <property name="text" >
+              <widget class="QCheckBox" name="LogEvent">
+               <property name="text">
                 <string>Event</string>
                </property>
-               <property name="checked" >
+               <property name="checked">
                 <bool>true</bool>
                </property>
-               <property name="tristate" >
+               <property name="tristate">
                 <bool>false</bool>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QCheckBox" name="LogInfo" >
-               <property name="text" >
+              <widget class="QCheckBox" name="LogInfo">
+               <property name="text">
                 <string>Info</string>
                </property>
-               <property name="checked" >
+               <property name="checked">
                 <bool>true</bool>
                </property>
-               <property name="tristate" >
+               <property name="tristate">
                 <bool>false</bool>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QCheckBox" name="LogDebug" >
-               <property name="text" >
+              <widget class="QCheckBox" name="LogDebug">
+               <property name="text">
                 <string>Debug</string>
                </property>
-               <property name="checked" >
+               <property name="checked">
                 <bool>false</bool>
                </property>
               </widget>
@@ -1968,14 +1621,14 @@
          </layout>
         </item>
         <item>
-         <widget class="QTextEdit" name="LogOutput" >
-          <property name="enabled" >
+         <widget class="QTextEdit" name="LogOutput">
+          <property name="enabled">
            <bool>false</bool>
           </property>
-          <property name="readOnly" >
+          <property name="readOnly">
            <bool>true</bool>
           </property>
-          <property name="acceptRichText" >
+          <property name="acceptRichText">
            <bool>false</bool>
           </property>
          </widget>
@@ -1986,8 +1639,8 @@
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="MenuBar" >
-   <property name="geometry" >
+  <widget class="QMenuBar" name="MenuBar">
+   <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
@@ -1995,223 +1648,228 @@
      <height>29</height>
     </rect>
    </property>
-   <widget class="QMenu" name="helpMenu" >
-    <property name="title" >
+   <widget class="QMenu" name="helpMenu">
+    <property name="title">
      <string>&amp;Help</string>
     </property>
-    <addaction name="separator" />
-    <addaction name="helpAboutAction" />
+    <addaction name="separator"/>
+    <addaction name="helpAboutAction"/>
    </widget>
-   <widget class="QMenu" name="optionsMenu" >
-    <property name="title" >
+   <widget class="QMenu" name="optionsMenu">
+    <property name="title">
      <string>&amp;Options</string>
     </property>
-    <addaction name="actionManageAgentProfiles" />
-    <addaction name="actionManageUSMProfiles" />
-    <addaction name="separator" />
-    <addaction name="actionPreferences" />
+    <addaction name="actionManageAgentProfiles"/>
+    <addaction name="actionManageUSMProfiles"/>
+    <addaction name="separator"/>
+    <addaction name="actionPreferences"/>
    </widget>
-   <widget class="QMenu" name="menuTools" >
-    <property name="title" >
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
      <string>Tools</string>
     </property>
-    <addaction name="actionGotoLine" />
-    <addaction name="separator" />
-    <addaction name="actionFind" />
-    <addaction name="actionReplace" />
-    <addaction name="actionFindNext" />
-    <addaction name="separator" />
-    <addaction name="actionMultipleVarbinds" />
-    <addaction name="actionStop" />
-    <addaction name="separator" />
-    <addaction name="actionVerifyMIB" />
-    <addaction name="actionExtractMIBfromRFC" />
+    <addaction name="actionGotoLine"/>
+    <addaction name="separator"/>
+    <addaction name="actionFind"/>
+    <addaction name="actionReplace"/>
+    <addaction name="actionFindNext"/>
+    <addaction name="separator"/>
+    <addaction name="actionMultipleVarbinds"/>
+    <addaction name="actionStop"/>
+    <addaction name="separator"/>
+    <addaction name="actionVerifyMIB"/>
+    <addaction name="actionExtractMIBfromRFC"/>
    </widget>
-   <widget class="QMenu" name="fileMenu" >
-    <property name="title" >
+   <widget class="QMenu" name="fileMenu">
+    <property name="title">
      <string>&amp;File</string>
     </property>
-    <addaction name="fileNewAction" />
-    <addaction name="fileOpenAction" />
-    <addaction name="fileSaveAction" />
-    <addaction name="fileSaveAsAction" />
-    <addaction name="separator" />
-    <addaction name="fileExitAction" />
-    <addaction name="separator" />
+    <addaction name="fileNewAction"/>
+    <addaction name="fileOpenAction"/>
+    <addaction name="fileSaveAction"/>
+    <addaction name="fileSaveAsAction"/>
+    <addaction name="separator"/>
+    <addaction name="fileExitAction"/>
+    <addaction name="separator"/>
    </widget>
-   <addaction name="fileMenu" />
-   <addaction name="menuTools" />
-   <addaction name="optionsMenu" />
-   <addaction name="helpMenu" />
+   <addaction name="fileMenu"/>
+   <addaction name="menuTools"/>
+   <addaction name="optionsMenu"/>
+   <addaction name="helpMenu"/>
   </widget>
-  <action name="fileNewAction" >
-   <property name="icon" >
-    <iconset resource="snmpb.qrc" >:/images/filenew.png</iconset>
+  <action name="fileNewAction">
+   <property name="icon">
+    <iconset resource="snmpb.qrc">
+     <normaloff>:/images/filenew.png</normaloff>:/images/filenew.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>&amp;New MIB</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>New</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+N</string>
    </property>
   </action>
-  <action name="fileOpenAction" >
-   <property name="icon" >
-    <iconset resource="snmpb.qrc" >:/images/fileopen.png</iconset>
+  <action name="fileOpenAction">
+   <property name="icon">
+    <iconset resource="snmpb.qrc">
+     <normaloff>:/images/fileopen.png</normaloff>:/images/fileopen.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>&amp;Open MIB...</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>Open</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+O</string>
    </property>
   </action>
-  <action name="fileSaveAction" >
-   <property name="icon" >
-    <iconset resource="snmpb.qrc" >:/images/filesave.png</iconset>
+  <action name="fileSaveAction">
+   <property name="icon">
+    <iconset resource="snmpb.qrc">
+     <normaloff>:/images/filesave.png</normaloff>:/images/filesave.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>&amp;Save MIB</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>Save</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+S</string>
    </property>
   </action>
-  <action name="fileSaveAsAction" >
-   <property name="icon" >
-    <iconset resource="snmpb.qrc" >:/images/filesave.png</iconset>
+  <action name="fileSaveAsAction">
+   <property name="icon">
+    <iconset resource="snmpb.qrc">
+     <normaloff>:/images/filesave.png</normaloff>:/images/filesave.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Save MIB &amp;As...</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>Save As</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string/>
    </property>
   </action>
-  <action name="fileExitAction" >
-   <property name="text" >
+  <action name="fileExitAction">
+   <property name="text">
     <string>E&amp;xit</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>Exit</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string/>
    </property>
   </action>
-  <action name="helpAboutAction" >
-   <property name="icon" >
-    <iconset resource="snmpb.qrc" >:/images/snmpb.png</iconset>
+  <action name="helpAboutAction">
+   <property name="icon">
+    <iconset resource="snmpb.qrc">
+     <normaloff>:/images/snmpb.png</normaloff>:/images/snmpb.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>&amp;About SnmpB</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>About</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string/>
    </property>
   </action>
-  <action name="actionVerifyMIB" >
-   <property name="text" >
+  <action name="actionVerifyMIB">
+   <property name="text">
     <string>&amp;Verify MIB syntax</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+M</string>
    </property>
   </action>
-  <action name="actionExtractMIBfromRFC" >
-   <property name="text" >
+  <action name="actionExtractMIBfromRFC">
+   <property name="text">
     <string>&amp;Extract MIB from RFC...</string>
    </property>
   </action>
-  <action name="actionManageAgentProfiles" >
-   <property name="text" >
+  <action name="actionManageAgentProfiles">
+   <property name="text">
     <string>&amp;Manage Agent Profiles...</string>
    </property>
   </action>
-  <action name="actionManageUSMProfiles" >
-   <property name="text" >
+  <action name="actionManageUSMProfiles">
+   <property name="text">
     <string>Manage SNMPv3 USM Profiles...</string>
    </property>
   </action>
-  <action name="actionPreferences" >
-   <property name="text" >
+  <action name="actionPreferences">
+   <property name="text">
     <string>Preferences...</string>
    </property>
   </action>
-  <action name="actionGotoLine" >
-   <property name="text" >
+  <action name="actionGotoLine">
+   <property name="text">
     <string>&amp;Goto Line...</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+G</string>
    </property>
   </action>
-  <action name="actionFind" >
-   <property name="text" >
+  <action name="actionFind">
+   <property name="text">
     <string>&amp;Find...</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+F</string>
    </property>
   </action>
-  <action name="actionReplace" >
-   <property name="text" >
+  <action name="actionReplace">
+   <property name="text">
     <string>&amp;Replace...</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+R</string>
    </property>
   </action>
-  <action name="actionFindNext" >
-   <property name="text" >
+  <action name="actionFindNext">
+   <property name="text">
     <string>Find nex&amp;t</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>Find next</string>
    </property>
-   <property name="toolTip" >
+   <property name="toolTip">
     <string>Find next</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>F3</string>
    </property>
   </action>
-  <action name="actionMultipleVarbinds" >
-   <property name="text" >
+  <action name="actionMultipleVarbinds">
+   <property name="text">
     <string>&amp;Multiple Varbinds...</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+M</string>
    </property>
   </action>
-  <action name="actionStop" >
-   <property name="text" >
-    <string>Stop Walk</string>
-   </property>
-   <property name="enabled" >
+  <action name="actionStop">
+   <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="shortcut" >
+   <property name="text">
+    <string>Stop Walk</string>
+   </property>
+   <property name="shortcut">
     <string>Esc</string>
    </property>
   </action>
  </widget>
- <layoutdefault spacing="6" margin="11" />
+ <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
    <class>QPenStyleComboBox</class>
@@ -2256,8 +1914,62 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>TabW</tabstop>
+  <tabstop>AgentProfile</tabstop>
+  <tabstop>AgentSettings</tabstop>
+  <tabstop>AgentProtoV1</tabstop>
+  <tabstop>AgentProtoV2</tabstop>
+  <tabstop>AgentProtoV3</tabstop>
+  <tabstop>MIBTree</tabstop>
+  <tabstop>NodeInfo</tabstop>
+  <tabstop>Query</tabstop>
+  <tabstop>UnloadedModules</tabstop>
+  <tabstop>ModuleAdd</tabstop>
+  <tabstop>ModuleDelete</tabstop>
+  <tabstop>LoadedModules</tabstop>
+  <tabstop>ModuleInfo</tabstop>
+  <tabstop>MIBFile</tabstop>
+  <tabstop>MIBLog</tabstop>
+  <tabstop>DiscoveryLocal</tabstop>
+  <tabstop>DiscoveryNetworks</tabstop>
+  <tabstop>DiscoveryFrom</tabstop>
+  <tabstop>DiscoveryTo</tabstop>
+  <tabstop>DiscoveryAgentProfile</tabstop>
+  <tabstop>DiscoveryAgentSettings</tabstop>
+  <tabstop>DiscoveryV1</tabstop>
+  <tabstop>DiscoveryV2c</tabstop>
+  <tabstop>DiscoveryV3</tabstop>
+  <tabstop>DiscoverySNMPv3Probe</tabstop>
+  <tabstop>DiscoveryWaitTime</tabstop>
+  <tabstop>DiscoveryAbortButton</tabstop>
+  <tabstop>DiscoveryButton</tabstop>
+  <tabstop>DiscoveryOutput</tabstop>
+  <tabstop>TrapLog</tabstop>
+  <tabstop>TrapContent</tabstop>
+  <tabstop>TrapInfo</tabstop>
+  <tabstop>GraphTab</tabstop>
+  <tabstop>GraphName</tabstop>
+  <tabstop>GraphCreate</tabstop>
+  <tabstop>GraphDelete</tabstop>
+  <tabstop>PlotObject</tabstop>
+  <tabstop>PlotMIBTree</tabstop>
+  <tabstop>PlotIndex</tabstop>
+  <tabstop>PlotColor</tabstop>
+  <tabstop>PlotShape</tabstop>
+  <tabstop>PlotWidth</tabstop>
+  <tabstop>PlotAdd</tabstop>
+  <tabstop>PlotDelete</tabstop>
+  <tabstop>LogEnable</tabstop>
+  <tabstop>LogError</tabstop>
+  <tabstop>LogWarning</tabstop>
+  <tabstop>LogEvent</tabstop>
+  <tabstop>LogInfo</tabstop>
+  <tabstop>LogDebug</tabstop>
+  <tabstop>LogOutput</tabstop>
+ </tabstops>
  <resources>
-  <include location="snmpb.qrc" />
+  <include location="snmpb.qrc"/>
  </resources>
  <connections>
   <connection>
@@ -2266,11 +1978,11 @@
    <receiver>MainW</receiver>
    <slot>close()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -2282,11 +1994,11 @@
    <receiver>NodeInfo</receiver>
    <slot>setHtml(QString)</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>20</x>
      <y>20</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>

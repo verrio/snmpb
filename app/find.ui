@@ -1,5 +1,6 @@
-<ui version="4.0" >
-<comment>
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <comment>
     Copyright (C) 2004-2011 Martin Jolicoeur (snmpb1@gmail.com) 
 
     This file is part of the SnmpB project 
@@ -19,8 +20,8 @@
     along with this program.  If not, see http://www.gnu.org/licenses/.
 </comment>
  <class>FindDialog</class>
- <widget class="QDialog" name="FindDialog" >
-  <property name="geometry" >
+ <widget class="QDialog" name="FindDialog">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -28,114 +29,84 @@
     <height>189</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Find Text</string>
   </property>
-  <layout class="QGridLayout" >
-   <property name="leftMargin" >
+  <layout class="QGridLayout">
+   <property name="margin">
     <number>11</number>
    </property>
-   <property name="topMargin" >
-    <number>11</number>
-   </property>
-   <property name="rightMargin" >
-    <number>11</number>
-   </property>
-   <property name="bottomMargin" >
-    <number>11</number>
-   </property>
-   <property name="horizontalSpacing" >
+   <property name="spacing">
     <number>6</number>
    </property>
-   <property name="verticalSpacing" >
-    <number>6</number>
-   </property>
-   <item row="0" column="0" >
-    <layout class="QHBoxLayout" >
-     <property name="spacing" >
+   <item row="0" column="0">
+    <layout class="QHBoxLayout">
+     <property name="spacing">
       <number>6</number>
      </property>
-     <property name="leftMargin" >
-      <number>0</number>
-     </property>
-     <property name="topMargin" >
-      <number>0</number>
-     </property>
-     <property name="rightMargin" >
-      <number>0</number>
-     </property>
-     <property name="bottomMargin" >
+     <property name="margin">
       <number>0</number>
      </property>
      <item>
-      <widget class="QLabel" name="TextLabel1" >
-       <property name="text" >
+      <widget class="QLabel" name="TextLabel1">
+       <property name="text">
         <string>F&amp;ind:</string>
        </property>
-       <property name="wordWrap" >
+       <property name="wordWrap">
         <bool>false</bool>
        </property>
-       <property name="buddy" >
+       <property name="buddy">
         <cstring>comboFind</cstring>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="comboFind" >
-       <property name="sizePolicy" >
-        <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+      <widget class="QComboBox" name="comboFind">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="editable" >
+       <property name="editable">
         <bool>true</bool>
        </property>
-       <property name="insertPolicy" >
+       <property name="insertPolicy">
         <enum>QComboBox::InsertAlphabetically</enum>
        </property>
       </widget>
      </item>
     </layout>
    </item>
-   <item row="1" column="0" >
-    <widget class="QGroupBox" name="ButtonGroup1" >
-     <property name="title" >
+   <item row="1" column="0">
+    <widget class="QGroupBox" name="ButtonGroup1">
+     <property name="title">
       <string>Options</string>
      </property>
-     <layout class="QVBoxLayout" >
-      <property name="spacing" >
+     <layout class="QVBoxLayout">
+      <property name="spacing">
        <number>6</number>
       </property>
-      <property name="leftMargin" >
-       <number>11</number>
-      </property>
-      <property name="topMargin" >
-       <number>11</number>
-      </property>
-      <property name="rightMargin" >
-       <number>11</number>
-      </property>
-      <property name="bottomMargin" >
+      <property name="margin">
        <number>11</number>
       </property>
       <item>
-       <widget class="QCheckBox" name="checkWords" >
-        <property name="text" >
+       <widget class="QCheckBox" name="checkWords">
+        <property name="text">
          <string>&amp;Whole words only</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="checkCase" >
-        <property name="text" >
+       <widget class="QCheckBox" name="checkCase">
+        <property name="text">
          <string>Case &amp;sensitive</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="checkBackward" >
-        <property name="text" >
+       <widget class="QCheckBox" name="checkBackward">
+        <property name="text">
          <string>Search &amp;backward</string>
         </property>
        </widget>
@@ -143,32 +114,23 @@
      </layout>
     </widget>
    </item>
-   <item row="2" column="0" >
-    <layout class="QHBoxLayout" >
-     <property name="spacing" >
+   <item row="2" column="0">
+    <layout class="QHBoxLayout">
+     <property name="spacing">
       <number>6</number>
      </property>
-     <property name="leftMargin" >
-      <number>0</number>
-     </property>
-     <property name="topMargin" >
-      <number>0</number>
-     </property>
-     <property name="rightMargin" >
-      <number>0</number>
-     </property>
-     <property name="bottomMargin" >
+     <property name="margin">
       <number>0</number>
      </property>
      <item>
       <spacer>
-       <property name="orientation" >
+       <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="sizeType" >
+       <property name="sizeType">
         <enum>QSizePolicy::Expanding</enum>
        </property>
-       <property name="sizeHint" >
+       <property name="sizeHint" stdset="0">
         <size>
          <width>20</width>
          <height>20</height>
@@ -177,18 +139,18 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="buttonFindNext" >
-       <property name="text" >
+      <widget class="QPushButton" name="buttonFindNext">
+       <property name="text">
         <string>&amp;Find Next</string>
        </property>
-       <property name="default" >
+       <property name="default">
         <bool>true</bool>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="buttonClose" >
-       <property name="text" >
+      <widget class="QPushButton" name="buttonClose">
+       <property name="text">
         <string>&amp;Close</string>
        </property>
       </widget>
@@ -197,7 +159,7 @@
    </item>
   </layout>
  </widget>
- <layoutdefault spacing="6" margin="11" />
+ <layoutdefault spacing="6" margin="11"/>
  <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
  <tabstops>
   <tabstop>comboFind</tabstop>
@@ -215,11 +177,11 @@
    <receiver>FindDialog</receiver>
    <slot>reject()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>20</x>
      <y>20</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>

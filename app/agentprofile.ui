@@ -1,5 +1,6 @@
-<ui version="4.0" >
-<comment>
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <comment>
     Copyright (C) 2004-2011 Martin Jolicoeur (snmpb1@gmail.com) 
 
     This file is part of the SnmpB project 
@@ -19,93 +20,95 @@
     along with this program.  If not, see http://www.gnu.org/licenses/.
 </comment>
  <class>AgentProfile</class>
- <widget class="QDialog" name="AgentProfile" >
-  <property name="geometry" >
+ <widget class="QDialog" name="AgentProfile">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
+    <width>631</width>
     <height>440</height>
    </rect>
   </property>
-  <property name="sizePolicy" >
-   <sizepolicy>
-    <hsizetype>0</hsizetype>
-    <vsizetype>0</vsizetype>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Agent Profiles</string>
   </property>
-  <property name="windowIcon" >
-   <iconset>images/snmpb.png</iconset>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>images/snmpb.png</normaloff>images/snmpb.png</iconset>
   </property>
-  <layout class="QGridLayout" >
-   <property name="margin" >
+  <layout class="QGridLayout">
+   <property name="margin">
     <number>9</number>
    </property>
-   <property name="spacing" >
+   <property name="spacing">
     <number>6</number>
    </property>
-   <item row="1" column="0" colspan="2" >
-    <widget class="QDialogButtonBox" name="OKCancelBox" >
-     <property name="orientation" >
+   <item row="1" column="0" colspan="2">
+    <widget class="QDialogButtonBox" name="OKCancelBox">
+     <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <property name="standardButtons" >
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>
-   <item row="0" column="0" >
-    <widget class="QTreeWidget" name="ProfileTree" >
-     <property name="sizePolicy" >
-      <sizepolicy>
-       <hsizetype>5</hsizetype>
-       <vsizetype>5</vsizetype>
+   <item row="0" column="0">
+    <widget class="QTreeWidget" name="ProfileTree">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <column>
+      <property name="text">
+       <string notr="true">1</string>
+      </property>
+     </column>
     </widget>
    </item>
-   <item row="0" column="1" >
-    <widget class="QStackedWidget" name="ProfileProps" >
-     <property name="currentIndex" >
+   <item row="0" column="1">
+    <widget class="QStackedWidget" name="ProfileProps">
+     <property name="currentIndex">
       <number>0</number>
      </property>
-     <widget class="QWidget" name="ProfileGeneral" >
-      <layout class="QGridLayout" >
-       <property name="margin" >
+     <widget class="QWidget" name="ProfileGeneral">
+      <layout class="QGridLayout">
+       <property name="margin">
         <number>9</number>
        </property>
-       <property name="spacing" >
+       <property name="spacing">
         <number>6</number>
        </property>
-       <item row="1" column="0" >
-        <widget class="QGroupBox" name="Profile" >
-         <property name="title" >
+       <item row="1" column="0">
+        <widget class="QGroupBox" name="Profile">
+         <property name="title">
           <string>Profile</string>
          </property>
-         <layout class="QGridLayout" >
-          <property name="margin" >
+         <layout class="QGridLayout">
+          <property name="margin">
            <number>9</number>
           </property>
-          <property name="spacing" >
+          <property name="spacing">
            <number>6</number>
           </property>
-          <item row="0" column="0" >
-           <widget class="QLabel" name="ProfileNameL" >
-            <property name="text" >
+          <item row="0" column="0">
+           <widget class="QLabel" name="ProfileNameL">
+            <property name="text">
              <string>Name</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="1" >
-           <widget class="QLineEdit" name="ProfileName" >
-            <property name="text" >
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="ProfileName">
+            <property name="text">
              <string/>
             </property>
            </widget>
@@ -113,42 +116,42 @@
          </layout>
         </widget>
        </item>
-       <item row="2" column="0" >
-        <widget class="QGroupBox" name="TargetAgent" >
-         <property name="title" >
+       <item row="2" column="0">
+        <widget class="QGroupBox" name="TargetAgent">
+         <property name="title">
           <string>Target SNMP Agent</string>
          </property>
-         <layout class="QGridLayout" >
-          <property name="margin" >
+         <layout class="QGridLayout">
+          <property name="margin">
            <number>9</number>
           </property>
-          <property name="spacing" >
+          <property name="spacing">
            <number>6</number>
           </property>
-          <item row="0" column="0" >
-           <widget class="QLabel" name="AddressL" >
-            <property name="text" >
+          <item row="0" column="0">
+           <widget class="QLabel" name="AddressL">
+            <property name="text">
              <string>Agent Address/Name</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="1" >
-           <widget class="QLineEdit" name="Address" >
-            <property name="text" >
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="Address">
+            <property name="text">
              <string/>
             </property>
            </widget>
           </item>
-          <item row="1" column="1" >
-           <widget class="QLineEdit" name="Port" >
-            <property name="text" >
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="Port">
+            <property name="text">
              <string/>
             </property>
            </widget>
           </item>
-          <item row="1" column="0" >
-           <widget class="QLabel" name="PortL" >
-            <property name="text" >
+          <item row="1" column="0">
+           <widget class="QLabel" name="PortL">
+            <property name="text">
              <string>Agent Port</string>
             </property>
            </widget>
@@ -156,51 +159,51 @@
          </layout>
         </widget>
        </item>
-       <item row="3" column="0" >
-        <widget class="QGroupBox" name="TimeoutRetries" >
-         <property name="title" >
+       <item row="3" column="0">
+        <widget class="QGroupBox" name="TimeoutRetries">
+         <property name="title">
           <string>Timeout and Retries</string>
          </property>
-         <layout class="QGridLayout" >
-          <property name="margin" >
+         <layout class="QGridLayout">
+          <property name="margin">
            <number>11</number>
           </property>
-          <property name="spacing" >
+          <property name="spacing">
            <number>6</number>
           </property>
-          <item row="1" column="0" >
-           <widget class="QLabel" name="TimeoutL" >
-            <property name="text" >
+          <item row="1" column="0">
+           <widget class="QLabel" name="TimeoutL">
+            <property name="text">
              <string>Timeout (sec)</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="0" >
-           <widget class="QLabel" name="RetriesL" >
-            <property name="text" >
+          <item row="0" column="0">
+           <widget class="QLabel" name="RetriesL">
+            <property name="text">
              <string>Retries</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="1" >
-           <widget class="QSpinBox" name="Retries" >
-            <property name="maximum" >
+          <item row="0" column="1">
+           <widget class="QSpinBox" name="Retries">
+            <property name="maximum">
              <number>10</number>
             </property>
-            <property name="value" >
+            <property name="value">
              <number>1</number>
             </property>
            </widget>
           </item>
-          <item row="1" column="1" >
-           <widget class="QSpinBox" name="Timeout" >
-            <property name="maximum" >
-             <number>20</number>
-            </property>
-            <property name="minimum" >
+          <item row="1" column="1">
+           <widget class="QSpinBox" name="Timeout">
+            <property name="minimum">
              <number>0</number>
             </property>
-            <property name="value" >
+            <property name="maximum">
+             <number>20</number>
+            </property>
+            <property name="value">
              <number>3</number>
             </property>
            </widget>
@@ -208,56 +211,56 @@
          </layout>
         </widget>
        </item>
-       <item row="4" column="0" >
-        <widget class="QGroupBox" name="Version" >
-         <property name="toolTip" >
+       <item row="4" column="0">
+        <widget class="QGroupBox" name="Version">
+         <property name="toolTip">
           <string>Select the SNMP version to use</string>
          </property>
-         <property name="title" >
+         <property name="title">
           <string>Supported SNMP Version</string>
          </property>
-         <property name="flat" >
+         <property name="flat">
           <bool>false</bool>
          </property>
-         <property name="checkable" >
+         <property name="checkable">
           <bool>false</bool>
          </property>
-         <property name="checked" >
+         <property name="checked">
           <bool>false</bool>
          </property>
-         <layout class="QGridLayout" >
-          <property name="margin" >
+         <layout class="QGridLayout">
+          <property name="margin">
            <number>9</number>
           </property>
-          <property name="spacing" >
+          <property name="spacing">
            <number>6</number>
           </property>
-          <item row="0" column="1" >
-           <widget class="QCheckBox" name="V2" >
-            <property name="text" >
+          <item row="0" column="1">
+           <widget class="QCheckBox" name="V2">
+            <property name="text">
              <string>SNMPV2</string>
             </property>
-            <property name="checked" >
+            <property name="checked">
              <bool>false</bool>
             </property>
            </widget>
           </item>
-          <item row="0" column="0" >
-           <widget class="QCheckBox" name="V1" >
-            <property name="text" >
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="V1">
+            <property name="text">
              <string>SNMPV1</string>
             </property>
-            <property name="checked" >
+            <property name="checked">
              <bool>false</bool>
             </property>
-            <property name="tristate" >
+            <property name="tristate">
              <bool>false</bool>
             </property>
            </widget>
           </item>
-          <item row="0" column="2" >
-           <widget class="QCheckBox" name="V3" >
-            <property name="text" >
+          <item row="0" column="2">
+           <widget class="QCheckBox" name="V3">
+            <property name="text">
              <string>SNMPV3</string>
             </property>
            </widget>
@@ -265,32 +268,32 @@
          </layout>
         </widget>
        </item>
-       <item row="0" column="0" >
-        <widget class="QLabel" name="GeneralL" >
-         <property name="text" >
-          <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+       <item row="0" column="0">
+        <widget class="QLabel" name="GeneralL">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'Sans Serif'; font-size:12pt; font-weight:400; font-style:normal; text-decoration:none;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-size:18pt; font-weight:600;">General Properties&lt;/span>&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:12pt; font-weight:400; font-style:normal; text-decoration:none;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:18pt; font-weight:600;&quot;&gt;General Properties&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="ProfileV1V2c" >
-      <layout class="QGridLayout" >
-       <property name="margin" >
+     <widget class="QWidget" name="ProfileV1V2c">
+      <layout class="QGridLayout">
+       <property name="margin">
         <number>9</number>
        </property>
-       <property name="spacing" >
+       <property name="spacing">
         <number>6</number>
        </property>
-       <item row="3" column="0" >
+       <item row="3" column="0">
         <spacer>
-         <property name="orientation" >
+         <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
            <height>141</height>
@@ -298,15 +301,15 @@ p, li { white-space: pre-wrap; }
          </property>
         </spacer>
        </item>
-       <item row="1" column="0" >
+       <item row="1" column="0">
         <spacer>
-         <property name="orientation" >
+         <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeType" >
+         <property name="sizeType">
           <enum>QSizePolicy::Fixed</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
            <height>40</height>
@@ -314,45 +317,45 @@ p, li { white-space: pre-wrap; }
          </property>
         </spacer>
        </item>
-       <item row="2" column="0" >
-        <widget class="QGroupBox" name="Communities" >
-         <property name="toolTip" >
+       <item row="2" column="0">
+        <widget class="QGroupBox" name="Communities">
+         <property name="toolTip">
           <string>Here options specific to SNMPv1/v2c can be entered</string>
          </property>
-         <property name="title" >
+         <property name="title">
           <string>Communities</string>
          </property>
-         <layout class="QGridLayout" >
-          <property name="margin" >
+         <layout class="QGridLayout">
+          <property name="margin">
            <number>11</number>
           </property>
-          <property name="spacing" >
+          <property name="spacing">
            <number>6</number>
           </property>
-          <item row="0" column="1" >
-           <widget class="QLineEdit" name="ReadComm" >
-            <property name="text" >
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="ReadComm">
+            <property name="text">
              <string/>
             </property>
            </widget>
           </item>
-          <item row="0" column="0" >
-           <widget class="QLabel" name="ReadCommL" >
-            <property name="text" >
+          <item row="0" column="0">
+           <widget class="QLabel" name="ReadCommL">
+            <property name="text">
              <string>Read community</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="1" >
-           <widget class="QLineEdit" name="WriteComm" >
-            <property name="text" >
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="WriteComm">
+            <property name="text">
              <string/>
             </property>
            </widget>
           </item>
-          <item row="1" column="0" >
-           <widget class="QLabel" name="WriteCommL" >
-            <property name="text" >
+          <item row="1" column="0">
+           <widget class="QLabel" name="WriteCommL">
+            <property name="text">
              <string>Write community</string>
             </property>
            </widget>
@@ -360,32 +363,32 @@ p, li { white-space: pre-wrap; }
          </layout>
         </widget>
        </item>
-       <item row="0" column="0" >
-        <widget class="QLabel" name="V1V2cL" >
-         <property name="text" >
-          <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+       <item row="0" column="0">
+        <widget class="QLabel" name="V1V2cL">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'Sans Serif'; font-size:12pt; font-weight:400; font-style:normal; text-decoration:none;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-size:18pt; font-weight:600;">SNMPv1 / v2c Properties&lt;/span>&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:12pt; font-weight:400; font-style:normal; text-decoration:none;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:18pt; font-weight:600;&quot;&gt;SNMPv1 / v2c Properties&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="ProfileBulk" >
-      <layout class="QGridLayout" >
-       <property name="margin" >
+     <widget class="QWidget" name="ProfileBulk">
+      <layout class="QGridLayout">
+       <property name="margin">
         <number>9</number>
        </property>
-       <property name="spacing" >
+       <property name="spacing">
         <number>6</number>
        </property>
-       <item row="3" column="0" >
+       <item row="3" column="0">
         <spacer>
-         <property name="orientation" >
+         <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
            <height>40</height>
@@ -393,15 +396,15 @@ p, li { white-space: pre-wrap; }
          </property>
         </spacer>
        </item>
-       <item row="1" column="0" >
+       <item row="1" column="0">
         <spacer>
-         <property name="orientation" >
+         <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeType" >
+         <property name="sizeType">
           <enum>QSizePolicy::Fixed</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
            <height>40</height>
@@ -409,52 +412,52 @@ p, li { white-space: pre-wrap; }
          </property>
         </spacer>
        </item>
-       <item row="0" column="0" >
-        <widget class="QLabel" name="BulkL" >
-         <property name="text" >
-          <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+       <item row="0" column="0">
+        <widget class="QLabel" name="BulkL">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'Sans Serif'; font-size:12pt; font-weight:400; font-style:normal; text-decoration:none;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-size:18pt; font-weight:600;">Get-Bulk Properties&lt;/span>&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:12pt; font-weight:400; font-style:normal; text-decoration:none;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:18pt; font-weight:600;&quot;&gt;Get-Bulk Properties&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="0" >
-        <widget class="QGroupBox" name="GetBulk" >
-         <property name="title" >
+       <item row="2" column="0">
+        <widget class="QGroupBox" name="GetBulk">
+         <property name="title">
           <string>Get-Bulk</string>
          </property>
-         <layout class="QGridLayout" >
-          <property name="margin" >
+         <layout class="QGridLayout">
+          <property name="margin">
            <number>9</number>
           </property>
-          <property name="spacing" >
+          <property name="spacing">
            <number>6</number>
           </property>
-          <item row="1" column="1" >
-           <widget class="QSpinBox" name="MaxRepetitions" >
-            <property name="value" >
+          <item row="1" column="1">
+           <widget class="QSpinBox" name="MaxRepetitions">
+            <property name="value">
              <number>10</number>
             </property>
            </widget>
           </item>
-          <item row="0" column="1" >
-           <widget class="QSpinBox" name="NonRepeaters" >
-            <property name="value" >
+          <item row="0" column="1">
+           <widget class="QSpinBox" name="NonRepeaters">
+            <property name="value">
              <number>0</number>
             </property>
            </widget>
           </item>
-          <item row="0" column="0" >
-           <widget class="QLabel" name="NonRepeatersL" >
-            <property name="text" >
+          <item row="0" column="0">
+           <widget class="QLabel" name="NonRepeatersL">
+            <property name="text">
              <string>Non repeaters</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="0" >
-           <widget class="QLabel" name="MaxRepetitionsL" >
-            <property name="text" >
+          <item row="1" column="0">
+           <widget class="QLabel" name="MaxRepetitionsL">
+            <property name="text">
              <string>Max repetitions</string>
             </property>
            </widget>
@@ -464,20 +467,20 @@ p, li { white-space: pre-wrap; }
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="ProfileV3" >
-      <layout class="QGridLayout" >
-       <property name="margin" >
+     <widget class="QWidget" name="ProfileV3">
+      <layout class="QGridLayout">
+       <property name="margin">
         <number>9</number>
        </property>
-       <property name="spacing" >
+       <property name="spacing">
         <number>6</number>
        </property>
-       <item row="4" column="0" >
+       <item row="4" column="0">
         <spacer>
-         <property name="orientation" >
+         <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
            <height>40</height>
@@ -485,34 +488,34 @@ p, li { white-space: pre-wrap; }
          </property>
         </spacer>
        </item>
-       <item row="3" column="0" >
-        <widget class="QGroupBox" name="V3Context" >
-         <property name="title" >
+       <item row="3" column="0">
+        <widget class="QGroupBox" name="V3Context">
+         <property name="title">
           <string>SNMPv3 context</string>
          </property>
-         <layout class="QGridLayout" >
-          <property name="margin" >
+         <layout class="QGridLayout">
+          <property name="margin">
            <number>9</number>
           </property>
-          <property name="spacing" >
+          <property name="spacing">
            <number>6</number>
           </property>
-          <item row="0" column="1" >
-           <widget class="QLineEdit" name="ContextName" />
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="ContextName"/>
           </item>
-          <item row="1" column="1" >
-           <widget class="QLineEdit" name="ContextEngineID" />
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="ContextEngineID"/>
           </item>
-          <item row="0" column="0" >
-           <widget class="QLabel" name="ContextNameL" >
-            <property name="text" >
+          <item row="0" column="0">
+           <widget class="QLabel" name="ContextNameL">
+            <property name="text">
              <string>Context Name</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="0" >
-           <widget class="QLabel" name="ContextEngineIDL" >
-            <property name="text" >
+          <item row="1" column="0">
+           <widget class="QLabel" name="ContextEngineIDL">
+            <property name="text">
              <string>Context Engine ID</string>
             </property>
            </widget>
@@ -520,79 +523,79 @@ p, li { white-space: pre-wrap; }
          </layout>
         </widget>
        </item>
-       <item row="2" column="0" >
-        <widget class="QGroupBox" name="V3User" >
-         <property name="enabled" >
+       <item row="2" column="0">
+        <widget class="QGroupBox" name="V3User">
+         <property name="enabled">
           <bool>true</bool>
          </property>
-         <property name="title" >
+         <property name="title">
           <string>SNMPv3 user (USM)</string>
          </property>
-         <layout class="QGridLayout" >
-          <property name="margin" >
+         <layout class="QGridLayout">
+          <property name="margin">
            <number>9</number>
           </property>
-          <property name="spacing" >
+          <property name="spacing">
            <number>6</number>
           </property>
-          <item row="1" column="0" >
-           <widget class="QLabel" name="SecLevelL" >
-            <property name="text" >
+          <item row="1" column="0">
+           <widget class="QLabel" name="SecLevelL">
+            <property name="text">
              <string>Security Level</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="0" >
-           <widget class="QLabel" name="SecNameL" >
-            <property name="text" >
+          <item row="0" column="0">
+           <widget class="QLabel" name="SecNameL">
+            <property name="text">
              <string>Security Name</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="1" >
-           <widget class="QComboBox" name="SecLevel" >
+          <item row="1" column="1">
+           <widget class="QComboBox" name="SecLevel">
             <item>
-             <property name="text" >
+             <property name="text">
               <string>noAuthNoPriv</string>
              </property>
             </item>
             <item>
-             <property name="text" >
+             <property name="text">
               <string>authNoPriv</string>
              </property>
             </item>
             <item>
-             <property name="text" >
+             <property name="text">
               <string>authPriv</string>
              </property>
             </item>
            </widget>
           </item>
-          <item row="0" column="1" >
-           <widget class="QComboBox" name="SecName" />
+          <item row="0" column="1">
+           <widget class="QComboBox" name="SecName"/>
           </item>
          </layout>
         </widget>
        </item>
-       <item row="0" column="0" >
-        <widget class="QLabel" name="V3L" >
-         <property name="text" >
-          <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+       <item row="0" column="0">
+        <widget class="QLabel" name="V3L">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'Sans Serif'; font-size:12pt; font-weight:400; font-style:normal; text-decoration:none;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-size:18pt; font-weight:600;">SNMPv3 Properties&lt;/span>&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:12pt; font-weight:400; font-style:normal; text-decoration:none;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:18pt; font-weight:600;&quot;&gt;SNMPv3 Properties&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="0" >
+       <item row="1" column="0">
         <spacer>
-         <property name="orientation" >
+         <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeType" >
+         <property name="sizeType">
           <enum>QSizePolicy::Fixed</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
            <height>40</height>
@@ -606,6 +609,26 @@ p, li { white-space: pre-wrap; }
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>ProfileTree</tabstop>
+  <tabstop>ProfileName</tabstop>
+  <tabstop>Address</tabstop>
+  <tabstop>Port</tabstop>
+  <tabstop>Retries</tabstop>
+  <tabstop>Timeout</tabstop>
+  <tabstop>V1</tabstop>
+  <tabstop>V2</tabstop>
+  <tabstop>V3</tabstop>
+  <tabstop>ReadComm</tabstop>
+  <tabstop>WriteComm</tabstop>
+  <tabstop>NonRepeaters</tabstop>
+  <tabstop>MaxRepetitions</tabstop>
+  <tabstop>SecName</tabstop>
+  <tabstop>SecLevel</tabstop>
+  <tabstop>ContextName</tabstop>
+  <tabstop>ContextEngineID</tabstop>
+  <tabstop>OKCancelBox</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
@@ -614,11 +637,11 @@ p, li { white-space: pre-wrap; }
    <receiver>AgentProfile</receiver>
    <slot>accept()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>258</x>
      <y>499</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>157</x>
      <y>274</y>
     </hint>
@@ -630,11 +653,11 @@ p, li { white-space: pre-wrap; }
    <receiver>AgentProfile</receiver>
    <slot>reject()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>326</x>
      <y>499</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
     </hint>

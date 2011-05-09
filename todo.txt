@@ -4,12 +4,12 @@
 - Add "clear" button for traps
 - Clean-up code/add comments
 - Internationalize (using tr())
-- Fix tab-navigation order for gui elements
 - Add SMIv1/SMIv2 config and severity checking level for MIB editor validation
 - Feature: Add download and extract MIB from RFC from ietf.org directly
 - Feature: add packet/session sniffing tab
 - Feature: Add table mirror view
 - Feature: Add send trap/inform tool
+- Feature: Add load/save in multiple varbinds window 
 
 MacOSX bugs:
 - Fix editFinished signal not working in mibselection.cpp

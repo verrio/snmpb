@@ -70,7 +70,7 @@
       <number>2</number>
      </property>
      <widget class="QWidget" name="TransportProps">
-      <layout class="QGridLayout" >
+      <layout class="QGridLayout">
        <item row="0" column="0">
         <widget class="QLabel" name="TransportPropsL">
          <property name="text">
@@ -102,7 +102,7 @@ p, li { white-space: pre-wrap; }
          <property name="title">
           <string>Protocol</string>
          </property>
-         <layout class="QGridLayout" >
+         <layout class="QGridLayout">
           <property name="margin">
            <number>9</number>
           </property>
@@ -310,7 +310,7 @@ p, li { white-space: pre-wrap; }
       </layout>
      </widget>
      <widget class="QWidget" name="TrapProps">
-      <layout class="QGridLayout" >
+      <layout class="QGridLayout">
        <item row="0" column="0">
         <widget class="QLabel" name="TrapsPropsL">
          <property name="text">
@@ -397,7 +397,7 @@ p, li { white-space: pre-wrap; }
          <property name="title">
           <string>Display</string>
          </property>
-         <layout class="QGridLayout" >
+         <layout class="QGridLayout">
           <property name="margin">
            <number>9</number>
           </property>
@@ -452,10 +452,25 @@ p, li { white-space: pre-wrap; }
     </widget>
    </item>
   </layout>
-  <zorder>PreferencesTree</zorder>
-  <zorder>PreferencesProps</zorder>
-  <zorder>OKCancelBox</zorder>
  </widget>
+ <tabstops>
+  <tabstop>PreferencesTree</tabstop>
+  <tabstop>HorizontalSplit</tabstop>
+  <tabstop>MibLoadingEnable</tabstop>
+  <tabstop>MibLoadingEnablePrompt</tabstop>
+  <tabstop>MibLoadingDisable</tabstop>
+  <tabstop>ModulePaths</tabstop>
+  <tabstop>ModulePathsReset</tabstop>
+  <tabstop>ModulePathsAdd</tabstop>
+  <tabstop>ModulePathsDelete</tabstop>
+  <tabstop>TrapPort</tabstop>
+  <tabstop>TrapPort6</tabstop>
+  <tabstop>ShowAgentName</tabstop>
+  <tabstop>ExpandTrapBinding</tabstop>
+  <tabstop>EnableIPv4</tabstop>
+  <tabstop>EnableIPv6</tabstop>
+  <tabstop>OKCancelBox</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

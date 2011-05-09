@@ -1,7 +1,8 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>Varbinds</class>
- <widget class="QDialog" name="Varbinds" >
-  <property name="geometry" >
+ <widget class="QDialog" name="Varbinds">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,73 +10,73 @@
     <height>380</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Multiple Variable Bindings</string>
   </property>
-  <layout class="QGridLayout" >
-   <item row="0" column="1" >
-    <widget class="QGroupBox" name="VarbindsOps" >
-     <property name="title" >
+  <layout class="QGridLayout">
+   <item row="0" column="1">
+    <widget class="QGroupBox" name="VarbindsOps">
+     <property name="title">
       <string>Binding Operation</string>
      </property>
-     <layout class="QVBoxLayout" >
+     <layout class="QVBoxLayout">
       <item>
-       <widget class="QPushButton" name="NewOp" >
-        <property name="text" >
+       <widget class="QPushButton" name="NewOp">
+        <property name="text">
          <string>New</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="EditOp" >
-        <property name="enabled" >
+       <widget class="QPushButton" name="EditOp">
+        <property name="enabled">
          <bool>false</bool>
         </property>
-        <property name="text" >
+        <property name="text">
          <string>Edit</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="DeleteOp" >
-        <property name="enabled" >
+       <widget class="QPushButton" name="DeleteOp">
+        <property name="enabled">
          <bool>false</bool>
         </property>
-        <property name="text" >
+        <property name="text">
          <string>Delete</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="DeleteAllOp" >
-        <property name="text" >
+       <widget class="QPushButton" name="DeleteAllOp">
+        <property name="text">
          <string>Delete All</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="MoveUpOp" >
-        <property name="enabled" >
+       <widget class="QPushButton" name="MoveUpOp">
+        <property name="enabled">
          <bool>false</bool>
         </property>
-        <property name="text" >
+        <property name="text">
          <string>Move Up</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="MoveDownOp" >
-        <property name="enabled" >
+       <widget class="QPushButton" name="MoveDownOp">
+        <property name="enabled">
          <bool>false</bool>
         </property>
-        <property name="text" >
+        <property name="text">
          <string>Move Down</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="QuitOp" >
-        <property name="text" >
+       <widget class="QPushButton" name="QuitOp">
+        <property name="text">
          <string>Quit</string>
         </property>
        </widget>
@@ -83,39 +84,39 @@
      </layout>
     </widget>
    </item>
-   <item row="1" column="0" >
-    <widget class="QGroupBox" name="SNMPOps" >
-     <property name="enabled" >
+   <item row="1" column="0">
+    <widget class="QGroupBox" name="SNMPOps">
+     <property name="enabled">
       <bool>false</bool>
      </property>
-     <property name="title" >
+     <property name="title">
       <string>SNMP Operation</string>
      </property>
-     <layout class="QHBoxLayout" >
+     <layout class="QHBoxLayout">
       <item>
-       <widget class="QPushButton" name="GetOp" >
-        <property name="text" >
+       <widget class="QPushButton" name="GetOp">
+        <property name="text">
          <string>Get</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="GetNextOp" >
-        <property name="text" >
+       <widget class="QPushButton" name="GetNextOp">
+        <property name="text">
          <string>Get Next</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="GetBulkOp" >
-        <property name="text" >
+       <widget class="QPushButton" name="GetBulkOp">
+        <property name="text">
          <string>Get Bulk</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="SetOp" >
-        <property name="text" >
+       <widget class="QPushButton" name="SetOp">
+        <property name="text">
          <string>Set</string>
         </property>
        </widget>
@@ -123,40 +124,40 @@
      </layout>
     </widget>
    </item>
-   <item row="0" column="0" >
-    <widget class="QTreeWidget" name="VarbindsList" >
-     <property name="frameShape" >
+   <item row="0" column="0">
+    <widget class="QTreeWidget" name="VarbindsList">
+     <property name="frameShape">
       <enum>QFrame::Box</enum>
      </property>
-     <property name="frameShadow" >
+     <property name="frameShadow">
       <enum>QFrame::Plain</enum>
      </property>
-     <property name="selectionMode" >
+     <property name="selectionMode">
       <enum>QAbstractItemView::ExtendedSelection</enum>
      </property>
-     <property name="rootIsDecorated" >
+     <property name="rootIsDecorated">
       <bool>false</bool>
      </property>
-     <property name="columnCount" >
+     <property name="columnCount">
       <number>4</number>
      </property>
      <column>
-      <property name="text" >
+      <property name="text">
        <string>Name</string>
       </property>
      </column>
      <column>
-      <property name="text" >
+      <property name="text">
        <string>OID</string>
       </property>
      </column>
      <column>
-      <property name="text" >
+      <property name="text">
        <string>Syntax</string>
       </property>
      </column>
      <column>
-      <property name="text" >
+      <property name="text">
        <string>Value</string>
       </property>
      </column>
@@ -164,6 +165,20 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>VarbindsList</tabstop>
+  <tabstop>NewOp</tabstop>
+  <tabstop>EditOp</tabstop>
+  <tabstop>DeleteOp</tabstop>
+  <tabstop>DeleteAllOp</tabstop>
+  <tabstop>MoveUpOp</tabstop>
+  <tabstop>MoveDownOp</tabstop>
+  <tabstop>QuitOp</tabstop>
+  <tabstop>GetOp</tabstop>
+  <tabstop>GetNextOp</tabstop>
+  <tabstop>GetBulkOp</tabstop>
+  <tabstop>SetOp</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
