@@ -4800,3 +4800,238 @@ Module *loadModule(const char *modulename, Parser *parserPtr)
     fclose(file);
     return NULL;
 }
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * freeModule --
+ *
+ *      Free a module and its associated data structures.
+ *
+ * Results:
+ *      None 
+ *
+ * Side effects:
+ *      None.
+ *
+ *----------------------------------------------------------------------
+ */
+void freeModule(Module *modulePtr)
+{
+    Module     *mPtr;
+    Macro      *macroPtr, *nextMacroPtr;
+    Import     *importPtr, *nextImportPtr;
+    Identity     *identityPtr, *nextIdentityPtr;
+    Revision   *revisionPtr, *nextRevisionPtr;
+    List       *listPtr, *nextListPtr;
+    Type       *typePtr, *nextTypePtr;
+    Class	   *classPtr, *nextClassPtr;
+    Attribute  *attributePtr, *nextAttributePtr;
+    Event 	   *eventPtr,	*nextEventPtr;
+    Object     *objectPtr, *nextObjectPtr;
+
+    /*
+     * In this first module loop we remove the module's imports,
+     * revisions, macros, and objects.
+     */
+	for (importPtr = modulePtr->firstImportPtr; importPtr;
+	     importPtr = nextImportPtr) {
+	    nextImportPtr = importPtr->nextPtr;
+	    smiFree(importPtr->export.module);
+	    smiFree(importPtr->export.name);
+	    smiFree(importPtr);
+	}
+
+	for (revisionPtr = modulePtr->firstRevisionPtr; revisionPtr;
+	     revisionPtr = nextRevisionPtr) {
+	    nextRevisionPtr = revisionPtr->nextPtr;
+	    smiFree(revisionPtr->export.description);
+	    smiFree(revisionPtr);
+	}
+	
+	for (macroPtr = modulePtr->firstMacroPtr; macroPtr;
+	     macroPtr = nextMacroPtr) {
+	    nextMacroPtr = macroPtr->nextPtr;
+	    smiFree(macroPtr->export.name);
+	    smiFree(macroPtr->export.abnf);
+	    smiFree(macroPtr->export.reference);
+	    smiFree(macroPtr->export.description);
+	    smiFree(macroPtr);
+	    
+	}
+	for (identityPtr = modulePtr->firstIdentityPtr; identityPtr;
+	     identityPtr = nextIdentityPtr) {
+	    nextIdentityPtr = identityPtr->nextPtr;
+	    smiFree(identityPtr->export.name);
+	    smiFree(identityPtr->export.reference);
+	    smiFree(identityPtr->export.description);
+	    smiFree(identityPtr);
+	}
+
+	for (objectPtr = modulePtr->firstObjectPtr; objectPtr;
+	     objectPtr = nextObjectPtr) {
+
+	    nextObjectPtr = objectPtr->nextPtr;
+	    smiFree(objectPtr->export.name);
+	    smiFree(objectPtr->export.description);
+	    smiFree(objectPtr->export.reference);
+	    smiFree(objectPtr->export.format);
+	    smiFree(objectPtr->export.units);
+	    for (listPtr = objectPtr->listPtr; listPtr;
+		 listPtr = nextListPtr) {
+		nextListPtr = listPtr->nextPtr;
+		smiFree(listPtr);
+	    }
+	    for (listPtr = objectPtr->optionlistPtr; listPtr;
+		 listPtr = nextListPtr) {
+		nextListPtr = listPtr->nextPtr;
+		smiFree(((Option *)(listPtr->ptr))->export.description);
+		smiFree((Option *)(listPtr->ptr));
+		smiFree(listPtr);
+	    }
+	    for (listPtr = objectPtr->refinementlistPtr; listPtr;
+		 listPtr = nextListPtr) {
+		nextListPtr = listPtr->nextPtr;
+		smiFree(((Refinement *)(listPtr->ptr))->export.description);
+		smiFree((Refinement *)(listPtr->ptr));
+		smiFree(listPtr);
+	    }
+	    if (objectPtr->typePtr) {
+		if ((objectPtr->typePtr->export.basetype ==
+		     SMI_BASETYPE_OCTETSTRING ||
+		     objectPtr->typePtr->export.basetype ==
+		     SMI_BASETYPE_BITS)) {
+		    smiFree(objectPtr->export.value.value.ptr);
+		} else if ((objectPtr->typePtr->export.basetype ==
+			    SMI_BASETYPE_OBJECTIDENTIFIER) &&
+			   (objectPtr->export.value.basetype ==
+			    objectPtr->typePtr->export.basetype)) {
+		    smiFree(objectPtr->export.value.value.oid);
+		} 
+		
+	    }
+	    smiFree(objectPtr);
+	}
+
+	for (classPtr = modulePtr->firstClassPtr; classPtr;
+	     classPtr = nextClassPtr) {
+
+	    nextClassPtr = classPtr->nextPtr;
+	   	for (attributePtr = classPtr->firstAttributePtr; attributePtr;
+	     attributePtr = nextAttributePtr) {
+
+	    nextAttributePtr = attributePtr->nextPtr;
+	    
+	    for (listPtr = attributePtr->listPtr; listPtr;
+		 listPtr = nextListPtr) {
+		nextListPtr = listPtr->nextPtr;
+		if ((attributePtr->export.basetype == SMI_BASETYPE_BITS) ||
+		    (attributePtr->export.basetype == SMI_BASETYPE_ENUM)) {
+		    smiFree(((NamedNumber *)(listPtr->ptr))->export.name);
+		    smiFree((NamedNumber *)(listPtr->ptr));
+		} else if ((attributePtr->export.basetype == SMI_BASETYPE_INTEGER32) ||
+			   (attributePtr->export.basetype == SMI_BASETYPE_INTEGER64) ||
+			   (attributePtr->export.basetype == SMI_BASETYPE_UNSIGNED32) ||
+			   (attributePtr->export.basetype == SMI_BASETYPE_UNSIGNED64) ||
+			   (attributePtr->export.basetype == SMI_BASETYPE_FLOAT32) ||
+			   (attributePtr->export.basetype == SMI_BASETYPE_FLOAT64) ||
+			   (attributePtr->export.basetype == SMI_BASETYPE_FLOAT128) ||
+			   (attributePtr->export.basetype == SMI_BASETYPE_OCTETSTRING)) {
+		    smiFree((Range *)(listPtr->ptr));
+		}
+		smiFree(listPtr);
+	    }
+	    smiFree(attributePtr->export.name);
+	    smiFree(attributePtr->export.format);
+	    smiFree(attributePtr->export.units);
+	    smiFree(attributePtr->export.description);
+	    smiFree(attributePtr->export.reference);
+	    smiFree(attributePtr);
+	    
+	    }
+	    
+	    for (eventPtr = classPtr->firstEventPtr; eventPtr;
+	     eventPtr = nextEventPtr) {
+	     
+		nextEventPtr = eventPtr->nextPtr;
+		smiFree(eventPtr->export.name);
+	    smiFree(eventPtr->export.reference);
+	    smiFree(eventPtr->export.description);
+	    }
+	   
+	   	
+	    for (listPtr = classPtr->uniqueList; listPtr;
+		 listPtr = nextListPtr) {
+		nextListPtr = listPtr->nextPtr;
+			smiFree(listPtr);
+	    }
+	    
+	    smiFree(classPtr->export.name);
+	    smiFree(classPtr->export.description);
+	    smiFree(classPtr->export.reference);
+	    smiFree(classPtr);
+	
+	}
+
+    /*
+     * In this second module loop we remove the module's types
+     * and the module itself. This separation is required, because
+     * we reference some types of foreign modules in the first loop.
+     */
+	for (typePtr = modulePtr->firstTypePtr; typePtr;
+	     typePtr = nextTypePtr) {
+	    nextTypePtr = typePtr->nextPtr;
+	    for (listPtr = typePtr->listPtr; listPtr;
+		 listPtr = nextListPtr) {
+		nextListPtr = listPtr->nextPtr;
+		if ((typePtr->export.basetype == SMI_BASETYPE_BITS) ||
+		    (typePtr->export.basetype == SMI_BASETYPE_ENUM)) {
+		    smiFree(((NamedNumber *)(listPtr->ptr))->export.name);
+		    smiFree((NamedNumber *)(listPtr->ptr));
+		} else if ((typePtr->export.basetype == SMI_BASETYPE_INTEGER32) ||
+			   (typePtr->export.basetype == SMI_BASETYPE_INTEGER64) ||
+			   (typePtr->export.basetype == SMI_BASETYPE_UNSIGNED32) ||
+			   (typePtr->export.basetype == SMI_BASETYPE_UNSIGNED64) ||
+			   (typePtr->export.basetype == SMI_BASETYPE_FLOAT32) ||
+			   (typePtr->export.basetype == SMI_BASETYPE_FLOAT64) ||
+			   (typePtr->export.basetype == SMI_BASETYPE_FLOAT128) ||
+			   (typePtr->export.basetype == SMI_BASETYPE_OCTETSTRING)) {
+		    smiFree((Range *)(listPtr->ptr));
+		}
+		smiFree(listPtr);
+	    }
+	    smiFree(typePtr->export.name);
+	    smiFree(typePtr->export.format);
+	    smiFree(typePtr->export.units);
+	    smiFree(typePtr->export.description);
+	    smiFree(typePtr->export.reference);
+	    smiFree(typePtr);
+	}
+
+	smiFree(modulePtr->export.name);
+	smiFree(modulePtr->export.path);
+	smiFree(modulePtr->export.organization);
+	smiFree(modulePtr->export.contactinfo);
+	smiFree(modulePtr->export.description);
+	smiFree(modulePtr->export.reference);
+
+    /* Unlink the module from the module list */
+    for (mPtr = smiHandle->firstModulePtr; mPtr; mPtr = mPtr->nextPtr)
+    {
+        if (mPtr == modulePtr)
+        {
+            if (mPtr->prevPtr)
+                mPtr->prevPtr->nextPtr = mPtr->nextPtr;
+            if (mPtr->nextPtr)
+                mPtr->nextPtr->prevPtr = mPtr->prevPtr;
+            if (mPtr == smiHandle->firstModulePtr)
+                smiHandle->firstModulePtr = mPtr->nextPtr;
+            if (mPtr == smiHandle->lastModulePtr)
+                smiHandle->lastModulePtr = mPtr->prevPtr;
+            break;
+        }
+    }
+    /* then free it */
+    smiFree(modulePtr);
+}
+

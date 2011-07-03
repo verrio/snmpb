@@ -384,6 +384,8 @@ extern int smiReadConfig(const char *filename, const char *tag);
 
 extern char *smiLoadModule(const char *module);
 
+extern void smiFreeModule(SmiModule *smiModulePtr);
+
 extern int smiIsLoaded(const char *module);
 
 

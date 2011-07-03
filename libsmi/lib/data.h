@@ -745,13 +745,12 @@ extern Macro *findMacroByModulenameAndName(const char *modulename,
 extern NamedNumber *findNamedNumberByName(Type *typePtr,
 					  const char *name);
 
-
-
 extern int smiInitData(void);
 
 extern void smiFreeData(void);
 
 extern Module *loadModule(const char *modulename, Parser *parserPtr);
 
+extern void freeModule(Module *modulePtr);
 
 #endif /* _DATA_H */

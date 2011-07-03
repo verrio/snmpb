@@ -445,6 +445,10 @@ char *smiLoadModule(const char *module)
     }
 }
  
+void smiFreeModule(SmiModule *smiModulePtr)
+{
+    freeModule((Module*)smiModulePtr);
+}
 
 
 void smiSetErrorLevel(int level)
