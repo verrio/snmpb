@@ -245,9 +245,6 @@ share/snmpb/mibs/VDSL-LINE-MIB
 share/snmpb/mibs/VPN-TC-STD-MIB
 share/snmpb/mibs/VRRP-MIB
 share/snmpb/mibs/WWW-MIB
-share/snmpb/mibs/IRTF-NMRG-SMING
-share/snmpb/mibs/IRTF-NMRG-SMING-EXTENSIONS
-share/snmpb/mibs/IRTF-NMRG-SMING-TYPES
 share/snmpb/mibs/POLICY-DEVICE-AUX-MIB
 share/snmpb/mibs/POLICY-DEVICE-AUX-MIB-orig
 share/snmpb/mibs/TUBS-IBR-AGENT-CAPABILITIES

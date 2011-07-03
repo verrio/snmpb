@@ -104,7 +104,6 @@ install:
 	$(INSTALL) -v -m 4755 -D -s -o root app/snmpb ${INSTALL_PREFIX}/bin
 	$(INSTALL) -v -m 444 -o root libsmi/mibs/iana/* ${INSTALL_PREFIX}/${SHARE}/snmpb/mibs
 	$(INSTALL) -v -m 444 -o root libsmi/mibs/ietf/* ${INSTALL_PREFIX}/${SHARE}/snmpb/mibs
-	$(INSTALL) -v -m 444 -o root libsmi/mibs/irtf/* ${INSTALL_PREFIX}/${SHARE}/snmpb/mibs
 	$(INSTALL) -v -m 444 -o root libsmi/mibs/tubs/* ${INSTALL_PREFIX}/${SHARE}/snmpb/mibs
 	$(INSTALL) -v -m 444 -o root libsmi/pibs/ietf/* ${INSTALL_PREFIX}/${SHARE}/snmpb/pibs
 	$(INSTALL) -v -m 444 -o root libsmi/pibs/tubs/* ${INSTALL_PREFIX}/${SHARE}/snmpb/pibs

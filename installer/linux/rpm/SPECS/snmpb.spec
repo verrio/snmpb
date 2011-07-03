@@ -320,9 +320,6 @@ rm -rf %buildroot
 %prefix/share/apps/snmpb/mibs/VPN-TC-STD-MIB
 %prefix/share/apps/snmpb/mibs/VRRP-MIB
 %prefix/share/apps/snmpb/mibs/WWW-MIB
-%prefix/share/apps/snmpb/mibs/IRTF-NMRG-SMING
-%prefix/share/apps/snmpb/mibs/IRTF-NMRG-SMING-EXTENSIONS
-%prefix/share/apps/snmpb/mibs/IRTF-NMRG-SMING-TYPES
 %prefix/share/apps/snmpb/mibs/POLICY-DEVICE-AUX-MIB
 %prefix/share/apps/snmpb/mibs/POLICY-DEVICE-AUX-MIB-orig
 %prefix/share/apps/snmpb/mibs/TUBS-IBR-AGENT-CAPABILITIES

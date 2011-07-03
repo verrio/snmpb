@@ -42,7 +42,6 @@ mkdir ${APFILESPATH}/mibs
 mkdir ${APFILESPATH}/pibs
 cp -R ../../libsmi/mibs/iana/* ${APFILESPATH}/mibs
 cp -R ../../libsmi/mibs/ietf/* ${APFILESPATH}/mibs
-cp -R ../../libsmi/mibs/irtf/* ${APFILESPATH}/mibs
 cp -R ../../libsmi/mibs/tubs/* ${APFILESPATH}/mibs
 cp -R ../../libsmi/pibs/ietf/* ${APFILESPATH}/pibs
 cp -R ../../libsmi/pibs/tubs/* ${APFILESPATH}/pibs
