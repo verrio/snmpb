@@ -48,7 +48,7 @@ public:
     MibModule(Snmpb *snmpb);
     void Refresh(void);
     void RefreshPathChange(void);
-    void SendLogError(const QString& text) { emit LogError(text); }
+    void SendLogError(const QString& text){ErrorWhileLoading=true; emit LogError(text);}
     QString LoadBestModule(QString oid);
     void SetLoadingPolicy(enum AutomaticLoadingPolicy p) {Policy = p;}
 
@@ -76,7 +76,8 @@ private:
     QList<LoadedMibModule*> Loaded;
     QList<QStringList> Total;
     QStringList Wanted;
-    enum AutomaticLoadingPolicy Policy; 
+    enum AutomaticLoadingPolicy Policy;
+    bool ErrorWhileLoading;
 };
 
 #endif /* MIBMODULE_H */

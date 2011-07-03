@@ -105,6 +105,8 @@ char* LoadedMibModule::GetMibLanguage(void)
     }
 }
 
+static MibModule *CurrentModuleObject = NULL;
+
 MibModule::MibModule(Snmpb *snmpb)
 {
     s = snmpb;
@@ -118,6 +120,7 @@ MibModule::MibModule(Snmpb *snmpb)
     connect(this, SIGNAL ( LogError(QString) ),
             s->MainUI()->LogOutput, SLOT ( append (QString) ));
 
+    CurrentModuleObject = this;
     RebuildTotalList(0);
     InitLib(0);
 
@@ -188,6 +191,16 @@ char *mystrtok_r(char *s1, const char *s2, char **lasts)
     return ret;
 }
 
+static void NormalErrorHdlr(char *path, int line, int severity, 
+                            char *msg, char *tag)
+{
+    (void)line; (void)tag;
+
+    if (severity <= 1)
+        CurrentModuleObject->SendLogError(QString("ERROR(%1) loading %2: %3")
+                                          .arg(severity).arg(path).arg(msg));
+}
+
 void MibModule::RebuildTotalList(int restart)
 {
     char    *dir, *smipath, *str, *svptr = NULL;
@@ -198,6 +211,12 @@ void MibModule::RebuildTotalList(int restart)
         smiInit(NULL);
         smiReadConfig(s->GetPathConfigFile().toLatin1().data(), NULL);
     }
+    
+    /* Enable error reporting */
+    smiSetFlags(smiGetFlags() | SMI_FLAG_ERRORS | SMI_FLAG_NODESCR);
+    smiSetErrorHandler(NormalErrorHdlr);
+    smiSetErrorLevel(3);
+
     smipath = strdup(smiGetPath());
    
     Total.clear();
@@ -236,8 +255,24 @@ void MibModule::RebuildTotalList(int restart)
                 // Load each module and build a list of possible root oids
                 // This is used for module auto-loading on mib walk
                 QStringList module;
+
+                // If a module has a fatal error, unload and ignore it
+                ErrorWhileLoading = false;
+                char *mod = smiLoadModule(fi->toLatin1());
+                SmiModule *smiModule = mod?smiGetModule(mod):NULL;
+                if (ErrorWhileLoading == true)
+                {
+                    QMessageBox::warning (s->MainUI()->MIBTree, "SnmpB error", 
+                                          QString(
+"Fatal error(s) found in MIB file %1. Check log tab.")
+                                          .arg( fi->toLatin1().data()), 
+                                          QMessageBox::Ok, Qt::NoButton);
+                    if (smiModule) smiFreeModule(smiModule);
+                    continue;
+                }
+
                 module += QFileInfo(fi->toLatin1()).fileName();
-                SmiModule *smiModule = smiGetModule(smiLoadModule(fi->toLatin1()));
+
                 if (smiModule)
                 {
                     SmiNode *node = smiGetModuleIdentityNode(smiModule);
@@ -488,21 +523,10 @@ void MibModule::RefreshPathChange(void)
     Refresh();
 }
 
-MibModule *CurrentModuleObject = NULL;
-static void NormalErrorHdlr(char *path, int line, int severity, 
-                            char *msg, char *tag)
-{
-    (void)path; (void)line; (void)tag;
-    CurrentModuleObject->SendLogError(QString("Error(%1): %2")
-                                      .arg(severity).arg(msg));
-}
-
 void MibModule::InitLib(int restart)
 {
     int smiflags;
     char *smipath;
-
-    CurrentModuleObject = this;
 
     if (restart)
     {
