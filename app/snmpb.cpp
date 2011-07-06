@@ -145,8 +145,9 @@ void Snmpb::BindToGUI(QMainWindow* mw)
 
     // Register every MIB tree to the MIB loader object
     w.MIBTree->RegisterToLoader(&loader);
+#if 0 //MART
     w.PlotMIBTree->RegisterToLoader(&loader);
-    
+#endif    
     TabSelected();
 }
 
@@ -343,13 +344,17 @@ void Snmpb::TabSelected(void)
         MainUI()->actionFindNext->setEnabled(true);
         disconnect(MainUI()->actionFind, SIGNAL( triggered() ), 0, 0);
         disconnect(MainUI()->actionFindNext, SIGNAL( triggered() ), 0, 0);
+#if 0 //MART
         connect( MainUI()->actionFind, SIGNAL( triggered() ),
                 w.PlotMIBTree, SLOT( FindFromNode() ) );
         connect( MainUI()->actionFindNext, SIGNAL( triggered() ),
                 w.PlotMIBTree, SLOT( ExecuteFindNext() ) );
+#endif
         MainUI()->actionMultipleVarbinds->setEnabled(false);
+#if 0 //MART
         // Refresh MIB tree if needed
         w.PlotMIBTree->Populate();
+#endif
         break;
     case 6: // Log
         SetEditorMenus(false);

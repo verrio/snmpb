@@ -47,10 +47,10 @@ public:
     }
 };
 
-GraphItem::GraphItem(Snmpb *snmpb):QwtPlot(snmpb->MainUI()->GraphName->currentText())
+GraphItem::GraphItem(Snmpb *snmpb):QwtPlot(snmpb->MainUI()->GraphName->text())
 {
     s = snmpb;
-    s->MainUI()->GraphTab->addTab(this, s->MainUI()->GraphName->currentText());
+    s->MainUI()->GraphTab->addTab(this, s->MainUI()->GraphName->text());
     dataCount = 0;
     timerID = 0;
 
@@ -167,7 +167,7 @@ Graph::Graph(Snmpb *snmpb)
     s = snmpb;
  
     // Connect some signals
-    connect( s->MainUI()->GraphCreate, SIGNAL( clicked() ), 
+    connect( s->MainUI()->GraphAdd, SIGNAL( clicked() ), 
              this, SLOT( CreateGraph() ));
     connect( s->MainUI()->GraphDelete, SIGNAL( clicked() ), 
              this, SLOT( DeleteGraph() ));
@@ -175,22 +175,31 @@ Graph::Graph(Snmpb *snmpb)
              this, SLOT( CreatePlot() ));
     connect( s->MainUI()->PlotDelete, SIGNAL( clicked() ), 
              this, SLOT( DeletePlot() ));    
+#if 0 //MART
     connect( s->MainUI()->PlotMIBTree, SIGNAL( SelectedOid(const QString&) ), 
              this, SLOT( SetObjectString(const QString&) ));
+#endif
 }
 
 void Graph::CreateGraph(void)
 {
-    if (!s->MainUI()->GraphName->currentText().isEmpty())
+#if 1  //MART
+    s->MainUI()->GraphName->setText("NewGraph");
+    s->MainUI()->Graph->setEnabled(true);
+    s->MainUI()->GraphList->addItem("NewGraph");
+    s->MainUI()->GraphName->setFocus(Qt::OtherFocusReason);  
+#endif
+
+    if (!s->MainUI()->GraphName->text().isEmpty())
     {        
         GraphItem *GI;
         for (int i = 0; i < Items.count(); i++)
         {
             GI = Items[i];
-            if (GI->title().text() == s->MainUI()->GraphName->currentText())
+            if (GI->title().text() == s->MainUI()->GraphName->text())
             {
                 QString err = QString("Graph \"%1\" already exist !")
-                      .arg(s->MainUI()->GraphName->currentText());
+                      .arg(s->MainUI()->GraphName->text());
                 QMessageBox::information ( NULL, "Graph", err, 
                              QMessageBox::Ok, Qt::NoButton);
                 return;
@@ -204,13 +213,13 @@ void Graph::CreateGraph(void)
 
 void Graph::DeleteGraph(void)
 {
-    if (!s->MainUI()->GraphName->currentText().isEmpty())
+    if (!s->MainUI()->GraphName->text().isEmpty())
     {
         GraphItem *GI;
         for (int i = 0; i < Items.count(); i++)
         {
             GI = Items[i];
-            if (GI->title().text() == s->MainUI()->GraphName->currentText())
+            if (GI->title().text() == s->MainUI()->GraphName->text())
             {
                 Items.removeAll(GI);
                 delete GI;
@@ -222,7 +231,14 @@ void Graph::DeleteGraph(void)
 
 void Graph::CreatePlot(void)
 {
-    if (!s->MainUI()->PlotObject->currentText().isEmpty())
+#if 1  //MART
+    s->MainUI()->PlotDisplayName->setText("NewPlot");
+    s->MainUI()->Plot->setEnabled(true);
+    s->MainUI()->PlotList->addItem("NewPlot");
+    s->MainUI()->PlotDisplayName->setFocus(Qt::OtherFocusReason);  
+#endif
+
+    if (!s->MainUI()->PlotObject->text().isEmpty())
     {
         // Create the pen with the combobox values
         QPen p(s->MainUI()->PlotColor->itemData(
@@ -237,46 +253,48 @@ void Graph::CreatePlot(void)
 #ifdef NOTYET  
         printf("Creating plot %s\n", s->MainUI()->PlotObject->currentText().toLatin1().data());
 #endif 
-        if (!s->MainUI()->GraphName->currentText().isEmpty())
+        if (!s->MainUI()->GraphName->text().isEmpty())
         {
             GraphItem *GI = NULL;
             for (int i = 0; i < Items.count(); i++)
             {
                 GI = Items[i];
-                if (GI->title().text() == s->MainUI()->GraphName->currentText())
+                if (GI->title().text() == s->MainUI()->GraphName->text())
                     break;
             }
             if (GI)
-                GI->AddCurve(s->MainUI()->PlotObject->currentText(), p);
+                GI->AddCurve(s->MainUI()->PlotObject->text(), p);
         }
     }
 }
 
 void Graph::DeletePlot(void)
 {
-    if (!s->MainUI()->PlotObject->currentText().isEmpty())
+    if (!s->MainUI()->PlotObject->text().isEmpty())
     {
 #ifdef NOTYET
         printf("Deleting plot %s\n", s->MainUI()->PlotObject->currentText().toLatin1().data());
 #endif 
-        if (!s->MainUI()->GraphName->currentText().isEmpty())
+        if (!s->MainUI()->GraphName->text().isEmpty())
         {
             GraphItem *GI = NULL;
             for (int i = 0; i < Items.count(); i++)
             {
                 GI = Items[i];
-                if (GI->title().text() == s->MainUI()->GraphName->currentText())
+                if (GI->title().text() == s->MainUI()->GraphName->text())
                     break;
             }
             if (GI) 
-                GI->RemoveCurve(s->MainUI()->PlotObject->currentText());
+                GI->RemoveCurve(s->MainUI()->PlotObject->text());
         }
     }
 }
 
 void Graph::SetObjectString(const QString& oid)
 {
+#if 0 //MART
     s->MainUI()->PlotObject->insertItem(0, oid);
     s->MainUI()->PlotObject->setCurrentIndex(0);
+#endif
 }
 
