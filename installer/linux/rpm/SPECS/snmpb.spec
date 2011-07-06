@@ -372,7 +372,7 @@ rm -rf %buildroot
 %prefix/share/apps/snmpb/pibs/UMTS-PIB-orig
 
 %changelog
-* Sun Jun 21 2109 Martin Jolicoeur 
+* Sun Jun 21 2011 Martin Jolicoeur 
 - Release 1.0 (TBD) 
 
 * Sun Jun 21 2009 Martin Jolicoeur 
