@@ -2,6 +2,7 @@
 Exec=snmpb
 TryExec=snmpb
 Name=SnmpB
+GenericName=SNMP MIB Browser
 Icon=snmpb
 Categories=Qt;Network;Utility;
 Type=Application
