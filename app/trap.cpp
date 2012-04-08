@@ -40,7 +40,21 @@ TrapItem::TrapItem(Oid &id, QTreeWidget* parent, const QStringList &values,
 
 void TrapItem::PrintProperties(QString& text)
 {
-    SmiNode *Node = smiGetNodeByOID(oid.len(), (unsigned int *)&(oid[0]));
+    int oidlen = oid.len();
+
+    if (oidlen <= 0)
+        return; 
+
+    /* Convert from unsigned long to unsigned int for 64 bit platforms */
+    SmiSubid *ioid = new SmiSubid[oidlen];
+
+    for (int idx = 0; idx < oidlen; idx++)
+        ioid[idx] = oid[idx];
+
+    SmiNode *Node = smiGetNodeByOID(oidlen, &ioid[0]);
+
+    delete [] ioid;
+
     if (!Node || (Node->nodekind != SMI_NODEKIND_NOTIFICATION))
         return;
         
