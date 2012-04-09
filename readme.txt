@@ -33,8 +33,8 @@ notifyqueue.h uxsnmp.h notifyqueue.cpp uxsnmp.cpp
 "Modified snmp++ to allow binding trap port on both ipv4 and ipv6 for all interfaces"
 uxsnmp.h notifyqueue.cpp "Added set/get_notify_callback_fd() to access fd when replying to INFORMS"
 
-Libtomcrypt is taken from http://libtomcrypt.com
-Version: 1.16
+Libtomcrypt is taken from http://libtom.org
+Version: 1.17
 
 Modified file(s):
 makefile
@@ -64,4 +64,4 @@ qwtconfig.pri
 
 --------------------------------
 
-Martin Jolicoeur, April 2011
+Martin Jolicoeur, April 2012
