@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -23,5 +23,5 @@ LTC_MUTEX_GLOBAL(ltc_cipher_mutex)
 
 
 /* $Source: /cvs/libtom/libtomcrypt/src/misc/crypt/crypt_cipher_descriptor.c,v $ */
-/* $Revision: 1.12 $ */
-/* $Date: 2006/11/08 23:01:06 $ */
+/* $Revision: 1.13 $ */
+/* $Date: 2006/12/28 01:27:24 $ */

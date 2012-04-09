@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 
 /* Implements ECC over Z/pZ for curve y^2 = x^3 - 3x + b
@@ -21,7 +21,7 @@
   ECC Crypto, Tom St Denis
 */  
 
-#ifdef MECC
+#ifdef LTC_MECC
 
 void ecc_sizes(int *low, int *high)
 {
@@ -43,6 +43,6 @@ void ecc_sizes(int *low, int *high)
 
 #endif
 /* $Source: /cvs/libtom/libtomcrypt/src/pk/ecc/ecc_sizes.c,v $ */
-/* $Revision: 1.4 $ */
-/* $Date: 2006/06/09 01:38:14 $ */
+/* $Revision: 1.6 $ */
+/* $Date: 2007/05/12 14:32:35 $ */
 

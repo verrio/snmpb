@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 
 /** 
@@ -15,7 +15,7 @@
 */
 #include "tomcrypt.h"
 
-#ifdef OCB_MODE
+#ifdef LTC_OCB_MODE
 
 /**
    Terminate a decrypting OCB state
@@ -76,5 +76,5 @@ LBL_ERR:
 
 
 /* $Source: /cvs/libtom/libtomcrypt/src/encauth/ocb/ocb_done_decrypt.c,v $ */
-/* $Revision: 1.5 $ */
-/* $Date: 2006/11/01 09:28:17 $ */
+/* $Revision: 1.7 $ */
+/* $Date: 2007/05/12 14:32:35 $ */

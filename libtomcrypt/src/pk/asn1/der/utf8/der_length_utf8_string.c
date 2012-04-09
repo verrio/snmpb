@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -79,5 +79,5 @@ int der_length_utf8_string(const wchar_t *in, unsigned long noctets, unsigned lo
 
 
 /* $Source: /cvs/libtom/libtomcrypt/src/pk/asn1/der/utf8/der_length_utf8_string.c,v $ */
-/* $Revision: 1.5 $ */
-/* $Date: 2006/12/16 17:41:21 $ */
+/* $Revision: 1.6 $ */
+/* $Date: 2006/12/28 01:27:24 $ */

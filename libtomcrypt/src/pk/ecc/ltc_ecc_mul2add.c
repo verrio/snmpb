@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 
 /* Implements ECC over Z/pZ for curve y^2 = x^3 - 3x + b
@@ -21,7 +21,7 @@
   ECC Crypto, Shamir's Trick, Tom St Denis
 */  
 
-#ifdef MECC
+#ifdef LTC_MECC
 
 #ifdef LTC_ECC_SHAMIR
 
@@ -203,5 +203,5 @@ ERR_T:
 #endif
 
 /* $Source: /cvs/libtom/libtomcrypt/src/pk/ecc/ltc_ecc_mul2add.c,v $ */
-/* $Revision: 1.6 $ */
-/* $Date: 2006/12/04 05:07:59 $ */
+/* $Revision: 1.8 $ */
+/* $Date: 2007/05/12 14:32:35 $ */

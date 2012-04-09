@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -50,5 +50,5 @@ int register_hash(const struct ltc_hash_descriptor *hash)
 }
 
 /* $Source: /cvs/libtom/libtomcrypt/src/misc/crypt/crypt_register_hash.c,v $ */
-/* $Revision: 1.6 $ */
-/* $Date: 2006/11/01 09:28:17 $ */
+/* $Revision: 1.7 $ */
+/* $Date: 2006/12/28 01:27:24 $ */

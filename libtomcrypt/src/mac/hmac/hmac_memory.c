@@ -6,24 +6,24 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
 /**
   @file hmac_memory.c
-  HMAC support, process a block of memory, Tom St Denis/Dobes Vandermeer
+  LTC_HMAC support, process a block of memory, Tom St Denis/Dobes Vandermeer
 */
 
 #ifdef LTC_HMAC
 
 /**
-   HMAC a block of memory to produce the authentication tag
+   LTC_HMAC a block of memory to produce the authentication tag
    @param hash      The index of the hash to use 
    @param key       The secret key 
    @param keylen    The length of the secret key (octets)
-   @param in        The data to HMAC
-   @param inlen     The length of the data to HMAC (octets)
+   @param in        The data to LTC_HMAC
+   @param inlen     The length of the data to LTC_HMAC (octets)
    @param out       [out] Destination of the authentication tag
    @param outlen    [in/out] Max size and resulting size of authentication tag
    @return CRYPT_OK if successful
@@ -84,5 +84,5 @@ LBL_ERR:
 
 
 /* $Source: /cvs/libtom/libtomcrypt/src/mac/hmac/hmac_memory.c,v $ */
-/* $Revision: 1.6 $ */
-/* $Date: 2006/11/03 00:39:49 $ */
+/* $Revision: 1.8 $ */
+/* $Date: 2007/05/12 14:37:41 $ */

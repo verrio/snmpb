@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -382,5 +382,5 @@ error:
 
 
 /* $Source: /cvs/libtom/libtomcrypt/src/pk/asn1/der/sequence/der_decode_sequence_flexi.c,v $ */
-/* $Revision: 1.25 $ */
-/* $Date: 2006/11/26 02:25:18 $ */
+/* $Revision: 1.26 $ */
+/* $Date: 2006/12/28 01:27:24 $ */

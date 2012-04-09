@@ -6,17 +6,17 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
 /**
   @file sha1.c
-  SHA1 code by Tom St Denis 
+  LTC_SHA1 code by Tom St Denis 
 */
 
 
-#ifdef SHA1
+#ifdef LTC_SHA1
 
 const struct ltc_hash_descriptor sha1_desc =
 {
@@ -284,5 +284,5 @@ int  sha1_test(void)
 
 
 /* $Source: /cvs/libtom/libtomcrypt/src/hashes/sha1.c,v $ */
-/* $Revision: 1.8 $ */
-/* $Date: 2006/11/01 09:28:17 $ */
+/* $Revision: 1.10 $ */
+/* $Date: 2007/05/12 14:25:28 $ */

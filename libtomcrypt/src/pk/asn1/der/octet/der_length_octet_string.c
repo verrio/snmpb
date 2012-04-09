@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -49,5 +49,5 @@ int der_length_octet_string(unsigned long noctets, unsigned long *outlen)
 
 
 /* $Source: /cvs/libtom/libtomcrypt/src/pk/asn1/der/octet/der_length_octet_string.c,v $ */
-/* $Revision: 1.2 $ */
-/* $Date: 2006/03/31 14:15:35 $ */
+/* $Revision: 1.3 $ */
+/* $Date: 2006/12/28 01:27:24 $ */

@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -16,7 +16,7 @@
 */
 
 
-#ifdef BASE64
+#ifdef LTC_BASE64
 
 static const unsigned char map[256] = {
 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
@@ -100,5 +100,5 @@ int base64_decode(const unsigned char *in,  unsigned long inlen,
 
 
 /* $Source: /cvs/libtom/libtomcrypt/src/misc/base64/base64_decode.c,v $ */
-/* $Revision: 1.4 $ */
-/* $Date: 2006/03/31 14:15:35 $ */
+/* $Revision: 1.6 $ */
+/* $Date: 2007/05/12 14:32:35 $ */

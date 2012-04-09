@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -15,7 +15,7 @@
   DSA Crypto, Tom St Denis
 */  
 
-#ifdef MDSA
+#ifdef LTC_MDSA
 
 /**
   Create a DSA shared secret between two keys
@@ -67,6 +67,6 @@ done:
 
 #endif
 /* $Source: /cvs/libtom/libtomcrypt/src/pk/dsa/dsa_shared_secret.c,v $ */
-/* $Revision: 1.7 $ */
-/* $Date: 2006/12/04 03:18:43 $ */
+/* $Revision: 1.9 $ */
+/* $Date: 2007/05/12 14:32:35 $ */
 

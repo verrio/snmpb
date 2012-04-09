@@ -6,17 +6,17 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 
 /** 
    @file whirl.c
-   WHIRLPOOL (using their new sbox) hash function by Tom St Denis 
+   LTC_WHIRLPOOL (using their new sbox) hash function by Tom St Denis 
 */
 
 #include "tomcrypt.h"
 
-#ifdef WHIRLPOOL
+#ifdef LTC_WHIRLPOOL
 
 const struct ltc_hash_descriptor whirlpool_desc =
 {
@@ -310,5 +310,5 @@ int  whirlpool_test(void)
 
 
 /* $Source: /cvs/libtom/libtomcrypt/src/hashes/whirl/whirl.c,v $ */
-/* $Revision: 1.8 $ */
-/* $Date: 2006/11/01 09:28:17 $ */
+/* $Revision: 1.10 $ */
+/* $Date: 2007/05/12 14:21:44 $ */

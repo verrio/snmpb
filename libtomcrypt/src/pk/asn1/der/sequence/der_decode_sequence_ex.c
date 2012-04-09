@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 #include <stdarg.h>
@@ -283,5 +283,5 @@ LBL_ERR:
 #endif
 
 /* $Source: /cvs/libtom/libtomcrypt/src/pk/asn1/der/sequence/der_decode_sequence_ex.c,v $ */
-/* $Revision: 1.15 $ */
-/* $Date: 2006/11/26 02:25:18 $ */
+/* $Revision: 1.16 $ */
+/* $Date: 2006/12/28 01:27:24 $ */

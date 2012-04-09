@@ -1,5 +1,5 @@
 #include <tomcrypt_test.h>
-#if defined(GMP_DESC) || defined(USE_GMP)
+#if defined(GMP_LTC_DESC) || defined(USE_GMP)
 #include <gmp.h>
 #endif
 
@@ -849,5 +849,5 @@ tmp_time.off_hh);
 #endif
 
 /* $Source: /cvs/libtom/libtomcrypt/testprof/der_tests.c,v $ */
-/* $Revision: 1.49 $ */
-/* $Date: 2006/11/26 02:10:21 $ */
+/* $Revision: 1.50 $ */
+/* $Date: 2007/05/12 14:20:27 $ */

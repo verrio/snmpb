@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -15,7 +15,7 @@
    Pelican MAC, MAC a block of memory, by Tom St Denis 
 */
 
-#ifdef PELICAN
+#ifdef LTC_PELICAN
 
 /**
   Pelican block of memory
@@ -55,5 +55,5 @@ int pelican_memory(const unsigned char *key, unsigned long keylen,
 #endif
 
 /* $Source: /cvs/libtom/libtomcrypt/src/mac/pelican/pelican_memory.c,v $ */
-/* $Revision: 1.6 $ */
-/* $Date: 2006/03/31 14:15:35 $ */
+/* $Revision: 1.8 $ */
+/* $Date: 2007/05/12 14:32:35 $ */

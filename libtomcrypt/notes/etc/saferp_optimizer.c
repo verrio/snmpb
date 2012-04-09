@@ -1,4 +1,4 @@
-/* emits an optimized version of SAFER+ ... only does encrypt so far... */
+/* emits an optimized version of LTC_SAFER+ ... only does encrypt so far... */
 
 #include <stdio.h>
 #include <string.h>
@@ -173,5 +173,5 @@ printf("   }\n}\n\n");
 
 
 /* $Source: /cvs/libtom/libtomcrypt/notes/etc/saferp_optimizer.c,v $ */
-/* $Revision: 1.2 $ */
-/* $Date: 2005/05/05 14:35:58 $ */
+/* $Revision: 1.3 $ */
+/* $Date: 2007/05/12 14:20:27 $ */

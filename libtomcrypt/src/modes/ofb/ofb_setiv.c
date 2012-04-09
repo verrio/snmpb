@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -48,5 +48,5 @@ int ofb_setiv(const unsigned char *IV, unsigned long len, symmetric_OFB *ofb)
 
 
 /* $Source: /cvs/libtom/libtomcrypt/src/modes/ofb/ofb_setiv.c,v $ */
-/* $Revision: 1.6 $ */
-/* $Date: 2006/06/29 01:51:34 $ */
+/* $Revision: 1.7 $ */
+/* $Date: 2006/12/28 01:27:24 $ */

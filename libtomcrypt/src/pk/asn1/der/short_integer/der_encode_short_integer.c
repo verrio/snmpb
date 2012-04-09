@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -93,5 +93,5 @@ int der_encode_short_integer(unsigned long num, unsigned char *out, unsigned lon
 #endif
 
 /* $Source: /cvs/libtom/libtomcrypt/src/pk/asn1/der/short_integer/der_encode_short_integer.c,v $ */
-/* $Revision: 1.7 $ */
-/* $Date: 2006/12/04 21:34:03 $ */
+/* $Revision: 1.8 $ */
+/* $Date: 2006/12/28 01:27:24 $ */

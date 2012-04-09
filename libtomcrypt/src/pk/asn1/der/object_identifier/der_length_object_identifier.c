@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -85,5 +85,5 @@ int der_length_object_identifier(unsigned long *words, unsigned long nwords, uns
 #endif
 
 /* $Source: /cvs/libtom/libtomcrypt/src/pk/asn1/der/object_identifier/der_length_object_identifier.c,v $ */
-/* $Revision: 1.4 $ */
-/* $Date: 2006/04/16 20:17:42 $ */
+/* $Revision: 1.5 $ */
+/* $Date: 2006/12/28 01:27:24 $ */

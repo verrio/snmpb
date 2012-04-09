@@ -1,6 +1,6 @@
 #include <tomcrypt_test.h>
 
-#ifdef MDSA
+#ifdef LTC_MDSA
 
 int dsa_test(void)
 {
@@ -78,5 +78,5 @@ int dsa_test(void)
 #endif
 
 /* $Source: /cvs/libtom/libtomcrypt/testprof/dsa_test.c,v $ */
-/* $Revision: 1.9 $ */
-/* $Date: 2005/10/30 18:49:14 $ */
+/* $Revision: 1.10 $ */
+/* $Date: 2007/05/12 14:32:35 $ */

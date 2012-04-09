@@ -1,6 +1,6 @@
 /**
    @file whirltab.c
-   WHIRLPOOL tables, Tom St Denis
+   LTC_WHIRLPOOL tables, Tom St Denis
 */   
 static const ulong64 sbox0[] = {
 CONST64(0x18186018c07830d8), CONST64(0x23238c2305af4626), CONST64(0xc6c63fc67ef991b8), CONST64(0xe8e887e8136fcdfb), 
@@ -579,5 +579,5 @@ CONST64(0x6302aa71c81949d9),
 
 
 /* $Source: /cvs/libtom/libtomcrypt/src/hashes/whirl/whirltab.c,v $ */
-/* $Revision: 1.2 $ */
-/* $Date: 2005/05/05 14:35:58 $ */
+/* $Revision: 1.3 $ */
+/* $Date: 2007/05/12 14:21:44 $ */

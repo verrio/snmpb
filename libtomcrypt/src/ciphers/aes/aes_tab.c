@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 /* The precomputed tables for AES */
 /*
@@ -1024,5 +1024,5 @@ static const ulong32 rcon[] = {
 };
 
 /* $Source: /cvs/libtom/libtomcrypt/src/ciphers/aes/aes_tab.c,v $ */
-/* $Revision: 1.5 $ */
-/* $Date: 2006/04/02 13:19:09 $ */
+/* $Revision: 1.6 $ */
+/* $Date: 2006/12/28 01:27:23 $ */

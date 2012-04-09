@@ -6,13 +6,13 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
 /**
   @file katja_exptmod.c
-  Katja PKCS-style exptmod, Tom St Denis
+  Katja LTC_PKCS-style exptmod, Tom St Denis
 */  
 
 #ifdef MKAT
@@ -111,5 +111,5 @@ done:
 #endif
 
 /* $Source: /cvs/libtom/libtomcrypt/src/pk/katja/katja_exptmod.c,v $ */
-/* $Revision: 1.5 $ */
-/* $Date: 2006/06/16 21:53:41 $ */
+/* $Revision: 1.7 $ */
+/* $Date: 2007/05/12 14:32:35 $ */

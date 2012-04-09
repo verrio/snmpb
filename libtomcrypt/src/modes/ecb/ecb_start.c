@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -44,5 +44,5 @@ int ecb_start(int cipher, const unsigned char *key, int keylen, int num_rounds, 
 #endif
 
 /* $Source: /cvs/libtom/libtomcrypt/src/modes/ecb/ecb_start.c,v $ */
-/* $Revision: 1.5 $ */
-/* $Date: 2006/06/29 01:51:34 $ */
+/* $Revision: 1.6 $ */
+/* $Date: 2006/12/28 01:27:24 $ */

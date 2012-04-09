@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -31,5 +31,5 @@ int der_length_boolean(unsigned long *outlen)
 #endif
 
 /* $Source: /cvs/libtom/libtomcrypt/src/pk/asn1/der/boolean/der_length_boolean.c,v $ */
-/* $Revision: 1.2 $ */
-/* $Date: 2006/04/22 17:28:38 $ */
+/* $Revision: 1.3 $ */
+/* $Date: 2006/12/28 01:27:24 $ */

@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
-  * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+  * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -99,5 +99,5 @@ int der_encode_set(ltc_asn1_list *list, unsigned long inlen,
 #endif
 
 /* $Source: /cvs/libtom/libtomcrypt/src/pk/asn1/der/set/der_encode_set.c,v $ */
-/* $Revision: 1.11 $ */
-/* $Date: 2006/11/26 02:27:37 $ */
+/* $Revision: 1.12 $ */
+/* $Date: 2006/12/28 01:27:24 $ */

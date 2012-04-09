@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -99,5 +99,5 @@ int lrw_start(               int   cipher,
 
 #endif
 /* $Source: /cvs/libtom/libtomcrypt/src/modes/lrw/lrw_start.c,v $ */
-/* $Revision: 1.11 $ */
-/* $Date: 2006/06/29 01:53:13 $ */
+/* $Revision: 1.12 $ */
+/* $Date: 2006/12/28 01:27:24 $ */
