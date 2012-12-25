@@ -967,7 +967,11 @@ node_restart:
 
                     // Print the value part
                     msg += QString("    <font color=blue>%1</font>")
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
                                    .arg(Qt::escape(GetPrintableValue(node, &vb)));
+#else
+                                   .arg(QString(GetPrintableValue(node, &vb)).toHtmlEscaped());
+#endif
                 }
                 else
                 {
@@ -1147,7 +1151,11 @@ void Agent::AsyncCallbackSet(int reason, Pdu &pdu, SnmpTarget &target)
 
                 // Print the value part
                 msg += QString("    <font color=blue>%1</font>")
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
                            .arg(Qt::escape(GetPrintableValue(node, &vb)));
+#else
+                           .arg(QString(GetPrintableValue(node, &vb)).toHtmlEscaped());
+#endif
             }
             else
             {
@@ -1559,7 +1567,13 @@ void Agent::TableViewFrom(const QString& oid)
                 msg += QString("<td>not available</td>");
             }
             else
-                msg += QString("<td>%1</td>").arg(Qt::escape(GetPrintableValue(node, &svb)));
+                msg += QString("<td>%1</td>")
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+                                   .arg(Qt::escape(GetPrintableValue(node, &svb)));
+#else
+                                   .arg(QString(GetPrintableValue(node, &svb)).toHtmlEscaped());
+#endif
+
         }
         msg += QString("</tr>");
         rows++;
@@ -1925,8 +1939,7 @@ int Agent::SelectTableInstance(const QString& oid, QString& outinstance)
     QDialogButtonBox box(QDialogButtonBox::Ok, Qt::Horizontal, &dlist);
     gl2.addWidget(&box, 2, 0, 1, 1);
     gl1.addLayout(&gl2, 0, 0, 1, 1);
-    dlist.setWindowTitle(QApplication::translate("Dialog", 
-                         "Select Instance", 0, QApplication::UnicodeUTF8));
+    dlist.setWindowTitle(tr("Select Instance"));
     QMetaObject::connectSlotsByName(&dlist);
     connect(&ilist, SIGNAL(itemDoubleClicked(QListWidgetItem *)), 
             &dlist, SLOT(accept()));
@@ -2026,8 +2039,7 @@ void Agent::GetFromPromptInstance(const QString& oid, int op)
     le = new QLineEdit(&dprompt);
     le->setFocus(Qt::OtherFocusReason);
     gl.addWidget(le, 1, 0, 1, 1);
-    dprompt.setWindowTitle(QApplication::translate("Dialog", 
-                           "Type Instance", 0, QApplication::UnicodeUTF8));
+    dprompt.setWindowTitle(tr("Type Instance"));
     QObject::connect(&box, SIGNAL(accepted()), &dprompt, SLOT(accept()));
     QMetaObject::connectSlotsByName(&dprompt);
     connect(le, SIGNAL(editingFinished(void)), 

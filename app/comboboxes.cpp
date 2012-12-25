@@ -74,23 +74,23 @@ QColorComboBox::QColorComboBox(QWidget *parent):QComboBox(parent)
         QModelIndex index = model->index(row, 0, QModelIndex());
         switch (row)
         {
-            case 0: model->setData(index, QVariant(Qt::black)); break;
-            case 1: model->setData(index, QVariant(Qt::white)); break;
-            case 2: model->setData(index, QVariant(Qt::darkGray)); break;
-            case 3: model->setData(index, QVariant(Qt::gray)); break;
-            case 4: model->setData(index, QVariant(Qt::lightGray)); break;
-            case 5: model->setData(index, QVariant(Qt::red)); break;
-            case 6: model->setData(index, QVariant(Qt::green)); break;
-            case 7: model->setData(index, QVariant(Qt::blue)); break;
-            case 8: model->setData(index, QVariant(Qt::cyan)); break;
-            case 9: model->setData(index, QVariant(Qt::magenta)); break;            
-            case 10: model->setData(index, QVariant(Qt::yellow)); break;
-            case 11: model->setData(index, QVariant(Qt::darkRed)); break;
-            case 12: model->setData(index, QVariant(Qt::darkGreen)); break;
-            case 13: model->setData(index, QVariant(Qt::darkBlue)); break;
-            case 14: model->setData(index, QVariant(Qt::darkCyan)); break;
-            case 15: model->setData(index, QVariant(Qt::darkMagenta)); break;
-            case 16: model->setData(index, QVariant(Qt::darkYellow)); break;
+            case 0: model->setData(index, QVariant(QColor(Qt::black))); break;
+            case 1: model->setData(index, QVariant(QColor(Qt::white))); break;
+            case 2: model->setData(index, QVariant(QColor(Qt::darkGray))); break;
+            case 3: model->setData(index, QVariant(QColor(Qt::gray))); break;
+            case 4: model->setData(index, QVariant(QColor(Qt::lightGray))); break;
+            case 5: model->setData(index, QVariant(QColor(Qt::red))); break;
+            case 6: model->setData(index, QVariant(QColor(Qt::green))); break;
+            case 7: model->setData(index, QVariant(QColor(Qt::blue))); break;
+            case 8: model->setData(index, QVariant(QColor(Qt::cyan))); break;
+            case 9: model->setData(index, QVariant(QColor(Qt::magenta))); break;            
+            case 10: model->setData(index, QVariant(QColor(Qt::yellow))); break;
+            case 11: model->setData(index, QVariant(QColor(Qt::darkRed))); break;
+            case 12: model->setData(index, QVariant(QColor(Qt::darkGreen))); break;
+            case 13: model->setData(index, QVariant(QColor(Qt::darkBlue))); break;
+            case 14: model->setData(index, QVariant(QColor(Qt::darkCyan))); break;
+            case 15: model->setData(index, QVariant(QColor(Qt::darkMagenta))); break;
+            case 16: model->setData(index, QVariant(QColor(Qt::darkYellow))); break;
             default: break;
         }
     }
@@ -219,11 +219,11 @@ QPenStyleComboBox::QPenStyleComboBox(QWidget *parent):QComboBox(parent)
         QModelIndex index = model->index(row, 0, QModelIndex());
         switch (row)
         {
-            case 0: model->setData(index, QVariant(Qt::SolidLine)); break;
-            case 1: model->setData(index, QVariant(Qt::DashLine)); break;
-            case 2: model->setData(index, QVariant(Qt::DotLine)); break;
-            case 3: model->setData(index, QVariant(Qt::DashDotLine)); break;
-            case 4: model->setData(index, QVariant(Qt::DashDotDotLine)); break;
+            case 0: model->setData(index, QVariant((enum Qt::PenStyle)Qt::SolidLine)); break;
+            case 1: model->setData(index, QVariant((enum Qt::PenStyle)Qt::DashLine)); break;
+            case 2: model->setData(index, QVariant((enum Qt::PenStyle)Qt::DotLine)); break;
+            case 3: model->setData(index, QVariant((enum Qt::PenStyle)Qt::DashDotLine)); break;
+            case 4: model->setData(index, QVariant((enum Qt::PenStyle)Qt::DashDotDotLine)); break;
             default: break;
         }
     }

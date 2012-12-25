@@ -28,13 +28,13 @@ USMProfileManager::USMProfileManager(Snmpb *snmpb)
 
     // Set some properties for the USM Profile TreeView
     up.ProfileTree->header()->hide();
-    up.ProfileTree->setSortingEnabled( FALSE );
-    up.ProfileTree->header()->setSortIndicatorShown( FALSE );
+    up.ProfileTree->setSortingEnabled( false );
+    up.ProfileTree->header()->setSortIndicatorShown( false );
     up.ProfileTree->setLineWidth( 2 );
-    up.ProfileTree->setAllColumnsShowFocus( FALSE );
+    up.ProfileTree->setAllColumnsShowFocus( false );
     up.ProfileTree->setFrameShape(QFrame::WinPanel);
     up.ProfileTree->setFrameShadow(QFrame::Plain);
-    up.ProfileTree->setRootIsDecorated( TRUE );
+    up.ProfileTree->setRootIsDecorated( true );
 
     // Create context menu actions
     up.ProfileTree->setContextMenuPolicy (Qt::CustomContextMenu);

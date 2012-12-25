@@ -40,14 +40,14 @@ BasicMibView::BasicMibView (QWidget * parent) : QTreeWidget(parent)
 {
     // Set some properties for the TreeView
     header()->hide();
-    setSortingEnabled( FALSE );
+    setSortingEnabled( false );
     setHorizontalScrollBarPolicy ( Qt::ScrollBarAlwaysOn );
-    header()->setSortIndicatorShown( FALSE );
+    header()->setSortIndicatorShown( false );
     setLineWidth( 2 );
-    setAllColumnsShowFocus( FALSE );
+    setAllColumnsShowFocus( false );
     setFrameShape(QFrame::WinPanel);
     setFrameShadow(QFrame::Plain);
-    setRootIsDecorated( TRUE );
+    setRootIsDecorated( true );
     
     // Create context menu actions
     expandAct = new QAction(tr("Expand"), this);
@@ -123,7 +123,7 @@ void BasicMibView::ExpandFromNode(void)
     QTreeWidgetItemIterator it( start );
     while ( *it && (*it != end)) {
         QTreeWidgetItem *item = *it;
-        item->setExpanded(TRUE);
+        item->setExpanded(true);
         ++it;
     }
 }
@@ -147,7 +147,7 @@ void BasicMibView::CollapseFromNode(void)
     QTreeWidgetItemIterator it( start );
     while ( *it && (*it != end)) {
         QTreeWidgetItem *item = *it;
-        item->setExpanded(FALSE);
+        item->setExpanded(false);
         ++it;
     }
 }
@@ -280,13 +280,13 @@ void BasicMibView::SelectFromOid(const QString& oid)
 void BasicMibView::ExpandNode( QTreeWidgetItem * item)
 {
     MibNode *node = (MibNode*)item;
-    node->SetPixmap(TRUE);
+    node->SetPixmap(true);
 }
 
 void BasicMibView::CollapseNode( QTreeWidgetItem * item)
 {
     MibNode *node = (MibNode*)item;
-    node->SetPixmap(FALSE);
+    node->SetPixmap(false);
 }
 
 void BasicMibView::SelectedNode( QTreeWidgetItem * item, QTreeWidgetItem *)

@@ -18,6 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <QtGui>
+#include <QScrollBar>
 #include <qpainter.h>
 #include "markerwidget.h"
 

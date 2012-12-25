@@ -25,7 +25,7 @@ MibNode::MibNode(enum MibType mibtype, SmiNode *node, MibNode * parent, MibNode 
     Type = mibtype;
     Node = node;
     setText(0, node->name); 
-    SetPixmap(FALSE);
+    SetPixmap(false);
 }
 
 MibNode::MibNode(QString label, QTreeWidget* parent) : QTreeWidgetItem(parent)
@@ -33,7 +33,7 @@ MibNode::MibNode(QString label, QTreeWidget* parent) : QTreeWidgetItem(parent)
     setText (0, label);
     Type = MIBNODE_NODE;
     Node = NULL;
-    SetPixmap(FALSE);    
+    SetPixmap(false);    
 }
 
 void MibNode::SetPixmap(bool isOpened)

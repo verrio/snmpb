@@ -87,8 +87,7 @@ MibSelection::MibSelection(Snmpb *snmpb, QWidget *parent, QString title)
     infolabel = new QLabel("");
     gl->addWidget(infolabel, 9, 0, 1, 1);
 
-    dprompt->setWindowTitle(QApplication::translate("Dialog", 
-                            title.toLatin1().data(), 0, QApplication::UnicodeUTF8));
+    dprompt->setWindowTitle(tr(title.toLatin1().data()));
     box = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel, 
                                Qt::Horizontal, dprompt);
     gl->addWidget(box, 10, 0, 1, 1);

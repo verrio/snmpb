@@ -33,7 +33,7 @@ ifneq ($(findstring Darwin,${os}),)
 	qmake -spec macx-g++ -o makefile.snmpb snmpb.pro
 else
 	# Linux/BSD
-	qmake-qt4 -o makefile.snmpb snmpb.pro
+	qmake -o makefile.snmpb snmpb.pro
 endif
 endif
 

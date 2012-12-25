@@ -31,13 +31,13 @@ AgentProfileManager::AgentProfileManager(Snmpb *snmpb)
 
     // Set some properties for the Agent Profile TreeView
     ap.ProfileTree->header()->hide();
-    ap.ProfileTree->setSortingEnabled( FALSE );
-    ap.ProfileTree->header()->setSortIndicatorShown( FALSE );
+    ap.ProfileTree->setSortingEnabled( false );
+    ap.ProfileTree->header()->setSortIndicatorShown( false );
     ap.ProfileTree->setLineWidth( 2 );
-    ap.ProfileTree->setAllColumnsShowFocus( FALSE );
+    ap.ProfileTree->setAllColumnsShowFocus( false );
     ap.ProfileTree->setFrameShape(QFrame::WinPanel);
     ap.ProfileTree->setFrameShadow(QFrame::Plain);
-    ap.ProfileTree->setRootIsDecorated( TRUE );
+    ap.ProfileTree->setRootIsDecorated( true );
 
     // Create context menu actions
     ap.ProfileTree->setContextMenuPolicy (Qt::CustomContextMenu);

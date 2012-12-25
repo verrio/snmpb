@@ -18,6 +18,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <QtGui>
+#include <QScrollBar>
+#include <QFileDialog>
+#include <QMessageBox>
 #include <qfileinfo.h>
 #include <qpainter.h>
 #include "mibeditor.h"

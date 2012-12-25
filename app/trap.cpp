@@ -144,7 +144,7 @@ Trap::Trap(Snmpb *snmpb)
     s = snmpb;
  
     s->MainUI()->TrapContent->header()->hide();
-    s->MainUI()->TrapContent->setSortingEnabled( FALSE );
+    s->MainUI()->TrapContent->setSortingEnabled( false );
 
     connect( s->MainUI()->TrapLog, 
              SIGNAL( currentItemChanged( QTreeWidgetItem *, QTreeWidgetItem * ) ),

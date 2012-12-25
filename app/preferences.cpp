@@ -50,13 +50,13 @@ void Preferences::Init(void)
 
     // Set some properties for the Preferences TreeView
     p->PreferencesTree->header()->hide();
-    p->PreferencesTree->setSortingEnabled( FALSE );
-    p->PreferencesTree->header()->setSortIndicatorShown( FALSE );
+    p->PreferencesTree->setSortingEnabled( false );
+    p->PreferencesTree->header()->setSortIndicatorShown( false );
     p->PreferencesTree->setLineWidth( 2 );
-    p->PreferencesTree->setAllColumnsShowFocus( FALSE );
+    p->PreferencesTree->setAllColumnsShowFocus( false );
     p->PreferencesTree->setFrameShape(QFrame::WinPanel);
     p->PreferencesTree->setFrameShadow(QFrame::Plain);
-    p->PreferencesTree->setRootIsDecorated( TRUE );
+    p->PreferencesTree->setRootIsDecorated( true );
 
     transport = new QTreeWidgetItem(p->PreferencesTree);
     transport->setText(0, "Transport");
