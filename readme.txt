@@ -62,6 +62,10 @@ Modified file(s):
 qwtconfig.pri
 + do not import the doc and examples sub-directories for space's sake
 
+qwtbuild.pri, "Support for QT5"
+src/qwt_painter.cpp, "Support for QT5"
+src/qwt_plot_canvas.cpp, "Support for QT5"
+
 --------------------------------
 
 Martin Jolicoeur, April 2012
