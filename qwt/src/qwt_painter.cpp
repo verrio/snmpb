@@ -230,7 +230,7 @@ void QwtPainter::fillRect( QPainter *painter,
 
     QRectF r = rect;
     if ( deviceClipping )
-        r = r.intersect( clipRect );
+        r = r.intersected( clipRect );
 
     if ( r.isValid() )
         painter->fillRect( r, brush );

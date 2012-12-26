@@ -16,6 +16,9 @@ CONFIG           += warn_on
 CONFIG           += no_keywords
 CONFIG           += silent
 
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport concurrent
+greaterThan(QT_MAJOR_VERSION, 4): QMAKE_CXXFLAGS += -include ../qwt_port_qt5.h
+
 ######################################################################
 # release/debug mode
 ######################################################################

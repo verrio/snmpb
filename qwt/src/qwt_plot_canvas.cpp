@@ -255,10 +255,8 @@ static inline void qwtRevertPath( QPainterPath &path )
 {
     if ( path.elementCount() == 4 )
     {
-        QPainterPath::Element &el0 = 
-            const_cast<QPainterPath::Element &>( path.elementAt(0) );
-        QPainterPath::Element &el2 = 
-            const_cast<QPainterPath::Element &>( path.elementAt(3) );
+        QPainterPath::Element el0 = path.elementAt(0);
+        QPainterPath::Element el2 = path.elementAt(3);
 
         qSwap( el0.x, el2.x );
         qSwap( el0.y, el2.y );
