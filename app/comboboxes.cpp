@@ -194,8 +194,7 @@ void QPenStyleBoxDelegate::paint ( QPainter * painter,
         painter->drawRect(option.rect);
     }
 
-    QPen pen(Qt::black, COMBOBOXES_PEN_THICKNESS, 
-             (enum Qt::PenStyle)(index.data().toUInt()));
+    QPen pen(Qt::black, COMBOBOXES_PEN_THICKNESS, index.data().value<QPen>().style());
     painter->setPen(pen);
     painter->drawLine(option.rect.left() + COMBOBOXES_DELEGATE_MARGIN_LEFT, 
                       option.rect.top() + (option.rect.height()/2), 
@@ -219,11 +218,11 @@ QPenStyleComboBox::QPenStyleComboBox(QWidget *parent):QComboBox(parent)
         QModelIndex index = model->index(row, 0, QModelIndex());
         switch (row)
         {
-            case 0: model->setData(index, QVariant((enum Qt::PenStyle)Qt::SolidLine)); break;
-            case 1: model->setData(index, QVariant((enum Qt::PenStyle)Qt::DashLine)); break;
-            case 2: model->setData(index, QVariant((enum Qt::PenStyle)Qt::DotLine)); break;
-            case 3: model->setData(index, QVariant((enum Qt::PenStyle)Qt::DashDotLine)); break;
-            case 4: model->setData(index, QVariant((enum Qt::PenStyle)Qt::DashDotDotLine)); break;
+            case 0: model->setData(index, QVariant(QPen(Qt::SolidLine))); break;
+            case 1: model->setData(index, QVariant(QPen(Qt::DashLine))); break;
+            case 2: model->setData(index, QVariant(QPen(Qt::DotLine))); break;
+            case 3: model->setData(index, QVariant(QPen(Qt::DashDotLine))); break;
+            case 4: model->setData(index, QVariant(QPen(Qt::DashDotDotLine))); break;
             default: break;
         }
     }
@@ -241,8 +240,8 @@ void QPenStyleComboBox::paintEvent(QPaintEvent *)
     // draw the element
     QRect ef = style()->subControlRect(QStyle::CC_ComboBox, &optcb, 
                                        QStyle::SC_ComboBoxEditField, this);
-    QPen pen(Qt::black, COMBOBOXES_PEN_THICKNESS, (enum Qt::PenStyle)
-            (itemData(currentIndex(), Qt::DisplayRole).toUInt()));
+    QPen pen(Qt::black, COMBOBOXES_PEN_THICKNESS,
+            itemData(currentIndex(), Qt::DisplayRole).value<QPen>().style());
     painter.setPen(pen);
     painter.drawLine(ef.left() + COMBOBOXES_MAINBOX_MARGIN_LEFT, 
                      ef.top() + (ef.height()/2),
