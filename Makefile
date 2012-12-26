@@ -81,7 +81,7 @@ ifneq ($(findstring Darwin,${os}),)
 	cd qwt; qmake -spec macx-g++ qwt.pro
 else
 	# Linux/BSD
-	cd qwt; qmake-qt4 qwt.pro
+	cd qwt; qmake qwt.pro
 endif
 endif
 
