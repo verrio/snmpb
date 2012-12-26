@@ -75,7 +75,7 @@ INCLUDEPATH	+= ../snmp++/include ../libtomcrypt/src/headers ../libsmi/lib ../qwt
 LIBS	+= -L. -L../libtomcrypt -L../libsmi/lib/.libs -L../qwt/lib -lsmi -ltomcrypt -lqwt
 LANGUAGE	= C++
 
-QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 unix {
   UI_DIR = .ui
