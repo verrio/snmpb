@@ -17,5 +17,3 @@ MacOSX bugs:
 
 - Crash multiple varbinds -> trigs autoloading
 
-- TEST
-
