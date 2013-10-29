@@ -56,15 +56,12 @@ lib/smi.c  "Fixed display for non-printable octet-strings -tracker 3096221"
 lib/smi.c  "Allows OCTET STRING to be printable with \v, \t , \r, \n, \f"
 
 QWT is taken from http://qwt.sourceforge.net
-Version: 6.0.0
+Version: 6.1.0
 
 Modified file(s):
 qwtconfig.pri
-+ do not import the doc and examples sub-directories for space's sake
-
-qwtbuild.pri, "Support for QT5"
-src/qwt_painter.cpp, "Support for QT5"
-src/qwt_plot_canvas.cpp, "Support for QT5"
+qwt.pro
++ do not import the doc,examples,playground & admin sub-directories for space's sake
 
 --------------------------------
 
