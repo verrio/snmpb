@@ -8,6 +8,34 @@
  *****************************************************************************/
 
 #include "qwt_analog_clock.h"
+#include "qwt_round_scale_draw.h"
+#include <qmath.h>
+#include <qlocale.h>
+
+class QwtAnalogClockScaleDraw: public QwtRoundScaleDraw
+{
+public:
+    QwtAnalogClockScaleDraw()
+    {
+        setSpacing( 8 );
+
+        enableComponent( QwtAbstractScaleDraw::Backbone, false );
+
+        setTickLength( QwtScaleDiv::MinorTick, 2 );
+        setTickLength( QwtScaleDiv::MediumTick, 4 );
+        setTickLength( QwtScaleDiv::MajorTick, 8 );
+
+        setPenWidth( 1 );
+    }
+
+    virtual QwtText label( double value ) const
+    {
+        if ( qFuzzyCompare( value + 1.0, 1.0 ) )
+            value = 60.0 * 60.0 * 12.0;
+
+        return QLocale().toString( qRound( value / ( 60.0 * 60.0 ) ) );
+    }
+};
 
 /*!
   Constructor
@@ -16,22 +44,32 @@
 QwtAnalogClock::QwtAnalogClock( QWidget *parent ):
     QwtDial( parent )
 {
-    initClock();
-}
-
-void QwtAnalogClock::initClock()
-{
     setWrapping( true );
     setReadOnly( true );
 
     setOrigin( 270.0 );
-    setRange( 0.0, 60.0 * 60.0 * 12.0 ); // seconds
-    setScale( -1, 5, 60.0 * 60.0 );
+    setScaleDraw( new QwtAnalogClockScaleDraw() );
 
-    setScaleComponents( 
-        QwtAbstractScaleDraw::Ticks | QwtAbstractScaleDraw::Labels );
-    setScaleTicks( 1, 0, 8 );
-    scaleDraw()->setSpacing( 8 );
+    setTotalSteps( 60 );
+
+    const int secondsPerHour = 60.0 * 60.0; 
+
+    QList<double> majorTicks;
+    QList<double> minorTicks;
+
+    for ( int i = 0; i < 12; i++ )
+    {
+        majorTicks += i * secondsPerHour;
+
+        for ( int j = 1; j < 5; j++ )
+            minorTicks += i * secondsPerHour + j * secondsPerHour / 5.0;
+    }
+
+    QwtScaleDiv scaleDiv;
+    scaleDiv.setInterval( 0.0, 12.0 * secondsPerHour );
+    scaleDiv.setTicks( QwtScaleDiv::MajorTick, majorTicks );
+    scaleDiv.setTicks( QwtScaleDiv::MinorTick, minorTicks );
+    setScale( scaleDiv );
 
     QColor knobColor = palette().color( QPalette::Active, QPalette::Text );
     knobColor = knobColor.dark( 120 );
@@ -57,7 +95,7 @@ void QwtAnalogClock::initClock()
         hand->setWidth( width );
 
         d_hand[i] = NULL;
-        setHand( ( Hand )i, hand );
+        setHand( static_cast<Hand>( i ), hand );
     }
 }
 
@@ -69,7 +107,7 @@ QwtAnalogClock::~QwtAnalogClock()
 }
 
 /*!
-  Nop method, use setHand instead
+  Nop method, use setHand() instead
   \sa setHand()
 */
 void QwtAnalogClock::setNeedle( QwtDialNeedle * )
@@ -79,14 +117,14 @@ void QwtAnalogClock::setNeedle( QwtDialNeedle * )
 }
 
 /*!
-   Set a clockhand
+   Set a clock hand
    \param hand Specifies the type of hand
    \param needle Hand
    \sa hand()
 */
 void QwtAnalogClock::setHand( Hand hand, QwtDialNeedle *needle )
 {
-    if ( hand >= 0 || hand < NHands )
+    if ( hand >= 0 && hand < NHands )
     {
         delete d_hand[hand];
         d_hand[hand] = needle;
@@ -118,9 +156,6 @@ const QwtDialNeedle *QwtAnalogClock::hand( Hand hd ) const
 
 /*!
   \brief Set the current time
-
-  This is the same as QwtAnalogClock::setTime(), but Qt < 3.0
-  can't handle default parameters for slots.
 */
 void QwtAnalogClock::setCurrentTime()
 {
@@ -143,23 +178,9 @@ void QwtAnalogClock::setTime( const QTime &time )
 }
 
 /*!
-  Find the scale label for a given value
-
-  \param value Value
-  \return Label
-*/
-QwtText QwtAnalogClock::scaleLabel( double value ) const
-{
-    if ( value == 0.0 )
-        value = 60.0 * 60.0 * 12.0;
-
-    return QString::number( int( value / ( 60.0 * 60.0 ) ) );
-}
-
-/*!
   \brief Draw the needle
 
-  A clock has no single needle but three hands instead. drawNeedle
+  A clock has no single needle but three hands instead. drawNeedle()
   translates value() into directions for the hands and calls
   drawHand().
 
@@ -179,9 +200,10 @@ void QwtAnalogClock::drawNeedle( QPainter *painter, const QPointF &center,
     if ( isValid() )
     {
         const double hours = value() / ( 60.0 * 60.0 );
-        const double minutes = ( value() - ( int )hours * 60.0 * 60.0 ) / 60.0;
-        const double seconds = value() - ( int )hours * 60.0 * 60.0
-            - ( int )minutes * 60.0;
+        const double minutes = 
+            ( value() - qFloor(hours) * 60.0 * 60.0 ) / 60.0;
+        const double seconds = value() - qFloor(hours) * 60.0 * 60.0
+            - qFloor(minutes) * 60.0;
 
         double angle[NHands];
         angle[HourHand] = 360.0 * hours / 12.0;
@@ -190,13 +212,9 @@ void QwtAnalogClock::drawNeedle( QPainter *painter, const QPointF &center,
 
         for ( int hand = 0; hand < NHands; hand++ )
         {
-            double d = angle[hand];
-            if ( direction() == Clockwise )
-                d = 360.0 - d;
-
-            d -= origin();
-
-            drawHand( painter, ( Hand )hand, center, radius, d, colorGroup );
+            const double d = 360.0 - angle[hand] - origin();
+            drawHand( painter, static_cast<Hand>( hand ), 
+                center, radius, d, colorGroup );
         }
     }
 }

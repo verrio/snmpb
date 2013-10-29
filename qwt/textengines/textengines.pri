@@ -11,6 +11,7 @@ QWT_ROOT = $${PWD}/..
 
 include( $${QWT_ROOT}/qwtconfig.pri )
 include( $${QWT_ROOT}/qwtbuild.pri )
+include( $${QWT_ROOT}/qwtfunctions.pri )
 
 TEMPLATE  = lib
 
@@ -36,9 +37,7 @@ else {
     LIBS      += -L$${QWT_ROOT}/lib
 }
 
-IPATH       = $${INCLUDEPATH}
-qtAddLibrary(qwt)
-INCLUDEPATH = $${IPATH}
+qwtAddLibrary(qwt)
 
 # Install directives
 

@@ -12,8 +12,6 @@
 #include "qwt_interval.h"
 #include <qnumeric.h>
 
-typedef QVector<QRgb> QwtColorTable;
-
 class QwtLinearColorMap::ColorStops
 {
 public:
@@ -73,7 +71,7 @@ void QwtLinearColorMap::ColorStops::insert( double pos, const QColor &color )
     else
     {
         index = findUpper( pos );
-        if ( index == ( int )_stops.size() ||
+        if ( index == _stops.size() ||
                 qAbs( _stops[index].pos - pos ) >= 0.001 )
         {
             _stops.resize( _stops.size() + 1 );
@@ -88,7 +86,7 @@ void QwtLinearColorMap::ColorStops::insert( double pos, const QColor &color )
 inline QVector<double> QwtLinearColorMap::ColorStops::stops() const
 {
     QVector<double> positions( _stops.size() );
-    for ( int i = 0; i < ( int )_stops.size(); i++ )
+    for ( int i = 0; i < _stops.size(); i++ )
         positions[i] = _stops[i].pos;
     return positions;
 }
@@ -123,7 +121,7 @@ inline QRgb QwtLinearColorMap::ColorStops::rgb(
     if ( pos <= 0.0 )
         return _stops[0].rgb;
     if ( pos >= 1.0 )
-        return _stops[( int )( _stops.size() - 1 )].rgb;
+        return _stops[ _stops.size() - 1 ].rgb;
 
     const int index = findUpper( pos );
     if ( mode == FixedColors )
@@ -165,14 +163,14 @@ QwtColorMap::~QwtColorMap()
    \param interval Range for the values
    \return A color table, that can be used for a QImage
 */
-QwtColorTable QwtColorMap::colorTable( const QwtInterval &interval ) const
+QVector<QRgb> QwtColorMap::colorTable( const QwtInterval &interval ) const
 {
-    QwtColorTable table( 256 );
+    QVector<QRgb> table( 256 );
 
     if ( interval.isValid() )
     {
         const double step = interval.width() / ( table.size() - 1 );
-        for ( int i = 0; i < ( int ) table.size(); i++ )
+        for ( int i = 0; i < table.size(); i++ )
             table[i] = rgb( interval, interval.minValue() + step * i );
     }
 
@@ -206,7 +204,7 @@ QwtLinearColorMap::QwtLinearColorMap( QwtColorMap::Format format ):
 
    \param color1 Color used for the minimum value of the value interval
    \param color2 Color used for the maximum value of the value interval
-   \param format Preferred format of the coor map
+   \param format Preferred format for the color map
 */
 QwtLinearColorMap::QwtLinearColorMap( const QColor &color1,
         const QColor &color2, QwtColorMap::Format format ):
@@ -281,7 +279,7 @@ void QwtLinearColorMap::addColorStop( double value, const QColor& color )
 }
 
 /*!
-   Return all positions of color stops in increasing order
+   \return Positions of color stops in increasing order
 */
 QVector<double> QwtLinearColorMap::colorStops() const
 {
@@ -307,10 +305,12 @@ QColor QwtLinearColorMap::color2() const
 }
 
 /*!
-  Map a value of a given interval into a rgb value
+  Map a value of a given interval into a RGB value
 
   \param interval Range for all values
-  \param value Value to map into a rgb value
+  \param value Value to map into a RGB value
+
+  \return RGB value for value
 */
 QRgb QwtLinearColorMap::rgb(
     const QwtInterval &interval, double value ) const
@@ -328,10 +328,12 @@ QRgb QwtLinearColorMap::rgb(
 }
 
 /*!
-  Map a value of a given interval into a color index, between 0 and 255
+  \brief Map a value of a given interval into a color index
 
   \param interval Range for all values
   \param value Value to map into a color index
+
+  \return Index, between 0 and 255
 */
 unsigned char QwtLinearColorMap::colorIndex(
     const QwtInterval &interval, double value ) const
@@ -342,15 +344,15 @@ unsigned char QwtLinearColorMap::colorIndex(
         return 0;
 
     if ( value >= interval.maxValue() )
-        return ( unsigned char )255;
+        return 255;
 
     const double ratio = ( value - interval.minValue() ) / width;
 
     unsigned char index;
     if ( d_data->mode == FixedColors )
-        index = ( unsigned char )( ratio * 255 ); // always floor
+        index = static_cast<unsigned char>( ratio * 255 ); // always floor
     else
-        index = ( unsigned char )qRound( ratio * 255 );
+        index = static_cast<unsigned char>( qRound( ratio * 255 ) );
 
     return index;
 }
@@ -408,8 +410,8 @@ QColor QwtAlphaColorMap::color() const
   alpha := (value - interval.minValue()) / interval.width();
 
   \param interval Range for all values
-  \param value Value to map into a rgb value
-  \return rgb value, with an alpha value
+  \param value Value to map into a RGB value
+  \return RGB value, with an alpha value
 */
 QRgb QwtAlphaColorMap::rgb( const QwtInterval &interval, double value ) const
 {

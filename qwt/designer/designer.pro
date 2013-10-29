@@ -11,11 +11,35 @@ QWT_ROOT = $${PWD}/..
 
 include ( $${QWT_ROOT}/qwtconfig.pri )
 include ( $${QWT_ROOT}/qwtbuild.pri )
+include ( $${QWT_ROOT}/qwtfunctions.pri )
+
+
+CONFIG( debug_and_release ) {
+
+    # When building debug_and_release the designer plugin is built
+    # for release only. If you want to have a debug version it has to be
+    # done with "CONFIG += debug" only.
+
+    message("debug_and_release: building the Qwt designer plugin in release mode only")
+
+    CONFIG -= debug_and_release
+    CONFIG += release
+}
 
 contains(QWT_CONFIG, QwtDesigner) {
 
-    CONFIG    += qt designer plugin 
+    CONFIG    += qt plugin 
     CONFIG    += warn_on
+
+    greaterThan(QT_MAJOR_VERSION, 4) {
+
+        QT += designer
+    }
+    else {
+
+        CONFIG    += designer
+    }
+
 
     TEMPLATE        = lib
     TARGET          = qwt_designer_plugin
@@ -25,23 +49,59 @@ contains(QWT_CONFIG, QwtDesigner) {
     INCLUDEPATH    += $${QWT_ROOT}/src 
     DEPENDPATH     += $${QWT_ROOT}/src 
 
-    contains(QWT_CONFIG, QwtFramework) {
-
-        LIBS      += -F$${QWT_ROOT}/lib 
-    }
-    else {
-
-        LIBS      += -L$${QWT_ROOT}/lib
-    }
-
-    IPATH       = $${INCLUDEPATH}
-    qtAddLibrary(qwt)
-    INCLUDEPATH = $${IPATH}
-
     contains(QWT_CONFIG, QwtDll) {
 
-        win32 {
-            DEFINES += QT_DLL QWT_DLL
+        contains(QWT_CONFIG, QwtDesignerSelfContained) {
+
+            QWT_CONFIG += include_src
+        }
+
+    } else {
+
+        # for linking against a static library the 
+        # plugin will be self contained anyway 
+    }
+
+    contains(QWT_CONFIG, include_src) {
+
+        # compile all qwt classes into the plugin
+
+        include ( $${QWT_ROOT}/src/src.pri )
+
+        for( header, HEADERS) {
+            QWT_HEADERS += $${QWT_ROOT}/src/$${header}
+        }
+
+        for( source, SOURCES ) {
+            QWT_SOURCES += $${QWT_ROOT}/src/$${source}
+        }
+
+        HEADERS = $${QWT_HEADERS}
+        SOURCES = $${QWT_SOURCES}
+
+    } else {
+
+        # compile the path for finding the Qwt library
+        # into the plugin. Not supported on Windows !
+
+        QMAKE_RPATHDIR *= $${QWT_INSTALL_LIBS}
+
+        contains(QWT_CONFIG, QwtFramework) {
+
+            LIBS      += -F$${QWT_ROOT}/lib 
+        }
+        else {
+
+            LIBS      += -L$${QWT_ROOT}/lib
+        }
+
+        qwtAddLibrary(qwt)
+
+        contains(QWT_CONFIG, QwtDll) {
+
+            win32 {
+                DEFINES += QT_DLL QWT_DLL
+            }
         }
     }
 

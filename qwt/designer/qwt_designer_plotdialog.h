@@ -15,16 +15,16 @@
 namespace QwtDesignerPlugin
 {
 
-class PlotDialog: public QDialog 
-{
-    Q_OBJECT
+    class PlotDialog: public QDialog
+    {
+        Q_OBJECT
 
-public:
-    PlotDialog(const QString &properties, QWidget *parent = NULL);
+    public:
+        PlotDialog( const QString &properties, QWidget *parent = NULL );
 
-Q_SIGNALS:
-    void edited(const QString&);
-};
+    Q_SIGNALS:
+        void edited( const QString& );
+    };
 
 }
 

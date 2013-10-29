@@ -18,14 +18,14 @@ public:
     PrivateData():
         isEnabled( false ),
         wheelFactor( 0.9 ),
-        wheelButtonState( Qt::NoButton ),
+        wheelModifiers( Qt::NoModifier ),
         mouseFactor( 0.95 ),
         mouseButton( Qt::RightButton ),
-        mouseButtonState( Qt::NoButton ),
+        mouseButtonModifiers( Qt::NoModifier ),
         keyFactor( 0.9 ),
         zoomInKey( Qt::Key_Plus ),
-        zoomOutKey( Qt::Key_Minus ),
         zoomInKeyModifiers( Qt::NoModifier ),
+        zoomOutKey( Qt::Key_Minus ),
         zoomOutKeyModifiers( Qt::NoModifier ),
         mousePressed( false )
     {
@@ -34,17 +34,20 @@ public:
     bool isEnabled;
 
     double wheelFactor;
-    int wheelButtonState;
+    Qt::KeyboardModifiers wheelModifiers;
 
     double mouseFactor;
-    int mouseButton;
-    int mouseButtonState;
+
+    Qt::MouseButton mouseButton;
+    Qt::KeyboardModifiers mouseButtonModifiers;
 
     double keyFactor;
+
     int zoomInKey;
+    Qt::KeyboardModifiers zoomInKeyModifiers;
+
     int zoomOutKey;
-    int zoomInKeyModifiers;
-    int zoomOutKeyModifiers;
+    Qt::KeyboardModifiers  zoomOutKeyModifiers;
 
     bool mousePressed;
     bool hasMouseTracking;
@@ -108,6 +111,11 @@ bool QwtMagnifier::isEnabled() const
 
    The wheel factor defines the ratio between the current range
    on the parent widget and the zoomed range for each step of the wheel.
+
+   Use values > 1 for magnification (i.e. 2.0) and values < 1 for
+   scaling down (i.e. 1/2.0 = 0.5). You can use this feature for
+   inverting the direction of the wheel.
+
    The default value is 0.9.
 
    \param factor Wheel factor
@@ -129,24 +137,24 @@ double QwtMagnifier::wheelFactor() const
 }
 
 /*!
-   Assign a mandatory button state for zooming in/out using the wheel.
-   The default button state is Qt::NoButton.
+   Assign keyboard modifiers for zooming in/out using the wheel.
+   The default modifiers are Qt::NoModifiers.
 
-   \param buttonState Button state
-   \sa wheelButtonState()
+   \param modifiers Keyboard modifiers
+   \sa wheelModifiers()
 */
-void QwtMagnifier::setWheelButtonState( int buttonState )
+void QwtMagnifier::setWheelModifiers( Qt::KeyboardModifiers modifiers )
 {
-    d_data->wheelButtonState = buttonState;
+    d_data->wheelModifiers = modifiers;
 }
 
 /*!
-   \return Wheel button state
-   \sa setWheelButtonState()
+   \return Wheel modifiers
+   \sa setWheelModifiers()
 */
-int QwtMagnifier::wheelButtonState() const
+Qt::KeyboardModifiers QwtMagnifier::wheelModifiers() const
 {
-    return d_data->wheelButtonState;
+    return d_data->wheelModifiers;
 }
 
 /*!
@@ -178,21 +186,23 @@ double QwtMagnifier::mouseFactor() const
    The default value is Qt::RightButton.
 
    \param button Button
-   \param buttonState Button state
+   \param modifiers Keyboard modifiers
+
    \sa getMouseButton()
 */
-void QwtMagnifier::setMouseButton( int button, int buttonState )
+void QwtMagnifier::setMouseButton( 
+    Qt::MouseButton button, Qt::KeyboardModifiers modifiers )
 {
     d_data->mouseButton = button;
-    d_data->mouseButtonState = buttonState;
+    d_data->mouseButtonModifiers = modifiers;
 }
 
 //! \sa setMouseButton()
 void QwtMagnifier::getMouseButton(
-    int &button, int &buttonState ) const
+    Qt::MouseButton &button, Qt::KeyboardModifiers &modifiers ) const
 {
     button = d_data->mouseButton;
-    buttonState = d_data->mouseButtonState;
+    modifiers = d_data->mouseButtonModifiers;
 }
 
 /*!
@@ -228,14 +238,23 @@ double QwtMagnifier::keyFactor() const
    \param modifiers
    \sa getZoomInKey(), setZoomOutKey()
 */
-void QwtMagnifier::setZoomInKey( int key, int modifiers )
+void QwtMagnifier::setZoomInKey( int key, 
+    Qt::KeyboardModifiers modifiers )
 {
     d_data->zoomInKey = key;
     d_data->zoomInKeyModifiers = modifiers;
 }
 
-//! \sa setZoomInKey()
-void QwtMagnifier::getZoomInKey( int &key, int &modifiers ) const
+/*! 
+   \brief Retrieve the settings of the zoom in key
+
+   \param key Key code, see Qt::Key
+   \param modifiers Keyboard modifiers
+
+   \sa setZoomInKey()
+*/
+void QwtMagnifier::getZoomInKey( int &key, 
+    Qt::KeyboardModifiers &modifiers ) const
 {
     key = d_data->zoomInKey;
     modifiers = d_data->zoomInKeyModifiers;
@@ -249,14 +268,23 @@ void QwtMagnifier::getZoomInKey( int &key, int &modifiers ) const
    \param modifiers
    \sa getZoomOutKey(), setZoomOutKey()
 */
-void QwtMagnifier::setZoomOutKey( int key, int modifiers )
+void QwtMagnifier::setZoomOutKey( int key, 
+    Qt::KeyboardModifiers modifiers )
 {
     d_data->zoomOutKey = key;
     d_data->zoomOutKeyModifiers = modifiers;
 }
 
-//! \sa setZoomOutKey()
-void QwtMagnifier::getZoomOutKey( int &key, int &modifiers ) const
+/*! 
+   \brief Retrieve the settings of the zoom out key
+
+   \param key Key code, see Qt::Key
+   \param modifiers Keyboard modifiers
+
+   \sa setZoomOutKey()
+*/
+void QwtMagnifier::getZoomOutKey( int &key, 
+    Qt::KeyboardModifiers &modifiers ) const
 {
     key = d_data->zoomOutKey;
     modifiers = d_data->zoomOutKeyModifiers;
@@ -265,83 +293,95 @@ void QwtMagnifier::getZoomOutKey( int &key, int &modifiers ) const
 /*!
   \brief Event filter
 
-  When isEnabled() the mouse events of the observed widget are filtered.
+  When isEnabled() is true, the mouse events of the
+  observed widget are filtered.
+
+  \param object Object to be filtered
+  \param event Event
+
+  \return Forwarded to QObject::eventFilter()
 
   \sa widgetMousePressEvent(), widgetMouseReleaseEvent(),
       widgetMouseMoveEvent(), widgetWheelEvent(), widgetKeyPressEvent()
       widgetKeyReleaseEvent()
 */
-bool QwtMagnifier::eventFilter( QObject *o, QEvent *e )
+bool QwtMagnifier::eventFilter( QObject *object, QEvent *event )
 {
-    if ( o && o == parent() )
+    if ( object && object == parent() )
     {
-        switch ( e->type() )
+        switch ( event->type() )
         {
             case QEvent::MouseButtonPress:
             {
-                widgetMousePressEvent( ( QMouseEvent * )e );
+                widgetMousePressEvent( static_cast<QMouseEvent *>( event ) );
                 break;
             }
             case QEvent::MouseMove:
             {
-                widgetMouseMoveEvent( ( QMouseEvent * )e );
+                widgetMouseMoveEvent( static_cast<QMouseEvent *>( event ) );
                 break;
             }
             case QEvent::MouseButtonRelease:
             {
-                widgetMouseReleaseEvent( ( QMouseEvent * )e );
+                widgetMouseReleaseEvent( static_cast<QMouseEvent *>( event ) );
                 break;
             }
             case QEvent::Wheel:
             {
-                widgetWheelEvent( ( QWheelEvent * )e );
+                widgetWheelEvent( static_cast<QWheelEvent *>( event ) );
                 break;
             }
             case QEvent::KeyPress:
             {
-                widgetKeyPressEvent( ( QKeyEvent * )e );
+                widgetKeyPressEvent( static_cast<QKeyEvent *>( event ) );
                 break;
             }
             case QEvent::KeyRelease:
             {
-                widgetKeyReleaseEvent( ( QKeyEvent * )e );
+                widgetKeyReleaseEvent( static_cast<QKeyEvent *>( event ) );
                 break;
             }
             default:;
         }
     }
-    return QObject::eventFilter( o, e );
+    return QObject::eventFilter( object, event );
 }
 
 /*!
   Handle a mouse press event for the observed widget.
 
-  \param me Mouse event
+  \param mouseEvent Mouse event
   \sa eventFilter(), widgetMouseReleaseEvent(), widgetMouseMoveEvent()
 */
-void QwtMagnifier::widgetMousePressEvent( QMouseEvent *me )
+void QwtMagnifier::widgetMousePressEvent( QMouseEvent *mouseEvent )
 {
-    if ( me->button() != d_data->mouseButton || parentWidget() == NULL )
+    if ( parentWidget() == NULL )
         return;
 
-    if ( ( me->modifiers() & Qt::KeyboardModifierMask ) !=
-        ( int )( d_data->mouseButtonState & Qt::KeyboardModifierMask ) )
+    if ( ( mouseEvent->button() != d_data->mouseButton ) ||
+        ( mouseEvent->modifiers() != d_data->mouseButtonModifiers ) )
     {
         return;
     }
 
     d_data->hasMouseTracking = parentWidget()->hasMouseTracking();
+
     parentWidget()->setMouseTracking( true );
-    d_data->mousePos = me->pos();
+    d_data->mousePos = mouseEvent->pos();
     d_data->mousePressed = true;
 }
 
 /*!
   Handle a mouse release event for the observed widget.
+
+  \param mouseEvent Mouse event
+
   \sa eventFilter(), widgetMousePressEvent(), widgetMouseMoveEvent(),
 */
-void QwtMagnifier::widgetMouseReleaseEvent( QMouseEvent * )
+void QwtMagnifier::widgetMouseReleaseEvent( QMouseEvent *mouseEvent )
 {
+    Q_UNUSED( mouseEvent );
+
     if ( d_data->mousePressed && parentWidget() )
     {
         d_data->mousePressed = false;
@@ -352,15 +392,15 @@ void QwtMagnifier::widgetMouseReleaseEvent( QMouseEvent * )
 /*!
   Handle a mouse move event for the observed widget.
 
-  \param me Mouse event
+  \param mouseEvent Mouse event
   \sa eventFilter(), widgetMousePressEvent(), widgetMouseReleaseEvent(),
 */
-void QwtMagnifier::widgetMouseMoveEvent( QMouseEvent *me )
+void QwtMagnifier::widgetMouseMoveEvent( QMouseEvent *mouseEvent )
 {
     if ( !d_data->mousePressed )
         return;
 
-    const int dy = me->pos().y() - d_data->mousePos.y();
+    const int dy = mouseEvent->pos().y() - d_data->mousePos.y();
     if ( dy != 0 )
     {
         double f = d_data->mouseFactor;
@@ -370,7 +410,7 @@ void QwtMagnifier::widgetMouseMoveEvent( QMouseEvent *me )
         rescale( f );
     }
 
-    d_data->mousePos = me->pos();
+    d_data->mousePos = mouseEvent->pos();
 }
 
 /*!
@@ -381,8 +421,7 @@ void QwtMagnifier::widgetMouseMoveEvent( QMouseEvent *me )
 */
 void QwtMagnifier::widgetWheelEvent( QWheelEvent *wheelEvent )
 {
-    if ( ( wheelEvent->modifiers() & Qt::KeyboardModifierMask ) !=
-        ( int )( d_data->wheelButtonState & Qt::KeyboardModifierMask ) )
+    if ( wheelEvent->modifiers() != d_data->wheelModifiers )
     {
         return;
     }
@@ -399,7 +438,7 @@ void QwtMagnifier::widgetWheelEvent( QWheelEvent *wheelEvent )
             of 120 (== 15 * 8).
          */
         double f = qPow( d_data->wheelFactor, 
-            qAbs( wheelEvent->delta() / 120 ) );
+            qAbs( wheelEvent->delta() / 120.0 ) );
 
         if ( wheelEvent->delta() > 0 )
             f = 1 / f;
@@ -416,16 +455,13 @@ void QwtMagnifier::widgetWheelEvent( QWheelEvent *wheelEvent )
 */
 void QwtMagnifier::widgetKeyPressEvent( QKeyEvent *keyEvent )
 {
-    const int key = keyEvent->key();
-    const int state = keyEvent->modifiers();
-
-    if ( key == d_data->zoomInKey &&
-        state == d_data->zoomInKeyModifiers )
+    if ( keyEvent->key() == d_data->zoomInKey &&
+        keyEvent->modifiers() == d_data->zoomInKeyModifiers )
     {
         rescale( d_data->keyFactor );
     }
-    else if ( key == d_data->zoomOutKey &&
-        state == d_data->zoomOutKeyModifiers )
+    else if ( keyEvent->key() == d_data->zoomOutKey &&
+        keyEvent->modifiers() == d_data->zoomOutKeyModifiers )
     {
         rescale( 1.0 / d_data->keyFactor );
     }
@@ -445,18 +481,12 @@ void QwtMagnifier::widgetKeyReleaseEvent( QKeyEvent *keyEvent )
 //! \return Parent widget, where the rescaling happens
 QWidget *QwtMagnifier::parentWidget()
 {
-    if ( parent()->inherits( "QWidget" ) )
-        return ( QWidget * )parent();
-
-    return NULL;
+    return qobject_cast<QWidget *>( parent() );
 }
 
 //! \return Parent widget, where the rescaling happens
 const QWidget *QwtMagnifier::parentWidget() const
 {
-    if ( parent()->inherits( "QWidget" ) )
-        return ( const QWidget * )parent();
-
-    return NULL;
+    return qobject_cast<const QWidget *>( parent() );
 }
 

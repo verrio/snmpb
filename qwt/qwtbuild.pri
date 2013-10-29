@@ -16,9 +16,6 @@ CONFIG           += warn_on
 CONFIG           += no_keywords
 CONFIG           += silent
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport concurrent
-greaterThan(QT_MAJOR_VERSION, 4): QMAKE_CXXFLAGS += -include ../qwt_port_qt5.h
-
 ######################################################################
 # release/debug mode
 ######################################################################
@@ -43,8 +40,21 @@ else {
     VERSION           = $${QWT_VERSION}
 }
 
-linux-g++ {
-    # CONFIG           += separate_debug_info
+linux-g++ | linux-g++-64 {
+    #CONFIG           += separate_debug_info
+    #QMAKE_CXXFLAGS   *= -Wfloat-equal 
+    #QMAKE_CXXFLAGS   *= -Wshadow 
+    #QMAKE_CXXFLAGS   *= -Wpointer-arith 
+    #QMAKE_CXXFLAGS   *= -Wconversion 
+    #QMAKE_CXXFLAGS   *= -Wsign-compare 
+    #QMAKE_CXXFLAGS   *= -Wsign-conversion 
+    #QMAKE_CXXFLAGS   *= -Wlogical-op
+    #QMAKE_CXXFLAGS   *= -Werror=format-security
+    #QMAKE_CXXFLAGS   *= -std=c++11
+
+    # when using the gold linker ( Qt < 4.8 ) - might be 
+    # necessary on non linux systems too
+    #QMAKE_LFLAGS += -lrt
 }
 
 ######################################################################
@@ -53,7 +63,11 @@ linux-g++ {
 
 MOC_DIR      = moc
 RCC_DIR      = resources
+
 !debug_and_release {
+
+    # in case of debug_and_release object files
+    # are built in the release and debug subdirectories
     OBJECTS_DIR       = obj
 }
 

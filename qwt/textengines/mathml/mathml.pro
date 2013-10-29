@@ -12,8 +12,13 @@ message(Beside the Qwt license you also have to take care of its license. )
 
 include( $${PWD}/../textengines.pri )
 
-TARGET    = $$qtLibraryTarget(qwtmathml)
+TARGET    = $$qwtLibraryTarget(qwtmathml)
 QT       += xml
+
+greaterThan(QT_MAJOR_VERSION, 4) {
+
+	QT       += widgets
+}
 
 HEADERS = \
     qwt_mathml_text_engine.h

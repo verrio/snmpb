@@ -60,7 +60,7 @@ private:
 
 /*!
     Constructs a null point, with a radius and azimuth set to 0.0.
-    \sa QPointF::isNull
+    \sa QPointF::isNull()
 */
 inline QwtPointPolar::QwtPointPolar():
     d_azimuth( 0.0 ),
@@ -175,8 +175,13 @@ inline QPointF qwtDegree2Pos( const QPointF &pole,
 inline QPointF qwtFastPolar2Pos( const QPointF &pole,
     double radius, double angle )
 {
+#if QT_VERSION < 0x040601
+    const double x = pole.x() + radius * ::cos( angle );
+    const double y = pole.y() - radius * ::sin( angle );
+#else
     const double x = pole.x() + radius * qFastCos( angle );
     const double y = pole.y() - radius * qFastSin( angle );
+#endif
 
     return QPointF( x, y);
 }
@@ -186,5 +191,11 @@ inline QPointF qwtFastDegree2Pos( const QPointF &pole,
 {   
     return qwtFastPolar2Pos( pole, radius, angle / 180.0 * M_PI );
 } 
+
+inline QwtPointPolar qwtFastPos2Polar( const QPointF &pos )
+{
+    return QwtPointPolar( qwtFastAtan2( pos.y(), pos.x() ),
+        qSqrt( qwtSqr( pos.x() ) + qwtSqr( pos.y() ) ) );
+}
 
 #endif 
