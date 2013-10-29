@@ -14,6 +14,7 @@
 MacOSX bugs:
 - Fix editFinished signal not working in mibselection.cpp
 - Find solution to bind port < 1024
+- Esc key does not stop a walk
 
 - Crash multiple varbinds -> trigs autoloading
 
