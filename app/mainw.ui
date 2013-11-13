@@ -1214,7 +1214,7 @@
            </attribute>
            <layout class="QGridLayout">
             <item row="0" column="0">
-             <widget class="QGroupBox">
+             <widget class="QGroupBox" name="groupBox">
               <property name="title">
                <string>Graph list</string>
               </property>
@@ -1255,336 +1255,123 @@
                 <property name="title">
                  <string>Graph</string>
                 </property>
-                <layout class="QGridLayout">
-                 <item row="0" column="0">
+                <layout class="QGridLayout" name="gridLayout">
+                 <item row="0" column="0" colspan="2">
                   <layout class="QGridLayout">
                    <item row="0" column="0">
-                    <layout class="QVBoxLayout">
-                     <item>
-                      <layout class="QGridLayout">
-                       <item row="0" column="0">
-                        <widget class="QLabel" name="GraphNameL">
-                         <property name="text">
-                          <string>Name</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="0" column="1" colspan="3">
-                        <widget class="QLineEdit" name="GraphName">
-                         <property name="text">
-                          <string/>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="1" column="0">
-                        <widget class="QLabel" name="GraphTitleL">
-                         <property name="text">
-                          <string>Title</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="1" column="1" colspan="3">
-                        <widget class="QLineEdit" name="GraphTitle">
-                         <property name="sizePolicy">
-                          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                           <horstretch>0</horstretch>
-                           <verstretch>0</verstretch>
-                          </sizepolicy>
-                         </property>
-                         <property name="minimumSize">
-                          <size>
-                           <width>250</width>
-                           <height>0</height>
-                          </size>
-                         </property>
-                         <property name="text">
-                          <string/>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="2" column="0">
-                        <widget class="QLabel" name="GraphPollIntervalL">
-                         <property name="text">
-                          <string>Poll interval</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="2" column="1">
-                        <widget class="QSpinBox" name="GraphPollInterval">
-                         <property name="minimum">
-                          <number>1</number>
-                         </property>
-                         <property name="maximum">
-                          <number>1000</number>
-                         </property>
-                         <property name="value">
-                          <number>3</number>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="2" column="2">
-                        <widget class="QLabel" name="GraphPollIntervalL2">
-                         <property name="text">
-                          <string>secs.</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="2" column="3">
-                        <spacer>
-                         <property name="orientation">
-                          <enum>Qt::Horizontal</enum>
-                         </property>
-                         <property name="sizeType">
-                          <enum>QSizePolicy::Fixed</enum>
-                         </property>
-                         <property name="sizeHint" stdset="0">
-                          <size>
-                           <width>60</width>
-                           <height>20</height>
-                          </size>
-                         </property>
-                        </spacer>
-                       </item>
-                      </layout>
-                     </item>
-                     <item>
-                      <spacer>
-                       <property name="orientation">
-                        <enum>Qt::Vertical</enum>
-                       </property>
-                       <property name="sizeHint" stdset="0">
-                        <size>
-                         <width>336</width>
-                         <height>30</height>
-                        </size>
-                       </property>
-                      </spacer>
-                     </item>
-                    </layout>
+                    <widget class="QLabel" name="GraphNameL">
+                     <property name="text">
+                      <string>Name</string>
+                     </property>
+                    </widget>
                    </item>
-                   <item row="0" column="1" colspan="2">
-                    <widget class="QListWidget" name="PlotList"/>
+                   <item row="0" column="1" colspan="3">
+                    <widget class="QLineEdit" name="GraphName">
+                     <property name="text">
+                      <string/>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="QLabel" name="GraphPollIntervalL">
+                     <property name="text">
+                      <string>Poll interval</string>
+                     </property>
+                    </widget>
                    </item>
                    <item row="1" column="1">
-                    <widget class="QPushButton" name="PlotAdd">
-                     <property name="text">
-                      <string>Add</string>
+                    <widget class="QSpinBox" name="GraphPollInterval">
+                     <property name="minimum">
+                      <number>1</number>
+                     </property>
+                     <property name="maximum">
+                      <number>1000</number>
+                     </property>
+                     <property name="value">
+                      <number>3</number>
                      </property>
                     </widget>
                    </item>
                    <item row="1" column="2">
-                    <widget class="QPushButton" name="PlotDelete">
+                    <widget class="QLabel" name="GraphPollIntervalL2">
                      <property name="text">
-                      <string>Delete</string>
+                      <string>secs.</string>
                      </property>
                     </widget>
                    </item>
+                   <item row="1" column="3">
+                    <spacer>
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                     <property name="sizeType">
+                      <enum>QSizePolicy::Fixed</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>60</width>
+                       <height>20</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
                   </layout>
                  </item>
-                </layout>
-               </widget>
-              </item>
-              <item>
-               <widget class="QGroupBox" name="Plot">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="title">
-                 <string>Plot</string>
-                </property>
-                <layout class="QGridLayout">
-                 <item row="0" column="0">
-                  <widget class="QLabel" name="PlotObjectL">
-                   <property name="text">
-                    <string>OID</string>
+                 <item row="1" column="0" colspan="2">
+                  <spacer>
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
                    </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="1">
-                  <widget class="QLabel" name="PlotObject">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
+                   <property name="sizeType">
+                    <enum>QSizePolicy::Fixed</enum>
                    </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="2">
-                  <widget class="QPushButton" name="PlotBrowseOID">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="text">
-                    <string>Browse OID ...</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="1" column="0">
-                  <widget class="QLabel" name="PlotDisplayNameL">
-                   <property name="text">
-                    <string>Display name</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="1" column="1">
-                  <widget class="QLineEdit" name="PlotDisplayName"/>
-                 </item>
-                 <item row="1" column="2" rowspan="2">
-                  <widget class="QGroupBox">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
+                   <property name="sizeHint" stdset="0">
                     <size>
-                     <width>180</width>
-                     <height>0</height>
+                     <width>384</width>
+                     <height>18</height>
                     </size>
                    </property>
-                   <property name="title">
-                    <string>Pen</string>
+                  </spacer>
+                 </item>
+                 <item row="2" column="0">
+                  <widget class="QLabel" name="PlotL">
+                   <property name="text">
+                    <string>Plots</string>
                    </property>
-                   <layout class="QGridLayout">
-                    <item row="0" column="0">
-                     <widget class="QLabel" name="PlotColorL">
-                      <property name="text">
-                       <string>Color</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="1" colspan="2">
-                     <widget class="QColorComboBox" name="PlotColor"/>
-                    </item>
-                    <item row="1" column="0">
-                     <widget class="QLabel" name="PlotWidthL">
-                      <property name="text">
-                       <string>Width</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="1" column="1" colspan="2">
-                     <widget class="QPenWidthComboBox" name="PlotWidth"/>
-                    </item>
-                    <item row="2" column="0">
-                     <widget class="QLabel" name="PlotShapeL">
-                      <property name="text">
-                       <string>Shape</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="1" colspan="2">
-                     <widget class="QPenStyleComboBox" name="PlotShape">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
                   </widget>
                  </item>
-                 <item row="2" column="0" colspan="2">
-                  <widget class="QGroupBox" name="PlotAgentProperties">
-                   <property name="title">
-                    <string>SNMP Agent</string>
+                 <item row="3" column="0" colspan="2">
+                  <widget class="QListWidget" name="PlotList"/>
+                 </item>
+                 <item row="4" column="0">
+                  <widget class="QPushButton" name="PlotAdd">
+                   <property name="text">
+                    <string>Add  Plot ...</string>
                    </property>
-                   <layout class="QVBoxLayout">
-                    <item>
-                     <layout class="QHBoxLayout">
-                      <item>
-                       <widget class="QComboBox" name="PlotAgentProfile">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QPushButton" name="PlotAgentSettings">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="text">
-                         <string/>
-                        </property>
-                        <property name="icon">
-                         <iconset resource="snmpb.qrc">
-                          <normaloff>:/images/agentsettings.png</normaloff>:/images/agentsettings.png</iconset>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
-                    </item>
-                    <item>
-                     <layout class="QHBoxLayout">
-                      <item>
-                       <widget class="QRadioButton" name="PlotAgentProtoV1">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="text">
-                         <string>SNMPv1</string>
-                        </property>
-                        <property name="autoRepeat">
-                         <bool>false</bool>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QRadioButton" name="PlotAgentProtoV2">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="text">
-                         <string>SNMPv2c</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QRadioButton" name="PlotAgentProtoV3">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="text">
-                         <string>SNMPv3</string>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
-                    </item>
-                   </layout>
                   </widget>
+                 </item>
+                 <item row="4" column="1">
+                  <widget class="QPushButton" name="PlotDelete">
+                   <property name="text">
+                    <string>Delete</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="0" colspan="2">
+                  <spacer name="spacer">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                   <property name="sizeType">
+                    <enum>QSizePolicy::Fixed</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>384</width>
+                     <height>38</height>
+                    </size>
+                   </property>
+                  </spacer>
                  </item>
                 </layout>
                </widget>
@@ -1732,8 +1519,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
-     <height>29</height>
+     <width>857</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="helpMenu">
@@ -1960,18 +1747,6 @@
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>QPenStyleComboBox</class>
-   <extends>QComboBox</extends>
-   <header>comboboxes.h</header>
-    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>BasicMibView</class>
-   <extends>QWidget</extends>
-   <header>mibview.h</header> 
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>MibView</class>
    <extends>QWidget</extends>
    <header>mibview.h</header>
@@ -1981,18 +1756,6 @@
    <class>MarkerWidget</class>
    <extends>QWidget</extends>
    <header>markerwidget.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>QColorComboBox</class>
-   <extends>QComboBox</extends>
-   <header>comboboxes.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>QPenWidthComboBox</class>
-   <extends>QComboBox</extends>
-   <header>comboboxes.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
@@ -2041,21 +1804,10 @@
   <tabstop>GraphAdd</tabstop>
   <tabstop>GraphDelete</tabstop>
   <tabstop>GraphName</tabstop>
-  <tabstop>GraphTitle</tabstop>
   <tabstop>GraphPollInterval</tabstop>
   <tabstop>PlotList</tabstop>
   <tabstop>PlotAdd</tabstop>
   <tabstop>PlotDelete</tabstop>
-  <tabstop>PlotDisplayName</tabstop>
-  <tabstop>PlotAgentProfile</tabstop>
-  <tabstop>PlotAgentSettings</tabstop>
-  <tabstop>PlotAgentProtoV1</tabstop>
-  <tabstop>PlotAgentProtoV2</tabstop>
-  <tabstop>PlotAgentProtoV3</tabstop>
-  <tabstop>PlotBrowseOID</tabstop>
-  <tabstop>PlotColor</tabstop>
-  <tabstop>PlotWidth</tabstop>
-  <tabstop>PlotShape</tabstop>
   <tabstop>LogEnable</tabstop>
   <tabstop>LogError</tabstop>
   <tabstop>LogWarning</tabstop>

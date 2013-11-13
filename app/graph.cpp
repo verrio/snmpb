@@ -20,6 +20,7 @@
 #include <qmessagebox.h>
 #include <qnamespace.h>
 
+#include "preferences.h"
 #include "graph.h"
 #include "agent.h"
 #include "comboboxes.h"
@@ -27,10 +28,369 @@
 #include <qwt_plot_zoomer.h>
 #include <qwt_plot_layout.h>
 
+#define ui s->MainUI()
+
+GraphManager::GraphManager(Snmpb *snmpb)
+{
+    s = snmpb;
+    p.setupUi(&pw);
+
+     // Set some properties for the ListView
+    ui->GraphList->setSortingEnabled( FALSE );
+    ui->GraphList->setLineWidth( 2 );
+    ui->GraphList->setFrameShape(QFrame::WinPanel);
+    ui->GraphList->setFrameShadow(QFrame::Plain);
+
+    ui->PlotList->setSortingEnabled( FALSE );
+    ui->PlotList->setLineWidth( 2 );
+    ui->PlotList->setFrameShape(QFrame::WinPanel);
+    ui->PlotList->setFrameShadow(QFrame::Plain);
+
+    connect( ui->GraphList, 
+             SIGNAL( currentItemChanged( QListWidgetItem *, QListWidgetItem * ) ),
+             this, SLOT( SelectedGraph( QListWidgetItem *, QListWidgetItem * ) ) );
+    connect( ui->GraphList, 
+             SIGNAL( itemChanged( QListWidgetItem * ) ),
+             this, SLOT( GraphNameChange( QListWidgetItem * ) ) );
+    connect( ui->GraphName, SIGNAL( editingFinished() ),
+             this, SLOT ( SetGraphName() ) );
+    connect( ui->GraphAdd, SIGNAL( clicked() ), 
+             this, SLOT( Add() ));
+    connect( ui->GraphDelete, SIGNAL( clicked() ), 
+             this, SLOT( Delete() ));
+
+    connect( ui->PlotList, 
+             SIGNAL( currentItemChanged( QListWidgetItem *, QListWidgetItem * ) ),
+             this, SLOT( SelectedPlot( QListWidgetItem *, QListWidgetItem * ) ) );
+    connect( ui->PlotAdd, SIGNAL( clicked() ), 
+             this, SLOT( AddPlot() ));
+    connect( ui->PlotDelete, SIGNAL( clicked() ), 
+             this, SLOT( DeletePlot() ));    
+
+    connect( p.PlotBrowseOID, SIGNAL( clicked() ), 
+             this, SLOT( SetPlotOID() ));
+
+    connect( s->APManagerObj(), SIGNAL( AgentProfileListChanged() ), 
+             this, SLOT ( AgentProfileListChange() ) );
+
+    // Select the default profile from preferences
+    QString cp;
+    int prefproto = s->PreferencesObj()->GetCurrentProfile(cp);
+    // Fill-in the list of agent profiles from profiles manager
+    AgentProfileListChange();
+    SelectAgentProfile(&cp, prefproto);
+
+    // then connect the signals (order is important)
+    connect( p.PlotAgentProfile, SIGNAL( currentIndexChanged( int ) ), 
+             this, SLOT ( SelectAgentProfile() ) );
+    connect( p.PlotAgentProtoV1, SIGNAL( toggled(bool) ),
+             this, SLOT( SelectAgentProto() ) );
+    connect( p.PlotAgentProtoV2, SIGNAL( toggled(bool) ),
+             this, SLOT( SelectAgentProto() ) );
+    connect( p.PlotAgentProtoV3, SIGNAL( toggled(bool) ),
+             this, SLOT( SelectAgentProto() ) );
+    connect( p.PlotAgentSettings, 
+             SIGNAL( clicked() ), this, SLOT( ShowAgentSettings() ));
+
+#if 0 //MART
+    connect( ui->PlotMIBTree, SIGNAL( SelectedOid(const QString&) ), 
+             this, SLOT( SetObjectString(const QString&) ));
+#endif
+
+    // Loop & load all stored graphs
+    currentgraph = NULL;
+//[...] MART
+}
+
+void GraphManager::SetGraphName(void)
+{
+    if (currentgraph)
+        currentgraph->SetGraphName();
+}
+
+void GraphManager::Add(void)
+{
+    Graph *newgraph = new Graph(s);
+
+    // Set default values
+//    newuser->SetSecurity(0, "", 0, ""); MART
+    ui->Graph->setEnabled(true);
+ 
+    graphs.append(newgraph);
+
+    // Select the new item and change the focus to change its name ...
+    ui->GraphList->setCurrentItem(newgraph->GetWidgetItem());
+    ui->GraphName->setFocus(Qt::OtherFocusReason);  
+    ui->GraphName->selectAll();
+}
+
+void GraphManager::Delete(void)
+{
+    QListWidgetItem *p = NULL;
+
+    for (int i = 0; i < graphs.count(); i++) 
+    {
+        if (currentgraph && (graphs[i] == currentgraph))
+        {
+            // Delete the graph (removes from the list)
+            delete graphs.takeAt(i);
+            ui->GraphList->takeItem(i);
+
+            currentgraph = NULL;
+            // Re-adjust the currentgraph pointer with the new current widget item
+            if ((p = ui->GraphList->currentItem()) != NULL)
+            {
+                for (int i = 0; i < graphs.count(); i++) 
+                {
+                    if (p == graphs[i]->GetWidgetItem())
+                    {
+                        currentgraph = graphs[i];
+                        break;
+                    }
+                }
+            }
+            else
+                ui->Graph->setEnabled(false);
+
+            break;
+        }
+    }
+}
+
+void GraphManager::SelectedGraph(QListWidgetItem * item, QListWidgetItem *)
+{
+    for (int i = 0; i < graphs.count(); i++) 
+    {
+        if (item == graphs[i]->GetWidgetItem())
+        {
+            currentgraph = graphs[i];
+            graphs[i]->SelectGraph(item);
+            return;
+        }
+    }
+}
+
+void GraphManager::GraphNameChange(QListWidgetItem * item)
+{
+    for (int i = 0; i < graphs.count(); i++) 
+    {
+        if (item == graphs[i]->GetWidgetItem())
+        {
+            graphs[i]->SetName(item->text());
+            return;
+        }
+    }
+}
+
+void GraphManager::AddPlot(void)
+{
+//    graphs.append(newgraph);
+#if 0  //MART
+    ui->PlotList->addItem("NewPlot");
+#endif
+
+    if (!p.PlotObject->text().isEmpty())
+    {
+        // Create the pen with the combobox values
+        QPen pen(p.PlotColor->itemData(
+               p.PlotColor->currentIndex(), 
+               Qt::DisplayRole).value<QColor>(),
+               p.PlotWidth->itemData(
+               p.PlotWidth->currentIndex(), 
+               Qt::DisplayRole).toUInt(),
+               (enum Qt::PenStyle)(p.PlotShape->itemData(
+               p.PlotShape->currentIndex(), 
+               Qt::DisplayRole).toUInt()));
+#ifdef NOTYET  
+        printf("Creating plot %s\n", ui->PlotObject->currentText().toLatin1().data());
+#endif 
+        if (!ui->GraphName->text().isEmpty())
+        {
+            Graph *G = NULL;
+            for (int i = 0; i < graphs.count(); i++)
+            {
+                G = graphs[i];
+                if (G->title().text() == ui->GraphName->text())
+                    break;
+            }
+            if (G)
+                G->AddCurve(p.PlotObject->text(), pen);
+        }
+    }
+
+    if (pw.exec()  == QDialog::Accepted)
+    {
+        QString plotname = p.PlotAgentProfile->currentText()+": "+p.PlotObject->text();
+
+        if (currentgraph)
+            currentgraph->AddPlot(&plotname);
+    }
+}
+
+void GraphManager::DeletePlot(void)
+{
+    if (currentgraph)
+        currentgraph->DeletePlot(ui->PlotList->currentItem());
+
+#if 0
+    if (!str.isEmpty())
+    {
+#ifdef NOTYET
+        printf("Deleting plot %s\n", ui->PlotObject->currentText().toLatin1().data());
+#endif 
+        if (!ui->GraphName->text().isEmpty())
+        {
+            Graph *G = NULL;
+            for (int i = 0; i < graphs.count(); i++)
+            {
+                G = graphs[i];
+                if (G->title().text() == ui->GraphName->text())
+                    break;
+            }
+            if (G) 
+                G->RemoveCurve(str);
+        }
+    }
+#endif
+}
+
+void GraphManager::SelectedPlot(QListWidgetItem * item, QListWidgetItem *)
+{
+    if (currentgraph)
+        currentgraph->SelectPlot(item);
+}
+
+void GraphManager::SetPlotOID(void)
+{
+    // Create and run the mib selection dialog
+    MibSelection ms(s, ui->Graph, "Browse OID", MIBSELECTION_TYPE);
+
+    if (ms.run())
+    {
+        p.PlotObject->setText(ms.GetOid()+
+                              (ms.GetName().isEmpty()?"":" ("+ms.GetName()+")"));
+    }
+}
+
+void GraphManager::AgentProfileListChange(void)
+{
+    int prefproto = -1;
+    if (p.PlotAgentProtoV1->isChecked()) prefproto = 0;
+    else if (p.PlotAgentProtoV2->isChecked()) prefproto = 1;
+    else if (p.PlotAgentProtoV3->isChecked()) prefproto = 2;
+
+    QString cap = ui->AgentProfile->currentText();
+    p.PlotAgentProfile->clear();
+    p.PlotAgentProfile->addItems(s->APManagerObj()->GetAgentsList());
+    if (cap.isEmpty() == false)
+    {
+        int idx = p.PlotAgentProfile->findText(cap);
+        p.PlotAgentProfile->setCurrentIndex(idx>0?idx:0);
+        if (idx < 0) prefproto = -1;
+    }
+    else
+        prefproto = -1;
+
+    SelectAgentProfile(NULL, prefproto);
+}
+
+void GraphManager::SelectAgentProto(void)
+{
+    int prefproto = -1;
+    if (p.PlotAgentProtoV1->isChecked()) prefproto = 0;
+    else if (p.PlotAgentProtoV2->isChecked()) prefproto = 1;
+    else if (p.PlotAgentProtoV3->isChecked()) prefproto = 2;
+
+//    ui->MIBTree->SetCurrentAgentIsV1(prefproto==0?true:false);
+
+    SelectAgentProfile(NULL, prefproto);
+}
+
+void GraphManager::SelectAgentProfile(QString *prefprofile, int prefproto)
+{
+    AgentProfile *ap = s->APManagerObj()->GetAgentProfile
+                        (prefprofile?prefprofile->toLatin1():
+                         p.PlotAgentProfile->currentText());
+    if (ap)
+    {
+        bool v1,v2,v3;
+        int selectedproto = -1;
+        ap->GetSupportedProtocol(&v1, &v2, &v3);
+
+        p.PlotAgentProtoV1->setEnabled(v1);
+        p.PlotAgentProtoV2->setEnabled(v2);
+        p.PlotAgentProtoV3->setEnabled(v3);
+
+        if ((prefproto == 0) && v1)
+        {
+            p.PlotAgentProtoV1->setChecked(true);
+            selectedproto = 0;
+        }
+        else 
+        if ((prefproto == 1) && v2)
+        {
+            p.PlotAgentProtoV2->setChecked(true);
+            selectedproto = 1;
+        }
+        else
+        if ((prefproto == 2) && v3)
+        {
+            p.PlotAgentProtoV3->setChecked(true);
+            selectedproto = 2;
+        }
+        else
+        if (v1)
+        {
+            p.PlotAgentProtoV1->setChecked(true);
+            selectedproto = 0;
+        }
+        else
+        if (v2)
+        {
+            p.PlotAgentProtoV2->setChecked(true);
+            selectedproto = 1;
+        }
+        else
+        if (v3)
+        {
+            p.PlotAgentProtoV3->setChecked(true);
+            selectedproto = 2;
+        }
+#if 0
+        if (prefprofile)
+        {
+            // The agent profile is loaded from the preference file, 
+            // update the combobox
+            int index = ui->PlotAgentProfile->findText(prefprofile->toLatin1());
+            ui->PlotAgentProfile->setCurrentIndex(index);
+            s->PreferencesObj()->SaveCurrentProfile(*prefprofile, prefproto);
+        }
+        else
+        {
+            // The agent is selected by the user, save it in the preference file
+            QString selectedprofile = ui->PlotAgentProfile->currentText();
+            s->PreferencesObj()->SaveCurrentProfile(selectedprofile, selectedproto);
+        }
+#endif
+    }
+    else
+    {
+        p.PlotAgentProtoV1->setEnabled(false);
+        p.PlotAgentProtoV2->setEnabled(false);
+        p.PlotAgentProtoV3->setEnabled(false);
+    }
+}
+
+void GraphManager::ShowAgentSettings(void)
+{
+     s->APManagerObj()->SetSelectedAgent(p.PlotAgentProfile->currentText()); 
+     s->APManagerObj()->Execute();
+}
+
 class tracker: public QwtPlotZoomer
 {
 public:
-    tracker(QwtPlotCanvas *canvas):
+    tracker(QWidget *canvas):
         QwtPlotZoomer(canvas)
     {
         setTrackerMode(AlwaysOn);
@@ -47,10 +407,27 @@ public:
     }
 };
 
-GraphItem::GraphItem(Snmpb *snmpb):QwtPlot(snmpb->MainUI()->GraphName->text())
+Graph::Graph(Snmpb *snmpb, QString *n): QwtPlot(n?*n:"")
 {
     s = snmpb;
-    s->MainUI()->GraphTab->addTab(this, s->MainUI()->GraphName->text());
+
+    item = new QListWidgetItem(ui->GraphList);
+
+    if (n)
+    {
+        item->setText(n->toLatin1().data());
+        SetName(*n);
+    }
+    else
+    {
+        item->setText("newgraph");
+        SetName("newgraph");
+        setTitle("newgraph");
+    }
+
+//    currentplot = null;
+
+    ui->GraphTab->addTab(this, GetName());
     dataCount = 0;
     timerID = 0;
 
@@ -59,28 +436,33 @@ GraphItem::GraphItem(Snmpb *snmpb):QwtPlot(snmpb->MainUI()->GraphName->text())
     for ( int i = 0; i < PLOT_HISTORY; i++ )
         timeData[i] = i;
 
+#if 0
     // Zero all curve structures
     for( int j = 0; j < NUM_PLOT_PER_GRAPH; j++)
     {
         curves[j].object = NULL;
         memset(curves[j].data, 0, sizeof(double)*PLOT_HISTORY);
     }
-}
-
-GraphItem::~GraphItem()
-{
-    // Free curve objects
-    for( int j = 0; j < NUM_PLOT_PER_GRAPH; j++)
-        if (curves[j].object) delete curves[j].object;
-
-#if 0 // crashes the app 
-    if (s->MainUI()->GraphTab && (s->MainUI()->GraphTab->indexOf(this) != -1))
-        s->MainUI()->GraphTab->removeTab(s->MainUI()->GraphTab->indexOf(this));
 #endif
 }
 
-void GraphItem::AddCurve(QString name, QPen& pen)
+Graph::~Graph()
 {
+#if 0
+    // Free curve objects
+    for( int j = 0; j < NUM_PLOT_PER_GRAPH; j++)
+        if (curves[j].object) delete curves[j].object;
+#endif
+
+#if 0 // crashes the app 
+    if (ui->GraphTab && (ui->GraphTab->indexOf(this) != -1))
+        ui->GraphTab->removeTab(ui->GraphTab->indexOf(this));
+#endif
+}
+
+void Graph::AddCurve(QString name, QPen& pen)
+{
+#if 0
     int i = 0;
     
     for (i = 0; i < NUM_PLOT_PER_GRAPH; i++)
@@ -102,10 +484,12 @@ void GraphItem::AddCurve(QString name, QPen& pen)
         timerID = startTimer(1000); // 1 second
     
     replot();
+#endif
 }
 
-void GraphItem::RemoveCurve(QString name)
+void Graph::RemoveCurve(QString name)
 {
+#if 0
     /* No other curve left, kill the timer first ... */
     if (timerID && ((/*TODO*/1-1) == 0))
     {
@@ -124,10 +508,12 @@ void GraphItem::RemoveCurve(QString name)
         else if (!curves[i].object)
             return;
     }
+#endif
 }
 
-void GraphItem::timerEvent(QTimerEvent *)
+void Graph::timerEvent(QTimerEvent *)
 {
+#if 0
     if ( dataCount < PLOT_HISTORY )
     {
         dataCount++;
@@ -160,141 +546,106 @@ void GraphItem::timerEvent(QTimerEvent *)
     }
 
     replot();
-}
-
-Graph::Graph(Snmpb *snmpb)
-{
-    s = snmpb;
- 
-    // Connect some signals
-    connect( s->MainUI()->GraphAdd, SIGNAL( clicked() ), 
-             this, SLOT( CreateGraph() ));
-    connect( s->MainUI()->GraphDelete, SIGNAL( clicked() ), 
-             this, SLOT( DeleteGraph() ));
-    connect( s->MainUI()->PlotAdd, SIGNAL( clicked() ), 
-             this, SLOT( CreatePlot() ));
-    connect( s->MainUI()->PlotDelete, SIGNAL( clicked() ), 
-             this, SLOT( DeletePlot() ));    
-#if 0 //MART
-    connect( s->MainUI()->PlotMIBTree, SIGNAL( SelectedOid(const QString&) ), 
-             this, SLOT( SetObjectString(const QString&) ));
 #endif
-}
-
-void Graph::CreateGraph(void)
-{
-#if 1  //MART
-    s->MainUI()->GraphName->setText("NewGraph");
-    s->MainUI()->Graph->setEnabled(true);
-    s->MainUI()->GraphList->addItem("NewGraph");
-    s->MainUI()->GraphName->setFocus(Qt::OtherFocusReason);  
-#endif
-
-    if (!s->MainUI()->GraphName->text().isEmpty())
-    {        
-        GraphItem *GI;
-        for (int i = 0; i < Items.count(); i++)
-        {
-            GI = Items[i];
-            if (GI->title().text() == s->MainUI()->GraphName->text())
-            {
-                QString err = QString("Graph \"%1\" already exist !")
-                      .arg(s->MainUI()->GraphName->text());
-                QMessageBox::information ( NULL, "Graph", err, 
-                             QMessageBox::Ok, Qt::NoButton);
-                return;
-            }
-        }
-                
-        GI = new GraphItem(s); 
-        Items.append(GI);
-    }
-}
-
-void Graph::DeleteGraph(void)
-{
-    if (!s->MainUI()->GraphName->text().isEmpty())
-    {
-        GraphItem *GI;
-        for (int i = 0; i < Items.count(); i++)
-        {
-            GI = Items[i];
-            if (GI->title().text() == s->MainUI()->GraphName->text())
-            {
-                Items.removeAll(GI);
-                delete GI;
-                return;
-            }
-        }
-    }
-}
-
-void Graph::CreatePlot(void)
-{
-#if 1  //MART
-    s->MainUI()->PlotDisplayName->setText("NewPlot");
-    s->MainUI()->Plot->setEnabled(true);
-    s->MainUI()->PlotList->addItem("NewPlot");
-    s->MainUI()->PlotDisplayName->setFocus(Qt::OtherFocusReason);  
-#endif
-
-    if (!s->MainUI()->PlotObject->text().isEmpty())
-    {
-        // Create the pen with the combobox values
-        QPen p(s->MainUI()->PlotColor->itemData(
-               s->MainUI()->PlotColor->currentIndex(), 
-               Qt::DisplayRole).value<QColor>(),
-               s->MainUI()->PlotWidth->itemData(
-               s->MainUI()->PlotWidth->currentIndex(), 
-               Qt::DisplayRole).toUInt(),
-               (enum Qt::PenStyle)(s->MainUI()->PlotShape->itemData(
-               s->MainUI()->PlotShape->currentIndex(), 
-               Qt::DisplayRole).toUInt()));
-#ifdef NOTYET  
-        printf("Creating plot %s\n", s->MainUI()->PlotObject->currentText().toLatin1().data());
-#endif 
-        if (!s->MainUI()->GraphName->text().isEmpty())
-        {
-            GraphItem *GI = NULL;
-            for (int i = 0; i < Items.count(); i++)
-            {
-                GI = Items[i];
-                if (GI->title().text() == s->MainUI()->GraphName->text())
-                    break;
-            }
-            if (GI)
-                GI->AddCurve(s->MainUI()->PlotObject->text(), p);
-        }
-    }
-}
-
-void Graph::DeletePlot(void)
-{
-    if (!s->MainUI()->PlotObject->text().isEmpty())
-    {
-#ifdef NOTYET
-        printf("Deleting plot %s\n", s->MainUI()->PlotObject->currentText().toLatin1().data());
-#endif 
-        if (!s->MainUI()->GraphName->text().isEmpty())
-        {
-            GraphItem *GI = NULL;
-            for (int i = 0; i < Items.count(); i++)
-            {
-                GI = Items[i];
-                if (GI->title().text() == s->MainUI()->GraphName->text())
-                    break;
-            }
-            if (GI) 
-                GI->RemoveCurve(s->MainUI()->PlotObject->text());
-        }
-    }
 }
 
 void Graph::SetObjectString(const QString& oid)
 {
 #if 0 //MART
-    s->MainUI()->PlotObject->insertItem(0, oid);
-    s->MainUI()->PlotObject->setCurrentIndex(0);
+    ui->PlotObject->insertItem(0, oid);
+    ui->PlotObject->setCurrentIndex(0);
 #endif
 }
 
+int Graph::SelectGraph(QListWidgetItem * i)
+{
+    if (i == item)
+    {
+        ui->GraphName->setText(name);
+//        up->AuthProtocol->setCurrentIndex(authproto);
+//        up->AuthPass->setText(authpass);
+//        up->PrivProtocol->setCurrentIndex(privproto);
+//        up->PrivPass->setText(privpass);
+
+        return 1;
+    }
+
+    return 0;
+}
+
+QListWidgetItem *Graph::GetWidgetItem(void)
+{
+    return item;
+}
+
+void Graph::SetName(QString n)
+{
+    name = n;
+    ui->GraphName->setText(name);
+}
+
+QString Graph::GetName(void)
+{
+    return name;
+}
+
+void Graph::SetGraphName(void)
+{
+    name = ui->GraphName->text();
+    item->setText(name);
+
+    setTitle(name);
+    ui->GraphTab->setTabText(ui->GraphTab->indexOf(this), name);
+}
+
+void Graph::AddPlot(QString *n)
+{
+    Plot *_p = new Plot;
+    plots.append(_p);
+    _p->item = new QListWidgetItem(ui->PlotList);
+
+    ui->PlotList->setCurrentItem(_p->item);
+
+    if (n)
+    {
+        _p->item->setText(n->toLatin1().data());
+    }
+    else
+    {
+        _p->item->setText("newplot");
+    }
+}
+
+void Graph::DeletePlot(QListWidgetItem *item)
+{
+    for (int i = 0; i < plots.count(); i++) 
+    {
+        if (item == plots[i]->item)
+        {
+            // Delete the plot (removes from the list)
+            delete plots.takeAt(i);
+            ui->PlotList->takeItem(i);
+
+            break;
+        }
+    }
+}
+
+int Graph::SelectPlot(QListWidgetItem *item)
+{
+    for (int i = 0; i < plots.count(); i++) 
+    {
+        if (item == plots[i]->item)
+        {
+            //ui->PlotDisplayName->setText(plots[i]->name);
+            //        up->AuthProtocol->setCurrentIndex(authproto);
+            //        up->AuthPass->setText(authpass);
+            //        up->PrivProtocol->setCurrentIndex(privproto);
+            //        up->PrivPass->setText(privpass);
+
+            return 1;
+        }
+    }
+
+    return 0;
+}

@@ -25,59 +25,106 @@
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 #include <QTimerEvent>
+#include <qlistwidget.h>
+#include <qlist.h>
 
 #include "snmpb.h"
 #include "mibview.h"
 #include "comboboxes.h"
+#include "ui_plot.h"
 
 #define NUM_PLOT_PER_GRAPH 10
 #define PLOT_HISTORY 30
 
-class GraphItem: public QwtPlot
-{
-public:
-    GraphItem(Snmpb *snmpb);
-    ~GraphItem();
-    
-    void AddCurve(QString name, QPen& pen);
-    void RemoveCurve(QString name);
-    
-protected:
-    void timerEvent(QTimerEvent *);
-    
-private:
-    Snmpb *s;
-     
-    int dataCount;
-    double timeData[PLOT_HISTORY];
-    int timerID;
-    
-    struct
-    {
-        QwtPlotCurve *object;
-        double data[PLOT_HISTORY];
-    } curves[NUM_PLOT_PER_GRAPH];
-};
-
-class Graph: public QObject
+class Graph: public QwtPlot
 {
     Q_OBJECT
     
 public:
-    Graph(Snmpb *snmpb);
-    
+    Graph(Snmpb *snmpb, QString *n = NULL);
+    ~Graph();
+
+    int SelectGraph(QListWidgetItem *i);
+    QListWidgetItem *GetWidgetItem(void);
+
+    void SetName(QString n);
+    QString GetName(void);
+    void SetGraphName(void);
+
+    void AddCurve(QString name, QPen& pen);
+    void RemoveCurve(QString name);
+    void AddPlot(QString *n = NULL);
+    void DeletePlot(QListWidgetItem *i);
+    int SelectPlot(QListWidgetItem *i);
+
+protected:
+    void timerEvent(QTimerEvent *);
+
 public slots:
-    void CreateGraph(void);
-    void DeleteGraph(void);
-    void CreatePlot(void);
-    void DeletePlot(void);
     void SetObjectString(const QString& oid);
     
 private:
     Snmpb *s;
 
-    BasicMibView* PlotMIBTree;
-    QList<GraphItem*> Items;
+    QListWidgetItem *item;
+
+    QString name;
+
+    int dataCount;
+    double timeData[PLOT_HISTORY];
+    int timerID;
+    
+    typedef struct
+    {
+        QListWidgetItem *item;
+        QwtPlotCurve *object;
+        double data[PLOT_HISTORY];
+    } Plot;
+
+// curves[NUM_PLOT_PER_GRAPH];
+
+//    BasicMibView* PlotMIBTree;
+
+//    QList<QListWidgetItem *> plots;
+
+    Plot* currentplot;
+    QList<Plot *> plots;
+};
+
+class GraphManager: public QObject
+{
+    Q_OBJECT
+
+public:
+    GraphManager(Snmpb *snmpb);
+
+protected slots:
+    void Add(void);
+    void Delete(void);
+    void SetGraphName(void);
+    void SelectedGraph(QListWidgetItem * item, QListWidgetItem * old);
+    void GraphNameChange(QListWidgetItem * item);
+
+    void AddPlot(void);
+    void DeletePlot(void);
+    void SelectedPlot(QListWidgetItem * item, QListWidgetItem * old);
+
+    void AgentProfileListChange(void);
+
+    void SelectAgentProto(void);
+    void SelectAgentProfile(QString *prefprofile = NULL, int prefproto = -1);
+    void ShowAgentSettings(void);
+
+    void SetPlotOID(void);
+
+private:
+    Snmpb *s;
+    Ui_Plot p;
+    QDialog pw;
+
+    Graph* currentgraph;
+    QList<Graph *> graphs;
 };
 
 #endif /* GRAPH_H */
+

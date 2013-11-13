@@ -27,6 +27,11 @@
 #include "snmpb.h"
 #include "snmp_pp/snmp_pp.h"
 
+#define MIBSELECTION_NONE   0x0
+#define MIBSELECTION_SET    0x1
+#define MIBSELECTION_VALUE  0x2
+#define MIBSELECTION_TYPE   0x4
+
 // Class used to validate set operations on Counter32/Unsigned32/Gauge32/Integer...
 class IntValidator: public QValidator
 {
@@ -116,11 +121,11 @@ class MibSelection: public QObject
     Q_OBJECT
     
 public:
-    MibSelection(Snmpb *snmpb, QWidget *parent, QString title);
+    MibSelection(Snmpb *snmpb, QWidget *parent, QString title, int _flags);
     ~MibSelection();
 
-    bool run(const QString& init_oid = "", int init_syntax = -1, 
-             const QString& init_val = "");
+    bool run(const QString& init_oid = "", 
+             int init_syntax = -1, const QString& init_val = "");
     void bgrun(const QString& oid);
 
     Vb *GetVarbind(void);
@@ -168,6 +173,8 @@ private:
     QString result_string;
     QString result_oid;
     int     result_syntax;
+
+    int flags;
 
     IntValidator *validator;
     UInt64Validator *validator64;

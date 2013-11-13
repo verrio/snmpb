@@ -25,7 +25,7 @@
 #include "mibselection.h"
 #include "agent.h"
 
-MibSelection::MibSelection(Snmpb *snmpb, QWidget *parent, QString title)
+MibSelection::MibSelection(Snmpb *snmpb, QWidget *parent, QString title, int _flags)
 {
     s = snmpb;
 
@@ -36,6 +36,7 @@ MibSelection::MibSelection(Snmpb *snmpb, QWidget *parent, QString title)
 
     type = NULL;
     node = NULL;
+    flags = _flags;
 
     dprompt = new QDialog(parent, Qt::WindowTitleHint);
     dprompt->resize(400, 500);
@@ -74,18 +75,31 @@ MibSelection::MibSelection(Snmpb *snmpb, QWidget *parent, QString title)
     connect(syntax_cb, SIGNAL(currentIndexChanged(int)), 
             this, SLOT(GetSyntaxCb(int)));
 
-    vallabel = new QLabel("<b>Value:</b>", dprompt);
-    gl->addWidget(vallabel, 6, 0, 1, 1);
-
-    val_le = new QLineEdit(dprompt);
-    gl->addWidget(val_le, 7, 0, 1, 1);
-
     val_cb = new QComboBox(dprompt);
     val_cb->setVisible(false);
     gl->addWidget(val_cb, 8, 0, 1, 1);
 
-    infolabel = new QLabel("");
-    gl->addWidget(infolabel, 9, 0, 1, 1);
+    if (flags & MIBSELECTION_VALUE)
+    {
+        vallabel = new QLabel("<b>Value:</b>", dprompt);
+        gl->addWidget(vallabel, 6, 0, 1, 1);
+
+        val_le = new QLineEdit(dprompt);
+        gl->addWidget(val_le, 7, 0, 1, 1);
+    }
+    else
+    {
+        vallabel = NULL;
+        val_le = NULL;
+    }
+
+    if (flags & (MIBSELECTION_SET|MIBSELECTION_TYPE))
+    {
+        infolabel = new QLabel("");
+        gl->addWidget(infolabel, 9, 0, 1, 1);
+    }
+    else
+        infolabel = NULL;
 
     dprompt->setWindowTitle(tr(title.toLatin1().data()));
     box = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel, 
@@ -200,8 +214,11 @@ void MibSelection::GetOidLe(void)
 void MibSelection::GetSyntaxCb(int index)
 {
     result_syntax = syntax_cb->itemData(index).toInt();
-    val_le->clear();
-    SetValueWidget();
+    if (flags & MIBSELECTION_VALUE)
+    {
+        val_le->clear();
+        SetValueWidget();
+    }
 }
 
 // Callback when an item is selected in the MIB tree window 
@@ -390,7 +407,7 @@ void MibSelection::SetOidInfoType(const QString& oid)
                 }
             }
 
-            if (thenode->access != SMI_ACCESS_READ_WRITE)
+            if ((thenode->access != SMI_ACCESS_READ_WRITE) && (flags & MIBSELECTION_SET))
                 outinfo += "<br><b><font color=red>WARNING: object is not writable!</font></b>";
 
             type = thetype;
@@ -400,7 +417,8 @@ void MibSelection::SetOidInfoType(const QString& oid)
     oid_le->setText(outoid);
     result_oid = oid_le->text();
 
-    infolabel->setText(outinfo);
+    if (flags & (MIBSELECTION_SET|MIBSELECTION_TYPE))
+        infolabel->setText(outinfo);
 }
 
 void MibSelection::SetValueWidget(void)
@@ -557,18 +575,22 @@ bool MibSelection::run(const QString& init_oid, int init_syntax, const QString& 
     SetOidInfoType(init_oid); 
     SetSyntax(init_syntax);
 
-    val_le->setFocus(Qt::OtherFocusReason);
-
-    // Set a pre-determined value
-    if (!init_val.isEmpty())
+    // Do we draw the value box ?
+    if (flags & MIBSELECTION_VALUE)
     {
-        val_le->setText(init_val);
-        GetValueLe();
-        if (type && (type->basetype == SMI_BASETYPE_ENUM))
+        val_le->setFocus(Qt::OtherFocusReason);
+
+        // Set a pre-determined value
+        if (!init_val.isEmpty())
         {
-            for (int i = 0; i < val_cb->count(); i++)
-                if (val_cb->itemData(i).toUInt() == init_val.toUInt())
-                    val_cb->setCurrentIndex(i);
+            val_le->setText(init_val);
+            GetValueLe();
+            if (type && (type->basetype == SMI_BASETYPE_ENUM))
+            {
+                for (int i = 0; i < val_cb->count(); i++)
+                    if (val_cb->itemData(i).toUInt() == init_val.toUInt())
+                        val_cb->setCurrentIndex(i);
+            }
         }
     }
 

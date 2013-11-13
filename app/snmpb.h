@@ -27,7 +27,7 @@
 class MibModule;
 class Trap;
 class Agent;
-class Graph;
+class GraphManager;
 class MibEditor;
 class LogSnmpb;
 class Discovery;
@@ -81,7 +81,7 @@ private:
     MibViewLoader loader;
     Trap *trap;
     Agent *agent;
-    Graph *graph;
+    GraphManager *gm;
     MibEditor *editor;
     LogSnmpb *logsnmpb;
     Discovery *discovery;

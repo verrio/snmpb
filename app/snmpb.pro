@@ -67,7 +67,7 @@ HEADERS	+= snmpb.h \
 	usmprofile.h \
 	preferences.h
 
-FORMS	= mainw.ui agentprofile.ui usmprofile.ui preferences.ui gotoline.ui find.ui replace.ui varbinds.ui
+FORMS	= mainw.ui agentprofile.ui usmprofile.ui preferences.ui gotoline.ui find.ui replace.ui varbinds.ui plot.ui
 TEMPLATE	= app
 CONFIG	+= qt warn_on debug
 RESOURCES     = snmpb.qrc

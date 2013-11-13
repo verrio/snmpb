@@ -127,7 +127,7 @@ void Snmpb::BindToGUI(QMainWindow* mw)
     trap = new Trap(this);
     agent->Init();
     upm = new USMProfileManager(this);
-    graph = new Graph(this);
+    gm = new GraphManager(this);
     editor = new MibEditor(this);
     discovery = new Discovery(this);
 

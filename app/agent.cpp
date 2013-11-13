@@ -1432,7 +1432,7 @@ void Agent::Set(const QString& oid, bool usevblist)
 void Agent::SetFrom(const QString& oid)
 {
     // Create and run the mib selection dialog
-    MibSelection ms(s, s->MainUI()->MIBTree, "Set");
+    MibSelection ms(s, s->MainUI()->MIBTree, "Set", MIBSELECTION_SET|MIBSELECTION_VALUE);
 
     if (ms.run(oid))
     {
@@ -1634,7 +1634,7 @@ void Agent::Varbinds(void)
 void Agent::VarbindsFrom(const QString& oid)
 {
     // Do a background run of the mib selection dialog
-    MibSelection ms(s, vbd, "New VarBind");
+    MibSelection ms(s, vbd, "New VarBind", MIBSELECTION_NONE);
 
     ms.bgrun(oid);
 
@@ -1667,7 +1667,7 @@ void Agent::VarbindsFrom(const QString& oid)
 void Agent::VarbindsNew(void)
 {
     // Create and run the mib selection dialog
-    MibSelection ms(s, vbd, "New VarBind");
+    MibSelection ms(s, vbd, "New VarBind", MIBSELECTION_SET|MIBSELECTION_VALUE);
 
     if (ms.run())
     {
@@ -1707,7 +1707,7 @@ void Agent::VarbindsEdit(void)
     }
 
     // Create and run the mib selection dialog
-    MibSelection ms(s, vbd, "Edit VarBind");
+    MibSelection ms(s, vbd, "Edit VarBind", MIBSELECTION_SET|MIBSELECTION_VALUE);
 
     vb_data data = items[0]->data(0, Qt::UserRole).value<vb_data>();
 

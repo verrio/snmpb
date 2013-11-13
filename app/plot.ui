@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Plot</class>
+ <widget class="QDialog" name="Plot">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>471</width>
+    <height>182</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Plot</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="2" colspan="2">
+    <widget class="QPushButton" name="PlotBrowseOID">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Browse OID ...</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="3">
+    <widget class="QGroupBox" name="PlotAgentProperties">
+     <property name="title">
+      <string>SNMP Agent</string>
+     </property>
+     <layout class="QVBoxLayout" name="_3">
+      <item>
+       <layout class="QHBoxLayout" name="_4">
+        <item>
+         <widget class="QComboBox" name="PlotAgentProfile">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="PlotAgentSettings">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="snmpb.qrc">
+            <normaloff>:/images/agentsettings.png</normaloff>:/images/agentsettings.png</iconset>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="_5">
+        <item>
+         <widget class="QRadioButton" name="PlotAgentProtoV1">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>SNMPv1</string>
+          </property>
+          <property name="autoRepeat">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="PlotAgentProtoV2">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>SNMPv2c</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="PlotAgentProtoV3">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>SNMPv3</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="3">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>180</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="title">
+      <string>Pen</string>
+     </property>
+     <layout class="QGridLayout" name="_2">
+      <item row="0" column="0">
+       <widget class="QLabel" name="PlotColorL">
+        <property name="text">
+         <string>Color</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" colspan="2">
+       <widget class="QColorComboBox" name="PlotColor"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="PlotWidthL">
+        <property name="text">
+         <string>Width</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" colspan="2">
+       <widget class="QPenWidthComboBox" name="PlotWidth"/>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="PlotShapeL">
+        <property name="text">
+         <string>Shape</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1" colspan="2">
+       <widget class="QPenStyleComboBox" name="PlotShape">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="PlotObjectL">
+     <property name="text">
+      <string>OID</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLineEdit" name="PlotObject"/>
+   </item>
+   <item row="2" column="1" colspan="3">
+    <widget class="QDialogButtonBox" name="OKCancel">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QPenStyleComboBox</class>
+   <extends>QComboBox</extends>
+   <header>comboboxes.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QColorComboBox</class>
+   <extends>QComboBox</extends>
+   <header>comboboxes.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QPenWidthComboBox</class>
+   <extends>QComboBox</extends>
+   <header>comboboxes.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>PlotAgentProfile</tabstop>
+  <tabstop>PlotAgentSettings</tabstop>
+  <tabstop>PlotAgentProtoV1</tabstop>
+  <tabstop>PlotAgentProtoV2</tabstop>
+  <tabstop>PlotAgentProtoV3</tabstop>
+  <tabstop>PlotColor</tabstop>
+  <tabstop>PlotWidth</tabstop>
+  <tabstop>PlotShape</tabstop>
+  <tabstop>PlotDisplayName</tabstop>
+  <tabstop>PlotBrowseOID</tabstop>
+  <tabstop>OKCancel</tabstop>
+ </tabstops>
+ <resources>
+  <include location="snmpb.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>OKCancel</sender>
+   <signal>accepted()</signal>
+   <receiver>Plot</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>OKCancel</sender>
+   <signal>rejected()</signal>
+   <receiver>Plot</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
