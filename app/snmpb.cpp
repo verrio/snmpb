@@ -374,7 +374,7 @@ Version %1<br>                                                                  
 http://sourceforge.net/projects/snmpb</a><br><br>                                \
                                                                                  \
 Copyright (c) <b>Martin Jolicoeur</b> (<a href=\"mailto:snmpb1@gmail.com\">\
-snmpb1@gmail.com</a>), 2004-2011<br><br>                                         \
+snmpb1@gmail.com</a>), 2004-2014<br><br>                                         \
                                                                                  \
 SnmpB is an SNMP MIB browser (Simple Network Management Protocol) written in QT. \
 It supports SNMPv1, SNMPv2c and SNMPv3. SnmpB can browse/edit/load/add MIB files \
@@ -392,8 +392,8 @@ Libtomcrypt [v%3] (<a href=http://libtom.org>http://libtom.org</a>)<br>         
 Libsmi [v%4] (<a href=http://www.ibr.cs.tu-bs.de/projects/libsmi>\
 http://www.ibr.cs.tu-bs.de/projects/libsmi</a>)<br>                              \
 QWT [v%5] (<a href=http://qwt.sourceforge.net>http://qwt.sourceforge.net</a>)<br>\
-QT [v%6] (<a href=http://trolltech.com/products/qt>\
-http://trolltech.com/products/qt</a>)")
+QT [v%6] (<a href=http://qt-project.org>\
+http://qt-project.org</a>)")
         .arg(SNMPB_VERSION_STRING)
         .arg(SNMP_PP_VERSION_STRING)
         .arg(SCRYPT)
