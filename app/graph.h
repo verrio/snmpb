@@ -27,6 +27,7 @@
 #include <QTimerEvent>
 #include <qlistwidget.h>
 #include <qlist.h>
+#include <qsettings.h>
 
 #include "snmpb.h"
 #include "mibview.h"
@@ -50,6 +51,11 @@ public:
     void SetName(QString n);
     QString GetName(void);
     void SetGraphName(void);
+    void SetPollInterval(void);
+    void SetPollInterval(int val);
+    int GetPollInterval(void);
+    void ReadPlotConfig(QSettings* settings);
+    void WritePlotConfig(QSettings* settings);
 
     void AddCurve(QString name, QPen& pen);
     void RemoveCurve(QString name);
@@ -69,6 +75,7 @@ private:
     QListWidgetItem *item;
 
     QString name;
+    int poll_interval;
 
     int dataCount;
     double timeData[PLOT_HISTORY];
@@ -76,18 +83,15 @@ private:
     
     typedef struct
     {
+        QString name;
         QListWidgetItem *item;
         QwtPlotCurve *object;
         double data[PLOT_HISTORY];
     } Plot;
 
 // curves[NUM_PLOT_PER_GRAPH];
-
 //    BasicMibView* PlotMIBTree;
 
-//    QList<QListWidgetItem *> plots;
-
-    Plot* currentplot;
     QList<Plot *> plots;
 };
 
@@ -102,12 +106,13 @@ protected slots:
     void Add(void);
     void Delete(void);
     void SetGraphName(void);
+    void SetPollInterval(void);
     void SelectedGraph(QListWidgetItem * item, QListWidgetItem * old);
     void GraphNameChange(QListWidgetItem * item);
 
     void AddPlot(void);
     void DeletePlot(void);
-    void SelectedPlot(QListWidgetItem * item, QListWidgetItem * old);
+    void SelectedPlot(QListWidgetItem * item);
 
     void AgentProfileListChange(void);
 
@@ -118,10 +123,16 @@ protected slots:
     void SetPlotOID(void);
 
 private:
+    void ReadConfigFile(void);
+    void WriteConfigFile(void);
+
+private:
+    bool v1, v2, v3;
     Snmpb *s;
     Ui_Plot p;
     QDialog pw;
 
+    QSettings *settings;
     Graph* currentgraph;
     QList<Graph *> graphs;
 };

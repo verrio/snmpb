@@ -60,6 +60,7 @@ public:
     QString GetAgentsConfigFile(void);
     QString GetPrefsConfigFile(void);
     QString GetLogConfigFile(void);
+    QString GetGraphsConfigFile(void);
 
 public slots:
     void TabSelected(void);

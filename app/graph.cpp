@@ -35,6 +35,8 @@ GraphManager::GraphManager(Snmpb *snmpb)
     s = snmpb;
     p.setupUi(&pw);
 
+    settings = new QSettings(s->GetGraphsConfigFile(), QSettings::IniFormat, this);
+
      // Set some properties for the ListView
     ui->GraphList->setSortingEnabled( FALSE );
     ui->GraphList->setLineWidth( 2 );
@@ -58,20 +60,19 @@ GraphManager::GraphManager(Snmpb *snmpb)
              this, SLOT( Add() ));
     connect( ui->GraphDelete, SIGNAL( clicked() ), 
              this, SLOT( Delete() ));
-
     connect( ui->PlotList, 
-             SIGNAL( currentItemChanged( QListWidgetItem *, QListWidgetItem * ) ),
-             this, SLOT( SelectedPlot( QListWidgetItem *, QListWidgetItem * ) ) );
+             SIGNAL( itemDoubleClicked( QListWidgetItem * ) ),
+             this, SLOT( SelectedPlot( QListWidgetItem * ) ) );
     connect( ui->PlotAdd, SIGNAL( clicked() ), 
              this, SLOT( AddPlot() ));
     connect( ui->PlotDelete, SIGNAL( clicked() ), 
              this, SLOT( DeletePlot() ));    
-
     connect( p.PlotBrowseOID, SIGNAL( clicked() ), 
              this, SLOT( SetPlotOID() ));
-
     connect( s->APManagerObj(), SIGNAL( AgentProfileListChanged() ), 
              this, SLOT ( AgentProfileListChange() ) );
+    connect( ui->GraphPollInterval, SIGNAL( valueChanged( int ) ),
+             this, SLOT ( SetPollInterval() ) );
 
     // Select the default profile from preferences
     QString cp;
@@ -99,13 +100,60 @@ GraphManager::GraphManager(Snmpb *snmpb)
 
     // Loop & load all stored graphs
     currentgraph = NULL;
-//[...] MART
+    ReadConfigFile();
+
+    if (graphs.size() != 0)
+        ui->GraphList->setCurrentItem(ui->GraphList->item(0));
+}
+
+void GraphManager::ReadConfigFile (void)
+{
+    int size = settings->beginReadArray("graphs");
+    for (int i = 0; i < size; i++)
+    {
+        settings->setArrayIndex(i);
+        QString _name = settings->value("name").toString();
+        Graph *newgraph = new Graph(s, &_name);
+        
+        newgraph->SetPollInterval(settings->value("pollinterval").toInt());
+        newgraph->ReadPlotConfig(settings);
+
+        graphs.append(newgraph);
+    }
+    settings->endArray();
+}
+
+void GraphManager::WriteConfigFile (void)
+{
+    settings->beginWriteArray("graphs");
+    settings->remove("");
+    for (int i = 0; i < graphs.size(); i++)
+    {
+        settings->setArrayIndex(i);
+        settings->setValue("name", graphs[i]->GetName());
+        settings->setValue("pollinterval", graphs[i]->GetPollInterval());
+        graphs[i]->WritePlotConfig(settings);
+
+    }
+    settings->endArray();
 }
 
 void GraphManager::SetGraphName(void)
 {
     if (currentgraph)
+    {
         currentgraph->SetGraphName();
+        WriteConfigFile();
+    }
+}
+
+void GraphManager::SetPollInterval(void)
+{
+    if (currentgraph)
+    {
+        currentgraph->SetPollInterval();
+        WriteConfigFile();
+    }
 }
 
 void GraphManager::Add(void)
@@ -122,6 +170,8 @@ void GraphManager::Add(void)
     ui->GraphList->setCurrentItem(newgraph->GetWidgetItem());
     ui->GraphName->setFocus(Qt::OtherFocusReason);  
     ui->GraphName->selectAll();
+
+    WriteConfigFile();
 }
 
 void GraphManager::Delete(void)
@@ -184,11 +234,6 @@ void GraphManager::GraphNameChange(QListWidgetItem * item)
 
 void GraphManager::AddPlot(void)
 {
-//    graphs.append(newgraph);
-#if 0  //MART
-    ui->PlotList->addItem("NewPlot");
-#endif
-
     if (!p.PlotObject->text().isEmpty())
     {
         // Create the pen with the combobox values
@@ -223,7 +268,10 @@ void GraphManager::AddPlot(void)
         QString plotname = p.PlotAgentProfile->currentText()+": "+p.PlotObject->text();
 
         if (currentgraph)
+        {
             currentgraph->AddPlot(&plotname);
+            WriteConfigFile();
+        }
     }
 }
 
@@ -254,7 +302,7 @@ void GraphManager::DeletePlot(void)
 #endif
 }
 
-void GraphManager::SelectedPlot(QListWidgetItem * item, QListWidgetItem *)
+void GraphManager::SelectedPlot(QListWidgetItem * item)
 {
     if (currentgraph)
         currentgraph->SelectPlot(item);
@@ -425,8 +473,6 @@ Graph::Graph(Snmpb *snmpb, QString *n): QwtPlot(n?*n:"")
         setTitle("newgraph");
     }
 
-//    currentplot = null;
-
     ui->GraphTab->addTab(this, GetName());
     dataCount = 0;
     timerID = 0;
@@ -458,6 +504,39 @@ Graph::~Graph()
     if (ui->GraphTab && (ui->GraphTab->indexOf(this) != -1))
         ui->GraphTab->removeTab(ui->GraphTab->indexOf(this));
 #endif
+}
+
+void Graph::ReadPlotConfig(QSettings* settings)
+{
+    for(int i = 0;;i++) 
+    {
+        char buf[10];
+        sprintf(buf, "%d", i);
+        settings->beginGroup(buf);
+
+        if (settings->value("name", "").toString() == "")
+        {
+            settings->endGroup();
+            break;
+        }
+
+        QString n = settings->value("name").toString();
+        AddPlot(&n); 
+
+        settings->endGroup();
+    }
+}
+
+void Graph::WritePlotConfig(QSettings* settings)
+{
+    for (int i = 0; i < plots.count(); i++) 
+    {
+        char buf[10];
+        sprintf(buf, "%d", i);
+        settings->beginGroup(buf);
+        settings->setValue("name", plots[i]->name);
+        settings->endGroup();
+    }
 }
 
 void Graph::AddCurve(QString name, QPen& pen)
@@ -561,7 +640,11 @@ int Graph::SelectGraph(QListWidgetItem * i)
 {
     if (i == item)
     {
+        ui->Graph->setEnabled(true);
+
         ui->GraphName->setText(name);
+        ui->GraphPollInterval->setValue(poll_interval);
+
 //        up->AuthProtocol->setCurrentIndex(authproto);
 //        up->AuthPass->setText(authpass);
 //        up->PrivProtocol->setCurrentIndex(privproto);
@@ -598,6 +681,21 @@ void Graph::SetGraphName(void)
     ui->GraphTab->setTabText(ui->GraphTab->indexOf(this), name);
 }
 
+void Graph::SetPollInterval(void)
+{
+    poll_interval = ui->GraphPollInterval->value();
+}
+
+void Graph::SetPollInterval(int val)
+{
+    poll_interval = val;
+}
+
+int Graph::GetPollInterval(void)
+{
+    return poll_interval;
+}
+
 void Graph::AddPlot(QString *n)
 {
     Plot *_p = new Plot;
@@ -609,10 +707,12 @@ void Graph::AddPlot(QString *n)
     if (n)
     {
         _p->item->setText(n->toLatin1().data());
+        _p->name = *n;
     }
     else
     {
         _p->item->setText("newplot");
+        _p->name = "newplot";
     }
 }
 

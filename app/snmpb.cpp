@@ -48,6 +48,7 @@
 #define AGENTS_CONFIG_FILE       "agents.conf"
 #define PREFS_CONFIG_FILE        "preferences.conf"
 #define LOG_CONFIG_FILE          "log.conf"
+#define GRAPHS_CONFIG_FILE       "graphs.conf"
 
 #define STANDARD_TRAP_PORT       162 
 
@@ -260,6 +261,11 @@ QString Snmpb::GetPrefsConfigFile(void)
 QString Snmpb::GetLogConfigFile(void)
 {
     return (SnmpbDir.filePath(LOG_CONFIG_FILE));
+}
+
+QString Snmpb::GetGraphsConfigFile(void)
+{
+    return (SnmpbDir.filePath(GRAPHS_CONFIG_FILE));
 }
 
 void Snmpb::ManageAgentProfiles(bool)
