@@ -17,7 +17,7 @@
 # TODO:
 #   Have binary run in setuid mode (for trap port binding)
 #
-# Martin Jolicoeur, March 2009
+# Martin Jolicoeur, March 2014
 #
 
 VERSION=1.0
@@ -53,6 +53,5 @@ mkdir -p ${APPNAME}.app/Contents/Resources/en.lproj
 cp ../../license.txt ${APPNAME}.app/Contents/Resources/en.lproj/License
 
 # Create a file-system image (.dmg) with the installer
-macdeployqt ${APPNAME}.app -dmg
-mv ${APPNAME}.dmg ${APPNAME}-${VERSION}.dmg
-
+macdeployqt ${APPNAME}.app
+./create-dmg --window-size 500 300 --icon-size 96 --background background.png --volname "SnmpB" --app-drop-link 380 170 --volicon ${APPNAME}.app/Contents/Resources/snmpb.icns --icon "SnmpB" 110 170 ${APPNAME}-${VERSION}.dmg ${APPNAME}.app
