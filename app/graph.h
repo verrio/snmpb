@@ -37,6 +37,20 @@
 #define NUM_PLOT_PER_GRAPH 10
 #define PLOT_HISTORY 30
 
+typedef struct
+{
+    QString name;
+    QString agentname;
+    int proto;
+    int color;
+    int width;
+    int shape;
+    QString oid;
+    QListWidgetItem *item;
+    QwtPlotCurve *object;
+    double data[PLOT_HISTORY];
+} Plot;
+
 class Graph: public QwtPlot
 {
     Q_OBJECT
@@ -59,16 +73,13 @@ public:
 
     void AddCurve(QString name, QPen& pen);
     void RemoveCurve(QString name);
-    void AddPlot(QString *n = NULL);
+    Plot* AddPlot(QString *n = NULL);
     void DeletePlot(QListWidgetItem *i);
-    int SelectPlot(QListWidgetItem *i);
+    Plot* FindPlot(QListWidgetItem *i);
 
 protected:
     void timerEvent(QTimerEvent *);
 
-public slots:
-    void SetObjectString(const QString& oid);
-    
 private:
     Snmpb *s;
 
@@ -80,14 +91,6 @@ private:
     int dataCount;
     double timeData[PLOT_HISTORY];
     int timerID;
-    
-    typedef struct
-    {
-        QString name;
-        QListWidgetItem *item;
-        QwtPlotCurve *object;
-        double data[PLOT_HISTORY];
-    } Plot;
 
 // curves[NUM_PLOT_PER_GRAPH];
 //    BasicMibView* PlotMIBTree;
@@ -112,7 +115,7 @@ protected slots:
 
     void AddPlot(void);
     void DeletePlot(void);
-    void SelectedPlot(QListWidgetItem * item);
+    void EditPlot(QListWidgetItem * item);
 
     void AgentProfileListChange(void);
 

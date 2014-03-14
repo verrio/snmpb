@@ -62,7 +62,7 @@ GraphManager::GraphManager(Snmpb *snmpb)
              this, SLOT( Delete() ));
     connect( ui->PlotList, 
              SIGNAL( itemDoubleClicked( QListWidgetItem * ) ),
-             this, SLOT( SelectedPlot( QListWidgetItem * ) ) );
+             this, SLOT( EditPlot( QListWidgetItem * ) ) );
     connect( ui->PlotAdd, SIGNAL( clicked() ), 
              this, SLOT( AddPlot() ));
     connect( ui->PlotDelete, SIGNAL( clicked() ), 
@@ -92,11 +92,6 @@ GraphManager::GraphManager(Snmpb *snmpb)
              this, SLOT( SelectAgentProto() ) );
     connect( p.PlotAgentSettings, 
              SIGNAL( clicked() ), this, SLOT( ShowAgentSettings() ));
-
-#if 0 //MART
-    connect( ui->PlotMIBTree, SIGNAL( SelectedOid(const QString&) ), 
-             this, SLOT( SetObjectString(const QString&) ));
-#endif
 
     // Loop & load all stored graphs
     currentgraph = NULL;
@@ -184,7 +179,7 @@ void GraphManager::Delete(void)
         {
             // Delete the graph (removes from the list)
             delete graphs.takeAt(i);
-            ui->GraphList->takeItem(i);
+            delete ui->GraphList->takeItem(i);
 
             currentgraph = NULL;
             // Re-adjust the currentgraph pointer with the new current widget item
@@ -234,42 +229,62 @@ void GraphManager::GraphNameChange(QListWidgetItem * item)
 
 void GraphManager::AddPlot(void)
 {
-    if (!p.PlotObject->text().isEmpty())
+    if (currentgraph)
     {
-        // Create the pen with the combobox values
-        QPen pen(p.PlotColor->itemData(
-               p.PlotColor->currentIndex(), 
-               Qt::DisplayRole).value<QColor>(),
-               p.PlotWidth->itemData(
-               p.PlotWidth->currentIndex(), 
-               Qt::DisplayRole).toUInt(),
-               (enum Qt::PenStyle)(p.PlotShape->itemData(
-               p.PlotShape->currentIndex(), 
-               Qt::DisplayRole).toUInt()));
+#if 0
+        if (!p.PlotObject->text().isEmpty())
+        {
+            // Create the pen with the combobox values
+            QPen pen(p.PlotColor->itemData(
+                        p.PlotColor->currentIndex(), 
+                        Qt::DisplayRole).value<QColor>(),
+                    p.PlotWidth->itemData(
+                        p.PlotWidth->currentIndex(), 
+                        Qt::DisplayRole).toUInt(),
+                    (enum Qt::PenStyle)(p.PlotShape->itemData(
+                            p.PlotShape->currentIndex(), 
+                            Qt::DisplayRole).toUInt()));
 #ifdef NOTYET  
-        printf("Creating plot %s\n", ui->PlotObject->currentText().toLatin1().data());
+            printf("Creating plot %s\n", ui->PlotObject->currentText().toLatin1().data());
 #endif 
-        if (!ui->GraphName->text().isEmpty())
-        {
-            Graph *G = NULL;
-            for (int i = 0; i < graphs.count(); i++)
+            if (!ui->GraphName->text().isEmpty())
             {
-                G = graphs[i];
-                if (G->title().text() == ui->GraphName->text())
-                    break;
+                Graph *G = NULL;
+                for (int i = 0; i < graphs.count(); i++)
+                {
+                    G = graphs[i];
+                    if (G->title().text() == ui->GraphName->text())
+                        break;
+                }
+                if (G)
+                    G->AddCurve(p.PlotObject->text(), pen);
             }
-            if (G)
-                G->AddCurve(p.PlotObject->text(), pen);
         }
-    }
+#endif
+        QString cp;
+        int prefproto = s->PreferencesObj()->GetCurrentProfile(cp);
+        SelectAgentProfile(&cp, prefproto);
+        p.PlotColor->setCurrentIndex(0);
+        p.PlotWidth->setCurrentIndex(0);
+        p.PlotShape->setCurrentIndex(0);
+        p.PlotObject->setText("");
 
-    if (pw.exec()  == QDialog::Accepted)
-    {
-        QString plotname = p.PlotAgentProfile->currentText()+": "+p.PlotObject->text();
-
-        if (currentgraph)
+        if (pw.exec()  == QDialog::Accepted)
         {
-            currentgraph->AddPlot(&plotname);
+            QString plotname = p.PlotAgentProfile->currentText()+": "+p.PlotObject->text();
+            Plot *plot = currentgraph->AddPlot(&plotname);
+
+            plot->agentname = p.PlotAgentProfile->currentText();
+            if (p.PlotAgentProtoV1->isChecked()) plot->proto = 0;
+            else if (p.PlotAgentProtoV2->isChecked()) plot->proto = 1;
+            else if (p.PlotAgentProtoV3->isChecked()) plot->proto = 2;
+            plot->color = p.PlotColor->currentIndex();
+            plot->width = p.PlotWidth->currentIndex();
+            plot->shape = p.PlotShape->currentIndex();
+            plot->oid = p.PlotObject->text();
+
+            plot->item->setText(plot->name.toLatin1().data());
+
             WriteConfigFile();
         }
     }
@@ -302,10 +317,35 @@ void GraphManager::DeletePlot(void)
 #endif
 }
 
-void GraphManager::SelectedPlot(QListWidgetItem * item)
+void GraphManager::EditPlot(QListWidgetItem * item)
 {
     if (currentgraph)
-        currentgraph->SelectPlot(item);
+    {
+        Plot *plot = currentgraph->FindPlot(item);
+
+        SelectAgentProfile(&plot->agentname, plot->proto);
+        p.PlotColor->setCurrentIndex(plot->color);
+        p.PlotWidth->setCurrentIndex(plot->width);
+        p.PlotShape->setCurrentIndex(plot->shape);
+        p.PlotObject->setText(plot->oid);
+
+        if (pw.exec()  == QDialog::Accepted)
+        {
+            plot->name = p.PlotAgentProfile->currentText()+": "+p.PlotObject->text();
+            plot->agentname = p.PlotAgentProfile->currentText();
+            if (p.PlotAgentProtoV1->isChecked()) plot->proto = 0;
+            else if (p.PlotAgentProtoV2->isChecked()) plot->proto = 1;
+            else if (p.PlotAgentProtoV3->isChecked()) plot->proto = 2;
+            plot->color = p.PlotColor->currentIndex();
+            plot->width = p.PlotWidth->currentIndex();
+            plot->shape = p.PlotShape->currentIndex();
+            plot->oid = p.PlotObject->text();
+
+            plot->item->setText(plot->name.toLatin1().data());
+
+            WriteConfigFile();
+        }
+    }
 }
 
 void GraphManager::SetPlotOID(void)
@@ -404,22 +444,13 @@ void GraphManager::SelectAgentProfile(QString *prefprofile, int prefproto)
             p.PlotAgentProtoV3->setChecked(true);
             selectedproto = 2;
         }
-#if 0
+
         if (prefprofile)
         {
-            // The agent profile is loaded from the preference file, 
             // update the combobox
-            int index = ui->PlotAgentProfile->findText(prefprofile->toLatin1());
-            ui->PlotAgentProfile->setCurrentIndex(index);
-            s->PreferencesObj()->SaveCurrentProfile(*prefprofile, prefproto);
+            int index = p.PlotAgentProfile->findText(prefprofile->toLatin1());
+            p.PlotAgentProfile->setCurrentIndex(index);
         }
-        else
-        {
-            // The agent is selected by the user, save it in the preference file
-            QString selectedprofile = ui->PlotAgentProfile->currentText();
-            s->PreferencesObj()->SaveCurrentProfile(selectedprofile, selectedproto);
-        }
-#endif
     }
     else
     {
@@ -521,7 +552,14 @@ void Graph::ReadPlotConfig(QSettings* settings)
         }
 
         QString n = settings->value("name").toString();
-        AddPlot(&n); 
+        Plot *_p = AddPlot(&n);
+
+        _p->agentname = settings->value("agent").toString();
+        _p->proto = settings->value("proto").toInt();
+        _p->color = settings->value("color").toInt();
+        _p->width = settings->value("width").toInt();
+        _p->shape = settings->value("shape").toInt();
+        _p->oid = settings->value("oid").toString();
 
         settings->endGroup();
     }
@@ -535,6 +573,12 @@ void Graph::WritePlotConfig(QSettings* settings)
         sprintf(buf, "%d", i);
         settings->beginGroup(buf);
         settings->setValue("name", plots[i]->name);
+        settings->setValue("agent", plots[i]->agentname);
+        settings->setValue("proto", plots[i]->proto);
+        settings->setValue("color", plots[i]->color);
+        settings->setValue("width", plots[i]->width);
+        settings->setValue("shape", plots[i]->shape);
+        settings->setValue("oid", plots[i]->oid);
         settings->endGroup();
     }
 }
@@ -628,14 +672,6 @@ void Graph::timerEvent(QTimerEvent *)
 #endif
 }
 
-void Graph::SetObjectString(const QString& oid)
-{
-#if 0 //MART
-    ui->PlotObject->insertItem(0, oid);
-    ui->PlotObject->setCurrentIndex(0);
-#endif
-}
-
 int Graph::SelectGraph(QListWidgetItem * i)
 {
     if (i == item)
@@ -645,11 +681,12 @@ int Graph::SelectGraph(QListWidgetItem * i)
         ui->GraphName->setText(name);
         ui->GraphPollInterval->setValue(poll_interval);
 
-//        up->AuthProtocol->setCurrentIndex(authproto);
-//        up->AuthPass->setText(authpass);
-//        up->PrivProtocol->setCurrentIndex(privproto);
-//        up->PrivPass->setText(privpass);
+        // Unlink all elements from list
+        while (ui->PlotList->takeItem(0));
 
+        for (int i = plots.count()-1; i >= 0; i--)
+            ui->PlotList->insertItem(0, plots[i]->item);
+ 
         return 1;
     }
 
@@ -696,7 +733,7 @@ int Graph::GetPollInterval(void)
     return poll_interval;
 }
 
-void Graph::AddPlot(QString *n)
+Plot* Graph::AddPlot(QString *n)
 {
     Plot *_p = new Plot;
     plots.append(_p);
@@ -714,6 +751,8 @@ void Graph::AddPlot(QString *n)
         _p->item->setText("newplot");
         _p->name = "newplot";
     }
+
+    return _p;
 }
 
 void Graph::DeletePlot(QListWidgetItem *item)
@@ -724,28 +763,18 @@ void Graph::DeletePlot(QListWidgetItem *item)
         {
             // Delete the plot (removes from the list)
             delete plots.takeAt(i);
-            ui->PlotList->takeItem(i);
+            delete ui->PlotList->takeItem(i);
 
             break;
         }
     }
 }
 
-int Graph::SelectPlot(QListWidgetItem *item)
+Plot* Graph::FindPlot(QListWidgetItem *item)
 {
     for (int i = 0; i < plots.count(); i++) 
-    {
         if (item == plots[i]->item)
-        {
-            //ui->PlotDisplayName->setText(plots[i]->name);
-            //        up->AuthProtocol->setCurrentIndex(authproto);
-            //        up->AuthPass->setText(authpass);
-            //        up->PrivProtocol->setCurrentIndex(privproto);
-            //        up->PrivPass->setText(privpass);
+            return plots[i];
 
-            return 1;
-        }
-    }
-
-    return 0;
+    return NULL;
 }
