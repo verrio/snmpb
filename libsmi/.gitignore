@@ -13,3 +13,9 @@ tools/smilint
 tools/smiquery
 tools/smistrip
 tools/smixlate
+lib/parser-smi.c
+lib/parser-smi.tab.h
+lib/scanner-smi.c
+lib/smi_config.3
+test/parser.test
+win/config.h
