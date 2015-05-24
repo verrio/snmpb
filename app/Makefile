@@ -25,17 +25,7 @@ snmpb_app: makefile.snmpb
 	$(MAKE) -f makefile.snmpb
 
 makefile.snmpb:
-ifneq ($(findstring CYGWIN,${os}),)
-	qmake -o makefile.snmpb snmpb.pro
-else
-ifneq ($(findstring Darwin,${os}),)
-	# MacOSX
-	qmake -spec macx-g++ -o makefile.snmpb snmpb.pro
-else
-	# Linux/BSD
-	qmake -o makefile.snmpb snmpb.pro
-endif
-endif
+	$(MAKE) -C ../ app/makefile.snmpb
 
 clean:
 	-$(MAKE) -f makefile.snmpb clean

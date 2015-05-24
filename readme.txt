@@ -2,7 +2,7 @@ To compile:
 
 # make (linux, macosx, unix)
 # gmake (*BSD)
-> mingw32-make (Windows)
+> make (Windows/cygwin)
 
 To install in places other than /usr, add INSTALL_PREFIX=<prefix> to the make command.
 
@@ -17,6 +17,25 @@ Required installed packages for compilation:
 - QT4 development package
 - GNU install
 - gcc and g++
+
+Instructions for windows build
+-------------------------------
+SnmpB builds on windows using cygwin and QT from Qt64-NG
+1- Download and install cygwin from https://www.cygwin.com/
+   -> Make sure not to install the toolchain "x86_64-w64-mingw32" as it will conflict with the toolchain from QT
+   -> make sure to install packages listed above i.e: bison, flex, autoconf, ...
+2- Download and install Qt64-NG from https://sourceforge.net/projects/qt64ng/
+   -> Choose the QT x86-64 for mingw, "SJLJ" version, autoextract .exe.
+      For instance, at the moment of this writing the latest QT version is 5.4.1 and the package to download is:
+      http://sourceforge.net/projects/qt64ng/files/qt/x86-64/5.4.1/mingw-4.9/sjlj/qt-5.4.1-x64-mingw492r1-sjlj-rev1.exe
+3- Create 2 env. variables in Windows: QTLOC and MINGWLOC. 
+   - QTLOC points to the QT bin folder in the Qt64-NG install, ex.: C:\Qt\qt-5.4.1-x64-mingw492r1-sjlj-rev1\qt-5.4.1-x64-mingw492r1-sjlj-rev1\bin
+   - MINGWLOC points to the mingw bin folder in the Qt64-NG install, ex.: C:\Qt\qt-5.4.1-x64-mingw492r1-sjlj-rev1\mingw64\bin 
+4- Add %QTLOC% and %MINGWLOC% and the end of yout PATH env. variable, restart your shell
+5- Download SnmpB source and compile with "make"
+6- Download and install the NSIS installer from http://nsis.sourceforge.net/ (3.0 works)
+7- Using windows explorer, go in snmpb/installer/win32 and right-click on the .nsi, then "Compile NSIS Script"
+8- Voila, you have the full SnmpB windows installer .exe
 
 External packages
 ------------------
@@ -58,14 +77,19 @@ lib/error.c "Changed the definition of yyerror for bison 3.2 (from libsmi 5.0)"
 lib/parser-smi.y "YYPARSE_PARAM,YYLEX_PARAM->parse-param,lex-param for bison 3.2 (from libsmi 5.0)"
 lib/scanner-smi.h "Commented yyleng for bison 3.x (from libsmi 5.0)"
 
+Deleted mibs/ietf/IANA-ITU-ALARM-TC-MIB: redundant with one in iana folder (prevented proper copy in win32 installer)
+
 QWT is taken from http://qwt.sourceforge.net
 Version: 6.1.0
 
 Modified file(s):
 qwtconfig.pri
+qwtbuild.pri "Removed silent flag, prevented build on win32"
 qwt.pro
+src/qwt_transform.cpp & src/qwt_transform.h "compile fix from qwt 6.1.2 on QT5+"
+
 + do not import the doc,examples,playground & admin sub-directories for space's sake
 
 --------------------------------
 
-Martin Jolicoeur, April 2012
+Martin Jolicoeur, May 2015

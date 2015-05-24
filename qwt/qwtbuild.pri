@@ -14,7 +14,7 @@
 CONFIG           += qt     
 CONFIG           += warn_on
 CONFIG           += no_keywords
-CONFIG           += silent
+#CONFIG           += silent
 
 ######################################################################
 # release/debug mode

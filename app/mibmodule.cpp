@@ -267,7 +267,7 @@ void MibModule::RebuildTotalList(int restart)
 "Fatal error(s) found in MIB file %1. Check log tab.")
                                           .arg( fi->toLatin1().data()), 
                                           QMessageBox::Ok, Qt::NoButton);
-                    if (smiModule) smiFreeModule(smiModule);
+// Crashes on win32 x64  if (smiModule) smiFreeModule(smiModule);
                     continue;
                 }
 

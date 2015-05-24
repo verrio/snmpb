@@ -84,10 +84,7 @@ unix {
 }
 win32 {
   CONFIG += release
-  QMAKE_CXX = mingw32-g++
-  QMAKE_LINK = mingw32-g++
   RC_FILE = snmpb.rc
-  QMAKE_RC = windres --preprocessor="$$[QT_INSTALL_PREFIX]\\..\\..\\..\\..\\mingw\\bin\\cpp.exe"
   LIBS	+= -lws2_32 -L../libsmi/win
 }
 macx:ICON = images/snmpb.icns

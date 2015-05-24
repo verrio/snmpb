@@ -31,6 +31,9 @@ endif
 
 INSTALL_PREFIX=/usr
 
+# Default toolchain for windows: 64 bits QT64-NG 
+WINTOOL_PREFIX=x86_64-w64-mingw32-
+
 all: snmpb
 
 ifneq ($(findstring CYGWIN,${os}),)
@@ -47,14 +50,14 @@ endif
 
 libtomcrypt/libtomcrypt.a:
 ifneq ($(findstring CYGWIN,${os}),)
-	$(MAKE) -C libtomcrypt CC=mingw32-gcc
+	$(MAKE) -C libtomcrypt CC=${WINTOOL_PREFIX}gcc
 else
 	$(MAKE) -C libtomcrypt
 endif
 
 ifneq ($(findstring CYGWIN,${os}),)
 libsmi/win/libsmi.a:
-	$(MAKE) -C libsmi/win -f Makefile.mingw CC=mingw32-gcc
+	$(MAKE) -C libsmi/win -f Makefile.mingw libs CC=${WINTOOL_PREFIX}gcc
 else
 libsmi/lib/.libs/libsmi.a: libsmi/Makefile
 	$(MAKE) -C libsmi
@@ -74,7 +77,7 @@ qwt/lib/libqwt.a: qwt/Makefile
 
 qwt/Makefile:
 ifneq ($(findstring CYGWIN,${os}),)
-	cd qwt; qmake qwt.pro
+	cd qwt; qmake QMAKE_CXX=${WINTOOL_PREFIX}g++ qwt.pro
 else
 ifneq ($(findstring Darwin,${os}),)
 	# MacOSX
@@ -85,7 +88,20 @@ else
 endif
 endif
 
-app/snmpb:
+app/makefile.snmpb:
+ifneq ($(findstring CYGWIN,${os}),)
+	cd app; qmake -o makefile.snmpb QMAKE_CXX=${WINTOOL_PREFIX}g++ QMAKE_LINK=${WINTOOL_PREFIX}g++ snmpb.pro
+else
+ifneq ($(findstring Darwin,${os}),)
+    # MacOSX
+	cd app; qmake -spec macx-g++ -o makefile.snmpb snmpb.pro
+else
+	# Linux/BSD
+	cd app; qmake -o makefile.snmpb snmpb.pro
+endif
+endif
+
+app/snmpb: app/makefile.snmpb
 	$(MAKE) -C app
 
 clean:

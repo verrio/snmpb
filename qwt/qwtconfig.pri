@@ -24,7 +24,6 @@ unix {
 
 win32 {
     QWT_INSTALL_PREFIX    = C:/Qwt-$$QWT_VERSION-svn
-    QMAKE_CXX             = mingw32-g++
 }
 
 QWT_INSTALL_DOCS      = $${QWT_INSTALL_PREFIX}/doc

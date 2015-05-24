@@ -268,10 +268,12 @@ Section "SnmpB application" SecApp
   SectionIn RO
 
   File ..\..\app\release\snmpb.exe
-  File $%QTDIR%\bin\QtCore4.dll
-  File $%QTDIR%\bin\QtGui4.dll
-  File $%QTDIR%\bin\libgcc*
-  File $%QTDIR%\bin\mingw*
+  File $%QTLOC%\Qt5Core.dll
+  File $%QTLOC%\Qt5Gui.dll
+  File $%QTLOC%\Qt5Widgets.dll
+  File $%MINGWLOC%\libgcc_s_sjlj-1.dll
+  File $%MINGWLOC%\libwinpthread-1.dll
+  File $%MINGWLOC%\libstdc++-6.dll
 
   ;Store installation folder
   WriteRegStr HKCU "Software\SnmpB" "" $INSTDIR

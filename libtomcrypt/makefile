@@ -128,7 +128,7 @@ src/encauth/ocb/ocb_test.o src/encauth/ocb/s_ocb_done.o src/hashes/chc/chc.o \
 src/hashes/helper/hash_file.o src/hashes/helper/hash_filehandle.o src/hashes/helper/hash_memory.o \
 src/hashes/helper/hash_memory_multi.o src/hashes/md2.o src/hashes/md4.o src/hashes/md5.o \
 src/hashes/rmd128.o src/hashes/rmd160.o src/hashes/rmd256.o src/hashes/rmd320.o src/hashes/sha1.o \
-src/hashes/sha2/sha256.o src/hashes/sha2/sha512.o src/hashes/tiger.o src/hashes/whirl/whirl.o \
+src/hashes/sha2/sha256.o src/hashes/tiger.o src/hashes/whirl/whirl.o \
 src/mac/f9/f9_done.o src/mac/f9/f9_file.o src/mac/f9/f9_init.o src/mac/f9/f9_memory.o \
 src/mac/f9/f9_memory_multi.o src/mac/f9/f9_process.o src/mac/f9/f9_test.o src/mac/hmac/hmac_done.o \
 src/mac/hmac/hmac_file.o src/mac/hmac/hmac_init.o src/mac/hmac/hmac_memory.o \
