@@ -3,3 +3,4 @@
 qrc_snmpb.cpp
 makefile.snmpb
 snmpb
+snmpb.app
