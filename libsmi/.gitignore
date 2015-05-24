@@ -1,0 +1,15 @@
+Makefile
+autom4te.cache
+config.h
+config.log
+config.status
+libtool
+stamp-h1
+tools/mib2svg.cgi
+tools/smicache
+tools/smidiff
+tools/smidump
+tools/smilint
+tools/smiquery
+tools/smistrip
+tools/smixlate

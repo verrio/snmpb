@@ -1,0 +1,5 @@
+.moc
+.ui
+qrc_snmpb.cpp
+makefile.snmpb
+snmpb
