@@ -54,6 +54,8 @@ lib/snprintf.c, "Upgraded snprintf.c from source to support 64 bits printing on 
 lib/smi.c  "Fixed stack overwrite in smiRenderValue due to uint64 format"
 lib/smi.c  "Fixed display for non-printable octet-strings -tracker 3096221"
 lib/smi.c  "Allows OCTET STRING to be printable with \v, \t , \r, \n, \f"
+lib/error.c "Changed the definition of yyerror for bison 3.2 (from libsmi 5.0)"
+lib/parser-smi.y "YYPARSE_PARAM,YYLEX_PARAM->parse-param,lex-param for bison 3.2 (from libsmi 5.0)"
 
 QWT is taken from http://qwt.sourceforge.net
 Version: 6.1.0

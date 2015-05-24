@@ -11,6 +11,8 @@
  * @(#) $Id: parser-smi.y 8090 2008-04-18 12:56:29Z strauss $
  */
 
+%parse-param { struct Parser *parserPtr }
+%lex-param { struct Parser *parserPtr }
 %{
 
 #include <config.h>
@@ -43,11 +45,6 @@
 
 
 
-/*
- * These arguments are passed to yyparse() and yylex().
- */
-#define YYPARSE_PARAM parserPtr
-#define YYLEX_PARAM   parserPtr
 
     
     

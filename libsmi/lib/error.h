@@ -22,8 +22,8 @@
 #ifdef yyerror
 #undef yyerror
 #endif
-#define yyerror(msg)	smiyyerror(msg, parserPtr)
 
+#define yyerror(parserPtr, msg) smiyyerror(msg, parserPtr)
 
 extern int smiErrorLevel;	/* Higher levels produce more warnings */
 
