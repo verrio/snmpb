@@ -4,4 +4,6 @@
 *.a
 *.lo
 *.la
-
+*.exe
+*.Debug
+*.Release

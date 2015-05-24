@@ -67,9 +67,9 @@ LIBSMIOBJS = \
 	smi.o \
 	parser-smi.o \
 	scanner-smi.o \
-	parser-sming.o \
-	scanner-sming.o \
 	snprintf.o
+#	parser-sming.o \
+#	scanner-sming.o \
 
 TOOLSOBJS = \
 	smiquery.o \
@@ -168,6 +168,7 @@ clean:
 	$(RM) *.o
 	$(RM) *.a
 	$(RM) *.exe
+	$(RM) parser-smi.*
 	$(RM) parser-sming.c
 	$(RM) scanner-smi.c
 	$(RM) scanner-sming.c

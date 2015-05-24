@@ -1,6 +1,6 @@
 Makefile
 autom4te.cache
-config.h
+./config.h
 config.log
 config.status
 libtool
@@ -18,4 +18,6 @@ lib/parser-smi.tab.h
 lib/scanner-smi.c
 lib/smi_config.3
 test/parser.test
-win/config.h
+win/parser-smi.c
+win/parser-smi.tab.h
+win/scanner-smi.c

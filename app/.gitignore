@@ -4,3 +4,6 @@ qrc_snmpb.cpp
 makefile.snmpb
 snmpb
 snmpb.app
+ui_*.h
+release/
+debug/
