@@ -7,3 +7,4 @@
 *.exe
 *.Debug
 *.Release
+libsmi/config.h

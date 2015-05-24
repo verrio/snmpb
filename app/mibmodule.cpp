@@ -256,7 +256,7 @@ void MibModule::RebuildTotalList(int restart)
                 // This is used for module auto-loading on mib walk
                 QStringList module;
 
-                // If a module has a fatal error, unload and ignore it
+                // If a module has a fatal error, ignore it
                 ErrorWhileLoading = false;
                 char *mod = smiLoadModule(fi->toLatin1());
                 SmiModule *smiModule = mod?smiGetModule(mod):NULL;
@@ -267,7 +267,6 @@ void MibModule::RebuildTotalList(int restart)
 "Fatal error(s) found in MIB file %1. Check log tab.")
                                           .arg( fi->toLatin1().data()), 
                                           QMessageBox::Ok, Qt::NoButton);
-// Crashes on win32 x64  if (smiModule) smiFreeModule(smiModule);
                     continue;
                 }
 
