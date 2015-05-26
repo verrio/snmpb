@@ -80,13 +80,12 @@ lib/scanner-smi.h "Commented yyleng for bison 3.x (from libsmi 5.0)"
 Deleted mibs/ietf/IANA-ITU-ALARM-TC-MIB: redundant with one in iana folder (prevented proper copy in win32 installer)
 
 QWT is taken from http://qwt.sourceforge.net
-Version: 6.1.0
+Version: 6.1.2
 
 Modified file(s):
 qwtconfig.pri
 qwtbuild.pri "Removed silent flag, prevented build on win32"
 qwt.pro
-src/qwt_transform.cpp & src/qwt_transform.h "compile fix from qwt 6.1.2 on QT5+"
 
 + do not import the doc,examples,playground & admin sub-directories for space's sake
 
