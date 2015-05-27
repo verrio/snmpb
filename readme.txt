@@ -33,7 +33,8 @@ SnmpB builds on windows using cygwin and QT from Qt64-NG
 3- Create 2 env. variables in Windows: QTLOC and MINGWLOC. 
    - QTLOC points to the QT bin folder in the Qt64-NG install, 
      ex.: C:\Qt\qt-5.4.1-x64-mingw492r1-sjlj-rev1\qt-5.4.1-x64-mingw492r1-sjlj-rev1\bin
-   - MINGWLOC points to the mingw bin folder in the Qt64-NG install, ex.: C:\Qt\qt-5.4.1-x64-mingw492r1-sjlj-rev1\mingw64\bin 
+   - MINGWLOC points to the mingw bin folder in the Qt64-NG install, 
+     ex.: C:\Qt\qt-5.4.1-x64-mingw492r1-sjlj-rev1\mingw64\bin 
 4- Add %QTLOC% and %MINGWLOC% and the end of yout PATH env. variable, restart your shell
 5- Download SnmpB source and compile with "make"
 6- Download and install the NSIS installer from http://nsis.sourceforge.net/ (3.0 works)
