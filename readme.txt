@@ -2,11 +2,11 @@ To compile:
 
 # make (linux, macosx, unix)
 # gmake (*BSD)
-> make (Windows/cygwin)
+> make (Windows/MSYS2)
 
 To install in places other than /usr, add INSTALL_PREFIX=<prefix> to the make command.
 
-Tested & compiles on Cygwin/Windows, Linux, MacOSX (Leopard) and NetBSD
+Tested & compiles on MSYS2/Windows, Linux, MacOSX (Leopard) and NetBSD
 
 --------------------------------
 
@@ -20,27 +20,20 @@ Required installed packages for compilation:
 
 Instructions for windows build
 -------------------------------
-SnmpB builds on windows using cygwin and QT from Qt64-NG
-1- Download and install cygwin from https://www.cygwin.com/
-   -> Make sure not to install the toolchain "x86_64-w64-mingw32" as it 
-      will conflict with the toolchain from QT
-   -> make sure to install packages listed above i.e: bison, flex, autoconf, ...
-2- Download and install Qt64-NG from https://sourceforge.net/projects/qt64ng/
-   -> Choose the QT x86-64 for mingw, "SJLJ" version, autoextract .exe.
-      For instance, at the moment of this writing the latest QT version is 5.4.1 and 
-      the package to download is:
-      http://sourceforge.net/projects/qt64ng/files/qt/x86-64/5.4.1/mingw-4.9/sjlj/qt-5.4.1-x64-mingw492r1-sjlj-rev1.exe
-3- Create 2 env. variables in Windows: QTLOC and MINGWLOC. 
-   - QTLOC points to the QT bin folder in the Qt64-NG install, 
-     ex.: C:\Qt\qt-5.4.1-x64-mingw492r1-sjlj-rev1\qt-5.4.1-x64-mingw492r1-sjlj-rev1\bin
-   - MINGWLOC points to the mingw bin folder in the Qt64-NG install, 
-     ex.: C:\Qt\qt-5.4.1-x64-mingw492r1-sjlj-rev1\mingw64\bin 
-4- Add %QTLOC% and %MINGWLOC% and the end of yout PATH env. variable, restart your shell
-5- Download SnmpB source and compile with "make"
-6- Download and install the NSIS installer from http://nsis.sourceforge.net/ (3.0 works)
-7- Using windows explorer, go in snmpb/installer/win32 and right-click on the .nsi, 
+SnmpB builds on windows using MSYS2 
+1- Download and install MSYS2 from https://sourceforge.net/projects/msys2
+2- Start the 'MINGW64' flavor of MSYS2 by executing the script 'mingw64_shell.bat' from the root of the MSYS2 installation folder
+3- Install packages for QT build on MSYS2 (taken from https://wiki.qt.io/MSYS2), specifically:
+   pacman -Sy
+   pacman --needed -S pacman pacman-mirrors msys2-runtime
+   (restart shell)
+   pacman -Su
+   pacman -S base-devel git mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5-static mingw-w64-x86_64-qt-creator  
+4- Download SnmpB source and compile with "make"
+5- Download and install the NSIS installer from http://nsis.sourceforge.net/ (3.0 works)
+6- Using windows explorer, go in snmpb/installer/win32 and right-click on the .nsi, 
    then "Compile NSIS Script"
-8- Voila, you have the full SnmpB windows installer .exe
+7- Voila, you have the full SnmpB windows installer .exe
 
 External packages
 ------------------

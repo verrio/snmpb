@@ -41,7 +41,7 @@ LIBDIR = $(INSTROOT)/lib
 ##
 ## Debian Linux mingw cross-compiler version:
 ##
-CC	= gcc -mno-cygwin 
+CC	= gcc
 CP	= cp
 RM	= rm -f
 AR	= ar 
