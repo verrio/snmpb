@@ -202,14 +202,20 @@ NoOwn:
 ;--------------------------------
 ;General
 
+  !define VERSION "1.0"
+
   ;Name and file
   Name "SnmpB"
 ;  OutFile "snmpb-v${NOW}.exe"
-  OutFile "snmpb-1.0.exe"
+  OutFile "snmpb-${VERSION}.exe"
   Icon "..\..\app\images\snmpb.ico"
 
   ;Default installation folder
-  InstallDir "$PROGRAMFILES\SnmpB"
+  InstallDir "$PROGRAMFILES64\SnmpB"
+
+  ; Details for the uninstaller
+  !define PUBLISHER "Martin Jolicoeur"
+  !define UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\SnmpB"
 
 ;--------------------------------
 ;Variables
@@ -272,6 +278,17 @@ Section "SnmpB application" SecApp
   ;Store installation folder
   WriteRegStr HKCU "Software\SnmpB" "" $INSTDIR
 
+  ; Store info in registry for Windows uninstaller
+  WriteRegStr HKLM ${UNINST_KEY} "DisplayName" "SnmpB MIB browser"
+  WriteRegStr HKLM ${UNINST_KEY} "DisplayIcon" "$\"$INSTDIR\snmpb.exe$\""
+  WriteRegStr HKLM ${UNINST_KEY} "DisplayVersion" "${VERSION}"
+  WriteRegStr HKLM ${UNINST_KEY} "Publisher" "${PUBLISHER}"
+  WriteRegStr HKLM ${UNINST_KEY} "QuietUninstallString" "$\"$INSTDIR\uninstall.exe$\" /S"
+  WriteRegStr HKLM ${UNINST_KEY} "UninstallString" "$\"$INSTDIR\uninstall.exe$\""
+  WriteRegStr HKLM ${UNINST_KEY} "InstallLocation" "$\"$INSTDIR$\""
+  WriteRegDWORD HKLM ${UNINST_KEY} "NoModify" 1
+  WriteRegDWORD HKLM ${UNINST_KEY} "NoRepair" 1
+
   ;Create uninstaller
   WriteUninstaller "$INSTDIR\Uninstall.exe"
 
@@ -290,8 +307,8 @@ Section "Standard MIBs & PIBs" SecMIBS
 
   SetOutPath "$INSTDIR"
 
-  File /r /x .svn /x Makefile* /x test ..\..\libsmi\mibs
-  File /r /x .svn /x Makefile* ..\..\libsmi\pibs
+  File /r /x .git /x Makefile* /x test ..\..\libsmi\mibs
+  File /r /x .git /x Makefile* ..\..\libsmi\pibs
   StrCpy $R0 $INSTDIR\mibs
   StrCpy $R1 $INSTDIR\pibs
   StrCpy $R2 $R0
@@ -300,6 +317,11 @@ Section "Standard MIBs & PIBs" SecMIBS
   StrCpy $R2 $R1
   ${Locate} "$R2" "/L=F" "move_file"
   ${Locate} "$R2" "/L=DE" "del_dir"
+
+  ; Then we can update the final estimated size for the uninstaller
+  ${GetSize} "$INSTDIR" "/S=0K" $0 $1 $2
+  IntFmt $0 "0x%08X" $0
+  WriteRegDWORD HKLM ${UNINST_KEY} "EstimatedSize" "$0"
 
 SectionEnd
 
@@ -386,6 +408,7 @@ Section "Uninstall"
   startMenuDeleteLoopDone:
 
   DeleteRegKey /ifempty HKCU "Software\SnmpB"
+  DeleteRegKey HKLM ${UNINST_KEY}
 
   ${unregisterExtension} ".mib" "MIB File"
   ${unregisterExtension} ".MIB" "MIB File"
