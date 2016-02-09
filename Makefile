@@ -21,18 +21,20 @@
 #
 os:=$(shell uname -s)
 
+# Default QT for windows: static 64 bits QT under MSYS2
+WINQT_PREFIX=/mingw64/qt5-static/bin/
+
 ifneq ($(findstring BSD,${os}),)
-INSTALL=ginstall
+INSTALL=install
 SHARE=share
 else
-INSTALL=install
+INSTALL=install -v
 SHARE=share/apps
 endif
 
+ifndef INSTALL_PREFIX
 INSTALL_PREFIX=/usr
-
-# Default QT for windows: static 64 bits QT under MSYS2
-WINQT_PREFIX=/mingw64/qt5-static/bin/
+endif
 
 all: snmpb
 
@@ -112,23 +114,25 @@ endif
 	-$(MAKE) -C app clean
 
 install:
-	$(INSTALL) -v -d ${INSTALL_PREFIX}/bin ${INSTALL_PREFIX}/${SHARE}/snmpb/mibs ${INSTALL_PREFIX}/${SHARE}/snmpb/pibs
-	$(INSTALL) -v -m 4755 -D -s -o root app/snmpb ${INSTALL_PREFIX}/bin
-	$(INSTALL) -v -m 444 -o root libsmi/mibs/iana/* ${INSTALL_PREFIX}/${SHARE}/snmpb/mibs
-	$(INSTALL) -v -m 444 -o root libsmi/mibs/ietf/* ${INSTALL_PREFIX}/${SHARE}/snmpb/mibs
-	$(INSTALL) -v -m 444 -o root libsmi/mibs/tubs/* ${INSTALL_PREFIX}/${SHARE}/snmpb/mibs
-	$(INSTALL) -v -m 444 -o root libsmi/pibs/ietf/* ${INSTALL_PREFIX}/${SHARE}/snmpb/pibs
-	$(INSTALL) -v -m 444 -o root libsmi/pibs/tubs/* ${INSTALL_PREFIX}/${SHARE}/snmpb/pibs
+	$(INSTALL) -d ${INSTALL_PREFIX}/bin ${INSTALL_PREFIX}/${SHARE}/snmpb/mibs ${INSTALL_PREFIX}/${SHARE}/snmpb/pibs
+	$(INSTALL) -m 4755 -D -s -o root app/snmpb ${INSTALL_PREFIX}/bin
+	$(INSTALL) -m 444 -o root libsmi/mibs/iana/* ${INSTALL_PREFIX}/${SHARE}/snmpb/mibs
+	$(INSTALL) -m 444 -o root libsmi/mibs/ietf/* ${INSTALL_PREFIX}/${SHARE}/snmpb/mibs
+	$(INSTALL) -m 444 -o root libsmi/mibs/tubs/* ${INSTALL_PREFIX}/${SHARE}/snmpb/mibs
+	$(INSTALL) -m 444 -o root libsmi/pibs/ietf/* ${INSTALL_PREFIX}/${SHARE}/snmpb/pibs
+	$(INSTALL) -m 444 -o root libsmi/pibs/tubs/* ${INSTALL_PREFIX}/${SHARE}/snmpb/pibs
 	rm -f ${INSTALL_PREFIX}/${SHARE}/snmpb/mibs/Makefile* ${INSTALL_PREFIX}/${SHARE}/snmpb/pibs/Makefile*
-	$(INSTALL) -v -d ${INSTALL_PREFIX}/share/applications ${INSTALL_PREFIX}/share/mime/packages
-	$(INSTALL) -v -m 444 -o root app/snmpb.desktop ${INSTALL_PREFIX}/share/applications
-	$(INSTALL) -v -m 444 -o root app/snmpb.xml ${INSTALL_PREFIX}/share/mime/packages
+	$(INSTALL) -d ${INSTALL_PREFIX}/share/applications ${INSTALL_PREFIX}/share/mime/packages
+	$(INSTALL) -m 444 -o root app/snmpb.desktop ${INSTALL_PREFIX}/share/applications
+	$(INSTALL) -m 444 -o root app/snmpb.xml ${INSTALL_PREFIX}/share/mime/packages
 	cat ${INSTALL_PREFIX}/share/applications/defaults.list | grep -v "text\/x-mib=" | grep -v "text\/x-mib2=" | grep -v "text\/x-pib=" | grep -v "text\/x-pib2=" | grep -v "text\/x-smi=" | grep -v "text\/x-smi2=" | grep -v "text\/x-smi3=" | grep -v "text\/x-smi4=" | grep -v "text\/x-smi5=" > /tmp/snmpb-assoc; cat app/defaults.list >> /tmp/snmpb-assoc;
-	$(INSTALL) -v -m 444 -o root /tmp/snmpb-assoc ${INSTALL_PREFIX}/share/applications/defaults.list
+	$(INSTALL) -m 444 -o root /tmp/snmpb-assoc ${INSTALL_PREFIX}/share/applications/defaults.list
 	rm -f /tmp/snmpb-assoc
+ifeq ($(findstring BSD,${os}),)
 	update-mime-database ${INSTALL_PREFIX}/share/mime
-	$(INSTALL) -v -d ${INSTALL_PREFIX}/share/icons/hicolor/128x128/apps ${INSTALL_PREFIX}/share/pixmaps ${INSTALL_PREFIX}/share/icons/hicolor/scalable/apps
-	$(INSTALL) -v -m 444 -o root app/images/snmpb.png ${INSTALL_PREFIX}/share/icons/hicolor/128x128/apps
-	$(INSTALL) -v -m 444 -o root app/images/snmpb.png ${INSTALL_PREFIX}/share/pixmaps
-	$(INSTALL) -v -m 444 -o root app/images/snmpb.svg ${INSTALL_PREFIX}/share/icons/hicolor/scalable/apps
+endif
+	$(INSTALL) -d ${INSTALL_PREFIX}/share/icons/hicolor/128x128/apps ${INSTALL_PREFIX}/share/pixmaps ${INSTALL_PREFIX}/share/icons/hicolor/scalable/apps
+	$(INSTALL) -m 444 -o root app/images/snmpb.png ${INSTALL_PREFIX}/share/icons/hicolor/128x128/apps
+	$(INSTALL) -m 444 -o root app/images/snmpb.png ${INSTALL_PREFIX}/share/pixmaps
+	$(INSTALL) -m 444 -o root app/images/snmpb.svg ${INSTALL_PREFIX}/share/icons/hicolor/scalable/apps
 

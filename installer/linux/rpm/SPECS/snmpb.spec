@@ -32,7 +32,10 @@ rm -rf %buildroot
 
 %prefix/bin/snmpb
 %prefix/share/applications/snmpb.desktop
+%prefix/share/mime/packages/snmpb.xml
 %prefix/share/icons/hicolor/128x128/apps/snmpb.png
+%prefix/share/pixmaps/snmpb.png
+%prefix/share/icons/hicolor/scalable/apps/snmpb.svg
 %prefix/share/apps/snmpb/mibs/IANA-ADDRESS-FAMILY-NUMBERS-MIB
 %prefix/share/apps/snmpb/mibs/IANA-CHARSET-MIB
 %prefix/share/apps/snmpb/mibs/IANA-FINISHER-MIB
@@ -372,7 +375,7 @@ rm -rf %buildroot
 %prefix/share/apps/snmpb/pibs/UMTS-PIB-orig
 
 %changelog
-* Sun Jun 21 2011 Martin Jolicoeur 
+* Mon Jun 1 2015 Martin Jolicoeur
 - Release 1.0 (TBD) 
 
 * Sun Jun 21 2009 Martin Jolicoeur 

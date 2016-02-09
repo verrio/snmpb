@@ -17,4 +17,4 @@ MacOSX bugs:
 - Esc key does not stop a walk
 
 - Crash multiple varbinds -> trigs autoloading
-
+- Linux installer mime-types not installed properly: might overwrite system !
