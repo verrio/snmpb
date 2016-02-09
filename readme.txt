@@ -56,6 +56,7 @@ Version: 1.17
 Modified file(s):
 makefile
 src/headers/tomcrypt_pk.h "Added defined(BSD) around wchar_t definition to fix broken build on *BSD"
+src/headers/tomcrypt_custom.h "Defined LTC_NO_ROLC for MacOSX using LLVM"
 
 Libsmi is taken from http://www.ibr.cs.tu-bs.de/projects/libsmi
 Version: 0.4.8
