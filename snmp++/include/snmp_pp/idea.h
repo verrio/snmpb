@@ -2,9 +2,9 @@
   _## 
   _##  idea.h  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,10 +23,8 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
-  _##  
   _##########################################################################*/
-// $Id$
+// $Id: idea.h 3164 2016-09-23 21:30:38Z katz $
 
 /*
 
@@ -43,9 +41,10 @@ The IDEA encryption algorithm.
 
 */
 
-#ifndef IDEA_H
-#define IDEA_H
+#ifndef _SNMP_IDEA_H_
+#define _SNMP_IDEA_H_
 
+#include <libsnmp.h>
 #include "snmp_pp/config_snmp_pp.h"
 
 #ifdef SNMP_PP_NAMESPACE
@@ -86,8 +85,8 @@ void idea_cfb_encrypt(IDEAContext *c, unsigned char *iv, unsigned char *dest,
 void idea_cfb_decrypt(IDEAContext *c, unsigned char *iv, unsigned char *dest,
 		      const unsigned char *src, unsigned int len);
 
-#endif /* IDEA_H */
-#endif /* _USE_IDEA */
+#endif // _USE_IDEA
+#endif // _SNMP_IDEA_H_
 
 #ifdef SNMP_PP_NAMESPACE
 } // end of namespace Snmp_pp
@@ -112,8 +111,8 @@ Macros for storing and retrieving data in msb first and lsb first order.
 namespace Snmp_pp {
 #endif
 
-#ifndef GETPUT_H
-#define GETPUT_H
+#ifndef _SNMP_GETPUT_H_
+#define _SNMP_GETPUT_H_
 
 #ifdef _USE_IDEA
 
@@ -165,5 +164,4 @@ namespace Snmp_pp {
 } // end of namespace Snmp_pp
 #endif 
 
-#endif /* GETPUT_H */
-
+#endif // _SNMP_GETPUT_H_

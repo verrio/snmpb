@@ -2,9 +2,9 @@
   _## 
   _##  counter.cpp  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -22,8 +22,6 @@
   _##  "AS-IS" without warranty of any kind, either express or implied. User 
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
-  _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -51,7 +49,9 @@
   DESCRIPTION:
   Class implementation for SMI Counter32 class.
 =====================================================================*/
-char counter_cpp_version[]="@(#) SNMP++ $Id$";
+char counter_cpp_version[]="@(#) SNMP++ $Id: counter.cpp 3169 2016-09-26 20:45:41Z katz $";
+
+#include <libsnmp.h>
 
 #include "snmp_pp/counter.h"
 
@@ -59,15 +59,7 @@ char counter_cpp_version[]="@(#) SNMP++ $Id$";
 namespace Snmp_pp {
 #endif
 
-// copy constructor
-Counter32::Counter32(const Counter32 &c)
-{
-  smival.value.uNumber = c.smival.value.uNumber;
-  smival.syntax = sNMP_SYNTAX_CNTR32;
-  m_changed = true;
-  valid_flag = true;
-}
-
+#if 0
 // general assignment from any Value
 SnmpSyntax& Counter32::operator=(const SnmpSyntax &in_val)
 {
@@ -91,7 +83,8 @@ SnmpSyntax& Counter32::operator=(const SnmpSyntax &in_val)
   m_changed = true; 
   return *this;
 }
+#endif
 
 #ifdef SNMP_PP_NAMESPACE
-}; // end of namespace Snmp_pp
+} // end of namespace Snmp_pp
 #endif 

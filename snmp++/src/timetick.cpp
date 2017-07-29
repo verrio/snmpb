@@ -2,9 +2,9 @@
   _## 
   _##  timetick.cpp  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -22,8 +22,6 @@
   _##  "AS-IS" without warranty of any kind, either express or implied. User 
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
-  _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -51,22 +49,17 @@
   DESCRIPTION:
   Class implentation for SMI Timeticks class.
 =====================================================================*/
-char timetick_cpp_version[]="#(@) SNMP++ $Id$";
+char timetick_cpp_version[]="#(@) SNMP++ $Id: timetick.cpp 3169 2016-09-26 20:45:41Z katz $";
+
+#include <libsnmp.h>
 
 #include "snmp_pp/timetick.h"	       // include header file for timetick class
-#include <stdio.h>	       // for sprintf() usage.
 
 #ifdef SNMP_PP_NAMESPACE
 namespace Snmp_pp {
 #endif
 
-// Copy constructor
-TimeTicks::TimeTicks(const TimeTicks &t)
-{
-  smival.value.uNumber = t.smival.value.uNumber;
-  smival.syntax = sNMP_SYNTAX_TIMETICKS;
-}
-
+#if 0
 // general assignment from any Value
 SnmpSyntax& TimeTicks::operator=(const SnmpSyntax &in_val)
 {
@@ -91,15 +84,24 @@ SnmpSyntax& TimeTicks::operator=(const SnmpSyntax &in_val)
   m_changed = true;
   return *this;
 }
+#endif
 
 // ASCII format return
 const char *TimeTicks::get_printable() const
 {
   if (m_changed == false) return output_buffer;
 
+  TimeTicks *nc_this = PP_CONST_CAST(TimeTicks*, this);
+
+  if (!valid_flag)
+  {
+    nc_this->output_buffer[0] = 0;
+    nc_this->m_changed = false;
+    return output_buffer;
+  }
+
   unsigned long hseconds, seconds, minutes, hours, days;
   unsigned long tt = smival.value.uNumber;
-  TimeTicks *nc_this = PP_CONST_CAST(TimeTicks*, this);
 
   days = tt / 8640000;
   tt %= 8640000;
@@ -130,5 +132,5 @@ const char *TimeTicks::get_printable() const
 }
 
 #ifdef SNMP_PP_NAMESPACE
-}; // end of namespace Snmp_pp
+} // end of namespace Snmp_pp
 #endif 

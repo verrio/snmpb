@@ -2,9 +2,9 @@
   _## 
   _##  pdu.cpp  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -22,8 +22,6 @@
   _##  "AS-IS" without warranty of any kind, either express or implied. User 
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
-  _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -54,7 +52,9 @@
   Data Unit (PDU) in C++.
 
 =====================================================================*/
-char pdu_cpp_version[]="@(#) SNMP++ $Id$";
+char pdu_cpp_version[]="@(#) SNMP++ $Id: pdu.cpp 2361 2013-05-09 22:15:06Z katz $";
+
+#include <libsnmp.h>
 
 #include "snmp_pp/pdu.h"       // include Pdu class definition
 #include "snmp_pp/usm_v3.h"
@@ -174,11 +174,16 @@ Pdu& Pdu::operator=(const Pdu &pdu)
   validity = true;
 
   // free up old vbs
-  for (int z = 0; z < vb_count; ++z)  delete vbs[z];
+  for (int z = 0; z < vb_count; ++z)
+  {
+    delete vbs[z];
+    vbs[z] = 0;
+  }
   vb_count = 0;
 
   // check for zero case
-  if (pdu.vb_count == 0) return *this;
+  if (pdu.vb_count == 0)
+    return *this;
 
   // allocate array
   if (vbs_size < pdu.vb_count)
@@ -208,7 +213,11 @@ Pdu& Pdu::operator=(const Pdu &pdu)
 
     if (!vbs[y])
     {
-      for (int x = 0; x < y; ++x) delete vbs[x]; // free vbs
+      for (int x = 0; x < y; ++x)
+      {
+        delete vbs[x]; // free vbs
+        vbs[x] = 0;
+      }
       validity = false;
       return *this;
     }
@@ -265,7 +274,7 @@ int Pdu::get_vblist(Vb* pvbs, const int pvb_count) const
 }
 
 //=====================[ deposit Vbs ]===================================
-int Pdu::set_vblist(Vb* pvbs, const int pvb_count)
+int Pdu::set_vblist(Vb const * pvbs, const int pvb_count)
 {
   // if invalid then don't destroy
   if (((!pvbs) && (pvb_count > 0)) ||
@@ -350,7 +359,7 @@ int Pdu::get_vb(Vb &vb, const int index) const
 }
 
 //===================[ set a particular vb ]=============================
-int Pdu::set_vb(Vb &vb, const int index)
+int Pdu::set_vb(Vb const &vb, const int index)
 {
   if (index < 0)         return false; // can't have an index less than 0
   if (index >= vb_count) return false; // can't ask for something not there
@@ -581,5 +590,5 @@ bool Pdu::match_type(const int request, const int response)
 }
 
 #ifdef SNMP_PP_NAMESPACE
-}; // end of namespace Snmp_pp
+} // end of namespace Snmp_pp
 #endif 

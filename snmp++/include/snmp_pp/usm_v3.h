@@ -1,36 +1,35 @@
 /*_############################################################################
-  _## 
-  _##  usm_v3.h  
   _##
-  _##  SNMP++v3.2.25
+  _##  usm_v3.h
+  _##
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
-  _##  
+  _##
   _##    Copyright (c) 1996
   _##    Hewlett-Packard Company
-  _##  
+  _##
   _##  ATTENTION: USE OF THIS SOFTWARE IS SUBJECT TO THE FOLLOWING TERMS.
-  _##  Permission to use, copy, modify, distribute and/or sell this software 
-  _##  and/or its documentation is hereby granted without fee. User agrees 
-  _##  to display the above copyright notice and this license notice in all 
-  _##  copies of the software and any documentation of the software. User 
-  _##  agrees to assume all liability for the use of the software; 
-  _##  Hewlett-Packard and Jochen Katz make no representations about the 
-  _##  suitability of this software for any purpose. It is provided 
-  _##  "AS-IS" without warranty of any kind, either express or implied. User 
+  _##  Permission to use, copy, modify, distribute and/or sell this software
+  _##  and/or its documentation is hereby granted without fee. User agrees
+  _##  to display the above copyright notice and this license notice in all
+  _##  copies of the software and any documentation of the software. User
+  _##  agrees to assume all liability for the use of the software;
+  _##  Hewlett-Packard and Jochen Katz make no representations about the
+  _##  suitability of this software for any purpose. It is provided
+  _##  "AS-IS" without warranty of any kind, either express or implied. User
   _##  hereby grants a royalty-free license to any and all derivatives based
-  _##  upon this software code base. 
-  _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
-  _##  
+  _##  upon this software code base.
+  _##
   _##########################################################################*/
-// $Id$
+// $Id: usm_v3.h 3164 2016-09-23 21:30:38Z katz $
 
-#ifndef _USM_V3
-#define _USM_V3
+#ifndef _SNMP_USM_V3_H_
+#define _SNMP_USM_V3_H_
 
+#include <libsnmp.h>
 #include "snmp_pp/config_snmp_pp.h"
 
 #ifdef _SNMPv3
@@ -81,6 +80,10 @@ namespace Snmp_pp {
 #define SNMP_AUTHPROTOCOL_NONE    1 ///< None
 #define SNMP_AUTHPROTOCOL_HMACMD5 2 ///< HMAC-MD5
 #define SNMP_AUTHPROTOCOL_HMACSHA 3 ///< HMAC-SHA
+#define SNMP_AUTHPROTOCOL_HMAC128SHA224 4 ///< HMAC-128-SHA-224
+#define SNMP_AUTHPROTOCOL_HMAC192SHA256 5 ///< HMAC-192-SHA-256
+#define SNMP_AUTHPROTOCOL_HMAC256SHA384 6 ///< HMAC-256-SHA-384
+#define SNMP_AUTHPROTOCOL_HMAC384SHA512 7 ///< HMAC-384-SHA-512
 //@}
 
 /** @name PrivProtocols
@@ -97,6 +100,9 @@ namespace Snmp_pp {
 #define SNMP_PRIVPROTOCOL_AES192  20 ///< AES192 (non standard)
 #define SNMP_PRIVPROTOCOL_AES256  21 ///< AES256 (non standard)
 #define SNMP_PRIVPROTOCOL_3DESEDE  3 ///< 3DES (expired draft standard)
+#define SNMP_PRIVPROTOCOL_AES128W3DESKEYEXT  22 ///< AES128 with Key extension algorithm from 3DESEDE (non standard)
+#define SNMP_PRIVPROTOCOL_AES192W3DESKEYEXT  23 ///< AES192 with Key extension algorithm from 3DESEDE (non standard)
+#define SNMP_PRIVPROTOCOL_AES256W3DESKEYEXT  24 ///< AES256 with Key extension algorithm from 3DESEDE (non standard)
 //@}
 
 /** @name USM-ErrorCodes
@@ -463,7 +469,7 @@ public:
    *
    * The buffers for the keys should be of size SNMPv3_USM_MAX_KEY_LEN.
    *
-   * @param engine_id - 
+   * @param engine_id -
    * @param auth_prot -
    * @param priv_prot -
    * @param auth_password     -
@@ -883,6 +889,14 @@ public:
    */
   void add_user_added_callback(const usm_add_user_callback cb);
 
+  /**
+   * Clear all user configuration from this USM instance. This method is
+   * not synchronized. Do not use it while the USM is being used by other
+   * threads.
+   * @return
+   *    SNMPv3_USM_OK on success.
+   */
+  int remove_all_users();
 
  protected:
 
@@ -1107,8 +1121,8 @@ private:
 
 #ifdef SNMP_PP_NAMESPACE
 } // end of namespace Snmp_pp
-#endif 
+#endif
 
 #endif // _SNMPv3
 
-#endif
+#endif // _SNMP_USM_V3_H_

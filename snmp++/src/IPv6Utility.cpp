@@ -2,9 +2,9 @@
   _## 
   _##  IPv6Utility.cpp  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -22,8 +22,6 @@
   _##  "AS-IS" without warranty of any kind, either express or implied. User 
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
-  _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*
@@ -55,7 +53,8 @@
 =====================================================================*/
 //XXX char ipv6utility_cpp_version[] = "@(#) SNMP++ $Id: $";
 
-#include <stdio.h>  //use vsnprintf
+#include <libsnmp.h>
+
 #include "snmp_pp/IPv6Utility.h"
 
 //FIXME #if defined(_MSC_VER) && defined(SNMP_PP_IPv6)
@@ -72,19 +71,24 @@
  * sizeof(int) < 4.  sizeof(int) > 4 is fine; all the world's not a VAX.
  */
 
+#if defined(_MSC_VER)
+static int
+snprintf (char *str, int n, char *fmt, ...)
+{
+va_list a;
+va_start (a, fmt);
+int ret = vsnprintf (str, n, fmt, a);
+va_end (a);
+return ret;
+}
+#endif
 
+#ifndef HAVE_INET_NTOP
 static const char *inet_ntop4(const unsigned char *src, char *dst, size_t size);
 
 #ifdef AF_INET6
 static const char *inet_ntop6(const unsigned char *src, char *dst, size_t size);
 #endif
-
-static int inet_pton4(const char *src, unsigned char *dst);
-#ifdef AF_INET6
-static int inet_pton6(const char *src, unsigned char *dst);
-#endif
-
-
 
 /* char *
  * isc_net_ntop(af, src, dst, size)
@@ -110,18 +114,6 @@ inet_ntop(int af, const void *src, char *dst, size_t size)
 	}
 	/* NOTREACHED */
 }
-
-#if defined(_MSC_VER)
-static int
-snprintf (char *str, int n, char *fmt, ...)
-{
-va_list a;
-va_start (a, fmt);
-int ret = vsnprintf (str, n, fmt, a);
-va_end (a);
-return ret;
-}
-#endif
 
 /* const char *
  * inet_ntop4(src, dst, size)
@@ -251,7 +243,13 @@ inet_ntop6(const unsigned char *src, char *dst, size_t size)
 }
 #endif /* AF_INET6 */
 
+#endif /* HAVE_NTOP */
 
+#ifndef HAVE_PTON
+static int inet_pton4(const char *src, unsigned char *dst);
+#ifdef AF_INET6
+static int inet_pton6(const char *src, unsigned char *dst);
+#endif
 
 /* int
  * inet_pton(af, src, dst)
@@ -264,6 +262,7 @@ inet_ntop6(const unsigned char *src, char *dst, size_t size)
  * author:
  *	Paul Vixie, 1996.
  */
+/* Not needed with Winsock 2 
 int
 inet_pton(int af,
 	  const char *src,
@@ -280,8 +279,9 @@ inet_pton(int af,
 		errno = EAFNOSUPPORT;
 		return (-1);
 	}
-	/* NOTREACHED */
+	/ * NOTREACHED * /
 }
+*/
 
 /* int
  * inet_pton4(src, dst)
@@ -428,5 +428,7 @@ inet_pton6(const char *src, unsigned char *dst)
 	return (1);
 }
 #endif // AF_INET6
+
+#endif /* HAVE_INET_PTON */
 
 #endif // defined(_MSC_VER) && defined(SNMP_PP_IPv6)

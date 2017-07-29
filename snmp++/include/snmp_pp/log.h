@@ -2,9 +2,9 @@
   _## 
   _##  log.h  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,15 +23,12 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
-  _##  
   _##########################################################################*/
 
+#ifndef _SNMP_LOG_H_
+#define _SNMP_LOG_H_
 
-
-#ifndef _log_h_
-#define _log_h_
-
+#include <libsnmp.h>
 #include <snmp_pp/config_snmp_pp.h>
 #include <snmp_pp/reentrant.h>
 
@@ -54,33 +51,37 @@ namespace Snmp_pp {
 #define DEBUG_LOG	0x50
 #define USER_LOG	0x60
 
+#define LOG_CLASS_MASK	0xF0
+#define LOG_LEVEL_MASK	0x0F
+
 #define LOG_TYPES       6
 
 #ifdef _NO_LOGGING
  
-#define LOG_BEGIN(x)	
-#define LOG(x)		
-#define LOG_END		
+#define LOG_BEGIN(name,level) (void)0
+#define LOG(item) (void)0
+#define LOG_END	(void)0
 
 #define LOG_UNUSED(x)
 
 #else
 
-#define LOG_BEGIN(x)						\
+#define LOG_BEGIN(name,level)					\
 {								\
-	if (DefaultLog::log()->log_needed(x))			\
+	if (DefaultLog::log()->log_needed(name,level))		\
 	{							\
-		DefaultLog::log()->lock();			\
-		DefaultLog::create_log_entry(x);	
+		DefaultLog::lock();				\
+		DefaultLog::create_log_entry(name,level)
 
-#define LOG(x)		*DefaultLog::log_entry() += x
+#define LOG(item)	*DefaultLog::log_entry() += item
 
 #define LOG_END							\
 		*DefaultLog::log() += DefaultLog::log_entry();	\
 		DefaultLog::delete_log_entry();			\
-		DefaultLog::log()->unlock();			\
+		DefaultLog::unlock();				\
 	}							\
-}
+}								\
+(void)0
 
 #define LOG_UNUSED(x) x
 
@@ -105,7 +106,7 @@ namespace Snmp_pp {
  * 
  * @author Frank Fock
  * @author Marty Janzen
- * @version 3.5f
+ * @version 3.6
  */
 
 class DLLOPT LogEntry {
@@ -113,12 +114,13 @@ public:
 	/**
 	 * Constructor with log class and severity level
 	 * 
+	 * @param n - The name of the logging module
 	 * @param t - The type of the log entry. The type is composed 
 	 *            by a logical OR of the log entry class with a level
 	 *            of 0 up to 15. 
 	 * @note A error log of level 0 will stop program execution!
 	 */  
-	LogEntry(unsigned char t) : type(t), count(0) {}
+	LogEntry(const char * const n, unsigned char t) : name(n), type(t), count(0) {}
 
 	/**
 	 * Virtual destructor.
@@ -152,18 +154,33 @@ public:
 	virtual const char* get_value(void) const { return ""; }
 
 	/**
+	 * Get the type of this log entry.
+         *
+	 * @return Log entry type.
+         * @since 3.6
+	 */ 
+	unsigned char get_type() const { return type; }
+
+	/**
 	 * Get the class of this log entry.
          *
 	 * @return Log entry class.
 	 */ 
-	unsigned char get_class(void) const { return type & 0xF0; }
+	unsigned char get_class() const { return (unsigned char)(type & LOG_CLASS_MASK); }
 
 	/**
 	 * Get the level of this log entry.
          *
 	 * @return Log entry level.
 	 */ 
-	unsigned char get_level(void) const { return type & 0x0F; }
+	unsigned char get_level() const { return (unsigned char)(type & LOG_LEVEL_MASK); }
+
+	/**
+	 * Get the logger name of this log entry.
+         *
+	 * @return Log entry logger name
+	 */
+	const char * get_name() const { return name; }
 
 protected:
 	/**
@@ -190,8 +207,9 @@ protected:
 	virtual bool add_timestamp(void);
 
 protected:
-	unsigned char  	type;
-	int		count;
+	const char * const 	name;
+	unsigned char  	        type;
+	int		        count;
 };
 
 
@@ -205,7 +223,7 @@ protected:
  * @see Log
  * 
  * @author Marty Janzen
- * @version 3.5f
+ * @version 3.6
  */
 
 class DLLOPT LogEntryImpl : public LogEntry {
@@ -213,17 +231,28 @@ public:
 	/**
 	 * Constructor with log class and severity level
 	 * 
+	 * @param n - The name of the logging module
 	 * @param t - The type of the log entry. The type is composed 
 	 *            by logical or the log entry class with a level
 	 *            of 0 up to 15. 
 	 * @note A error log of level 0 will stop program execution!
 	 */  
-	LogEntryImpl(unsigned char);
+	LogEntryImpl(const char * const n, unsigned char t)
+		: LogEntry(n, t)
+	{
+		value = new char[MAX_LOG_SIZE];
+		value[0] = '\0';
+		ptr = value;
+		output_stopped = false;
+	}
 
 	/**
 	 * Destructor.
 	 */  
-	~LogEntryImpl();
+	virtual ~LogEntryImpl()
+	{
+		delete [] value;
+	}
 
 	/**
 	 * Get the contents of this log entry.
@@ -267,7 +296,7 @@ private:
  * @see LogEntry
  *
  * @author Frank Fock
- * @version 3.5.14
+ * @version 3.6
  */
  
 class DLLOPT AgentLog {
@@ -282,15 +311,18 @@ public:
 	 */
 	virtual ~AgentLog() {}
 
+#ifdef WITH_LOG_PROFILES
 	/**
-	 * Lock the receiver.  Default action is to perform no locking.
+         * Set a bunch of predefined filters for all log classes at once.
+         * Only available when built with WITH_LOG_PROFILES
+         *
+         * @param logprofile - name of a log profile, must be one of
+         *  { "off", "quiet", "std", "events", "verbose", "full",
+         *    "debug", "schwafel", "original" }
+         *  In case a non-existant profile is chosen, "original" is used.
 	 */
-	virtual void	lock() {}
-
-	/**
-	 * Unlock the receiver.  Default action is to perform no locking.
-	 */
-	virtual void	unlock() {}
+        virtual void	set_profile(const char * const logprofile);
+#endif
 
 	/**
 	 * Set a filter on a specified log class. Only log entries with
@@ -311,10 +343,11 @@ public:
 	/**
 	 * Create a new LogEntry.
 	 *
+	 * @param name - The name of the logging module
 	 * @param t - The type of the log entry.
 	 * @return A new instance of LogEntry (or of a derived class).
 	 */
-	virtual LogEntry* create_log_entry(unsigned char) const = 0;
+	virtual LogEntry* create_log_entry(const char * const name, unsigned char t) const = 0;
 
 	/**
 	 * Add a LogEntry to the receiver Log.
@@ -335,8 +368,8 @@ public:
 	 * @return
 	 *    TRUE if logging is needed, FALSE otherwise.
 	 */
-	virtual bool	log_needed(unsigned char t) 
-	  { return ((t & 0x0F) <= logfilter[(t / 16) - 1]); }
+	virtual bool	log_needed(const char * const, unsigned char t) const
+	  { return (logfilter[(t / 16) - 1] != 0xFF) && ((t & LOG_LEVEL_MASK) <= logfilter[(t / 16) - 1]); }
 
 	/**
 	 * Return the current time as a string.
@@ -417,32 +450,13 @@ public:
 	void		set_dest(FILE*);
 
 	/**
-	 * Lock the receiver.
-	 */
-	void lock()
-	{
-#ifdef _THREADS
-		logLock.lock();
-#endif
-	}
-
-	/**
-	 * Unlock the receiver.
-	 */
-	 void unlock()
-	{
-#ifdef _THREADS
-		logLock.unlock();
-#endif
-	}
-
-	/**
 	 * Create a new LogEntry.
 	 *
+	 * @param name - The name of the logging module
 	 * @param t - The type of the log entry.
 	 * @return A new instance of LogEntry (or of a derived class).
 	 */
-	virtual LogEntry* create_log_entry(unsigned char) const;
+	virtual LogEntry* create_log_entry(const char * const name, unsigned char) const;
 
 	/**
 	 * Add a LogEntry to the receiver Log.
@@ -453,7 +467,6 @@ public:
 	virtual AgentLog& operator+=(const LogEntry*);
 
 protected:
-	SnmpSynchronized	logLock;
 	FILE*			logfile;
 	bool			close_needed;
 };
@@ -465,7 +478,7 @@ protected:
  * The DefaultLog class has a static Log member, that is used by the
  * AGENT++ API for logging.
  *
- * @version 3.5.24
+ * @version 3.6
  * @author Frank Fock (singleton pattern -> Philippe Roger)
  */  
 
@@ -488,7 +501,7 @@ public:
 	 *    set logger will be deleted.
 	 */
 	static void init(AgentLog* logger) 
-	  { if (instance) delete instance; instance = logger; }
+	  { lock(); if (instance) delete instance; instance = logger; unlock(); }
 
 	/**
 	 * Initialize the default logger with the given logging implementation
@@ -505,7 +518,7 @@ public:
 	 *    the existing logger (if there was any) or the new logger pointer.
 	 * @since 3.5.24
 	 */
-	static AgentLog* init_ts(AgentLog* logger);
+	static AgentLog* init_ts(AgentLog* logger = NULL);
 
 	/**
 	 * Free the logging implementation.
@@ -519,7 +532,13 @@ public:
 	 * @return
 	 *    a pointer to an AgentLog instance.
 	 */
-	static AgentLog* log(); 
+	static inline AgentLog* log()
+	{ 
+	    AgentLog* r = instance;
+	    if (!r)
+		r = init_ts();
+	    return r; 
+	}
 
 	/**
 	 * Create a new log entry or reuse an existing one.
@@ -527,8 +546,14 @@ public:
 	 * @param type
 	 *    the type of the log entry as bitwise or of log class and level. 
 	 */
-	static void create_log_entry(unsigned char t)
-	  { if (!entry) { entry = log()->create_log_entry(t); entry->init();} }
+	static void create_log_entry(const char *name, unsigned char t)
+	{
+	    if (!entry)
+	    {
+		entry = log()->create_log_entry(name,t);
+		entry->init();
+	    }
+	}
 
 	/**
 	 * Return the current log entry. If there is none, an ERROR_LOG entry
@@ -538,23 +563,55 @@ public:
 	 *    a pointer to a LogEntry instance.
 	 */
 	static LogEntry* log_entry() 
-	  { if (!entry) create_log_entry(ERROR_LOG | 1); return entry; } 
+	{
+	    if (!entry) {
+		create_log_entry("main", ERROR_LOG | 1);
+            }
+	    return entry;
+	} 
 
 	/**
 	 * Delete current log entry.
 	 */
 	static void delete_log_entry() 
-	  { if (entry) delete entry; entry = 0; }
+	{
+	    if (entry)
+		delete entry;
+	    entry = 0;
+	}
+
+	/**
+	 * Lock the log singleton.
+	 */
+	static void lock()
+	{
+#ifdef _THREADS
+		mutex.lock();
+#endif
+	}
+
+	/**
+	 * Unlock the log singleton.
+	 */
+	static void unlock()
+	{
+#ifdef _THREADS
+		mutex.unlock();
+#endif
+	}
 
 protected:
 
 	static AgentLog* instance;
 	static LogEntry* entry;
+#ifdef _THREADS
 	static SnmpSynchronized mutex;
+#endif
+	static const char defaultName;
 };
-
 
 #ifdef SNMP_PP_NAMESPACE
 }
 #endif
-#endif // _log_h_
+
+#endif // _SNMP_LOG_H_

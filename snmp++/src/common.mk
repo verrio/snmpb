@@ -2,9 +2,9 @@
   ## 
   ##  common.mk  
   ##
-  ##  SNMP++v3.2.25
+  ##  SNMP++ v3.3
   ##  -----------------------------------------------
-  ##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  ##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   ##
   ##  This software is based on SNMP++2.6 from Hewlett Packard:
   ##  
@@ -23,23 +23,21 @@
   ##  hereby grants a royalty-free license to any and all derivatives based
   ##  upon this software code base. 
   ##  
-  ##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
-  ##  
   ##########################################################################*
 
 # Versions for shared library
-SOVERSION	= 2.0.0
-SOVERSION_MAIN	= 2
+SOVERSION	= 3.3.0
+SOVERSION_MAIN	= 3
 
 LIBDESDIR	= ../../libdes
 LIBTOMCRYPTDIR	= ../../crypt
 
 PP_INC		= ../include
 
-CINCDIRS	= -I$(PP_INC) -I./ -I$(LIBDESDIR) -I$(LIBTOMCRYPTDIR)/src/headers
+CINCDIRS	= -I$(PP_INC) -I$(PP_INC)/system -I./ -I$(LIBDESDIR) -I$(LIBTOMCRYPTDIR)/src/headers
 
 # snmp++ lib headers
-HEADERS		= $(wildcard $(PP_INC)/snmp_pp/*.h)
+HEADERS		= $(wildcard $(PP_INC)/snmp_pp/*.h) $(PP_INC)/system/libsnmp.h
 
 # snmp++ lib sources
 PP_SRCS		= $(wildcard *.cpp)

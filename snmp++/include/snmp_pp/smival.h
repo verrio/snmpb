@@ -2,9 +2,9 @@
   _## 
   _##  smival.h  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -22,8 +22,6 @@
   _##  "AS-IS" without warranty of any kind, either express or implied. User 
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
-  _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -55,12 +53,13 @@
   only a few functions, most info is in subclass.
 
 =====================================================================*/
-// $Id$
+// $Id: smival.h 3164 2016-09-23 21:30:38Z katz $
 
-#ifndef _SMIVALUE
-#define _SMIVALUE
+#ifndef _SNMP_SMIVAL_H_
+#define _SNMP_SMIVAL_H_
 
 //----[ includes ]-----------------------------------------------------
+#include <libsnmp.h>
 #include "snmp_pp/smi.h"
 
 #ifdef SNMP_PP_NAMESPACE
@@ -78,7 +77,12 @@ namespace Snmp_pp {
 //======================================================================
 // SMI value structure conforming with SMI RFC
 //
-typedef struct {		/* smiVALUE portion of VarBind */
+typedef struct SmiVALUE
+{		/* smiVALUE portion of VarBind */
+        SmiVALUE()
+          : syntax(sNMP_SYNTAX_NULL)
+        { memset( &value, 0, sizeof(value) ); }
+
 	  SmiUINT32 syntax;	/* Insert SNMP_SYNTAX_<type> */
         union	{
           SmiINT    sNumber;    /* SNMP_SYNTAX_INT
@@ -99,7 +103,7 @@ typedef struct {		/* smiVALUE portion of VarBind */
                                    SNMP_SYNTAX_NOSUCHINSTANCE
                                    SNMP_SYNTAX_ENDOFMIBVIEW */
 		  }   value;
-               }    SmiVALUE, *SmiLPVALUE;
+               } *SmiLPVALUE;
 //=================================================================
 
 //--------------------------------------------------------------------
@@ -141,15 +145,12 @@ public:
   /**
    * Virtual destructor to ensure deletion of derived classes...
    */
-  virtual ~SnmpSyntax() {};
+  virtual ~SnmpSyntax() {}
 
   /**
    * Overloaded assignment operator.
-   *
-   * @note This should be pure virtual, but buggy VC++ compiler
-   *       complains about unresolved reference at link time.
    */
-  virtual SnmpSyntax& operator=(const SnmpSyntax &/*val*/) { return *this; };
+  virtual SnmpSyntax& operator = (const SnmpSyntax &val) = 0;
 
   /**
    * Return validity of the object.
@@ -167,6 +168,9 @@ public:
   virtual void clear() = 0;
 
 protected:
+  SnmpSyntax()
+    : smival()
+  {}
 
   SmiVALUE smival;
 };
@@ -175,4 +179,4 @@ protected:
 } // end of namespace Snmp_pp
 #endif 
 
-#endif  // _SMIVALUE
+#endif  // _SNMP_SMIVAL_H_

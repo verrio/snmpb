@@ -2,9 +2,9 @@
   _## 
   _##  idea.cpp  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,10 +23,8 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
-  _##  
   _##########################################################################*/
-char idea_cpp_version[]="#(@) SNMP++ $Id$";
+char idea_cpp_version[]="#(@) SNMP++ $Id: idea.cpp 2361 2013-05-09 22:15:06Z katz $";
 /*
 
 idea.c
@@ -48,10 +46,11 @@ following patents: PCT/CH91/00117, EP 0 482 154 B1, US Pat. 5,214,703.
 
 */
 
+#include <libsnmp.h>
+
 //#include "snmp_pp/includes.h"
 //#include "snmp_pp/getput.h"
 #include "snmp_pp/idea.h"
-#include <string.h>
 
 #ifdef SNMP_PP_NAMESPACE
 namespace Snmp_pp {
@@ -270,5 +269,5 @@ void idea_cfb_decrypt(IDEAContext *c, unsigned char *iv, unsigned char *dest,
 #endif
 
 #ifdef SNMP_PP_NAMESPACE
-}; // end of namespace Snmp_pp
+} // end of namespace Snmp_pp
 #endif 

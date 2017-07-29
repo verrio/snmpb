@@ -2,9 +2,9 @@
   _## 
   _##  eventlistholder.cpp  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,11 +23,11 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
-  _##  
   _##########################################################################*/
 
-char event_list_holder_version[]="@(#) SNMP++ $Id$";
+char event_list_holder_version[]="@(#) SNMP++ $Id: eventlistholder.cpp 2535 2014-01-24 08:43:07Z fock $";
+
+#include <libsnmp.h>
 
 #include "snmp_pp/eventlistholder.h"
 #include "snmp_pp/eventlist.h"
@@ -201,12 +201,12 @@ int EventListHolder::SNMPProcessPendingEvents()
 
   pevents_mutex.lock();
 
-  // do not allow select to block
-  fd_timeout.tv_sec = 0;
-  fd_timeout.tv_usec = 10;  // chosen a very small timeout
-  // in order to avoid busy looping but keep overall performance
-
-  do {
+  do
+  {
+    // do not allow select to block; chosen a very small timeout
+    // in order to avoid busy looping but keep overall performance
+    fd_timeout.tv_sec = 0;
+    fd_timeout.tv_usec = 10;
 
     // Set up Select
     m_eventList.GetFdSets(maxfds, readfds, writefds, exceptfds);
@@ -245,7 +245,7 @@ int EventListHolder::SNMPProcessEvents(const int max_block_milliseconds)
   fd_set writefds;
   fd_set exceptfds;
   struct timeval fd_timeout;
-  msec now; // automatcally calls msec::refresh()
+  msec now; // automatically calls msec::refresh()
   msec sendTime;
   int status = 0;
 
@@ -317,7 +317,7 @@ void EventListHolder::SNMPGetFdSets(int    &maxfds,
 
 #endif // HAVE_POLL_SYSCALL
 
-Uint32 EventListHolder::SNMPGetNextTimeout()
+unsigned long EventListHolder::SNMPGetNextTimeout()
 {
   msec now;
   msec sendTime(now);
@@ -363,5 +363,5 @@ Uint32 EventListHolder::SNMPGetNextTimeout()
 }
 
 #ifdef SNMP_PP_NAMESPACE
-}; // end of namespace Snmp_pp
+} // end of namespace Snmp_pp
 #endif 

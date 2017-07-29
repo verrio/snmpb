@@ -2,9 +2,9 @@
   _## 
   _##  snmpNext.cpp  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -22,8 +22,6 @@
   _##  "AS-IS" without warranty of any kind, either express or implied. User 
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
-  _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*
@@ -45,7 +43,8 @@
 
   Peter E. Mellquist
 */
-char snmpnext_cpp_version[]="@(#) SNMP++ $Id$";
+char snmpnext_cpp_version[]="@(#) SNMP++ $Id: snmpNext.cpp 2647 2014-05-11 11:22:42Z fock $";
+#include <libsnmp.h>
 
 #include "snmp_pp/snmp_pp.h"
 
@@ -53,55 +52,76 @@ char snmpnext_cpp_version[]="@(#) SNMP++ $Id$";
 #include <stdio.h>
 
 #ifdef WIN32
-#define strcasecmp stricmp
+#define strcasecmp _stricmp
 #endif
+
+#include "snmp_pp/snmp_pp.h"
 
 #ifdef SNMP_PP_NAMESPACE
 using namespace Snmp_pp;
 #endif
 
-#if (__GNUC__ > 2)
-#include <iostream>
-using std::cerr;
-using std::cout;
-using std::endl;
-using std::flush;
-#else
-#include <iostream.h>
+static void
+usage()
+{
+    cout << "Usage:\n";
+    cout << "snmpNext IpAddress | DNSName [Oid] [options]\n";
+    exit(1);
+}
+
+static void
+help()
+{
+    cout << "Usage:\n";
+    cout << "snmpNext IpAddress | DNSName [Oid] [options]\n";
+    cout << "Oid: sysDescr object is default\n";
+    cout << "options: -vN , use SNMP version 1, 2 or 3, default is 1\n";
+    cout << "         -PPort , remote port to use\n";
+    cout << "         -CCommunity_name, specify community default is 'public' \n";
+    cout << "         -rN , retries default is N = 1 retry\n";
+    cout << "         -tN , timeout in hundredths of seconds; default is N = 100\n";
+#ifdef _SNMPv3
+    cout << "         -snSecurityName, " << endl;
+    cout << "         -slN , securityLevel to use, default N = 3 = authPriv" << endl;
+    cout << "         -smN , securityModel to use, only default N = 3 = USM possible\n";
+    cout << "         -cnContextName, default empty string" << endl;
+    cout << "         -ceContextEngineID, as hex e.g. 800007E580, default empty string" << endl;
+    cout << "         -authPROT, use authentication protocol NONE, SHA or MD5\n";
+    cout << "         -privPROT, use privacy protocol NONE, DES, 3DESEDE, IDEA, AES128, AES192 or AES256\n";
+    cout << "         -uaAuthPassword\n";
+    cout << "         -upPrivPassword\n";
 #endif
+#ifdef WITH_LOG_PROFILES
+    cout << "         -Lprofile , log profile to use, default is '"
+#ifdef DEFAULT_LOG_PROFILE
+         << DEFAULT_LOG_PROFILE
+#else
+         << "original"
+#endif
+         << "'" << endl;
+#endif
+    cout << "         -h, -? - prints this help" << endl;
+    exit(1);
+   }
 
 int main(int argc, char **argv)
 {
    //---------[ check the arg count ]----------------------------------------
-   if ( argc < 2) {
-	  cout << "Usage:\n";
-	  cout << argv[0] << " IpAddress | DNSName [Oid] [options]\n";
-	  cout << "Oid: sysDescr object is default\n";
-	  cout << "options: -vN , use SNMP version 1, 2 or 3, default is 1\n";
-	  cout << "         -PPort , remote port to use\n";
-	  cout << "         -CCommunity_name, specify community default is 'public' \n";
-	  cout << "         -rN , retries default is N = 1 retry\n";
-	  cout << "         -tN , timeout in hundredths of seconds; default is N = 100\n";
-#ifdef _SNMPv3
-          cout << "         -snSecurityName, " << endl;
-          cout << "         -slN , securityLevel to use, default N = 3 = authPriv" << endl;
-          cout << "         -smN , securityModel to use, only default N = 3 = USM possible\n";
-          cout << "         -cnContextName, default empty string" << endl;
-          cout << "         -ceContextEngineID, as hex e.g. 800007E580, default empty string" << endl;
-          cout << "         -authPROT, use authentication protocol NONE, SHA or MD5\n";
-          cout << "         -privPROT, use privacy protocol NONE, DES, 3DESEDE, IDEA, AES128, AES192 or AES256\n";
-          cout << "         -uaAuthPassword\n";
-          cout << "         -upPrivPassword\n";
-#endif
-	  return 1;
-   }
+   if ( argc < 2 )
+     usage();
+   if ( strstr( argv[1],"-h") != 0 )
+     help();
+   if ( strstr( argv[1],"-?") != 0 )
+     usage();
 
+#if !defined(_NO_LOGGING) && !defined(WITH_LOG_PROFILES)
    // Set filter for logging
    DefaultLog::log()->set_filter(ERROR_LOG, 7);
    DefaultLog::log()->set_filter(WARNING_LOG, 7);
    DefaultLog::log()->set_filter(EVENT_LOG, 7);
    DefaultLog::log()->set_filter(INFO_LOG, 7);
    DefaultLog::log()->set_filter(DEBUG_LOG, 7);
+#endif
 
    Snmp::socket_startup();  // Initialize socket subsystem
 
@@ -109,7 +129,7 @@ int main(int argc, char **argv)
    UdpAddress address( argv[1]);      // make a SNMP++ Generic address
    if ( !address.valid()) {           // check validity of address
 	  cout << "Invalid Address or DNS Name, " << argv[1] << "\n";
-	  return 1;
+	  usage();
    }
    Oid oid("1.3.6.1.2.1.1.1");      // default is sysDescr
    if ( argc >= 3) {                  // if 3 args, then use the callers Oid
@@ -117,10 +137,11 @@ int main(int argc, char **argv)
 	     oid = argv[2];
 	     if ( !oid.valid()) {            // check validity of user oid
 		    cout << "Invalid Oid, " << argv[2] << "\n";
-		    return 1;
+		    usage();
          }
       }
    }
+   // cout << "GETNEXT for OID " << oid.get_printable() << "\n";
 
    //---------[ determine options to use ]-----------------------------------
    snmp_version version=version1;                  // default is v1
@@ -171,6 +192,13 @@ int main(int argc, char **argv)
        sscanf(ptr, "%hu", &port);
        continue;
      }
+
+#ifdef WITH_LOG_PROFILES
+     if ( strstr( argv[x], "-L" ) != 0 ) {
+       ptr = argv[x]; ptr++; ptr++;
+       DefaultLog::log()->set_profile(ptr);
+     }
+#endif
 
 #ifdef _SNMPv3
      if ( strstr( argv[x],"-v3")!= 0) {

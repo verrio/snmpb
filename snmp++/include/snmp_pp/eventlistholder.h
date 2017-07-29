@@ -2,9 +2,9 @@
   _## 
   _##  eventlistholder.h  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,14 +23,13 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
-  _##  
   _##########################################################################*/
 
-#ifndef _EVENTLISTHOLDER_H_
-#define _EVENTLISTHOLDER_H_
+#ifndef _SNMP_EVENTLISTHOLDER_H_
+#define _SNMP_EVENTLISTHOLDER_H_
 
 //----[ includes ]-----------------------------------------------------
+#include <libsnmp.h>
 #include "snmp_pp/config_snmp_pp.h"
 #include "snmp_pp/snmperrs.h"
 #include "snmp_pp/eventlist.h"
@@ -46,8 +45,6 @@ class Pdu;
 class v3MP;
 class Snmp;
 
-typedef unsigned long Uint32;
-
 class DLLOPT EventListHolder
 {
  public:
@@ -57,7 +54,7 @@ class DLLOPT EventListHolder
   CSNMPMessageQueue *&snmpEventList()   { return m_snmpMessageQueue; };
   CNotifyEventQueue *&notifyEventList() { return m_notifyEventQueue; };
 
-  Uint32 SNMPGetNextTimeout();
+  unsigned long SNMPGetNextTimeout();
 
 #ifdef HAVE_POLL_SYSCALL
   int GetFdCount();
@@ -115,4 +112,4 @@ class DLLOPT EventListHolder
 } // end of namespace Snmp_pp
 #endif 
 
-#endif // _EVENTLISTHOLDER_H_
+#endif // _SNMP_EVENTLISTHOLDER_H_

@@ -2,9 +2,9 @@
   _## 
   _##  counter.h  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -22,8 +22,6 @@
   _##  "AS-IS" without warranty of any kind, either express or implied. User 
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
-  _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -53,10 +51,10 @@
   Class definition for SMI Counter32 class.
 
 =====================================================================*/
-// $Id$
+// $Id: counter.h 3169 2016-09-26 20:45:41Z katz $
 
-#ifndef _COUNTER
-#define _COUNTER
+#ifndef _SNMP_COUNTER_H_
+#define _SNMP_COUNTER_H_
 
 #include "snmp_pp/integer.h"
 
@@ -73,44 +71,48 @@ namespace Snmp_pp {
 class DLLOPT Counter32: public SnmpUInt32
 {
  public:
-  /**
-   * Constructor to create a Counter object with value zero.
-   */
-  Counter32() : SnmpUInt32() { smival.syntax = sNMP_SYNTAX_CNTR32; };
 
   /**
-   * Constructor with a value.
+   * Constructor with a value - defaults to 0.
    *
    * @param i - unsigned 32 bit value
    */
-  Counter32(const unsigned long i) : SnmpUInt32(i)
-    { smival.syntax = sNMP_SYNTAX_CNTR32; };
+  Counter32(const unsigned long i = 0)
+    : SnmpUInt32(i)
+  {
+    smival.syntax = sNMP_SYNTAX_CNTR32;
+  }
 
   /**
    * Copy constructor.
    *
    * @param c - Object to copy from
    */
-  Counter32(const Counter32 &c);
+  Counter32(const Counter32 &c)
+    : SnmpUInt32(c)
+  {
+    smival.syntax = sNMP_SYNTAX_CNTR32;
+  }
 
   /**
    * Return the syntax.
    *
    * @return Returns always sNMP_SYNTAX_CNTR32
    */
-  SmiUINT32 get_syntax() const { return sNMP_SYNTAX_CNTR32; };
+  SmiUINT32 get_syntax() const { return sNMP_SYNTAX_CNTR32; }
 
   /**
    * Clone operator.
    *
    * @return Pointer to a newly created copy of the object.
    */
-  SnmpSyntax *clone() const { return (SnmpSyntax *)new Counter32(*this); };
+  SnmpSyntax *clone() const { return (SnmpSyntax *)new Counter32(*this); }
 
   /**
    * Map other SnmpSyntax objects to Counter32.
    */
-  SnmpSyntax& operator=(const SnmpSyntax &val);
+  // SnmpSyntax& operator=(const SnmpSyntax &val);
+  using SnmpUInt32::operator = ;
 
   /**
    * Overloaded assignment for Counter32.
@@ -119,28 +121,28 @@ class DLLOPT Counter32: public SnmpUInt32
    * @return self reference
    */
   Counter32& operator=(const Counter32 &uli)
-    { smival.value.uNumber = uli.smival.value.uNumber;
-      m_changed = true; return *this;};
+  {
+    smival.value.uNumber = uli.smival.value.uNumber;
+    valid_flag = uli.valid_flag;
+    m_changed = true;
+    return *this;
+  }
 
   /**
    * Overloaded assignment for unsigned longs.
    *
-   * @param i - new value
+   * @param ul - new value
    * @return self reference
    */
-  Counter32& operator=(const unsigned long i)
-    { smival.value.uNumber = i; m_changed = true; return *this;};
-
-  /**
-   * Casting to unsigned long.
-   *
-   * @return Current value as an unsigned long
-   */
-  operator unsigned long() { return smival.value.uNumber; };
+  Counter32& operator=(const unsigned long ul)
+  {
+    SnmpUInt32::operator = (ul);
+    return *this;
+  }
 };
 
 #ifdef SNMP_PP_NAMESPACE
 } // end of namespace Snmp_pp
 #endif 
 
-#endif // _COUNTER
+#endif // _SNMP_COUNTER_H_

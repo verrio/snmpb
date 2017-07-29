@@ -8,3 +8,6 @@
 *.Debug
 *.Release
 libsmi/config.h
+.cproject
+.project
+.settings/

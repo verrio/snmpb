@@ -2,9 +2,9 @@
   _## 
   _##  octet.cpp  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -22,8 +22,6 @@
   _##  "AS-IS" without warranty of any kind, either express or implied. User 
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
-  _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -53,12 +51,11 @@
   SNMP libraries. This class is portable across any platform
   which supports C++.
 =====================================================================*/
-char octet_cpp_version[]="@(#) SNMP++ $Id$";
+char octet_cpp_version[]="@(#) SNMP++ $Id: octet.cpp 2361 2013-05-09 22:15:06Z katz $";
+
+#include <libsnmp.h>
 
 #include "snmp_pp/octet.h"    // include definition for octet class
-#include <ctype.h>    // for isprint() used by get_printable()
-#include <stdio.h>    // for sprintf() used by get_printable_hex()
-#include <string.h>   // for strlen() and memcpy()
 
 #ifdef SNMP_PP_NAMESPACE
 namespace Snmp_pp {
@@ -103,7 +100,7 @@ OctetStr::OctetStr(const char *str)
 
   if (smival.value.string.ptr)
   {
-    MEMCPY(smival.value.string.ptr, str, z);
+    memcpy(smival.value.string.ptr, str, z);
     smival.value.string.len = SAFE_INT_CAST(z);
   }
   else
@@ -126,7 +123,7 @@ OctetStr::OctetStr(const unsigned char *str, unsigned long len)
 
   if (smival.value.string.ptr)
   {
-    MEMCPY(smival.value.string.ptr, str, (size_t) len);
+    memcpy(smival.value.string.ptr, str, (size_t) len);
     smival.value.string.len = len;
   }
   else
@@ -134,7 +131,7 @@ OctetStr::OctetStr(const unsigned char *str, unsigned long len)
 }
 
 //============[ constructor using another octet object ]==============
-OctetStr::OctetStr (const OctetStr &octet)
+OctetStr::OctetStr(const OctetStr &octet)
   : output_buffer(0), output_buffer_len(0), m_changed(true), validity(true)
 {
   smival.syntax = sNMP_SYNTAX_OCTETS;
@@ -155,7 +152,7 @@ OctetStr::OctetStr (const OctetStr &octet)
 
   if (smival.value.string.ptr)
   {
-    MEMCPY(smival.value.string.ptr,
+    memcpy(smival.value.string.ptr,
 	   octet.smival.value.string.ptr,
 	   (size_t) octet.smival.value.string.len);
     smival.value.string.len = octet.smival.value.string.len;
@@ -201,7 +198,7 @@ void OctetStr::set_data(const unsigned char *str, unsigned long len)
 
   if (smival.value.string.ptr)
   {
-    MEMCPY(smival.value.string.ptr, str, len);
+    memcpy(smival.value.string.ptr, str, len);
     smival.value.string.len = len;
     validity = true;
   }
@@ -212,37 +209,7 @@ void OctetStr::set_data(const unsigned char *str, unsigned long len)
 //=============[ assignment to a string operator overloaded ]=========
 OctetStr& OctetStr::operator=(const char *str)
 {
-  size_t nz;
-
-  // free up previous memory if needed
-  if (smival.value.string.ptr)
-  {
-    delete [] smival.value.string.ptr;
-    smival.value.string.ptr = 0;
-    smival.value.string.len = 0;
-  }
-
-  m_changed = true;
-
-  // if empty then we are done; get the string size
-  if (!str || !((nz = strlen(str))))
-  {
-    validity = true;
-    return *this;
-  }
-
-  // get memory needed
-  smival.value.string.ptr = (SmiLPBYTE) new unsigned char[nz];
-
-  if (smival.value.string.ptr)
-  {
-    MEMCPY(smival.value.string.ptr, str, nz);
-    smival.value.string.len = SAFE_INT_CAST(nz);
-    validity = true;
-  }
-  else
-    validity = false;
-
+  set_data((const unsigned char*)str, (str ? strlen(str) : 0));
   return *this;	     // return self reference
 }
 
@@ -376,9 +343,9 @@ OctetStr& OctetStr::operator+=(const char *a)
   if (tmp)
   {
     // copy in the original 1st
-    MEMCPY(tmp, smival.value.string.ptr, smival.value.string.len);
+    memcpy(tmp, smival.value.string.ptr, smival.value.string.len);
     // copy in the string
-    MEMCPY(tmp + smival.value.string.len, a, slen);
+    memcpy(tmp + smival.value.string.len, a, slen);
     // delete the original
     if (smival.value.string.ptr)
       delete [] smival.value.string.ptr;
@@ -387,6 +354,7 @@ OctetStr& OctetStr::operator+=(const char *a)
     smival.value.string.len = SAFE_INT_CAST(nlen);
 
     m_changed = true;
+    validity = true;
   }
   return *this;
 }
@@ -406,9 +374,9 @@ OctetStr& OctetStr::operator+=(const OctetStr& octet)
   if (tmp)
   {
     // copy in the original 1st
-    MEMCPY(tmp, smival.value.string.ptr, smival.value.string.len);
+    memcpy(tmp, smival.value.string.ptr, smival.value.string.len);
     // copy in the string
-    MEMCPY(tmp + smival.value.string.len, octet.data(), slen);
+    memcpy(tmp + smival.value.string.len, octet.data(), slen);
     // delete the original
     if (smival.value.string.ptr )
       delete [] smival.value.string.ptr;
@@ -417,6 +385,7 @@ OctetStr& OctetStr::operator+=(const OctetStr& octet)
     smival.value.string.len = SAFE_INT_CAST(nlen);
 
     m_changed = true;
+    validity = true;
   }
   return *this;
 }
@@ -431,7 +400,7 @@ OctetStr& OctetStr::operator+=(const unsigned char c)
 
   if (tmp)
   {
-    MEMCPY(tmp, smival.value.string.ptr, smival.value.string.len);
+    memcpy(tmp, smival.value.string.ptr, smival.value.string.len);
     tmp[smival.value.string.len] = c; 	// assign in new byte
 
     if (smival.value.string.ptr)	// delete the original
@@ -441,6 +410,7 @@ OctetStr& OctetStr::operator+=(const unsigned char c)
     smival.value.string.len++;	   	// up the len
 
     m_changed = true;
+    validity = true;
   }
   return *this;		   		  // return self reference
 }
@@ -525,7 +495,7 @@ const char *OctetStr::get_printable() const
   {
     if (output_buffer) delete [] ncthis->output_buffer;
 
-    ncthis->output_buffer = new char[smival.value.string.len + 1];	
+    ncthis->output_buffer = new char[smival.value.string.len + 1];
     if (!ncthis->output_buffer)
     {
       ncthis->output_buffer_len = 0;
@@ -534,7 +504,7 @@ const char *OctetStr::get_printable() const
     ncthis->output_buffer_len = smival.value.string.len + 1;
   }
   if (smival.value.string.len)
-    MEMCPY(ncthis->output_buffer,
+    memcpy(ncthis->output_buffer,
 	   smival.value.string.ptr, (unsigned int) smival.value.string.len);
   ncthis->output_buffer[smival.value.string.len] = '\0';
 
@@ -557,7 +527,7 @@ const char *OctetStr::get_printable_clear() const
   {
     if (output_buffer) delete [] ncthis->output_buffer;
 
-    ncthis->output_buffer = new char[smival.value.string.len + 1];	
+    ncthis->output_buffer = new char[smival.value.string.len + 1];
     if (!ncthis->output_buffer)
     {
       ncthis->output_buffer_len = 0;
@@ -686,7 +656,7 @@ const char *OctetStr::get_printable_hex() const
 
   int cnt;
   char char_buf[80];              // holds ASCII representation of data
-  char *buf_ptr;                  // pointer into ASCII listing	
+  char *buf_ptr;                  // pointer into ASCII listing
   char *line_ptr;                 // pointer into Hex listing
   unsigned int  storageNeeded;    // how much space do we need ?
   int  local_len = (int) smival.value.string.len;
@@ -706,6 +676,7 @@ const char *OctetStr::get_printable_hex() const
       return output_buffer;
     }
     ncthis->output_buffer_len = storageNeeded;
+    output_buffer[0] = 0;
   }
 
   line_ptr = ncthis->output_buffer;
@@ -801,9 +772,7 @@ bool OctetStr::set_linefeed_chars(const char* lf_chars)
     if (!lf_chars) return false;
     if (strlen(lf_chars) > 2) return false;
 
-    linefeed_chars[2] = 0;
-    linefeed_chars[1] = lf_chars[1];
-    linefeed_chars[0] = lf_chars[0];
+    strcpy(linefeed_chars, lf_chars);
 
     return true;
 }
@@ -811,8 +780,6 @@ bool OctetStr::set_linefeed_chars(const char* lf_chars)
 //===============[ append or shorten the data buffer ]================
 bool OctetStr::set_len(const unsigned long new_len)
 {
-  unsigned char *tmp;
-
   if (new_len <= smival.value.string.len)
   {
     smival.value.string.len = new_len;
@@ -824,15 +791,15 @@ bool OctetStr::set_len(const unsigned long new_len)
       smival.value.string.ptr = 0;
     }
 
+    validity = true;
     return true;
   }
 
-  tmp = (SmiLPBYTE) new unsigned char[new_len];  // get mem needed
-
+  unsigned char *tmp = new unsigned char[new_len]; // get mem needed
   if (!tmp) return false;
 
   if (smival.value.string.ptr)
-    MEMCPY(tmp, smival.value.string.ptr, smival.value.string.len);
+    memcpy(tmp, smival.value.string.ptr, smival.value.string.len);
   memset(tmp + smival.value.string.len, 0, new_len - smival.value.string.len);
   if (smival.value.string.ptr)
     delete [] smival.value.string.ptr;
@@ -840,12 +807,11 @@ bool OctetStr::set_len(const unsigned long new_len)
   smival.value.string.len = new_len;
 
   m_changed = true;
+  validity = true;
 
   return true;
 }
 
-
-
 #ifdef SNMP_PP_NAMESPACE
-}; // end of namespace Snmp_pp
-#endif 
+} // end of namespace Snmp_pp
+#endif

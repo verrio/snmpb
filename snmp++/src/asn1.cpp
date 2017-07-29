@@ -2,9 +2,9 @@
   _## 
   _##  asn1.cpp  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -22,8 +22,6 @@
   _##  "AS-IS" without warranty of any kind, either express or implied. User 
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
-  _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 
@@ -48,14 +46,14 @@
 
   DESIGN + AUTHOR:  Peter E. Mellquist
 =====================================================================*/
-char asn1_cpp_version[]="#(@) SNMP++ $Id$";
+char asn1_cpp_version[]="#(@) SNMP++ $Id: asn1.cpp 2542 2014-01-24 13:17:19Z fock $";
 
 #ifdef __unix
 #include /**/ <sys/types.h>
 #include /**/ <netinet/in.h>
 #endif
 
-#include /**/ <stdlib.h>
+#include <libsnmp.h>
 
 #include "snmp_pp/config_snmp_pp.h"
 #include "snmp_pp/asn1.h"
@@ -67,9 +65,7 @@ char asn1_cpp_version[]="#(@) SNMP++ $Id$";
 namespace Snmp_pp {
 #endif
 
-#ifndef NULL
-#define NULL	0
-#endif
+static const char *loggerModuleName = "snmp++.asn1";
 
 /*
  * asn_parse_int - pulls a long out of an ASN int type.
@@ -636,18 +632,24 @@ unsigned char *asn_parse_objid(unsigned char *data,
   /*
    * The first two subidentifiers are encoded into the first component
    * with the value (X * 40) + Y, where:
-   *	X is the value of the first subidentifier.
-   *  Y is the value of the second subidentifier.
+   * X is the value of the first subidentifier.
+   * Y is the value of the second subidentifier.
    */
   subidentifier = (unsigned long)objid[1];
   if (subidentifier == 0x2B) {
     objid[0] = 1;
     objid[1] = 3;
-  } else {
-    objid[1] = (unsigned char)(subidentifier % 40);
-    objid[0] = (unsigned char)((subidentifier - objid[1]) / 40);
+  } else if (subidentifier < 40) {
+      objid[0] = 0;
+      objid[1] = (oid)subidentifier;
+  } else if (subidentifier < 80) {
+      objid[0] = 1;
+      objid[1] = (oid)(subidentifier - 40);
   }
-
+  else {
+    objid[0] = 2;
+    objid[1] = (oid)(subidentifier - 80);
+  }
   *objidlength = (int)(oidp - objid);
   return bufp;
 }
@@ -680,23 +682,48 @@ unsigned char *asn_build_objid(unsigned char *data,
   unsigned char *bp = buf;
   oid *op = objid;
   int    asnlength;
-  unsigned long subid, mask, testmask;
-  int bits, testbits;
 
+  if (objidlength > MAX_OID_LEN) {
+      ASNERROR("Too many sub-identifiers.");
+      objidlength = MAX_OID_LEN;
+  }
   if (objidlength < 2) {
     *bp++ = 0;
     objidlength = 0;
   } else {
-    *bp++ = (unsigned char) (op[1] + (op[0] * 40));
+    asn_build_subid(op[1] + (op[0] * 40), bp);
     objidlength -= 2;
     op += 2;
   }
 
   while(objidlength-- > 0) {
-    subid = *op++;
-    if (subid < 127) { /* off by one? */
+    asn_build_subid(*op++, bp);
+  }
+  asnlength = SAFE_INT_CAST(bp - buf);
+  data = asn_build_header(data, datalength, type, asnlength);
+  if (data == NULL)            return NULL;
+  if (*datalength < asnlength) return NULL;
+
+  memcpy((char *)data, (char *)buf,  asnlength);
+  *datalength -= asnlength;
+  return data + asnlength;
+}
+
+/**
+ * Add the given sub-identifier to the OID byte buffer and forward its pointer
+ * accordingly for appending the next one.
+ * @param subid
+ *    the sub-identifier (32-bit unsigned) to add.
+ * @param bp
+ *    the buffer pointer. On return, the pointer will be increased at least
+ *    by one (character) and at most by five.
+ */
+void asn_build_subid(unsigned long subid, unsigned char*& bp) {
+  unsigned long mask, testmask;
+  int bits, testbits;
+  if (subid < 127) { /* off by one? */
       *bp++ = (unsigned char)subid;
-    } else {
+  } else {
       mask = 0x7F; /* handle subid == 0 case */
       bits = 0;
       /* testmask *MUST* !!!! be of an unsigned type */
@@ -715,16 +742,7 @@ unsigned char *asn_build_objid(unsigned char *data,
 	*bp++ = (unsigned char)(((subid & mask) >> bits) | ASN_BIT8);
       }
       *bp++ = (unsigned char)(subid & mask);
-    }
-  }
-  asnlength = SAFE_INT_CAST(bp - buf);
-  data = asn_build_header(data, datalength, type, asnlength);
-  if (data == NULL)            return NULL;
-  if (*datalength < asnlength) return NULL;
-
-  memcpy((char *)data, (char *)buf,  asnlength);
-  *datalength -= asnlength;
-  return data + asnlength;
+  }    
 }
 
 /*
@@ -1930,7 +1948,7 @@ unsigned char *asn1_build_scoped_pdu(
   unsigned char *bufPtr = buffer.get_ptr();
   unsigned char *outBufPtr = outBuf;
 
-  LOG_BEGIN(DEBUG_LOG | 10);
+  LOG_BEGIN(loggerModuleName, DEBUG_LOG | 10);
   LOG("ASN1: coding (context engine id) (context name)");
   LOG(OctetStr(contextEngineID, contextEngineIDLength).get_printable());
   LOG(OctetStr(contextName, contextNameLength).get_printable());
@@ -1940,7 +1958,7 @@ unsigned char *asn1_build_scoped_pdu(
                             contextEngineID, contextEngineIDLength);
   if (!bufPtr)
   {
-    LOG_BEGIN(ERROR_LOG | 1);
+    LOG_BEGIN(loggerModuleName, ERROR_LOG | 1);
     LOG("ASN1: Error encoding contextEngineID");
     LOG_END;
 
@@ -1951,7 +1969,7 @@ unsigned char *asn1_build_scoped_pdu(
                             contextName, contextNameLength);
   if (!bufPtr)
   {
-    LOG_BEGIN(ERROR_LOG | 1);
+    LOG_BEGIN(loggerModuleName, ERROR_LOG | 1);
     LOG("ASN1: Error encoding contextName");
     LOG_END;
 
@@ -1963,7 +1981,7 @@ unsigned char *asn1_build_scoped_pdu(
   memcpy((char *)bufPtr, (char *)data, dataLength);
   bufLength += dataLength;
 
-  LOG_BEGIN(DEBUG_LOG | 10);
+  LOG_BEGIN(loggerModuleName, DEBUG_LOG | 10);
   LOG("ASN1: Encoding scoped PDU sequence (len)");
   LOG(bufLength);
   LOG_END;
@@ -1971,7 +1989,7 @@ unsigned char *asn1_build_scoped_pdu(
   outBufPtr = asn_build_sequence(outBufPtr, max_len, ASN_SEQ_CON, bufLength);
   if (!outBufPtr)
   {
-    LOG_BEGIN(ERROR_LOG | 1);
+    LOG_BEGIN(loggerModuleName, ERROR_LOG | 1);
     LOG("ASN1: Error encoding scopedPDU sequence");
     LOG_END;
 
@@ -1982,7 +2000,7 @@ unsigned char *asn1_build_scoped_pdu(
   outBufPtr += bufLength;
 
 #ifdef __DEBUG
-  LOG_BEGIN(DEBUG_LOG | 15);
+  LOG_BEGIN(loggerModuleName, DEBUG_LOG | 15);
   LOG("ASN1: Result of build_scoped_pdu (len) (data)");
   LOG(outBufPtr - outBuf);
   LOG(OctetStr(outBuf, outBufPtr - outBuf).get_printable_hex());
@@ -1993,5 +2011,5 @@ unsigned char *asn1_build_scoped_pdu(
 }
 
 #ifdef SNMP_PP_NAMESPACE
-}; // end of namespace Snmp_pp
+} // end of namespace Snmp_pp
 #endif 

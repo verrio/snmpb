@@ -1,35 +1,35 @@
 /*_############################################################################
-  _## 
-  _##  uxsnmp.h  
   _##
-  _##  SNMP++v3.2.25
+  _##  uxsnmp.h
+  _##
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
-  _##  
+  _##
   _##    Copyright (c) 1996
   _##    Hewlett-Packard Company
-  _##  
+  _##
   _##  ATTENTION: USE OF THIS SOFTWARE IS SUBJECT TO THE FOLLOWING TERMS.
-  _##  Permission to use, copy, modify, distribute and/or sell this software 
-  _##  and/or its documentation is hereby granted without fee. User agrees 
-  _##  to display the above copyright notice and this license notice in all 
-  _##  copies of the software and any documentation of the software. User 
-  _##  agrees to assume all liability for the use of the software; 
-  _##  Hewlett-Packard and Jochen Katz make no representations about the 
-  _##  suitability of this software for any purpose. It is provided 
-  _##  "AS-IS" without warranty of any kind, either express or implied. User 
+  _##  Permission to use, copy, modify, distribute and/or sell this software
+  _##  and/or its documentation is hereby granted without fee. User agrees
+  _##  to display the above copyright notice and this license notice in all
+  _##  copies of the software and any documentation of the software. User
+  _##  agrees to assume all liability for the use of the software;
+  _##  Hewlett-Packard and Jochen Katz make no representations about the
+  _##  suitability of this software for any purpose. It is provided
+  _##  "AS-IS" without warranty of any kind, either express or implied. User
   _##  hereby grants a royalty-free license to any and all derivatives based
-  _##  upon this software code base. 
-  _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
-  _##  
+  _##  upon this software code base.
+  _##
   _##########################################################################*/
+// $Id: uxsnmp.h 3164 2016-09-23 21:30:38Z katz $
 
-#ifndef _UXSNMP_H_
-#define _UXSNMP_H_
+#ifndef _SNMP_UXSNMP_H_
+#define _SNMP_UXSNMP_H_
 
+#include <libsnmp.h>
 #include "snmp_pp/reentrant.h"
 #include "snmp_pp/target.h"
 #include "snmp_pp/oid.h"
@@ -44,8 +44,7 @@ namespace Snmp_pp {
 //-----[ internally used defines ]----------------------------------------
 #define MAXNAME 80                   // maximum name length
 #define MAX_ADDR_LEN 10              // maximum address len, ipx is 4+6
-#define SNMP_SHUTDOWN_MSG 0x0400+177 // shut down msg for stoping a blocked message
-#ifndef INVALID_SOCKET 
+#ifndef INVALID_SOCKET
 #define INVALID_SOCKET ((SnmpSocket)(~0)) // value for invalid socket
 #endif
 
@@ -55,10 +54,6 @@ namespace Snmp_pp {
 #define sNMP_PDU_SET_ASYNC       23
 #define sNMP_PDU_GETBULK_ASYNC   24
 #define sNMP_PDU_INFORM_ASYNC    25
-
-//-----[ trap / notify macros ]-------------------------------------------
-#define IP_NOTIFY  162     // IP notification
-#define IPX_NOTIFY 0x2121  // IPX notification
 
 //------[ forward declaration of Snmp class ]-----------------------------
 class Snmp;
@@ -114,7 +109,7 @@ class DLLOPT Snmp: public SnmpSynchronized
    * Construct a new SNMP session using the given UDP port.
    *
    * @param status
-   *    after creation of the session this parameter will 
+   *    after creation of the session this parameter will
    *    hold the creation status.
    * @param port
    *    an UDP port to be used for the session
@@ -127,14 +122,14 @@ class DLLOPT Snmp: public SnmpSynchronized
 
   /**
    * Construct a new SNMP session using the given UDP address.
-   * Thus, binds the session on a specific IPv4 or IPv6 address. 
+   * Thus, binds the session on a specific IPv4 or IPv6 address.
    *
    * @param status
-   *    after creation of the session this parameter will 
+   *    after creation of the session this parameter will
    *    hold the creation status.
    * @param addr
    *    an UDP address to be used for the session
-   */	
+   */
   Snmp(int &status, const UdpAddress &addr);
 
   /**
@@ -142,13 +137,13 @@ class DLLOPT Snmp: public SnmpSynchronized
    * Using this constructor will bind to both IPv4 and IPv6 ports.
    *
    * @param status
-   *    after creation of the session this parameter will 
+   *    after creation of the session this parameter will
    *    hold the creation status.
    * @param addr_v4
    *    an IPv4 UDP address to be used for the session
    * @param addr_v6
    *    an IPv6 UDP address to be used for the session
-   */	
+   */
   Snmp(int &status,  const UdpAddress& addr_v4, const UdpAddress& addr_v6);
 
   //-------------------[ destructor ]------------------------------------
@@ -178,6 +173,16 @@ class DLLOPT Snmp: public SnmpSynchronized
   static const char *error_msg(const int c);
 #ifdef _SNMPv3
   /**
+   * Returns the error code for a SNMPv3 report Oid.
+   * If a report message is returned, then the contained Oid can be
+   * used to get a error code.
+   *
+   * @param v3Oid - Oid of a SNMPv3 report Pdu
+   * @return Error code.
+   */
+  static int error_code(const Oid& v3Oid);
+
+  /**
    * Returns a human readable error string.
    * If a report message is returned, then the contained Oid can be
    * used to get a error string.
@@ -185,7 +190,8 @@ class DLLOPT Snmp: public SnmpSynchronized
    * @param v3Oid - Oid of a SNMPv3 report Pdu
    * @return Null terminated error string.
    */
-  static const char* error_msg(const Oid& v3Oid);
+  static const char* error_msg(const Oid& v3Oid)
+    { return error_msg(error_code(v3Oid)); }
 #endif
 
   //------------------------[ Windows Sockets ]----------------------------
@@ -218,7 +224,7 @@ class DLLOPT Snmp: public SnmpSynchronized
    *
    * @return SNMP_CLASS_SUCCES or a negative error code
    */
-  virtual int get(Pdu &pdu, const SnmpTarget &target);
+  virtual int get(Pdu &pdu, SnmpTarget &target);
 
   /**
    * Send a async SNMP-GET request.
@@ -230,7 +236,7 @@ class DLLOPT Snmp: public SnmpSynchronized
    *
    * @return SNMP_CLASS_SUCCES or a negative error code
    */
-  virtual int get(Pdu &pdu, const SnmpTarget &target,
+  virtual int get(Pdu &pdu, SnmpTarget &target,
 		  const snmp_callback callback,
 		  const void *callback_data = 0);
 
@@ -242,7 +248,7 @@ class DLLOPT Snmp: public SnmpSynchronized
    *
    * @return SNMP_CLASS_SUCCES or a negative error code
    */
-  virtual int get_next(Pdu &pdu, const SnmpTarget &target);
+  virtual int get_next(Pdu &pdu, SnmpTarget &target);
 
   /**
    * Send a async SNMP-GETNEXT request.
@@ -254,7 +260,7 @@ class DLLOPT Snmp: public SnmpSynchronized
    *
    * @return SNMP_CLASS_SUCCES or a negative error code
    */
-  virtual int get_next(Pdu &pdu, const SnmpTarget &target,
+  virtual int get_next(Pdu &pdu, SnmpTarget &target,
                        const snmp_callback callback,
 		       const void *callback_data = 0);
 
@@ -266,7 +272,7 @@ class DLLOPT Snmp: public SnmpSynchronized
    *
    * @return SNMP_CLASS_SUCCES or a negative error code
    */
-  virtual int set(Pdu &pdu, const SnmpTarget &target);
+  virtual int set(Pdu &pdu, SnmpTarget &target);
 
   /**
    * Send a async SNMP-SET request.
@@ -278,7 +284,7 @@ class DLLOPT Snmp: public SnmpSynchronized
    *
    * @return SNMP_CLASS_SUCCES or a negative error code
    */
-  virtual int set(Pdu &pdu, const SnmpTarget &target,
+  virtual int set(Pdu &pdu, SnmpTarget &target,
 		  const snmp_callback callback,
 		  const void * callback_data = 0);
 
@@ -292,7 +298,7 @@ class DLLOPT Snmp: public SnmpSynchronized
    *
    * @return SNMP_CLASS_SUCCES or a negative error code
    */
-  virtual int get_bulk(Pdu &pdu, const SnmpTarget &target,
+  virtual int get_bulk(Pdu &pdu, SnmpTarget &target,
 		       const int non_repeaters, const int max_reps);
 
   /**
@@ -307,7 +313,7 @@ class DLLOPT Snmp: public SnmpSynchronized
    *
    * @return SNMP_CLASS_SUCCES or a negative error code
    */
-  virtual int get_bulk(Pdu &pdu, const SnmpTarget &target,
+  virtual int get_bulk(Pdu &pdu, SnmpTarget &target,
 		       const int non_repeaters, const int max_reps,
 		       const snmp_callback callback,
 		       const void *callback_data = 0);
@@ -331,7 +337,7 @@ class DLLOPT Snmp: public SnmpSynchronized
    *
    * @return SNMP_CLASS_SUCCES or a negative error code
    */
-  virtual int report(Pdu &pdu, const SnmpTarget &target);
+  virtual int report(Pdu &pdu, SnmpTarget &target);
 
   /**
    * Send a blocking INFORM-REQ.
@@ -341,7 +347,7 @@ class DLLOPT Snmp: public SnmpSynchronized
    *
    * @return SNMP_CLASS_SUCCES or a negative error code
    */
-  virtual int inform(Pdu &pdu, const SnmpTarget &target);
+  virtual int inform(Pdu &pdu, SnmpTarget &target);
 
   /**
    * Send a async INFORM-REQ.
@@ -353,7 +359,7 @@ class DLLOPT Snmp: public SnmpSynchronized
    *
    * @return SNMP_CLASS_SUCCES or a negative error code
    */
-  virtual int inform(Pdu &pdu, const SnmpTarget &target,
+  virtual int inform(Pdu &pdu, SnmpTarget &target,
 		     const snmp_callback callback,
 		     const void * callback_data = 0);
 
@@ -367,8 +373,8 @@ class DLLOPT Snmp: public SnmpSynchronized
    *
    * @return SNMP_CLASS_SUCCES or a negative error code
    */
-  virtual int response(Pdu &pdu, const SnmpTarget &target,
-		       const SnmpSocket fd = INVALID_SOCKET);
+  virtual int response(Pdu &pdu, SnmpTarget &target,
+		       SnmpSocket fd = INVALID_SOCKET);
 
 
   /**
@@ -552,7 +558,7 @@ protected:
    */
   bool is_running(void) const
       { return m_bThreadRunning; };
-	
+
   /**
    * This is a working thread for the recovery of the pending events.
    *
@@ -600,7 +606,7 @@ protected:
   int snmp_engine( Pdu &pdu,                  // pdu to use
                    long int non_reps,         // get bulk only
                    long int max_reps,         // get bulk only
-                   const SnmpTarget &target,        // destination target
+                   SnmpTarget &target,        // destination target
                    const snmp_callback cb,    // async callback function
                    const void *cbd,          // callback data
 		   SnmpSocket fd = INVALID_SOCKET,
@@ -657,7 +663,6 @@ private:
 #ifdef _THREADS
 #ifdef WIN32
   HANDLE m_hThread;
-  HANDLE m_hThreadEndEvent;
 #elif defined (CPU) && CPU == PPC603
   int m_hThread;
 #else
@@ -668,6 +673,6 @@ private:
 
 #ifdef SNMP_PP_NAMESPACE
 } // end of namespace Snmp_pp
-#endif 
-
 #endif
+
+#endif // _SNMP_UXSNMP_H_

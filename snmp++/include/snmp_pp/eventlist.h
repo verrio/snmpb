@@ -2,9 +2,9 @@
   _## 
   _##  eventlist.h  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -22,8 +22,6 @@
   _##  "AS-IS" without warranty of any kind, either express or implied. User 
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
-  _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -58,18 +56,15 @@
         Queue for holding all event sources (snmp messages, user
         defined input sources, user defined timeouts, etc)
 =====================================================================*/
-// $Id$
+// $Id: eventlist.h 3164 2016-09-23 21:30:38Z katz $
 
-#ifndef _EVENTLIST
-#define _EVENTLIST
+#ifndef _SNMP_EVENTLIST_H_
+#define _SNMP_EVENTLIST_H_
 
 //----[ includes ]-----------------------------------------------------
+#include <libsnmp.h>
 #include <limits.h>
-#include <sys/types.h> // NOTE: due to 10.10 bug, order is important
-                       //   in that all routines must include types.h
-                       //   and time.h in same order otherwise you
-                       //   will get conflicting definitions of
-                       //   "fd_set" resulting in link time errors.
+#include <sys/types.h>
 #ifdef WIN32
 #include <time.h>
 #else
@@ -198,4 +193,4 @@ class DLLOPT CEventList: public SnmpSynchronized {
 } // end of namespace Snmp_pp
 #endif 
 
-#endif
+#endif // _SNMP_EVENTLIST_H_

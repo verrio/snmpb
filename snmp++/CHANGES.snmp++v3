@@ -1,3 +1,110 @@
+Changes snmp++v3.3.9
+====================
+
+- Fixed [APP-46]: SHA384 and SHA512 authentication protocols used block size 
+  of 64 instead 128.
+
+Changes snmp++v3.3.8
+====================
+
+- Security: A buffer overflow could be triggered in Ipaddress class if a
+  host name was longer than 80 characters. The overflow was triggered
+  when a too long host name was passed to the class or if a DNS reverse
+  lookup returned a too long host name.
+- Fixed: It was not possible to assign a numeric IPv4 address to the IpAddress
+  class if IPv4 was disabled at OS level. The same was true for IPv6 addresses
+  if IPv6 was disabled at OS level. Parsing of variable bindings containing
+  an IP address failed in such configurations.
+- Fixed: Compilation without OpenSSL and without libtomcrypt was not possible.
+- Changed: Use newer DES API of OpenSSL.
+- Fixed: Installed header files no longer need the internal config.h.
+- Fixed: Invalid use of static_cast in log.cpp on MacOS.
+- Fixed: SNMPv3 requests always resulted in an unknown engine id report, if
+  the used SnmpTarget did not contain any port information.
+
+Changes snmp++v3.3.7
+====================
+
+- Fixed: Added missing operator=() functions for Mac, Ipx and IpxSockAddress.
+- Fixed: Fixed copy-paste-error for ipxaddress option in auto_conf build.
+
+Changes snmp++v3.3.6
+====================
+
+- Added: SHA-2 (SHA-224,-256,-384,-512) support to USM as defined by RFC 7630
+- Changed: Counter64::get_printable() does no longer produce hex output for
+  values larger than 2^32. (Florian Lohoff)
+
+Changes snmp++v3.3.5
+====================
+
+- Fixed: Added missing length check for key in Priv3DES_EDE::decrypt().
+- Added: PrivAESW3DESKeyExt class to allow to contact some Cisco devices.
+- Fixed: Configure with --disable-threads
+- Fixed: Usage of uninitialized data.
+- Added: get_net_address_type().
+- Added: clone_as_hex().
+- Added: IpAddress::clone_as_hex.
+- Fixed: Possible NPE.
+- Updated: Version info and fixed old Makefile distribution.
+
+Changes snmp++v3.3.4
+====================
+
+- Fixed: Incorrect time values conversion in += and -= operators of the 
+  msec class in msec.cpp.
+
+Changes snmp++v3.3.3
+====================
+
+- Fixed: [APP-30] SNMP++ cannot BER decode Oids starting with 2 and
+  with second sub-identifier >39 correctly. 
+- Fixed: [APP-31] SNMP++ does not encode Oids starting with 2 and 
+  second sub-ID greater than 47 correctly. 
+
+Changes snmp++v3.3.2
+====================
+
+- Fixed: Regression through [APP-19] which lead to too long timeouts
+  on systems with clock_gettime.
+- Fixed: Restored missing files (CHANGES, READMEs) to distribution. 
+- Fixed: Fixed compilation error when using poll syscall.
+- Fixed: Do not use _vscprintf as it is not portable, instead just 
+  truncate the log message.
+- Fixed: Fixed test that produced an error during configure:
+  checking which _XOPEN_SOURCE macro must be defined... 
+  ./configure: line 6229: test: : integer expression expected
+- Fixed: msec.cpp: timezone is a struct and not a class.
+
+Changes snmp++v3.3.1
+====================
+
+- Fixed: Replaced strcasecmp usage in consoleExamples by _stricmp
+  for WIN32 platform.
+- Improved: Debug output buffer length is now computed exactly on
+  WIN32.
+- Fixed: Compilation of IPv6Utility.h with Visual Studio 2013.
+- Fixed: Removed #define of Uint32 in eventlistholder.h.
+
+Changes snmp++v3.3
+==================
+
+- Added: Autoconf support.
+- Added: console Examples log output profile options (activation by 
+  compiler switch).
+- Fixed: Setting the exception status of a Vb object did not clear the
+  value of the Vb (found from Dominik Vogt)
+- Fixed: TimeTicks, Gauge, Counter and Integer classes did not properly
+  set/reset the valid flag and some get_printable() functions did ignore
+  the valid flag.
+- Fixed: In rare conditions, CNotifyEventQueue::AddEntry()
+  could be left in an inconsistent state after returning
+  SNMP_CLASS_INTERNAL_ERROR (Luc Van Walleghem)
+- Fixed: Reports are now sent with the same security level, as the
+  received request.
+- Fixed bool vs. int issues and WIN32 compilation problems.
+- Improved: Implemented portable pthread_t printing in log.cpp.
+
 Changes snmp++v3.2.25
 =====================
 

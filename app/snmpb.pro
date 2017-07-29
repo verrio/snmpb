@@ -71,7 +71,7 @@ FORMS	= mainw.ui agentprofile.ui usmprofile.ui preferences.ui gotoline.ui find.u
 TEMPLATE	= app
 CONFIG	+= qt warn_on debug
 RESOURCES     = snmpb.qrc
-INCLUDEPATH	+= ../snmp++/include ../libtomcrypt/src/headers ../libsmi/lib ../qwt/src
+INCLUDEPATH	+= ../snmp++/include ../snmp++/ ../libtomcrypt/src/headers ../libsmi/lib ../qwt/src
 LIBS	+= -L. -L../libtomcrypt -L../libsmi/lib/.libs -L../qwt/lib -lsmi -ltomcrypt -lqwt
 LANGUAGE	= C++
 

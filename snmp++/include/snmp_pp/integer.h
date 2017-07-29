@@ -2,9 +2,9 @@
   _## 
   _##  integer.h  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -22,8 +22,6 @@
   _##  "AS-IS" without warranty of any kind, either express or implied. User 
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
-  _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -53,11 +51,12 @@
   Class definition for Integer classes.
 
 =====================================================================*/
-// $Id$
+// $Id: integer.h 3169 2016-09-26 20:45:41Z katz $
 
-#ifndef _SNMPINTEGER
-#define _SNMPINTEGER
+#ifndef _SNMP_INTEGER_H_
+#define _SNMP_INTEGER_H_
 
+#include <libsnmp.h>
 #include "snmp_pp/smival.h"
 
 #ifdef SNMP_PP_NAMESPACE
@@ -81,35 +80,40 @@ class DLLOPT SnmpUInt32 : public SnmpSyntax
  public:
 
   /**
-   * Constructor, sets value to zero.
-   */
-  SnmpUInt32();
-
-  /**
-   * Constructor with value.
+   * Constructor with value (defaults to 0).
    *
    * @param i - initial value
    */
-  SnmpUInt32(const unsigned long i);
+  SnmpUInt32(const unsigned long i = 0)
+    : SnmpSyntax(), valid_flag(true), m_changed(true)
+  {
+    smival.value.uNumber = i;
+    smival.syntax = sNMP_SYNTAX_UINT32;
+  }
 
   /**
    * Copy constructor.
    *
    * @param c - initial value
    */
-  SnmpUInt32(const SnmpUInt32 &c);
+  SnmpUInt32(const SnmpUInt32 &c)
+    : SnmpSyntax(), valid_flag(c.valid_flag), m_changed(true)
+  {
+    smival.value.uNumber = c.smival.value.uNumber;
+    smival.syntax = sNMP_SYNTAX_UINT32;
+  }
 
   /**
    * Destructor (ensure that SnmpSyntax::~SnmpSyntax() is overridden).
    */
-  virtual ~SnmpUInt32() {};
+  virtual ~SnmpUInt32() {}
 
   /**
    * Return the syntax.
    *
    * @return This method always returns sNMP_SYNTAX_UINT32.
    */
-  virtual SmiUINT32 get_syntax() const { return sNMP_SYNTAX_UINT32; };
+  virtual SmiUINT32 get_syntax() const { return sNMP_SYNTAX_UINT32; }
 
   /**
    * Overloaded assignment for unsigned longs.
@@ -117,7 +121,13 @@ class DLLOPT SnmpUInt32 : public SnmpSyntax
    * @param i - new value
    * @return self reference
    */
-  SnmpUInt32& operator=(const unsigned long i);
+  SnmpUInt32 & operator = (const unsigned long i)
+  {
+    smival.value.uNumber = i;
+    valid_flag = true;
+    m_changed = true;
+    return *this;
+  }
 
   /**
    * Overloaded assignment for SnmpUInt32.
@@ -125,7 +135,16 @@ class DLLOPT SnmpUInt32 : public SnmpSyntax
    * @param uli - new value
    * @return self reference
    */
-  SnmpUInt32& operator=(const SnmpUInt32 &uli);
+  SnmpUInt32 & operator = (const SnmpUInt32 &uli)
+  {
+    if (this == &uli)
+      return *this;  // check for self assignment
+
+    smival.value.uNumber = uli.smival.value.uNumber;
+    valid_flag = uli.valid_flag;
+    m_changed = true;
+    return *this;
+  }
 
   /**
    * Map other SnmpSyntax objects to SnmpUInt32.
@@ -157,7 +176,7 @@ class DLLOPT SnmpUInt32 : public SnmpSyntax
    * An SnmpUInt32 will only be invalid after a failed asignment
    * of another SnmpSyntax object.
    */
-  bool valid() const { return valid_flag; };
+  bool valid() const { return valid_flag; }
 
   /**
    * Return the space needed for serialization.
@@ -168,7 +187,7 @@ class DLLOPT SnmpUInt32 : public SnmpSyntax
    * Reset the object.
    */
   void clear()
-    { smival.value.uNumber = 0; valid_flag = true; m_changed = true; };
+    { smival.value.uNumber = 0; valid_flag = true; m_changed = true; }
 
  protected:
   bool valid_flag;
@@ -185,35 +204,40 @@ class DLLOPT SnmpInt32 : public SnmpSyntax
  public:
 
   /**
-   * Constructor, sets value to zero.
-   */
-  SnmpInt32();
-
-  /**
    * Constructor with value.
    *
    * @param i - initial value
    */
-  SnmpInt32 (const long i);
+  SnmpInt32 (const long i = 0)
+    : SnmpSyntax(), valid_flag(true), m_changed(true)
+  {
+    smival.value.sNumber = i;
+    smival.syntax = sNMP_SYNTAX_INT32;
+  }
 
   /**
    * Copy constructor.
    *
    * @param c - initial value
    */
-  SnmpInt32 (const SnmpInt32 &c);
+  SnmpInt32 (const SnmpInt32 &c)
+    : SnmpSyntax(), valid_flag(c.valid_flag), m_changed(true)
+  {
+    smival.value.sNumber = c.smival.value.sNumber;
+    smival.syntax = sNMP_SYNTAX_INT32;
+  }
 
   /**
    * Destructor (ensure that SnmpSyntax::~SnmpSyntax() is overridden).
    */
-  virtual ~SnmpInt32() {};
+  virtual ~SnmpInt32() {}
 
   /**
    * Return the syntax.
    *
    * @return This method always returns sNMP_SYNTAX_INT32.
    */
-  virtual SmiUINT32 get_syntax() const { return sNMP_SYNTAX_INT32; };
+  virtual SmiUINT32 get_syntax() const { return sNMP_SYNTAX_INT32; }
 
   /**
    * Overloaded assignment for longs.
@@ -221,7 +245,13 @@ class DLLOPT SnmpInt32 : public SnmpSyntax
    * @param i - new value
    * @return self reference
    */
-  SnmpInt32& operator=(const long i);
+  SnmpInt32 & operator = (const long i)
+  {
+    smival.value.sNumber = i;
+    valid_flag = true;
+    m_changed = true;
+    return *this;
+  }
 
   /**
    * Overloaded assignment for SnmpInt32.
@@ -229,7 +259,16 @@ class DLLOPT SnmpInt32 : public SnmpSyntax
    * @param li - new value
    * @return self reference
    */
-  SnmpInt32& operator=(const SnmpInt32 &li);
+  SnmpInt32 & operator = (const SnmpInt32 &li)
+  {
+    if (this == &li)
+      return *this;  // check for self assignment
+
+    smival.value.sNumber = li.smival.value.sNumber;
+    valid_flag = li.valid_flag;
+    m_changed = true;
+    return *this;
+  }
 
   /**
    * Map other SnmpSyntax objects to SnmpInt32.
@@ -241,7 +280,7 @@ class DLLOPT SnmpInt32 : public SnmpSyntax
    *
    * @return value as long
    */
-  operator long() const { return (long) smival.value.sNumber; };
+  operator long () const { return (long) smival.value.sNumber; }
 
   /**
    * Get a printable ASCII value.
@@ -260,7 +299,7 @@ class DLLOPT SnmpInt32 : public SnmpSyntax
    * An SnmpUInt32 will only be invalid after a failed asignment
    * of another SnmpSyntax object.
    */
-  bool valid() const { return valid_flag; };
+  bool valid() const { return valid_flag; }
 
   /**
    * Return the space needed for serialization.
@@ -271,7 +310,7 @@ class DLLOPT SnmpInt32 : public SnmpSyntax
    * Reset the object.
    */
   void clear()
-    { smival.value.sNumber = 0; valid_flag = true; m_changed = true; };
+    { smival.value.sNumber = 0; valid_flag = true; m_changed = true; }
 
  protected:
   bool valid_flag;
@@ -283,4 +322,4 @@ class DLLOPT SnmpInt32 : public SnmpSyntax
 } // end of namespace Snmp_pp
 #endif 
 
-#endif
+#endif // _SNMP_INTEGER_H_

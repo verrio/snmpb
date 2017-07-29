@@ -2,9 +2,9 @@
   _## 
   _##  mp_v3.h  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,15 +23,14 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
-  _##  
   _##########################################################################*/
 
-// $Id$
+// $Id: mp_v3.h 3164 2016-09-23 21:30:38Z katz $
 
-#ifndef _MP_V3
-#define _MP_V3
+#ifndef _SNMP_MP_V3_H_
+#define _SNMP_MP_V3_H_
 
+#include <libsnmp.h>
 #include "snmp_pp/config_snmp_pp.h"
 
 #ifdef _SNMPv3
@@ -47,6 +46,9 @@ class Pdu;
 class OctetStr;
 
 #define MAX_HOST_NAME_LENGTH     128
+#ifndef MAX_ENGINE_ID_CACHE_SIZE
+#define MAX_ENGINE_ID_CACHE_SIZE    50000
+#endif
 
 #define oidMPDGroup                  "1.3.6.1.6.3.11.2.1"
 #define oidSnmpUnknownSecurityModels "1.3.6.1.6.3.11.2.1.1.0"
@@ -491,9 +493,24 @@ class DLLOPT v3MP
      *           SNMPv3_MP_OK
      */
     int delete_entry(const OctetStr &host, int port);
+    
+    /**
+     * Get the upper limit of the number of entries in this engine ID cache.
+     * @return - the cache size upper limit (50.000 by default).
+     */
+    int get_cache_size_limit() { return upper_limit_entries; }
+    
+    /**
+     * Set the upper limit of the number of entries in this engine ID cache.
+     * Calls of this method with a cache size of 0 or less are ignored.
+     * @param size_upper_limit
+     *    the upper limit of the engine ID cache size (50.000 by default). 
+     */
+    void set_cache_size_limit(int size_upper_limit) 
+        { if (size_upper_limit > 0) upper_limit_entries = size_upper_limit; }
 
   private:
-    int initialize_table(const int size);
+    bool initialize_table(const int size);
 
     struct Entry_T
     {
@@ -503,8 +520,9 @@ class DLLOPT v3MP
     };
 
     struct Entry_T *table;
-    int max_entries;      ///< the maximum number of entries
-    int entries;          ///< the current amount of entries
+    int max_entries;         ///< the maximum number of entries
+    int upper_limit_entries; ///< the upper most number of entries to keep
+    int entries;             ///< the current amount of entries
     SNMP_PP_MUTABLE SnmpSynchronized lock;
   };
 
@@ -647,4 +665,4 @@ class DLLOPT v3MP
 
 #endif // _SNMPv3
 
-#endif
+#endif // _SNMP_MP_V3_H_

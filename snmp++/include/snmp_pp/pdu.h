@@ -2,9 +2,9 @@
   _## 
   _##  pdu.h  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -22,8 +22,6 @@
   _##  "AS-IS" without warranty of any kind, either express or implied. User 
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
-  _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -54,11 +52,12 @@
   Data Unit (PDU) in C++.
 
 =====================================================================*/
-// $Id$
+// $Id: pdu.h 3164 2016-09-23 21:30:38Z katz $
 
-#ifndef _PDU_CLS
-#define _PDU_CLS
+#ifndef _SNMP_PDU_H_
+#define _SNMP_PDU_H_
 
+#include <libsnmp.h>
 #include "snmp_pp/config_snmp_pp.h"
 #include "snmp_pp/address.h"
 #include "snmp_pp/timetick.h"
@@ -164,7 +163,7 @@ class DLLOPT Pdu
    *
    * @return TRUE on success
    */
-  int set_vblist(Vb* pvbs, const int pvb_count);
+  int set_vblist(Vb const * pvbs, const int pvb_count);
 
   /**
    * Get a particular Vb.
@@ -197,7 +196,7 @@ class DLLOPT Pdu
    *
    * @return TRUE on success
    */
-  int set_vb(Vb &vb, const int index);
+  int set_vb(Vb const &vb, const int index);
 
   /**
    * Get the number of vbs.
@@ -524,4 +523,4 @@ class DLLOPT Pdu
 } // end of namespace Snmp_pp
 #endif 
 
-#endif //_PDU_CLS
+#endif // _SNMP_PDU_H_

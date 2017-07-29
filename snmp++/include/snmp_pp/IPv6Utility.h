@@ -2,9 +2,9 @@
   _## 
   _##  IPv6Utility.h  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -22,8 +22,6 @@
   _##  "AS-IS" without warranty of any kind, either express or implied. User 
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
-  _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*
@@ -53,25 +51,25 @@
   Adapted and integrated into snmp++ by Ragavan Tetchinamourty
 
 =====================================================================*/
-// $Id: $
+// $Id: IPv6Utility.h 3164 2016-09-23 21:30:38Z katz $
 
-#ifndef _IPV6UTILITY_H
-#define _IPV6UTILITY_H
+#ifndef _SNMP_IPV6UTILITY_H_
+#define _SNMP_IPV6UTILITY_H_
 
+#include <libsnmp.h>
 #include "snmp_pp/config_snmp_pp.h"
 
 //FIXME #if defined(_MSC_VER) && defined(SNMP_PP_IPv6)
 #if defined(WIN32) && defined(SNMP_PP_IPv6)
 
-#define EAFNOSUPPORT WSAEAFNOSUPPORT
+//#define EAFNOSUPPORT WSAEAFNOSUPPORT
 #define ENOSPC 28
-
 
 const char * inet_ntop(int af, const void *src, char *dst, size_t size);
 
-int inet_pton(int af, const char *src, void *dst);
+//int inet_pton(int af, PCTSTR src, void *dst);
 
 #endif // defined(WIN32) && defined(SNMP_PP_IPv6)
 
-#endif // IPV6UTILITY_H
+#endif // _SNMP_IPV6UTILITY_H_
 

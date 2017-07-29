@@ -2,9 +2,9 @@
   _## 
   _##  msec.cpp  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,8 +23,6 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
-  _##  
   _##########################################################################*/
 /*
   Copyright (c) 1999
@@ -41,25 +39,34 @@
   or implied. User hereby grants a royalty-free license to any and all
   derivatives based upon this software code base.
 */
-char msec_cpp_version[]="@(#) SNMP++ $Id$";
+char msec_cpp_version[]="@(#) SNMP++ $Id: msec.cpp 2574 2014-02-16 22:34:59Z fock $";
+
+#include <libsnmp.h>
 
 #include "snmp_pp/msec.h"
 #include "snmp_pp/smival.h"
 #include "snmp_pp/config_snmp_pp.h"
 
-#include <stdio.h>  // for sprintf
-#include <string.h> // for strcat
-
 #ifdef WIN32
-#include <sys/types.h> // for _timeb
-#include <sys/timeb.h> // and _ftime
-
 #ifdef __BCPLUSPLUS__
 #define _timeb timeb
 #define _ftime ftime
 #endif
-
 #endif
+
+#if ENABLE_THREADS
+
+#ifndef HAVE_REENTRANT_LOCALTIME
+#ifndef HAVE_LOCALTIME_R
+// If you see this warning, and your system has a reentrant localtime
+// or localtime_r function report your compiler, OS,... to the authors
+// of this library, so that these settings can be changed
+#warning Threads_defined_but_no_reentrant_LOCALTIME_function
+#endif
+#endif
+
+#endif // ENABLE_THREADS
+
 
 #ifdef SNMP_PP_NAMESPACE
 namespace Snmp_pp {
@@ -67,7 +74,7 @@ namespace Snmp_pp {
 
 #if !defined HAVE_LOCALTIME_R && !defined HAVE_REENTRANT_LOCALTIME
 #ifdef _THREADS
-SnmpSynchronized msec::m_localtime_mutex;
+SnmpSynchronized m_localtime_mutex;
 #endif
 #endif
 
@@ -122,7 +129,7 @@ msec &msec::operator-=(const timeval &t1)
   long tmp_usec = t1.tv_usec/1000;// convert usec to millisec
   if (!this->IsInfinite())
   {
-    if (m_time.tv_usec < t1.tv_usec) {
+    if (m_time.tv_usec < tmp_usec) {
       // borrow
       m_time.tv_sec--;
       m_time.tv_usec += 1000;
@@ -152,7 +159,7 @@ msec &msec::operator+=(const timeval &t1)
   if (!this->IsInfinite())
   {
     m_time.tv_usec += tmp_usec;
-    if (m_time.tv_usec > 1000) {
+    if (m_time.tv_usec >= 1000) {
       // carry
       m_time.tv_sec +=  m_time.tv_usec / 1000;
       m_time.tv_usec = m_time.tv_usec % 1000;
@@ -205,9 +212,16 @@ void msec::refresh()
   m_time.tv_usec = theTime.NumMS % 1000;
 
 #else
-  class timezone tzone;
+#ifdef HAVE_CLOCK_GETTIME
+  struct timespec tsp;
+  clock_gettime(CLOCK_MONOTONIC, &tsp);
+  m_time.tv_sec = tsp.tv_sec;
+  m_time.tv_usec = tsp.tv_nsec / 1000000;
+#else  
+  struct timezone tzone;
   gettimeofday((timeval *)&m_time, &tzone);
   m_time.tv_usec /= 1000; // convert usec to millisec
+#endif
 #endif
   m_changed = true;
 }
@@ -276,5 +290,5 @@ const char *msec::get_printable() const
 }
 
 #ifdef SNMP_PP_NAMESPACE
-}; // end of namespace Snmp_pp
+} // end of namespace Snmp_pp
 #endif 

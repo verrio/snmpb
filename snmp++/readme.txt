@@ -1,3 +1,5 @@
+This is the README of the SNMP++ 2.x versions from HP for reference:
+
 SNMP++ 2.6 For HP UNIX Source Code and Examples:
 ====================================================================
 Included within this package can be found the source code and  

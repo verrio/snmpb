@@ -748,7 +748,7 @@ void Agent::AsyncCallbackTrap(int reason, Pdu &pdu, SnmpTarget &target)
     }
     
     char *add = (char*)agent.get_printable();
-    char *name;
+    const char *name;
 
     if ((s->PreferencesObj()->GetShowAgentName() == true) &&
         ((name = agent.friendly_name(status)) != NULL) &&

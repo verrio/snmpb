@@ -2,9 +2,9 @@
   _## 
   _##  snmpDiscover.cpp  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,50 +23,67 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
-  _##  
   _##########################################################################*/
 
-char snmpdiscover_cpp_version[]="@(#) SNMP++ $Id$";
+char snmpdiscover_cpp_version[]="@(#) SNMP++ $Id: snmpDiscover.cpp 2359 2013-05-09 20:07:01Z fock $";
+
+#include <libsnmp.h>
 
 #include "snmp_pp/snmp_pp.h"
-
-#include <stdlib.h>
-#include <stdio.h>
 
 #ifdef SNMP_PP_NAMESPACE
 using namespace Snmp_pp;
 #endif
 
-#if (__GNUC__ > 2)
-#include <iostream>
-using std::cerr;
-using std::cout;
-using std::endl;
-using std::flush;
+static void
+usage()
+{
+    cout << "Usage:\n";
+    cout << "snmpDiscover BroadcastIpAddress [options]\n";
+    exit(1);
+}
+
+static void
+help()
+{
+    cout << "Usage:\n";
+    cout << "snmpDiscover BroadcastIpAddress [options]\n";
+    cout << "options: -vN , use SNMP version 1, 2 or 3, default is 1\n";
+    cout << "         -PPort , remote port to use\n";
+    cout << "         -CCommunity_name, specify community default is 'public' \n";
+    cout << "         -rN , retries default is N = 1 retry\n";
+    cout << "         -tN , timeout in hundredths of seconds; default is N = 100\n";
+#ifdef WITH_LOG_PROFILES
+    cout << "         -Lprofile , log profile to use, default is '"
+#ifdef DEFAULT_LOG_PROFILE
+         << DEFAULT_LOG_PROFILE
 #else
-#include <iostream.h>
+         << "original"
 #endif
+         << "'" << endl;
+#endif
+    cout << "         -h, -? - prints this help" << endl;
+    exit(1);
+   }
 
 int main(int argc, char **argv)
 {
    //---------[ check the arg count ]----------------------------------------
-   if ( argc < 2) {
-	  cout << "Usage:\n";
-	  cout << argv[0] << " BroadcastIpAddress [options]\n";
-	  cout << "options: -vN , use SNMP version 1, 2 or 3, default is 1\n";
-	  cout << "         -PPort , remote port to use\n";
-	  cout << "         -CCommunity_name, specify community default is 'public' \n";
-	  cout << "         -rN , retries default is N = 1 retry\n";
-	  cout << "         -tN , timeout in hundredths of seconds; default is N = 100\n";
-	  return 1;
-   }
+   if ( argc < 2 )
+     usage();
+   if ( strstr( argv[1],"-h") != 0 )
+     help();
+   if ( strstr( argv[1],"-?") != 0 )
+     usage();
+
+#if !defined(_NO_LOGGING) && !defined(WITH_LOG_PROFILES)
    // Set filter for logging
    DefaultLog::log()->set_filter(ERROR_LOG, 7);
    DefaultLog::log()->set_filter(WARNING_LOG, 7);
    DefaultLog::log()->set_filter(EVENT_LOG, 7);
    DefaultLog::log()->set_filter(INFO_LOG, 7);
    DefaultLog::log()->set_filter(DEBUG_LOG, 7);
+#endif
 
    Snmp::socket_startup();  // Initialize socket subsystem
 
@@ -74,7 +91,7 @@ int main(int argc, char **argv)
    UdpAddress address( argv[1]);      // make a SNMP++ Generic address
    if ( !address.valid()) {           // check validity of address
 	  cout << "Invalid Address or DNS Name, " << argv[1] << "\n";
-	  return 1;
+	  usage();
    }
    Oid oid("1.3.6.1.2.1.1.1.0");      // default is sysDescr
 
@@ -118,6 +135,13 @@ int main(int argc, char **argv)
        sscanf(ptr, "%hu", &port);
        continue;
      }
+
+#ifdef WITH_LOG_PROFILES
+     if ( strstr( argv[x], "-L" ) != 0 ) {
+       ptr = argv[x]; ptr++; ptr++;
+       DefaultLog::log()->set_profile(ptr);
+     }
+#endif
 
 #ifdef _SNMPv3
      if ( strstr( argv[x],"-v3")!= 0) {
@@ -193,7 +217,7 @@ int main(int argc, char **argv)
    int dummy_pos;
 
    for (int n=0; n < addresses.size(); ++n)
-     if (filtered_addrs.find(addresses[n], dummy_pos) == FALSE)
+     if (filtered_addrs.find(addresses[n], dummy_pos))
        filtered_addrs += addresses[n];
 
    // print out all addressess

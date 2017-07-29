@@ -1,0 +1,27 @@
+
+README autoconf
+===============
+
+To use autoconf 2.64 or later with SNMP++, execute the following 
+commands in the "snmp++" directory:
+
+autoreconf -i
+./configure
+make
+
+If "autoreconf" fails you may try to update the provided
+m4 scripts in the build-aux directory with:
+
+autoreconf -i --force
+
+The autoreconf process needs at least the following tools/libs:
+
+autoconf
+libtoolize
+pkgconfig
+openssl-devel | libdes | libtomcrypt  (required for SNMPv3 support)
+
+
+The Makfile.<os-name> and common.mk files are no longer 
+maintained but provided for reference for a minimal setup 
+to ease porting SNMP++ to other platforms.

@@ -2,9 +2,9 @@
   _## 
   _##  md5.h  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,10 +23,12 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
-  _##  
   _##########################################################################*/
 
+#ifndef _SNMP_MD5_H_
+#define _SNMP_MD5_H_
+
+#include <libsnmp.h>
 #include "snmp_pp/config_snmp_pp.h"
 
 #if !defined(_USE_LIBTOMCRYPT) && !defined(_USE_OPENSSL)
@@ -53,10 +55,7 @@
    These notices must be retained in any copies of any part of this
    documentation and/or software.
  */
-// $Id$
-
-#ifndef _MD5_H_
-#define _MD5_H_
+// $Id: md5.h 3195 2017-01-11 20:07:44Z katz $
 
 #ifdef __cplusplus
 extern "C" {
@@ -73,36 +72,7 @@ typedef unsigned char *POINTER;
 typedef unsigned short int UINT2;
 
 /* UINT4 defines a four byte word */
-typedef unsigned int UINT4; /* for alpha */
-/*typedef unsigned long int UINT4; */
-
-/* BYTE defines a unsigned character */
-typedef unsigned char BYTE;
-
-/* internal signed value */
-typedef signed int signeddigit;
-
-#ifndef NULL_PTR
-#define NULL_PTR ((POINTER)0)
-#endif
-
-#ifndef UNUSED_ARG
-#define UNUSED_ARG(x) x = *(&x);
-#endif
-
-#ifndef PROTOTYPES
-#define PROTOTYPES
-#endif
-
-/* PROTO_LIST is defined depending on how PROTOTYPES is defined above.
-	 If using PROTOTYPES, then PROTO_LIST returns the list, otherwise it
-	 returns an empty list. */
-
-#ifdef PROTOTYPES
-#define PROTO_LIST(list) list
-#else
-#define PROTO_LIST(list) ()
-#endif
+typedef unsigned int UINT4;
 
 /* MD5 context. */
 typedef struct {
@@ -111,9 +81,9 @@ typedef struct {
   unsigned char buffer[64];                                 /* input buffer */
 } MD5_CTX;
 
-DLLOPT void  MD5Init PROTO_LIST ((MD5_CTX *));
-DLLOPT void  MD5Update PROTO_LIST ((MD5_CTX *, const unsigned char *, const unsigned int));
-DLLOPT void  MD5Final PROTO_LIST ((unsigned char [16], MD5_CTX *));
+DLLOPT void  MD5Init(MD5_CTX *);
+DLLOPT void  MD5Update(MD5_CTX *, const unsigned char *, const unsigned int);
+DLLOPT void  MD5Final(unsigned char [16], MD5_CTX *);
 
 #ifdef SNMP_PP_NAMESPACE
 } // end of namespace Snmp_pp
@@ -123,6 +93,6 @@ DLLOPT void  MD5Final PROTO_LIST ((unsigned char [16], MD5_CTX *));
 }
 #endif
 
-#endif
-
 #endif // !defined(_USE_LIBTOMCRYPT) && !defined(_USE_OPENSSL)
+
+#endif // _SNMP_MD5_H_

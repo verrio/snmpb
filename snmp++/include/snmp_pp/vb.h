@@ -2,9 +2,9 @@
   _## 
   _##  vb.h  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -22,8 +22,6 @@
   _##  "AS-IS" without warranty of any kind, either express or implied. User 
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
-  _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -57,10 +55,10 @@
   DESIGN + AUTHOR:  Peter E. Mellquist
 
 =====================================================================*/
-// $Id$
+// $Id: vb.h 3167 2016-09-26 18:52:43Z katz $
 
-#ifndef _VB_CLS
-#define _VB_CLS
+#ifndef _SNMP_VB_H_
+#define _SNMP_VB_H_
 
 #include "snmp_pp/oid.h"                 // oid class def
 #include "snmp_pp/timetick.h"            // time ticks
@@ -280,6 +278,18 @@ class DLLOPT Vb
   /**
    * Get the value.
    *
+   * This method will only return success if the value of the vb can
+   * be mapped to an unsigned 64bit value (SMI type counter64).
+   *
+   * @param i - returned value
+   *
+   * @return SNMP_CLASS_SUCCESS on success, else SNMP_CLASS_INVALID.
+   */
+  int get_value(pp_uint64 &i) const;
+
+  /**
+   * Get the value.
+   *
    * This method will only return success if the value of the vb is SMI OCTET.
    *
    * @note The caller must provide a target string big enough to
@@ -371,7 +381,7 @@ class DLLOPT Vb
    * @param status - the new SNMPv2 exception status.
    */
   void set_exception_status(const SmiUINT32 status)
-    { exception_status = status; };
+    { free_vb(); exception_status = status; };
 
   /**
    * Get the exception status.
@@ -428,4 +438,4 @@ class DLLOPT Vb
 } // end of namespace Snmp_pp
 #endif 
 
-#endif
+#endif // _SNMP_VB_H_

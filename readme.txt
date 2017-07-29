@@ -39,7 +39,7 @@ External packages
 ------------------
 
 Snmp++ is taken from http://www.agentpp.com
-Version: 3.2.25
+Version: 3.3.9
 
 Modified file(s):
 config_snmp_pp.h

@@ -2,9 +2,9 @@
   _## 
   _##  vb.cpp  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -22,8 +22,6 @@
   _##  "AS-IS" without warranty of any kind, either express or implied. User 
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
-  _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -53,7 +51,9 @@
 
   DESIGN + AUTHOR:  Peter E Mellquist
 =====================================================================*/
-char vb_cpp_version[]="#(@) SNMP++ $Id$";
+char vb_cpp_version[]="#(@) SNMP++ $Id: vb.cpp 2361 2013-05-09 22:15:06Z katz $";
+
+#include <libsnmp.h>
 
 #include "snmp_pp/vb.h"            // include vb class defs
 
@@ -71,12 +71,7 @@ namespace Snmp_pp {
 bool Vb::valid() const
 {
   if (iv_vb_oid.valid() &&
-#ifdef WHEN_WE_HAVE_SNMPNULL_CLASS
-      iv_vb_value && iv_vb_value->valid()
-#else
-      ((iv_vb_value == NULL) || (iv_vb_value && iv_vb_value->valid()))
-#endif
-    )
+      ((iv_vb_value == NULL) || (iv_vb_value && iv_vb_value->valid())))
     return true;
   return false;
 }
@@ -164,7 +159,7 @@ int Vb::get_value(long &i) const
        iv_vb_value->valid() &&
        (iv_vb_value->get_syntax() == sNMP_SYNTAX_INT32 ))
    {
-     i = *((SnmpInt32 *)iv_vb_value);	// SnmpInt32 includes cast to long
+     i = *((SnmpInt32 *)iv_vb_value);	// SnmpInt32 has cast to long
      return SNMP_CLASS_SUCCESS;
    }
    return SNMP_CLASS_INVALID;
@@ -183,12 +178,26 @@ int Vb::get_value(unsigned long &i) const
        (iv_vb_value->get_syntax() == sNMP_SYNTAX_GAUGE32 ) ||
        (iv_vb_value->get_syntax() == sNMP_SYNTAX_TIMETICKS )))
   {
-    i = *((SnmpUInt32 *)iv_vb_value);	// SnmpUint32 has includes to ulong
+    i = *((SnmpUInt32 *)iv_vb_value);	// SnmpUint32 has cast to ulong
     return SNMP_CLASS_SUCCESS;
   }
   return SNMP_CLASS_INVALID;
 }
 
+//-----------------[  Vb::get_value(pp_uint64 &i) ]--------------
+// get the pp_uint64
+// returns 0 on success and a value
+int Vb::get_value(pp_uint64 &i) const
+{
+  if (iv_vb_value &&
+      iv_vb_value->valid() &&
+      (iv_vb_value->get_syntax() == sNMP_SYNTAX_CNTR64 ))
+  {
+    i = *((Counter64*)iv_vb_value);
+    return SNMP_CLASS_SUCCESS;
+  }
+  return SNMP_CLASS_INVALID;
+}
 
 //--------------[ Vb::get_value(unsigned char WINFAR * ptr, unsigned long &len)
 // get a unsigned char string value
@@ -357,7 +366,7 @@ void Vb::set_syntax(const SmiUINT32 syntax)
 static char blank_string[] = "";
 
 // return the printabel value
-const char WINFAR *Vb::get_printable_value() const
+const char *Vb::get_printable_value() const
 {
   if (iv_vb_value)
     return iv_vb_value->get_printable();
@@ -374,5 +383,5 @@ int Vb::get_asn1_length() const
 }
 
 #ifdef SNMP_PP_NAMESPACE
-}; // end of namespace Snmp_pp
+} // end of namespace Snmp_pp
 #endif 

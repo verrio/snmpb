@@ -2,9 +2,9 @@
   _## 
   _##  gauge.cpp  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -22,8 +22,6 @@
   _##  "AS-IS" without warranty of any kind, either express or implied. User 
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
-  _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -51,7 +49,9 @@
   DESCRIPTION:
   Class implemtation for SMI Gauge32 class.
 =====================================================================*/
-char gauge_cpp_version[]="@(#) SNMP++ $Id$";
+char gauge_cpp_version[]="@(#) SNMP++ $Id: gauge.cpp 3169 2016-09-26 20:45:41Z katz $";
+
+#include <libsnmp.h>
 
 #include "snmp_pp/gauge.h"	  // header file for gauge class
 
@@ -59,14 +59,6 @@ char gauge_cpp_version[]="@(#) SNMP++ $Id$";
 namespace Snmp_pp {
 #endif
 
-// copy constructor
-Gauge32::Gauge32(const Gauge32 &g32)
-  : SnmpUInt32()
-{
-  smival.value.uNumber = g32.smival.value.uNumber;
-  smival.syntax = sNMP_SYNTAX_GAUGE32;
-}
-
 #ifdef SNMP_PP_NAMESPACE
-}; // end of namespace Snmp_pp
+} // end of namespace Snmp_pp
 #endif 

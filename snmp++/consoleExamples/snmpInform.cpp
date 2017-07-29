@@ -2,9 +2,9 @@
   _## 
   _##  snmpInform.cpp  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -22,8 +22,6 @@
   _##  "AS-IS" without warranty of any kind, either express or implied. User 
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
-  _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*
@@ -45,29 +43,17 @@
 
   Peter E. Mellquist
 */
-char snmpget_cpp_version[]="@(#) SNMP++ $Id$";
+char snmpget_cpp_version[]="@(#) SNMP++ $Id: snmpInform.cpp 2471 2013-11-14 19:49:48Z fock $";
+#include <libsnmp.h>
 
 #include "snmp_pp/snmp_pp.h"
 
-#include <stdlib.h>
-#include <stdio.h>
-
 #ifdef WIN32
-#define strcasecmp stricmp
+#define strcasecmp _stricmp
 #endif
 
 #ifdef SNMP_PP_NAMESPACE
 using namespace Snmp_pp;
-#endif
-
-#if (__GNUC__ > 2)
-#include <iostream>
-using std::cerr;
-using std::cout;
-using std::endl;
-using std::flush;
-#else
-#include <iostream.h>
 #endif
 
 #define COLDSTART "1.3.6.1.6.3.1.1.5.1"
@@ -75,10 +61,17 @@ using std::flush;
 #define PAYLOAD "SNMP++ Trap Send Test"
 #define ENTERPRISE "1.3.6.1.2.1.1.1.2.0.1"
 
-int main(int argc, char **argv)
+static void
+usage()
 {
-   //---------[ check the arg count ]----------------------------------------
-   if ( argc < 2) {
+    cout << "Usage:\n";
+    cout << "snmpInform IpAddress | DNSName [Id] [options]\n";
+    exit(1);
+}
+
+static void
+help()
+{
 	  cout << "Usage:\n";
 	  cout << "snmpInform IpAddress | DNSName [Id] [options]\n";
 	  cout << "Id = default is 1.3.6.1.6.3.1.1.5.1 = ColdStart";
@@ -98,15 +91,37 @@ int main(int argc, char **argv)
           cout << "         -uaAuthPassword\n";
           cout << "         -upPrivPassword\n";
 #endif
-	  return 1;
+#ifdef WITH_LOG_PROFILES
+    cout << "         -Lprofile , log profile to use, default is '"
+#ifdef DEFAULT_LOG_PROFILE
+         << DEFAULT_LOG_PROFILE
+#else
+         << "original"
+#endif
+         << "'" << endl;
+#endif
+    cout << "         -h, -? - prints this help" << endl;
+    exit(1);
    }
 
+int main(int argc, char **argv)
+{
+   //---------[ check the arg count ]----------------------------------------
+   if ( argc < 2 )
+     usage();
+   if ( strstr( argv[1],"-h") != 0 )
+     help();
+   if ( strstr( argv[1],"-?") != 0 )
+     usage();
+
+#if !defined(_NO_LOGGING) && !defined(WITH_LOG_PROFILES)
    // Set filter for logging
    DefaultLog::log()->set_filter(ERROR_LOG, 7);
    DefaultLog::log()->set_filter(WARNING_LOG, 7);
    DefaultLog::log()->set_filter(EVENT_LOG, 7);
    DefaultLog::log()->set_filter(INFO_LOG, 7);
    DefaultLog::log()->set_filter(DEBUG_LOG, 7);
+#endif
 
    Snmp::socket_startup();  // Initialize socket subsystem
 
@@ -114,7 +129,7 @@ int main(int argc, char **argv)
    UdpAddress address( argv[1]);      // make a SNMP++ Generic address
    if ( !address.valid()) {           // check validity of address
 	  cout << "Invalid Address or DNS Name, " << argv[1] << "\n";
-	  return 1;
+	  usage();
    }
    Oid oid( COLDSTART);    // default is ColdStart 
    if ( argc >= 3) {                  // if 3 args, then use the callers Oid
@@ -122,7 +137,7 @@ int main(int argc, char **argv)
 	     oid = argv[2];
 	     if ( !oid.valid()) {            // check validity of user oid
 		    cout << "Invalid Oid, " << argv[2] << "\n";
-		    return 1;
+		    usage();
          }
       }
    }
@@ -177,6 +192,13 @@ int main(int argc, char **argv)
        sscanf(ptr, "%hu", &port);
        continue;
      }
+
+#ifdef WITH_LOG_PROFILES
+     if ( strstr( argv[x], "-L" ) != 0 ) {
+       ptr = argv[x]; ptr++; ptr++;
+       DefaultLog::log()->set_profile(ptr);
+     }
+#endif
 
 #ifdef _SNMPv3
      if ( strstr( argv[x],"-v3")!= 0) {

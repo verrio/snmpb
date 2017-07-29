@@ -2,9 +2,9 @@
   _## 
   _##  notifyqueue.h  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -22,8 +22,6 @@
   _##  "AS-IS" without warranty of any kind, either express or implied. User 
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
-  _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -58,17 +56,14 @@
         Queue for holding sessions waiting for notifiactions
 
 =====================================================================*/
-// $Id$
+// $Id: notifyqueue.h 3164 2016-09-23 21:30:38Z katz $
 
-#ifndef _NOTIFYQUEUE
-#define _NOTIFYQUEUE
+#ifndef _SNMP_NOTIFYQUEUE_H_
+#define _SNMP_NOTIFYQUEUE_H_
 
 //----[ includes ]-----------------------------------------------------
-#include <sys/types.h>          // NOTE: due to 10.10 bug, order is important
-                                //   in that all routines must include types.h
-                                //   and time.h in same order otherwise you
-                                //   will get conflicting definitions of
-                                //   "fd_set" resulting in link time errors.
+#include <libsnmp.h>
+#include <sys/types.h>
 #ifndef WIN32
 #if !(defined CPU && CPU == PPC603)
 #include <sys/time.h>	// time stuff and fd_set
@@ -205,4 +200,4 @@ class DLLOPT CNotifyEventQueue: public CEvents
 } // end of namespace Snmp_pp
 #endif 
 
-#endif // NOTIFYQUEUE
+#endif // _SNMP_NOTIFYQUEUE_H_

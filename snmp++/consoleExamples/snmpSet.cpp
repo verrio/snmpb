@@ -2,9 +2,9 @@
   _## 
   _##  snmpSet.cpp  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -22,8 +22,6 @@
   _##  "AS-IS" without warranty of any kind, either express or implied. User 
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
-  _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*
@@ -45,34 +43,22 @@
 
   Peter E. Mellquist
 */
-char snmpset_cpp_version[]="@(#) SNMP++ $Id$";
+char snmpset_cpp_version[]="@(#) SNMP++ $Id: snmpSet.cpp 2471 2013-11-14 19:49:48Z fock $";
+
+#include <libsnmp.h>
 
 #include "snmp_pp/snmp_pp.h"
 
-#include <stdlib.h>
-#include <stdio.h>
-
 #ifdef WIN32
-#define strcasecmp stricmp
+#define strcasecmp _stricmp
 #endif
 
 #ifdef SNMP_PP_NAMESPACE
 using namespace Snmp_pp;
 #endif
 
-#if (__GNUC__ > 2)
-#include <iostream>
-using std::cerr;
-using std::cout;
-using std::cin;
-using std::endl;
-using std::flush;
-#else
-#include <iostream.h>
-#endif
-
 // determine the smi type and get a value from the user
-int determine_vb( SmiUINT32 val, Vb &vb)
+bool determine_vb(SmiUINT32 val, Vb &vb)
 {
   char buffer[255];
 
@@ -99,14 +85,14 @@ int determine_vb( SmiUINT32 val, Vb &vb)
       cout << "Octet String\n";
       cout << "Please enter new value: ";
       cin >> buffer;
-      OctetStr octetstr( buffer);
-      if ( octetstr.valid()) {
-	vb.set_value( octetstr);
-	return TRUE;
+      OctetStr octetstr(buffer);
+      if (octetstr.valid()) {
+	vb.set_value(octetstr);
+	return true;
       }
       else {
 	cout << "Invalid OctetStr\n";
-	return FALSE;
+	return false;
       }
     }
 
@@ -116,14 +102,14 @@ int determine_vb( SmiUINT32 val, Vb &vb)
       cout << "IP Address\n";
       cout << "Please enter new value: ";
       cin >> buffer;
-      IpAddress ipaddress( buffer);
-      if ( ipaddress.valid()) {
-	vb.set_value( ipaddress);
-	return TRUE;
+      IpAddress ipaddress(buffer);
+      if (ipaddress.valid()) {
+	vb.set_value(ipaddress);
+	return true;
       }
       else {
 	cout << "Invalid IP Address\n";
-	return FALSE;
+	return false;
       }
     }
 
@@ -133,14 +119,14 @@ int determine_vb( SmiUINT32 val, Vb &vb)
       cout << "Oid\n";
       cout << "Please enter new value: ";
       cin >> buffer;
-      Oid oid( buffer);
-      if ( oid.valid()) {
-	vb.set_value( oid);
-	return TRUE;
+      Oid oid(buffer);
+      if (oid.valid()) {
+	vb.set_value(oid);
+	return true;
       }
       else {
 	cout << "Invalid Oid\n";
-	return FALSE;
+	return false;
       }
     }
 
@@ -151,15 +137,15 @@ int determine_vb( SmiUINT32 val, Vb &vb)
       cout << "Please enter new value: ";
       cin >> buffer;
       unsigned long i;
-      i = atol( buffer);
-      TimeTicks timeticks( i);
-      if ( timeticks.valid()) {
-	vb.set_value( timeticks);
-	return TRUE;
+      i = atol(buffer);
+      TimeTicks timeticks(i);
+      if (timeticks.valid()) {
+	vb.set_value(timeticks);
+	return true;
       }
       else {
 	cout << "Invalid TimeTicks\n";
-	return FALSE;
+	return false;
       }
     }
 
@@ -170,15 +156,15 @@ int determine_vb( SmiUINT32 val, Vb &vb)
       cout << "Please enter new value: ";
       cin >> buffer;
       unsigned long i;
-      i = atol( buffer);
+      i = atol(buffer);
       Gauge32 gauge32(i); 
-      if ( gauge32.valid()) {
-	vb.set_value( gauge32);
-	return TRUE;
+      if (gauge32.valid()) {
+	vb.set_value(gauge32);
+	return true;
       }
       else {
 	cout << "Invalid Gauge32\n";
-	return FALSE;
+	return false;
       }
     }
 
@@ -188,15 +174,15 @@ int determine_vb( SmiUINT32 val, Vb &vb)
       cout << "Please enter new value: ";
       cin >> buffer;
       unsigned long i;
-      i = atol( buffer);
+      i = atol(buffer);
       Counter32 counter32(i);
-      if ( counter32.valid()) {
-	vb.set_value( counter32);
-	return TRUE;
+      if (counter32.valid()) {
+	vb.set_value(counter32);
+	return true;
       }
       else {
 	cout << "Invalid Counter32\n";
-	return FALSE;
+	return false;
       }
     }
 
@@ -206,22 +192,22 @@ int determine_vb( SmiUINT32 val, Vb &vb)
       cout << "Please enter value (low 32 bit): ";
       cin >> buffer;
       unsigned long i;
-      i = atol( buffer);
+      i = atol(buffer);
       Counter64 counter64;
       counter64.set_low(i);
 
       cout << "Please enter value (high 32 bit): ";
       cin >> buffer;
-      i = atol( buffer);
+      i = atol(buffer);
       counter64.set_high(i);
 
-      if ( counter64.valid()) {
-	vb.set_value( counter64);
-	return TRUE;
+      if (counter64.valid()) {
+	vb.set_value(counter64);
+	return true;
       }
       else {
 	cout << "Invalid Counter64\n";
-	return FALSE;
+	return false;
       }
     }
 
@@ -231,75 +217,104 @@ int determine_vb( SmiUINT32 val, Vb &vb)
       cout << "Please enter new value: ";
       cin >> buffer;
       unsigned long i;
-      i = atol( buffer);
+      i = atol(buffer);
       long l ;
-      l = ( long) i;
-      vb.set_value( l);
-      return TRUE;
+      l = (long) i;
+      vb.set_value(l);
+      return true;
     }
 
     case sNMP_SYNTAX_NOSUCHOBJECT:
     {
       cout << "NO SUCH OBJECT\n";
       cout << "Object cannot be created.\n";
-      return FALSE;
+      return false;
     }
     default:
     cout << "Unknown Data Type " << val << "\n";
-    return FALSE;
+    return false;
   }
 }
+
+static void
+usage()
+{
+    cout << "Usage:\n";
+    cout << "snmpSet IpAddress | DNSName [Oid] [options]\n";
+    exit(1);
+}
+
+static void
+help()
+{
+    cout << "Usage:\n";
+    cout << "snmpSet IpAddress | DNSName [Oid] [options]\n";
+    cout << "Oid: sysDescr object is default\n";
+    cout << "options: -vN , use SNMP version 1, 2 or 3, default is 1\n";
+    cout << "         -PPort , remote port to use\n";
+    cout << "         -CCommunity_name, specify SET community default is 'public' \n";
+    cout << "         -GCommunity_name, specify GET community default is set community value \n";
+    cout << "         -rN , retries default is N = 1 retry\n";
+    cout << "         -tN , timeout in hundredths of seconds; default is N = 100\n";
+#ifdef _SNMPv3
+    cout << "         -snSecurityName, " << endl;
+    cout << "         -slN , securityLevel to use, default N = 3 = authPriv" << endl;
+    cout << "         -smN , securityModel to use, only default N = 3 = USM possible\n";
+    cout << "         -cnContextName, default empty string" << endl;
+    cout << "         -ceContextEngineID, as hex e.g. 800007E580, default empty string" << endl;
+    cout << "         -authPROT, use authentication protocol NONE, SHA or MD5\n";
+    cout << "         -privPROT, use privacy protocol NONE, DES, 3DESEDE, IDEA, AES128, AES192 or AES256\n";
+    cout << "         -uaAuthPassword\n";
+    cout << "         -upPrivPassword\n";
+#endif
+#ifdef WITH_LOG_PROFILES
+    cout << "         -Lprofile , log profile to use, default is '"
+#ifdef DEFAULT_LOG_PROFILE
+         << DEFAULT_LOG_PROFILE
+#else
+         << "original"
+#endif
+         << "'" << endl;
+#endif
+    cout << "         -h, -? - prints this help" << endl;
+    exit(1);
+   }
 
 
 int main(int argc, char **argv)
 {
    //---------[ check the arg count ]----------------------------------------
-   if ( argc < 2) {
-	  cout << "Usage:\n";
-	  cout << argv[0] << " IpAddress | DNSName [Oid] [options]\n";
-	  cout << "Oid: sysDescr object is default\n";
-	  cout << "options: -vN , use SNMP version 1, 2 or 3, default is 1\n";
-	  cout << "         -PPort , remote port to use\n";
-	  cout << "         -CCommunity_name, specify SET community default is 'public' \n";
-	  cout << "         -GCommunity_name, specify GET community default is set community value \n";
-	  cout << "         -rN , retries default is N = 1 retry\n";
-	  cout << "         -tN , timeout in hundredths of seconds; default is N = 100\n";
-#ifdef _SNMPv3
-          cout << "         -snSecurityName, " << endl;
-          cout << "         -slN , securityLevel to use, default N = 3 = authPriv" << endl;
-          cout << "         -smN , securityModel to use, only default N = 3 = USM possible\n";
-          cout << "         -cnContextName, default empty string" << endl;
-          cout << "         -ceContextEngineID, as hex e.g. 800007E580, default empty string" << endl;
-          cout << "         -authPROT, use authentication protocol NONE, SHA or MD5\n";
-          cout << "         -privPROT, use privacy protocol NONE, DES, 3DESEDE, IDEA, AES128, AES192 or AES256\n";
-          cout << "         -uaAuthPassword\n";
-          cout << "         -upPrivPassword\n";
-#endif
-	  return 1;
-   }
+   if ( argc < 2 )
+     usage();
+   if ( strstr( argv[1],"-h") != 0 )
+     help();
+   if ( strstr( argv[1],"-?") != 0 )
+     usage();
 
+#if !defined(_NO_LOGGING) && !defined(WITH_LOG_PROFILES)
    // Set filter for logging
    DefaultLog::log()->set_filter(ERROR_LOG, 7);
    DefaultLog::log()->set_filter(WARNING_LOG, 7);
    DefaultLog::log()->set_filter(EVENT_LOG, 7);
    DefaultLog::log()->set_filter(INFO_LOG, 7);
    DefaultLog::log()->set_filter(DEBUG_LOG, 7);
+#endif
 
    Snmp::socket_startup();  // Initialize socket subsystem
 
    //---------[ make a GenAddress and Oid object to retrieve ]---------------
-   UdpAddress address( argv[1]);      // make a SNMP++ Generic address
-   if ( !address.valid()) {           // check validity of address
+   UdpAddress address(argv[1]);      // make a SNMP++ Generic address
+   if (!address.valid()) {           // check validity of address
 	  cout << "Invalid Address or DNS Name, " << argv[1] << "\n";
-	  return 1;
+	  usage();
    }
    Oid oid("1.3.6.1.2.1.1.4.0");      // default is sysName
-   if ( argc >= 3) {                  // if 3 args, then use the callers Oid
-	  if ( strstr( argv[2],"-")==0) {
+   if (argc >= 3) {                  // if 3 args, then use the callers Oid
+	  if (strstr(argv[2],"-")==0) {
 	     oid = argv[2];
-	     if ( !oid.valid()) {            // check validity of user oid
+	     if (!oid.valid()) {            // check validity of user oid
 		    cout << "Invalid Oid, " << argv[2] << "\n";
-		    return 1;
+		    usage();
          }
       }
    }
@@ -328,44 +343,51 @@ int main(int argc, char **argv)
    char *ptr;
 
    for(int x=1;x<argc;x++) {                           // parse for version
-     if ( strstr( argv[x],"-v2")!= 0) {
+     if (strstr(argv[x],"-v2")!= 0) {
        version = version2c;
        continue;
      }
-     if ( strstr( argv[x],"-r")!= 0) {                 // parse for retries
+     if (strstr(argv[x],"-r")!= 0) {                 // parse for retries
        ptr = argv[x]; ptr++; ptr++;
        retries = atoi(ptr);
-       if (( retries<0)|| (retries>5)) retries=1; 
+       if ((retries<0)|| (retries>5)) retries=1; 
        continue;
      }
-     if ( strstr( argv[x], "-t")!=0) {                 // parse for timeout
+     if (strstr(argv[x], "-t")!=0) {                 // parse for timeout
        ptr = argv[x]; ptr++; ptr++;
-       timeout = atoi( ptr);
-       if (( timeout < 100)||( timeout>500)) timeout=100;
+       timeout = atoi(ptr);
+       if ((timeout < 100)||(timeout>500)) timeout=100;
        continue;
      }
-     if ( strstr( argv[x],"-C")!=0) {
+     if (strstr(argv[x],"-C")!=0) {
        ptr = argv[x]; ptr++; ptr++;
        community = ptr;
        continue;
      }
-     if ( strstr( argv[x],"-G")!=0) {
+     if (strstr(argv[x],"-G")!=0) {
        ptr = argv[x]; ptr++; ptr++;
        get_community = ptr;
        continue;
      }
-     if ( strstr( argv[x],"-P")!=0) {
+     if (strstr(argv[x],"-P")!=0) {
        ptr = argv[x]; ptr++; ptr++;
        sscanf(ptr, "%hu", &port);
        continue;
      }
 
+#ifdef WITH_LOG_PROFILES
+     if ( strstr( argv[x], "-L" ) != 0 ) {
+       ptr = argv[x]; ptr++; ptr++;
+       DefaultLog::log()->set_profile(ptr);
+     }
+#endif
+
 #ifdef _SNMPv3
-     if ( strstr( argv[x],"-v3")!= 0) {
+     if (strstr(argv[x],"-v3")!= 0) {
        version = version3;
        continue;
      }
-     if ( strstr( argv[x],"-auth") != 0) {
+     if (strstr(argv[x],"-auth") != 0) {
        ptr = argv[x]; ptr+=5;
        if (strcasecmp(ptr, "SHA") == 0)
 	 authProtocol = SNMP_AUTHPROTOCOL_HMACSHA;
@@ -377,7 +399,7 @@ int main(int argc, char **argv)
 	 cout << "Warning: ignoring unknown auth protocol: " << ptr << endl;
        continue;
      }
-     if ( strstr( argv[x],"-priv") != 0) {
+     if (strstr(argv[x],"-priv") != 0) {
        ptr = argv[x]; ptr+=5;
        if (strcasecmp(ptr, "DES") == 0)
 	   privProtocol = SNMP_PRIVPROTOCOL_DES;
@@ -397,43 +419,43 @@ int main(int argc, char **argv)
 	 cout << "Warning: ignoring unknown priv protocol: " << ptr << endl;
        continue;
      }
-     if ( strstr( argv[x],"-sn")!=0) {
+     if (strstr(argv[x],"-sn")!=0) {
        ptr = argv[x]; ptr+=3;
        securityName = ptr;
        continue;
       }
-     if ( strstr( argv[x], "-sl")!=0) {
+     if (strstr(argv[x], "-sl")!=0) {
        ptr = argv[x]; ptr+=3;
-       securityLevel = atoi( ptr);
-       if (( securityLevel < SNMP_SECURITY_LEVEL_NOAUTH_NOPRIV) ||
-           ( securityLevel > SNMP_SECURITY_LEVEL_AUTH_PRIV))
+       securityLevel = atoi(ptr);
+       if ((securityLevel < SNMP_SECURITY_LEVEL_NOAUTH_NOPRIV) ||
+           (securityLevel > SNMP_SECURITY_LEVEL_AUTH_PRIV))
          securityLevel = SNMP_SECURITY_LEVEL_AUTH_PRIV;
        continue;
      }
-     if ( strstr( argv[x], "-sm")!=0) {
+     if (strstr(argv[x], "-sm")!=0) {
        ptr = argv[x]; ptr+=3;
-       securityModel = atoi( ptr);
-       if (( securityModel < SNMP_SECURITY_MODEL_V1) ||
-           ( securityModel > SNMP_SECURITY_MODEL_USM))
+       securityModel = atoi(ptr);
+       if ((securityModel < SNMP_SECURITY_MODEL_V1) ||
+           (securityModel > SNMP_SECURITY_MODEL_USM))
          securityModel = SNMP_SECURITY_MODEL_USM;
        continue;
      }
-     if ( strstr( argv[x],"-cn")!=0) {
+     if (strstr(argv[x],"-cn")!=0) {
        ptr = argv[x]; ptr+=3;
        contextName = ptr;
        continue;
      }
-     if ( strstr( argv[x],"-ce")!=0) {
+     if (strstr(argv[x],"-ce")!=0) {
        ptr = argv[x]; ptr+=3;
        contextEngineID = OctetStr::from_hex_string(ptr);
        continue;
      }
-     if ( strstr( argv[x],"-ua")!=0) {
+     if (strstr(argv[x],"-ua")!=0) {
        ptr = argv[x]; ptr+=3;
        authPassword = ptr;
        continue;
      }
-     if ( strstr( argv[x],"-up")!=0) {
+     if (strstr(argv[x],"-up")!=0) {
        ptr = argv[x]; ptr+=3;
        privPassword = ptr;
        continue;
@@ -449,7 +471,7 @@ int main(int argc, char **argv)
    // bind to any port and use IPv6 if needed
    Snmp snmp(status, 0, (address.get_ip_version() == Address::version_ipv6));
 
-   if ( status != SNMP_CLASS_SUCCESS) {
+   if (status != SNMP_CLASS_SUCCESS) {
       cout << "SNMP++ Session Create Fail, " << snmp.error_msg(status) << "\n";
       return 1;
    }
@@ -500,31 +522,31 @@ int main(int argc, char **argv)
    //--------[ build up SNMP++ object needed ]-------------------------------
    Pdu pdu;                               // construct a Pdu object
    Vb vb;                                 // construct a Vb object
-   vb.set_oid( oid);                      // set the Oid portion of the Vb
+   vb.set_oid(oid);                      // set the Oid portion of the Vb
    pdu += vb;                             // add the vb to the Pdu
 
    address.set_port(port);
-   CTarget ctarget( address);             // make a target using the address
+   CTarget ctarget(address);             // make a target using the address
 #ifdef _SNMPv3
-   UTarget utarget( address);
+   UTarget utarget(address);
 
    if (version == version3) {
-     utarget.set_version( version);          // set the SNMP version SNMPV1 or V2 or V3
-     utarget.set_retry( retries);            // set the number of auto retries
-     utarget.set_timeout( timeout);          // set timeout
-     utarget.set_security_model( securityModel);
-     utarget.set_security_name( securityName);
-     pdu.set_security_level( securityLevel);
+     utarget.set_version(version);          // set the SNMP version SNMPV1 or V2 or V3
+     utarget.set_retry(retries);            // set the number of auto retries
+     utarget.set_timeout(timeout);          // set timeout
+     utarget.set_security_model(securityModel);
+     utarget.set_security_name(securityName);
+     pdu.set_security_level(securityLevel);
      pdu.set_context_name (contextName);
      pdu.set_context_engine_id(contextEngineID);
    }
    else {
 #endif
-     ctarget.set_version( version);         // set the SNMP version SNMPV1 or V2
-     ctarget.set_retry( retries);           // set the number of auto retries
-     ctarget.set_timeout( timeout);         // set timeout
-     ctarget.set_readcommunity( get_community); // set the read community name
-     ctarget.set_writecommunity( community);// set the write community name
+     ctarget.set_version(version);         // set the SNMP version SNMPV1 or V2
+     ctarget.set_retry(retries);           // set the number of auto retries
+     ctarget.set_timeout(timeout);         // set timeout
+     ctarget.set_readcommunity(get_community); // set the read community name
+     ctarget.set_writecommunity(community);// set the write community name
 #ifdef _SNMPv3
    }
 #endif
@@ -560,21 +582,21 @@ int main(int argc, char **argv)
      target = &ctarget;
 
   // first get the variabel to determine its type
-  if (( status = snmp.get( pdu,*target))== SNMP_CLASS_SUCCESS) {
-    pdu.get_vb( vb,0);
+  if ((status = snmp.get(pdu,*target))== SNMP_CLASS_SUCCESS) {
+    pdu.get_vb(vb,0);
     cout << "Oid = " << vb.get_printable_oid() << endl
 	 << "Current Value = " << vb.get_printable_value() << endl;
 #ifdef _SNMPv3
     if (pdu.get_type() == REPORT_MSG) {
       cout << "Received a reportPdu: "
-           << snmp.error_msg( vb.get_printable_oid()) 
+           << snmp.error_msg(vb.get_printable_oid()) 
            << endl
            << vb.get_printable_oid() << " = "
            << vb.get_printable_value() << endl;
       return -5;
     }
 #endif
-    if ( determine_vb(vb.get_syntax(), vb)) {
+    if (determine_vb(vb.get_syntax(), vb)) {
       // do the Set
       Pdu setpdu;
 
@@ -584,14 +606,14 @@ int main(int argc, char **argv)
       setpdu.set_context_engine_id(contextEngineID);
 #endif
 
-      vb.set_oid( oid);           // use the same oid as the inquire
+      vb.set_oid(oid);           // use the same oid as the inquire
       setpdu += vb; 
-      status = snmp.set( setpdu, *target);
-      cout << "Set Status = " << snmp.error_msg( status) << "\n";
+      status = snmp.set(setpdu, *target);
+      cout << "Set Status = " << snmp.error_msg(status) << "\n";
     }
   }
   else
-    cout << "SNMP++ Set Error, " << snmp.error_msg( status) << "\n";
+    cout << "SNMP++ Set Error, " << snmp.error_msg(status) << "\n";
 
   Snmp::socket_cleanup();  // Shut down socket subsystem
 }

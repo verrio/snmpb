@@ -59,9 +59,9 @@ public:
 
     ~SnmpbAgentLog() {};
 
-    LogEntry* create_log_entry(unsigned char t) const
+    LogEntry* create_log_entry(const char * const name, unsigned char t) const
     {
-        return new LogEntryImpl(t);
+        return new LogEntryImpl(name, t);
     };
 
     AgentLog& operator+=(const LogEntry *log)

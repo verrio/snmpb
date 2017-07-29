@@ -2,9 +2,9 @@
   _## 
   _##  ctr64.cpp  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -22,8 +22,6 @@
   _##  "AS-IS" without warranty of any kind, either express or implied. User 
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
-  _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -51,13 +49,19 @@
 
   DESCRIPTION:         Implementation for Counter64 (64 bit counter class).
 =====================================================================*/
-char counter64_cpp_version[]="@(#) SNMP++ $Id$";
+char counter64_cpp_version[]="@(#) SNMP++ $Id: ctr64.cpp 3169 2016-09-26 20:45:41Z katz $";
+
+#include <libsnmp.h>
 
 #include "snmp_pp/ctr64.h"
 #include "snmp_pp/asn1.h"
 #include "snmp_pp/v3.h"
 
-#include <stdio.h>   // for pretty printing...
+#ifdef HAVE_INTTYPES_H
+#define __STDC_FORMAT_MACROS 1
+#include <inttypes.h>
+#endif
+
 
 #ifdef SNMP_PP_NAMESPACE
 namespace Snmp_pp {
@@ -65,57 +69,59 @@ namespace Snmp_pp {
 
 #define MAX32 4294967295u
 
-
-//------------------[ constructor with no value ]------------------------
-Counter64::Counter64() : m_changed(true)
+//----------[ return ASCII format ]-------------------------
+const char *Counter64::get_printable() const
 {
-  smival.syntax = sNMP_SYNTAX_CNTR64;
+  if (m_changed == false)
+    return output_buffer;
+
+  char *buf = PP_CONST_CAST(char*, output_buffer);
+  if ( high() != 0 )
+#ifdef HAVE_INTTYPES_H
+    sprintf(buf, "%" PRIu64, (uint64_t) high()<<32|low());
+#else
+    sprintf(buf, "0x%lX%08lX", high(), low());
+#endif
+  else
+    sprintf(buf, "%lu", low());
+
+  Counter64 *nc_this = PP_CONST_CAST(Counter64*, this);
+  nc_this->m_changed = false;
+
+  return output_buffer;
+}
+
+//----------------[ general Value = operator ]---------------------
+SnmpSyntax& Counter64::operator=(const SnmpSyntax &val)
+{
+  if (this == &val) return *this;  // protect against assignment from itself
+
+  smival.value.hNumber.lopart = 0;	// pessimistic - assume no mapping
   smival.value.hNumber.hipart = 0;
-  smival.value.hNumber.lopart = 0;
-}
 
-//------------------[ constructor with values ]--------------------------
-Counter64::Counter64(unsigned long hi, unsigned long lo) : m_changed(true)
-{
-  smival.syntax = sNMP_SYNTAX_CNTR64;
-  smival.value.hNumber.hipart = hi;
-  smival.value.hNumber.lopart = lo;
-}
+  // try to make assignment valid
+  if (val.valid())
+  {
+    switch (val.get_syntax())
+    {
+      case sNMP_SYNTAX_CNTR64:
+	smival.value.hNumber.hipart =
+		((Counter64 &)val).smival.value.hNumber.hipart;
+	smival.value.hNumber.lopart =
+		((Counter64 &)val).smival.value.hNumber.lopart;
+	break;
 
-//------------------[ constructor with low value only ]------------------
-Counter64::Counter64(unsigned long lo) : m_changed(true)
-{
-  smival.syntax = sNMP_SYNTAX_CNTR64;
-  smival.value.hNumber.hipart = 0;
-  smival.value.hNumber.lopart = lo;
-}
-
-//------------------[ copy constructor ]---------------------------------
-Counter64::Counter64(const Counter64 &ctr64 ) : m_changed(true)
-{
-  smival.syntax = sNMP_SYNTAX_CNTR64;
-  smival.value.hNumber.hipart = ctr64.high();
-  smival.value.hNumber.lopart = ctr64.low();
-}
-
-//------------------[ operator=(const Counter64 &ctr64) ]-------------
-// assign a ctr64 to a ctr64
-Counter64& Counter64::operator=(const Counter64 &ctr64)
-{
-  if (this == &ctr64) return *this;  // check for self assignment
-  smival.value.hNumber.hipart = ctr64.high();
-  smival.value.hNumber.lopart = ctr64.low();
-  m_changed = true;
-  return *this;
-}
-
-//-------------------[ operator=(const unsigned long int i) ]---------
-// assign a ul to a ctr64, clears the high part
-// and assugns the low part
-Counter64& Counter64::operator=(const unsigned long i)
-{
-  smival.value.hNumber.hipart = 0;
-  smival.value.hNumber.lopart = i;
+      case sNMP_SYNTAX_CNTR32:
+      case sNMP_SYNTAX_TIMETICKS:
+      case sNMP_SYNTAX_GAUGE32:
+   // case sNMP_SYNTAX_UINT32:		.. indistinguishable from GAUGE32
+      case sNMP_SYNTAX_INT32:
+	// take advantage of union...
+	smival.value.hNumber.lopart = ((Counter64 &)val).smival.value.uNumber;
+	smival.value.hNumber.hipart = 0;
+	break;
+    }
+  }
   m_changed = true;
   return *this;
 }
@@ -148,135 +154,6 @@ Counter64 Counter64::ll_to_c64(const pp_uint64 &ll)
   return Counter64(h, (unsigned long)(ll - (h * high)));
 }
 
-//----------[ Counter64::operator+(const Counter64 &c) ]---------------
-// add two Counter64s
-Counter64 Counter64::operator+(const Counter64 &c) const
-{
-  pp_uint64 llsum = c64_to_ll() + c.c64_to_ll();
-  return ll_to_c64(llsum);
-}
-
-//------------[ Counter64::operator-(const Counter64 &c) ]-------------
-// subtract two Counter64s
-Counter64 Counter64::operator-(const Counter64 &c) const
-{
-  pp_uint64 lldiff = c64_to_ll() - c.c64_to_ll();
-  return ll_to_c64(lldiff);
-}
-
-//------------[ Counter64::operator*(const Counter64 &c) ]-------------
-// multiply two Counter64s
-Counter64 Counter64::operator*(const Counter64 &c) const
-{
-  pp_uint64 llmult = c64_to_ll() * c.c64_to_ll();
-  return ll_to_c64(llmult);
-}
-
-//------------[ Counter64::operator/(const Counter64 &c) ]--------------
-// divide two Counter64s
-Counter64 Counter64::operator/(const Counter64 &c) const
-{
-  pp_uint64 lldiv = c64_to_ll() / c.c64_to_ll();
-  return ll_to_c64(lldiv);
-}
-
-//-------[ overloaded equivlence test ]----------------------------------
-bool operator==(const Counter64 &lhs, const Counter64 &rhs)
-{
-  return ((lhs.high() == rhs.high()) && (lhs.low() == rhs.low()));
-}
-
-//-------[ overloaded not equal test ]-----------------------------------
-bool operator!=(const Counter64 &lhs, const Counter64 &rhs)
-{
-  return ((lhs.high() != rhs.high()) || (lhs.low() != rhs.low()));
-}
-
-//--------[ overloaded less than ]---------------------------------------
-bool operator<(const Counter64 &lhs, const Counter64 &rhs)
-{
-  return ( (lhs.high() < rhs.high()) ||
-	   ((lhs.high() == rhs.high()) && (lhs.low() < rhs.low())));
-}
-
-//---------[ overloaded less than or equal ]-----------------------------
-bool operator<=(const Counter64 &lhs, const Counter64 &rhs)
-{
-  return ( (lhs.high() < rhs.high()) ||
-	   ((lhs.high() == rhs.high()) && (lhs.low() <= rhs.low())));
-}
-
-//---------[ overloaded greater than ]-----------------------------------
-bool operator>(const Counter64 &lhs, const Counter64 &rhs)
-{
-  return ( (lhs.high() > rhs.high()) ||
-	   ((lhs.high() == rhs.high()) && (lhs.low() > rhs.low())));
-}
-
-//----------[ overloaded greater than or equal ]-------------------------
-bool operator>=(const Counter64 &lhs, const Counter64 &rhs)
-{
-  return ( (lhs.high() > rhs.high()) ||
-	   ((lhs.high() == rhs.high()) && (lhs.low() >= rhs.low())));
-}
-
-//----------[ return ASCII format ]-------------------------
-// TODO:  Fix up to do real 64bit decimal value printing...
-//        For now, print > 32-bit values in hex
-// 26Nov2002 M.Evstiounin - this method is not thread safe!
-const char *Counter64::get_printable() const
-{
-  if (m_changed == false)
-    return output_buffer;
-
-  char *buf = PP_CONST_CAST(char*, output_buffer);
-  if ( high() != 0 )
-    sprintf(buf, "0x%lX%08lX", high(), low());
-  else
-    sprintf(buf, "%lu", low());
-
-  Counter64 *nc_this = PP_CONST_CAST(Counter64*, this);
-  nc_this->m_changed = false;
-
-  return output_buffer;
-}
-
-
-//----------------[ general Value = operator ]---------------------
-SnmpSyntax& Counter64::operator=(const SnmpSyntax &val)
-{
-  if (this == &val) return *this;  // protect against assignment from itself
-
-  smival.value.hNumber.lopart = 0;	// pessimsitic - assume no mapping
-  smival.value.hNumber.hipart = 0;
-
-  // try to make assignment valid
-  if (val.valid())
-  {
-    switch (val.get_syntax())
-    {
-      case sNMP_SYNTAX_CNTR64:
-	smival.value.hNumber.hipart =
-		((Counter64 &)val).smival.value.hNumber.hipart;
-	smival.value.hNumber.lopart =
-		((Counter64 &)val).smival.value.hNumber.lopart;
-	break;
-
-      case sNMP_SYNTAX_CNTR32:
-      case sNMP_SYNTAX_TIMETICKS:
-      case sNMP_SYNTAX_GAUGE32:
-   // case sNMP_SYNTAX_UINT32:		.. indistinguishable from GAUGE32
-      case sNMP_SYNTAX_INT32:
-	// take advantage of union...
-	smival.value.hNumber.lopart = ((Counter64 &)val).smival.value.uNumber;
-	smival.value.hNumber.hipart = 0;
-	break;
-    }
-  }
-  m_changed = true;
-  return *this;
-}
-
 // Return the space needed for serialization
 int Counter64::get_asn1_length() const
 {
@@ -304,5 +181,5 @@ int Counter64::get_asn1_length() const
 }
 
 #ifdef SNMP_PP_NAMESPACE
-}; // end of namespace Snmp_pp
+} // end of namespace Snmp_pp
 #endif 

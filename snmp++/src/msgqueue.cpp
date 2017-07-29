@@ -2,9 +2,9 @@
   _## 
   _##  msgqueue.cpp  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -22,8 +22,6 @@
   _##  "AS-IS" without warranty of any kind, either express or implied. User 
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
-  _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -49,13 +47,15 @@
       Author:           Peter E Mellquist
 
 =====================================================================*/
-char msgqueue_version[]="#(@) SNMP++ $Id$";
+char msgqueue_version[]="#(@) SNMP++ $Id: msgqueue.cpp 2903 2015-07-31 16:29:33Z fock $";
+
+#include <libsnmp.h>
 
 //-----[ includes ]----------------------------------------------------
 
 //----[ snmp++ includes ]----------------------------------------------
 
-#include "snmp_pp/msgqueue.h"	// queue for holding outstanding messages
+#include "snmp_pp/msgqueue.h"        // queue for holding outstanding messages
 #include "snmp_pp/snmpmsg.h"
 #include "snmp_pp/eventlistholder.h"
 #include "snmp_pp/log.h"
@@ -66,37 +66,37 @@ namespace Snmp_pp {
 #endif
 
 
-#define SNMP_PORT 161
+static const char *loggerModuleName = "snmp++.msgqueue";
 
 //--------[ externs ]---------------------------------------------------
 extern int send_snmp_request(SnmpSocket sock, unsigned char *send_buf,
-			      size_t send_len, Address &address);
+                             size_t send_len, const Address &address);
 extern int receive_snmp_response(SnmpSocket sock, Snmp &snmp_session,
                                  Pdu &pdu, UdpAddress &fromaddress,
-				 OctetStr &engine_id, bool process_msg = true);
+                                 OctetStr &engine_id, bool process_msg = true);
 
 //----[ CSNMPMessage class ]-------------------------------------------
 
 CSNMPMessage::CSNMPMessage(unsigned long id,
-			   Snmp * snmp,
-			   SnmpSocket socket,
-			   const SnmpTarget &target,
-			   Pdu &pdu,
-			   unsigned char * rawPdu,
-			   size_t rawPduLen,
-			   const Address & address,
-			   snmp_callback callBack,
-			   void * callData):
+                           Snmp * snmp,
+                           SnmpSocket socket,
+                           const SnmpTarget &target,
+                           Pdu &pdu,
+                           unsigned char * rawPdu,
+                           size_t rawPduLen,
+                           const Address & address,
+                           snmp_callback callBack,
+                           void * callData):
   m_uniqueId(id), m_snmp(snmp), m_socket(socket), m_pdu(pdu),
   m_rawPduLen(rawPduLen), m_callBack(callBack), m_callData(callData),
-  m_reason(0), m_received(0)
+  m_reason(0), m_received(0), m_locked(false)
 {
   // reset pdu mvs
   m_pdu.set_error_index(0);
   m_pdu.set_error_status(0);
   m_pdu.set_request_id(m_uniqueId);
 
-  m_rawPdu = new unsigned char [rawPduLen];
+  m_rawPdu = new unsigned char[rawPduLen];
   memcpy(m_rawPdu, rawPdu, rawPduLen);
   m_address = (Address *)address.clone();
   m_target = target.clone();
@@ -124,11 +124,12 @@ void CSNMPMessage::SetSendTime()
 }
 
 int CSNMPMessage::SetPdu(const int reason, const Pdu &pdu,
-			 const UdpAddress &fromaddress)
+                         const UdpAddress &fromaddress)
 {
+  (void)fromaddress;
   if (Pdu::match_type(m_pdu.get_type(), pdu.get_type()) == false)
   {
-    LOG_BEGIN(INFO_LOG | 1);
+    LOG_BEGIN(loggerModuleName, INFO_LOG | 1);
     LOG("MsgQueue: Response pdu type does not match, pdu is ignored: (id) (type1) (type2)");
     LOG(m_uniqueId);
     LOG(m_pdu.get_type());
@@ -141,7 +142,7 @@ int CSNMPMessage::SetPdu(const int reason, const Pdu &pdu,
   unsigned short orig_type = m_pdu.get_type();
   if (m_received)
   {
-    LOG_BEGIN(WARNING_LOG | 1);
+    LOG_BEGIN(loggerModuleName, WARNING_LOG | 1);
     LOG("MsgQueue: Message is already marked as received (id) (reason) (new reason)");
     LOG(m_uniqueId);
     LOG(reason);
@@ -151,7 +152,7 @@ int CSNMPMessage::SetPdu(const int reason, const Pdu &pdu,
     // TODO: better check based on error codes
     if (reason || !m_reason)
     {
-      LOG_BEGIN(WARNING_LOG | 1);
+      LOG_BEGIN(loggerModuleName, WARNING_LOG | 1);
       LOG("MsgQueue: ignoring the second pdu");
       LOG_END;
 
@@ -162,7 +163,7 @@ int CSNMPMessage::SetPdu(const int reason, const Pdu &pdu,
   m_pdu = pdu;
   m_reason = reason;
 
-  LOG_BEGIN(DEBUG_LOG | 10);
+  LOG_BEGIN(loggerModuleName, DEBUG_LOG | 10);
   LOG("MsgQueue: Response received (req id) (status) (msg id)");
   LOG(pdu.get_request_id());
   LOG(reason);
@@ -210,7 +211,7 @@ int CSNMPMessage::ResendMessage()
     return SNMP_CLASS_SUCCESS;
   }
 
-  LOG_BEGIN(DEBUG_LOG | 10);
+  LOG_BEGIN(loggerModuleName, DEBUG_LOG | 10);
   LOG("MsgQueue: Message (msg id) (req id) (info)");
 #ifdef _SNMPv3
   LOG(m_pdu.get_message_id());
@@ -238,10 +239,10 @@ int CSNMPMessage::ResendMessage()
 
 int CSNMPMessage::Callback(const int reason)
 {
-  snmp_callback	  tmp_callBack;
-  if (m_callBack) {
+  if (m_callBack)
+  {
     // prevent callbacks from using this message
-    tmp_callBack = m_callBack;
+    snmp_callback tmp_callBack = m_callBack;
     m_callBack = NULL;
 
     tmp_callBack(reason, m_snmp, m_pdu, *m_target, m_callData);
@@ -254,8 +255,8 @@ int CSNMPMessage::Callback(const int reason)
 
 CSNMPMessageQueue::CSNMPMessageQueueElt::CSNMPMessageQueueElt(
                                            CSNMPMessage *message,
-					   CSNMPMessageQueueElt *next,
-					   CSNMPMessageQueueElt *previous):
+                                           CSNMPMessageQueueElt *next,
+                                           CSNMPMessageQueueElt *previous):
   m_message(message), m_Next(next), m_previous(previous)
 {
   /* Finish insertion into doubly linked list */
@@ -295,32 +296,40 @@ CSNMPMessageQueue::~CSNMPMessageQueue()
     /* walk the list deleting any elements still on the queue */
     /*--------------------------------------------------------*/
   while ((leftOver = m_head.GetNext()))
-    delete leftOver;
-
+  {
+    if (leftOver->GetMessage()->IsLocked())
+    {
+      unlock();
+      // TODO: should we sleep here
+      lock();
+    }
+    else
+      delete leftOver;
+  }
   unlock();
 }
 
 CSNMPMessage * CSNMPMessageQueue::AddEntry(unsigned long id,
-					   Snmp * snmp,
-					   SnmpSocket socket,
-					   const SnmpTarget &target,
-					   Pdu &pdu,
-					   unsigned char * rawPdu,
-					   size_t rawPduLen,
-					   const Address & address,
-					   snmp_callback callBack,
-					   void * callData)
+                                           Snmp * snmp,
+                                           SnmpSocket socket,
+                                           const SnmpTarget &target,
+                                           Pdu &pdu,
+                                           unsigned char * rawPdu,
+                                           size_t rawPduLen,
+                                           const Address & address,
+                                           snmp_callback callBack,
+                                           void * callData)
 {
   if (snmp != m_snmpSession)
   {
-    LOG_BEGIN(ERROR_LOG | 1);
+    LOG_BEGIN(loggerModuleName, ERROR_LOG | 1);
     LOG("MsgQueue: Adding message for other Snmp object.");
     LOG_END;
   }
 
   CSNMPMessage *newMsg = new CSNMPMessage(id, snmp, socket, target, pdu,
-					  rawPdu, rawPduLen, address,
-					  callBack, callData);
+                                          rawPdu, rawPduLen, address,
+                                          callBack, callData);
 
   lock();
     /*---------------------------------------------------------*/
@@ -329,14 +338,15 @@ CSNMPMessage * CSNMPMessageQueue::AddEntry(unsigned long id,
     /*---------------------------------------------------------*/
   (void) new CSNMPMessageQueueElt(newMsg, m_head.GetNext(), &m_head);
   ++m_msgCount;
-
-  LOG_BEGIN(DEBUG_LOG | 10);
+  int count = m_msgCount;
+  unlock();
+  
+  LOG_BEGIN(loggerModuleName, DEBUG_LOG | 10);
   LOG("MsgQueue: Adding entry (req id) (count)");
   LOG(id);
-  LOG(m_msgCount);
+  LOG(count);
   LOG_END;
 
-  unlock();
   return newMsg;
 }
 
@@ -346,7 +356,8 @@ CSNMPMessage *CSNMPMessageQueue::GetEntry(const unsigned long uniqueId)
   CSNMPMessageQueueElt *msgEltPtr = m_head.GetNext();
   CSNMPMessage *returnVal = NULL;
 
-  while (msgEltPtr){
+  while (msgEltPtr)
+  {
     if ((returnVal = msgEltPtr->TestId(uniqueId)))
       return returnVal;
     msgEltPtr = msgEltPtr->GetNext();
@@ -356,43 +367,76 @@ CSNMPMessage *CSNMPMessageQueue::GetEntry(const unsigned long uniqueId)
 
 int CSNMPMessageQueue::DeleteEntry(const unsigned long uniqueId)
 {
-  CSNMPMessageQueueElt *msgEltPtr = m_head.GetNext();
+  bool loopAgain;
+  do
+  {
+    loopAgain = false;
+    CSNMPMessageQueueElt *msgEltPtr = m_head.GetNext();
 
-  while (msgEltPtr){
-    if (msgEltPtr->TestId(uniqueId)) {
-      delete msgEltPtr;
-      m_msgCount--;
-      LOG_BEGIN(DEBUG_LOG | 10);
-      LOG("MsgQueue: Removed entry (req id)");
-      LOG(uniqueId);
-      LOG_END;
-      return SNMP_CLASS_SUCCESS;
+    while (msgEltPtr)
+    {
+      if (msgEltPtr->TestId(uniqueId))
+      {
+        if (msgEltPtr->GetMessage())
+        {
+          if (msgEltPtr->GetMessage()->IsLocked())
+          {
+            unlock();
+            // TODO: should we sleep here?
+            lock();
+            loopAgain = true;
+          }
+        }
+
+        if (!loopAgain)
+        {
+          delete msgEltPtr;
+          m_msgCount--;
+          LOG_BEGIN(loggerModuleName, DEBUG_LOG | 10);
+          LOG("MsgQueue: Removed entry (req id)");
+          LOG(uniqueId);
+          LOG_END;
+          return SNMP_CLASS_SUCCESS;
+        }
+      }
+      msgEltPtr = msgEltPtr->GetNext();
     }
-    msgEltPtr = msgEltPtr->GetNext();
-  }
+  } while (loopAgain);
   return SNMP_CLASS_INVALID_REQID;
 }
 
 void CSNMPMessageQueue::DeleteSocketEntry(const SnmpSocket socket)
-REENTRANT({
+{
+  lock();
   CSNMPMessageQueueElt *msgEltPtr = m_head.GetNext();
-  CSNMPMessageQueueElt *tmp_msgEltPtr;
-  CSNMPMessage *msg = NULL;
-
-  while (msgEltPtr){
-    msg = msgEltPtr->GetMessage();
-    if (socket == msg->GetSocket()) {
-      // Make a callback with an error
-      (void) msg->Callback(SNMP_CLASS_SESSION_DESTROYED);
-      tmp_msgEltPtr = msgEltPtr;
-      msgEltPtr = tmp_msgEltPtr->GetNext();
-      // delete the entry
-      delete tmp_msgEltPtr;
+  while (msgEltPtr)
+  {
+    CSNMPMessage *msg = msgEltPtr->GetMessage();
+    if (socket == msg->GetSocket())
+    {
+      if (msg->IsLocked())
+      {
+        unlock();
+        // TODO: should we sleep here?
+        lock();
+        // start from beginning as list could have been changed
+        msgEltPtr = m_head.GetNext();
+      }
+      else
+      {
+        // Make a callback with an error
+        (void) msg->Callback(SNMP_CLASS_SESSION_DESTROYED);
+        CSNMPMessageQueueElt *tmp_msgEltPtr = msgEltPtr;
+        msgEltPtr = tmp_msgEltPtr->GetNext();
+        // delete the entry
+        delete tmp_msgEltPtr;
+      }
     }
     else
       msgEltPtr = msgEltPtr->GetNext();
   }
-})
+  unlock();
+}
 
 CSNMPMessage * CSNMPMessageQueue::GetNextTimeoutEntry()
 {
@@ -453,7 +497,7 @@ int CSNMPMessageQueue::GetFdCount()
   while (msgEltPtr)
   {
       if (msgEltPtr->GetMessage()->GetSocket() != firstSocket)
-	  return 2;
+          return 2;
       msgEltPtr = msgEltPtr->GetNext();
   }
   return 1;
@@ -484,32 +528,30 @@ bool CSNMPMessageQueue::GetFdArray(struct pollfd *readfds, int &remaining)
 
   while (msgEltPtr)
   {
-      if (msgEltPtr->GetMessage()->GetSocket() != firstSocket)
-      {
-	  if (remaining <= 0) return false;
-	  readfds[1].fd = msgEltPtr->GetMessage()->GetSocket();
-	  readfds[1].events = POLLIN;
-	  remaining--;
+    if (msgEltPtr->GetMessage()->GetSocket() != firstSocket)
+    {
+      if (remaining <= 0) return false;
+      readfds[1].fd = msgEltPtr->GetMessage()->GetSocket();
+      readfds[1].events = POLLIN;
+      remaining--;
 
-	  return true;
-      }
-      msgEltPtr = msgEltPtr->GetNext();
+      return true;
+    }
+    msgEltPtr = msgEltPtr->GetNext();
   }
   return true;
 #endif
 }
 
 int CSNMPMessageQueue::HandleEvents(const struct pollfd *readfds,
-				    const int fds)
+                                    const int fds)
 {
   for (int i=0; i < fds ; i++)
   {
     if (readfds[i].revents & POLLIN)
     {
-      CSNMPMessage *msg;
       UdpAddress fromaddress;
       Pdu tmppdu;
-      unsigned long temp_req_id;
       int status;
       int recv_status;
       OctetStr engine_id;
@@ -520,71 +562,84 @@ int CSNMPMessageQueue::HandleEvents(const struct pollfd *readfds,
       recv_status = receive_snmp_response(readfds[i].fd, *m_snmpSession,
                                           tmppdu, fromaddress, engine_id);
 
-      lock();
-      // find the corresponding msg in the message queue
-      temp_req_id = tmppdu.get_request_id();
-      msg = GetEntry(temp_req_id);
+      unsigned long temp_req_id = tmppdu.get_request_id();
+      if (!temp_req_id)
+        continue;
+
+      CSNMPMessage *msg = 0;
+      bool redoGetEntry;
+      do
+      {
+	redoGetEntry = false;
+        lock();
+        // find the corresponding msg in the message queue
+        msg = GetEntry(temp_req_id);
+        if (msg && msg->IsLocked())
+        {
+          unlock();
+          // TODO: Should we sleep here?
+          redoGetEntry = true;
+        }
+      } while (redoGetEntry);
+
       if (!msg)
       {
-	unlock();
-	LOG_BEGIN(INFO_LOG | 7);
-	LOG("MsgQueue: Ignore received message without outstanding request (req id)");
-	LOG(tmppdu.get_request_id());
-	LOG_END;
-	// the sent message is gone! probably was canceled, ignore it
-	continue;
+        unlock();
+        LOG_BEGIN(loggerModuleName, INFO_LOG | 7);
+        LOG("MsgQueue: Ignore received message without outstanding request (req id)");
+        LOG(tmppdu.get_request_id());
+        LOG_END;
+        // the sent message is gone! probably was canceled, ignore it
+        continue;
       }
 
-      if (tmppdu.get_request_id())
+      // save pdu back into the message
+      status = msg->SetPdu(recv_status, tmppdu, fromaddress);
+
+      if (status)
       {
-	// we correctly received the pdu
-
-	// save it back into the message
-	status = msg->SetPdu(recv_status, tmppdu, fromaddress);
-
-	if (status != 0)
-	{
-	  // received pdu does not match
-	  // @todo if version is SNMPv3 we must return a report
-	  //       unknown pdu handler!
-	  unlock();
-	  continue;
-	}
+        // received pdu does not match
+        // @todo if version is SNMPv3 we must return a report
+        //       unknown pdu handler!
+        unlock();
+        continue;
+      }
 
 #ifdef _SNMPv3
-	if (engine_id.len() > 0)
-	{
-	  SnmpTarget *target = msg->GetTarget();
-	  if ((target->get_type() == SnmpTarget::type_utarget) &&
-	      (target->get_version() == version3))
-	  {
-	    UdpAddress addr = target->get_address();
+      if (engine_id.len() > 0)
+      {
+        SnmpTarget *target = msg->GetTarget();
+        if ((target->get_type() == SnmpTarget::type_utarget) &&
+            (target->get_version() == version3))
+        {
+          UdpAddress addr = target->get_address();
 
-	    LOG_BEGIN(DEBUG_LOG | 14);
-	    LOG("MsgQueue: Adding engine id to table (addr) (id)");
-	    LOG(addr.get_printable());
-	    LOG(engine_id.get_printable());
-	    LOG_END;
+	    LOG_BEGIN(loggerModuleName, DEBUG_LOG | 14);
+          LOG("MsgQueue: Adding engine id to table (addr) (id)");
+          LOG(addr.get_printable());
+          LOG(engine_id.get_printable());
+          LOG_END;
 
-	    v3MP::I->add_to_engine_id_table(engine_id,
-					    (char*)addr.IpAddress::get_printable(),
-					    addr.get_port());
-	  }
-	}
+          v3MP::I->add_to_engine_id_table(engine_id,
+                                          (char*)addr.IpAddress::get_printable(),
+                                          addr.get_port());
+        }
+      }
 #endif
 
-	// Do the callback
-	unlock();
-	status = msg->Callback(SNMP_CLASS_ASYNC_RESPONSE);
-	lock();
+      // Do the callback
+      msg->SetLocked(true);
+      unlock();
+      status = msg->Callback(SNMP_CLASS_ASYNC_RESPONSE);
+      lock();
+      msg->SetLocked(false);
 
-	if (!status)
-	{
-	  // this is an asynch response and the callback is done.
-	  // no need to keep this message around;
-	  // Dequeue the message
-	  DeleteEntry(temp_req_id);
-	}
+      if (!status)
+      {
+        // this is an asynch response and the callback is done.
+        // no need to keep this message around;
+        // Dequeue the message
+        DeleteEntry(temp_req_id);
       }
       unlock();
     }
@@ -611,16 +666,10 @@ void CSNMPMessageQueue::GetFdSets(int &maxfds, fd_set &readfds,
 }
 
 int CSNMPMessageQueue::HandleEvents(const int maxfds,
-				    const fd_set &readfds,
-				    const fd_set &,
-				    const fd_set &)
+                                    const fd_set &readfds,
+                                    const fd_set &,
+                                    const fd_set &)
 {
-  CSNMPMessage *msg;
-  UdpAddress fromaddress;
-  Pdu tmppdu;
-  unsigned long temp_req_id;
-  int status;
-  int recv_status;
   fd_set snmp_readfds, snmp_writefds, snmp_errfds;
   int tmp_maxfds = maxfds;
 
@@ -633,8 +682,12 @@ int CSNMPMessageQueue::HandleEvents(const int maxfds,
   for (int fd = 0; fd < maxfds; fd++)
   {
     if ((FD_ISSET(fd, &snmp_readfds)) &&
-	(FD_ISSET(fd, (fd_set*)&readfds)))
+        (FD_ISSET(fd, (fd_set*)&readfds)))
     {
+      UdpAddress fromaddress;
+      Pdu tmppdu;
+      int status;
+      int recv_status;
       OctetStr engine_id;
 
       tmppdu.set_request_id(0);
@@ -643,69 +696,87 @@ int CSNMPMessageQueue::HandleEvents(const int maxfds,
       recv_status = receive_snmp_response(fd, *m_snmpSession,
                                           tmppdu, fromaddress, engine_id);
 
-      lock();
-      // find the corresponding msg in the message queue
-      temp_req_id = tmppdu.get_request_id();
-      msg = GetEntry(temp_req_id);
-      if (!msg) {
-	     unlock();
-	     LOG_BEGIN(INFO_LOG | 7);
-	     LOG("MsgQueue: Ignore received message without outstanding "
-		 "request (req id)");
-	     LOG(tmppdu.get_request_id());
-	     LOG_END;
-	     // the sent message is gone! probably was canceled, ignore it
-	     continue;
+      unsigned long temp_req_id = tmppdu.get_request_id();
+      if (!temp_req_id)
+        continue;
+
+      CSNMPMessage *msg = 0;
+      bool redoGetEntry;
+      do
+      {
+        redoGetEntry = false;
+        lock();
+        // find the corresponding msg in the message queue
+        msg = GetEntry(temp_req_id);
+        if (msg && msg->IsLocked())
+        {
+          unlock();
+          // TODO: Should we sleep here?
+          redoGetEntry = true;
+        }
+      } while (redoGetEntry);
+
+      if (!msg)
+      {
+        unlock();
+        LOG_BEGIN(loggerModuleName, INFO_LOG | 7);
+        LOG("MsgQueue: Ignore received message without outstanding request (req id)");
+        LOG(tmppdu.get_request_id());
+        LOG_END;
+        // the sent message is gone! probably was canceled, ignore it
+        continue;
       }
 
-      if (tmppdu.get_request_id()) {
-	     // we correctly received the pdu
+      // save pdu back into the message
+      status = msg->SetPdu(recv_status, tmppdu, fromaddress);
 
-	     // save it back into the message
-	     status = msg->SetPdu(recv_status, tmppdu, fromaddress);
-
-             if (status != 0)
-             {
-               // received pdu does not match
-               // @todo if version is SNMPv3 we must return a report
-               //       unknown pdu handler!
-               unlock();
-               continue;
-             }
+      if (status)
+      {
+        // received pdu does not match
+        // @todo if version is SNMPv3 we must return a report
+        //       unknown pdu handler!
+        unlock();
+        continue;
+      }
 
 #ifdef _SNMPv3
-	     if (engine_id.len() > 0)
-	     {
-		 SnmpTarget *target = msg->GetTarget();
-		 if ((target->get_type() == SnmpTarget::type_utarget) &&
-		     (target->get_version() == version3))
-		 {
-		   UdpAddress addr = target->get_address();
+      if (engine_id.len() > 0)
+      {
+        SnmpTarget *target = msg->GetTarget();
+        if ((target->get_type() == SnmpTarget::type_utarget) &&
+            (target->get_version() == version3))
+        {
+          if (tmppdu.get_type() == sNMP_PDU_REPORT || 
+              tmppdu.get_type() == sNMP_PDU_RESPONSE) {
+              
+            UdpAddress addr = target->get_address();
 
-		   LOG_BEGIN(DEBUG_LOG | 14);
-		   LOG("MsgQueue: Adding engine id to table (addr) (id)");
-		   LOG(addr.get_printable());
-		   LOG(engine_id.get_printable());
-		   LOG_END;
-
-		   v3MP::I->add_to_engine_id_table(engine_id,
-			       (char*)addr.IpAddress::get_printable(),
-			       addr.get_port());
-		 }
-	     }
+            LOG_BEGIN(loggerModuleName, DEBUG_LOG | 14);
+            LOG("MsgQueue: Adding engine id to table (addr) (id)");
+            LOG(addr.get_printable());
+            LOG(engine_id.get_printable());
+            LOG_END;
+            v3MP::I->add_to_engine_id_table(engine_id,
+                                         (char*)addr.IpAddress::get_printable(),
+                                          addr.get_port());
+          }
+        }
+      }
 #endif
 
-	     // Do the callback
-             unlock();
-	     status = msg->Callback(SNMP_CLASS_ASYNC_RESPONSE);
-             lock();
+      // Do the callback
+      msg->SetLocked(true);
+      unlock();
+      status = msg->Callback(SNMP_CLASS_ASYNC_RESPONSE);
+      lock();
+      msg->SetLocked(false);
 
-	     if (!status) {
-	       // this is an asynch response and the callback is done.
-	       // no need to keep this message around;
-	       // Dequeue the message
-	       DeleteEntry(temp_req_id);
-	     }
+      if (!status)
+      {
+        // this is an asynch response and the callback is done.
+        // no need to keep this message around;
+        // Dequeue the message
+        DeleteEntry(temp_req_id);
       }
       unlock();
     } // if socket has data
@@ -721,45 +792,51 @@ int CSNMPMessageQueue::DoRetries(const msec &now)
   msec sendTime(0, 0);
   int status = SNMP_CLASS_SUCCESS;
   lock();
-  while ((msg = GetNextTimeoutEntry())) {
-
+  while ((msg = GetNextTimeoutEntry()))
+  {
     msg->GetSendTime(sendTime);
 
-    if (sendTime <= now)
-    {
-      // send out the message again
-      unlock();
-      status = msg->ResendMessage();
-      lock();
-      if (status != 0)
-      {
-	if (status == SNMP_CLASS_TIMEOUT)
-	{
-	  unsigned long req_id = msg->GetId();
-
-	  // Dequeue the message
-	  DeleteEntry(req_id);
-#ifdef _SNMPv3
-	  // delete entry in cache
-	  if (v3MP::I)
-	    v3MP::I->delete_from_cache(req_id);
-
-          LOG_BEGIN(INFO_LOG | 6);
-          LOG("MsgQueue: Message timed out, removed id from v3MP cache (rid)");
-          LOG(req_id);
-          LOG_END;
-#endif
-	}
-	else {
-	  // Some other send error, should we dequeue the message?
-	  // do we really want to return without processing the rest?
-          unlock();
-	  return status;
-	}
-      }
-    }
-    else {
+    if (sendTime > now)
       break;  // the next timeout is still in the future...so we are done
+
+    if (msg->IsLocked())
+    {
+      unlock();
+      // TODO: do we really want to return without processing the rest?
+      return status;
+    }
+    // send out the message again
+    msg->SetLocked(true);
+    unlock();
+    status = msg->ResendMessage();
+    lock();
+    msg->SetLocked(false);
+    if (status != 0)
+    {
+      if (status == SNMP_CLASS_TIMEOUT)
+      {
+        unsigned long req_id = msg->GetId();
+
+        // Dequeue the message
+        DeleteEntry(req_id);
+#ifdef _SNMPv3
+        // delete entry in cache
+        if (v3MP::I)
+          v3MP::I->delete_from_cache(req_id);
+
+        LOG_BEGIN(loggerModuleName, INFO_LOG | 6);
+        LOG("MsgQueue: Message timed out, removed id from v3MP cache (rid)");
+        LOG(req_id);
+        LOG_END;
+#endif
+      }
+      else
+      {
+        // Some other send error, should we dequeue the message?
+        // do we really want to return without processing the rest?
+        unlock();
+        return status;
+      }
     }
   }
   unlock();
@@ -772,7 +849,10 @@ int CSNMPMessageQueue::Done()
     return 0;
 }
 
-int CSNMPMessageQueue::Done(unsigned long id) REENTRANT ({
+int CSNMPMessageQueue::Done(unsigned long id)
+{
+  SnmpSynchronize _synchronize(*this); // instead of REENTRANT()
+
   // FF: This is much more efficient than the above
   CSNMPMessage *msg = GetEntry(id);
 
@@ -782,8 +862,8 @@ int CSNMPMessageQueue::Done(unsigned long id) REENTRANT ({
       return 1;
 
   return 0;
-})
+}
 
 #ifdef SNMP_PP_NAMESPACE
-}; // end of namespace Snmp_pp
-#endif 
+} // end of namespace Snmp_pp
+#endif

@@ -2,9 +2,9 @@
   _## 
   _##  receive_trap.cpp  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,31 +23,17 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
-  _##  
   _##########################################################################*/
 
-char receivetrap_cpp_version[]="@(#) SNMP++ $Id$";
+char receivetrap_cpp_version[]="@(#) SNMP++ $Id: receive_trap.cpp 2359 2013-05-09 20:07:01Z fock $";
+#include <libsnmp.h>
 
 #include "snmp_pp/snmp_pp.h"
 #include "snmp_pp/collect.h"
 #include "snmp_pp/notifyqueue.h"
 
-#include <stdlib.h>
-#include <stdio.h>
-
 #ifdef SNMP_PP_NAMESPACE
 using namespace Snmp_pp;
-#endif
-
-#if (__GNUC__ > 2)
-#include <iostream>
-using std::cerr;
-using std::cout;
-using std::endl;
-using std::flush;
-#else
-#include <iostream.h>
 #endif
 
 void callback( int reason, Snmp *snmp, Pdu &pdu, SnmpTarget &target, void *cd)

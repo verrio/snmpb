@@ -1,10 +1,10 @@
 /*_############################################################################
   _## 
-  _##  config_snmp_pp.h  
+  _##  config_snmp_pp.h.in  
   _##
-  _##  SNMP++v3.2.24
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,14 +23,15 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010
-  _##  
   _##########################################################################*/
-
-// $Id$
 
 #ifndef _CONFIG_SNMP_PP_H_
 #define _CONFIG_SNMP_PP_H_
+
+#ifndef __LIBSNMP_H_INCLUDED__
+#include <libsnmp.h>
+#endif
+
 
 #include <sys/param.h>
 
@@ -38,10 +39,10 @@
 #define __unix
 #endif
 
-#define SNMP_PP_VERSION_STRING "3.2.25"
+#define SNMP_PP_VERSION_STRING "3.3.9"
 #define SNMP_PP_VERSION 3
-#define SNMP_PP_RELEASE 2
-#define SNMP_PP_PATCHLEVEL 25
+#define SNMP_PP_RELEASE 3
+#define SNMP_PP_PATCHLEVEL 9
 
 //! The maximum size of a message that can be sent or received.
 #define MAX_SNMP_PACKET 4096
@@ -61,51 +62,93 @@
 #endif
 #endif
 
-// define SNMP_PP_IPv6 if you want to use IPv6
-#define SNMP_PP_IPv6
+#ifndef ON
+#define ON 1
+#endif
+
+/*
+ * some permanent parts from autoconf process
+ */
+#if 1
+#define _SNMPv3 1
+#else
+#define _NO_SNMPv3 1
+#endif
+#if 1
+#define SNMP_PP_IPv6 1
+#endif
+#if 1
+#define ENABLE_THREADS 1
+#else
+#define _NO_THREADS
+#endif
+#if 1
+#define HAVE_LIBSSL 1
+#endif
+#if 0
+#define HAVE_LIBTOMCRYPT 1
+#endif
+#if 0
+#define HAVE_LIBDES 1
+#endif
+#if 1
+#define HAVE_PTHREAD 1
+#endif
 
 // define SNMP_PP_NAMESPACE to enclose all library names in Snmp_pp namespace
-// #define SNMP_PP_NAMESPACE
-
-// define _NO_SNMPv3 here or in the Makefile if you do not want to use SNMPv3
-// (default is to use SNMPv3)
-// #define _NO_SNMPv3
-
-// If you have not disabled SNMPv3, snmp++ will use libdes
-// (separate package) as default.
-// define _USE_LIBTOMCRYPT if you want to use libtomcrypt instead
-// Note that _USE_OPENSSL will override libtomcrypt for SHA1, MD5, DES and AES.
-#define _USE_LIBTOMCRYPT
-
-// If you define _USE_OPENSSL, snmp++ will use OpenSSL for SHA1,
-// MD5, DES and AES. Please note that you will have to change the Makefiles
-// of the examples: Add -lssl to the link command
-// #define _USE_OPENSSL
+#undef SNMP_PP_NAMESPACE
 
 // If you do not use SNMP++ for commercial purposes or if you
 // have licensed IDEA (read README.v3) you may define the following
 // to enable IDEA support. (note this is not defined by a rfc)
 #define _USE_IDEA
 
-// Enable 3DES Privacy (note this is not defined by a rfc)
-#define _USE_3DES_EDE
-
-// define _NO_THREADS here or in the Makefile if you do not want thread support
-// (default is to include thread support)
-// #define _NO_THREADS
+#define _USE_LIBTOMCRYPT
 
 // define _NO_LOGGING if you do not want any logging output 
 // (increases performance drastically and minimizes memory consumption)
-//#define _NO_LOGGING
+#if 1
+#undef _NO_LOGGING
+#else
+#define _NO_LOGGING
+#endif
+
+#if 1
+#ifndef WITHOUT_LOG_PROFILES
+#define WITH_LOG_PROFILES 1
+#endif
+#else
+#undef WITH_LOG_PROFILES
+#endif
 
 // define _IPX_ADDRESS and/or _MAC_ADDRESS if you want to use the
 // classess IpxAddress/IpxSockAddress and/or MacAddress
-// #define _IPX_ADDRESS
-// #define _MAC_ADDRESS
+#if 0
+#define _MAC_ADDRESS
+#else
+#undef _MAC_ADDRESS
+#endif
+#if 0
+#define _IPX_ADDRESS
+#else
+#undef _IPX_ADDRESS
+#endif
 
 // define this if you want to send out broadcasts
 #define SNMP_BROADCAST
 
+// Some socket types
+#if !(defined (CPU) && CPU == PPC603) && (defined __GNUC__ || defined __FreeBSD__ || defined _AIX) && ! defined __MINGW32__
+  typedef socklen_t SocketLengthType;
+#else
+  typedef int SocketLengthType;
+#endif
+
+#ifdef SNMP_PP_IPv6
+  typedef struct sockaddr_storage SocketAddrType;
+#else
+  typedef struct sockaddr_in SocketAddrType;
+#endif
 
 // Not fully tested!
 //#define HAVE_POLL_SYSCALL
@@ -135,17 +178,13 @@
 // can we use the reentrant version of these functions or
 // are the standard functions thread safe
 #ifdef __CYGWIN32__
-#define HAVE_LOCALTIME_R
 #define HAVE_REENTRANT_LOCALTIME
 #define HAVE_REENTRANT_GETHOSTBYADDR
 #define HAVE_REENTRANT_GETHOSTBYNAME
-#undef  HAVE_GETHOSTBYNAME2
 #elif __MINGW32__
 //FIXME: snmp++/src/address.cpp:865: error: `inet_ntop' was not declared in this scope
 //FIXME: snmp++/src/address.cpp:988: error: `inet_pton' was not declared in this scope
 //FIXME: snmp++/src/notifyqueue.cpp:538: error: `inet_pton' was not declared in this scope
-#undef  HAVE_INET_ATON
-#undef  HAVE_GETHOSTBYNAME2
 #define HAVE_REENTRANT_GETHOSTBYNAME
 #define HAVE_REENTRANT_LOCALTIME
 #define HAVE_REENTRANT_GETHOSTBYADDR
@@ -166,15 +205,9 @@
 #endif
 #elif __DECCXX
 #define HAVE_REENTRANT_GETHOSTBYNAME
-#define HAVE_LOCALTIME_R
 #define HAVE_REENTRANT_GETHOSTBYADDR
-#elif __sun
-#define HAVE_GETHOSTBYNAME_R
-#define HAVE_LOCALTIME_R
-#define HAVE_GETHOSTBYADDR_R
 #elif __HP_aCC
 #define HAVE_REENTRANT_GETHOSTBYNAME
-#define HAVE_LOCALTIME_R
 #define HAVE_REENTRANT_GETHOSTBYADDR
 #elif _MSC_VER
 #define HAVE_REENTRANT_GETHOSTBYNAME
@@ -182,18 +215,22 @@
 #define HAVE_REENTRANT_GETHOSTBYADDR
 #elif _AIX
 #define HAVE_REENTRANT_GETHOSTBYNAME
-#define HAVE_LOCALTIME_R
 #define HAVE_REENTRANT_GETHOSTBYADDR
 #endif
 
 // Define a unsigned 64 bit integer:
 #ifdef WIN32
-#ifdef SNMP_PP_IPv6
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#else
 #include <windows.h>
+#if defined(HAVE_WINSOCK2_H)
+#include <winsock2.h>
+#elif defined(HAVE_WINSOCK_H)
 #include <winsock.h>
+#endif
+#ifdef HAVE_WSTCPIP_H
+#include <ws2tcpip.h>
+#endif
+#ifdef HAVE_WSPIAPI_H
+#include <wspiapi.h>
 #endif
 #ifdef __BCPLUSPLUS__
 typedef unsigned __int64 pp_uint64;
@@ -215,6 +252,9 @@ typedef unsigned long long pp_uint64;
 #include <poll.h>
 #endif
 
+#define SNMP_PP_DEFAULT_SNMP_PORT      161 // standard port # for SNMP
+#define SNMP_PP_DEFAULT_SNMP_TRAP_PORT 162 // standard port # for SNMP traps
+
 ///////////////////////////////////////////////////////////////////////
 // Changes below this line should not be necessary
 ///////////////////////////////////////////////////////////////////////
@@ -231,45 +271,7 @@ typedef unsigned long long pp_uint64;
 #define SAFE_LONG_CAST(expr)  ((long)(expr))
 #define SAFE_ULONG_CAST(expr) ((unsigned long)(expr))
 
-#ifndef _NO_THREADS
-
-#ifndef HAVE_REENTRANT_LOCALTIME
-#ifndef HAVE_LOCALTIME_R
-// If you see this warning, and your system has a reentrant localtime
-// or localtime_r function report your compiler, OS,... to the authors
-// of this library, so that these settings can be changed
-#warning Threads_defined_but_no_reentrant_LOCALTIME_function
-#endif
-#endif
-
-#ifndef HAVE_GETHOSTBYADDR_R
-#ifndef HAVE_REENTRANT_GETHOSTBYADDR
-// If you see this warning, and your system has a reentrant localtime
-// or localtime_r function report your compiler, OS,... to the authors
-// of this library, so that these settings can be changed
-#warning Threads_defined_but_no_reentrant_GETHOSTBYADDR_function
-#endif
-#endif
-
-#ifndef HAVE_GETHOSTBYNAME_R
-#ifndef HAVE_REENTRANT_GETHOSTBYNAME
-// If you see this warning, and your system has a reentrant localtime
-// or localtime_r function report your compiler, OS,... to the authors
-// of this library, so that these settings can be changed
-#warning Threads_defined_but_no_reentrant_GETHOSTBYNAME_function
-#endif
-#endif
-
-#endif // _NO_THREADS
-
-
-#ifndef _NO_SNMPv3
-#ifndef _SNMPv3
-#define _SNMPv3
-#endif
-#endif
-
-#ifndef _NO_THREADS
+#ifdef ENABLE_THREADS
 #ifdef WIN32
 
 #ifndef _THREADS
@@ -285,16 +287,25 @@ typedef unsigned long long pp_uint64;
 #endif
 
 #ifdef __APPLE__
+#ifndef __unix
 #define __unix
+#endif
 #endif
 
 #ifndef POSIX_THREADS
-#ifdef __unix
+#ifdef HAVE_PTHREAD
 #define POSIX_THREADS
 #endif
 #endif
 
 #endif // WIN32
-#endif // !_NO_THREADS
+#endif // ENABLE_THREADS
+
+#ifdef _THREADS
+#ifndef _WIN32THREADS
+#include <pthread.h>
+#endif
+#endif
+
 
 #endif // _CONFIG_SNMP_PP_H_

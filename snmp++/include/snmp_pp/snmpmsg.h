@@ -2,9 +2,9 @@
   _## 
   _##  snmpmsg.h  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -22,8 +22,6 @@
   _##  "AS-IS" without warranty of any kind, either express or implied. User 
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
-  _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -53,13 +51,13 @@
   ASN.1	encoding / decoding class
       		
 =====================================================================*/
-// $Id$
+// $Id: snmpmsg.h 3167 2016-09-26 18:52:43Z katz $
 
-#ifndef _SNMPMSG
-#define _SNMPMSG
+#ifndef _SNMP_SNMPMSG_H_
+#define _SNMP_SNMPMSG_H_
 
+#include <libsnmp.h>
 #include "snmp_pp/config_snmp_pp.h"
-
 #include "snmp_pp/smival.h"
 #include "snmp_pp/pdu.h"
 #include "snmp_pp/target.h"
@@ -167,4 +165,4 @@ protected:
 } // end of namespace Snmp_pp
 #endif 
 
-#endif  // _SNMPMSG
+#endif  // _SNMP_SNMPMSG_H_

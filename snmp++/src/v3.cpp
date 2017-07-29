@@ -2,9 +2,9 @@
   _## 
   _##  v3.cpp  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,21 +23,11 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
-  _##  
   _##########################################################################*/
 
-char v3_cpp_version[]="#(@) SNMP++ $Id$";
+char v3_cpp_version[]="#(@) SNMP++ $Id: v3.cpp 2502 2013-12-18 21:01:54Z katz $";
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <string.h>
-#ifndef _MSC_VER
-#ifndef __BCPLUSPLUS__
-#include <unistd.h>
-#endif
-#endif
+#include <libsnmp.h>
 
 #include "snmp_pp/log.h"
 #include "snmp_pp/v3.h"
@@ -46,6 +36,8 @@ char v3_cpp_version[]="#(@) SNMP++ $Id$";
 #ifdef SNMP_PP_NAMESPACE
 namespace Snmp_pp {
 #endif
+
+static const char *loggerModuleName = "snmp++.v3";
 
 #define MAX_LINE_LEN 100
 
@@ -72,7 +64,7 @@ void debughexcprintf(int db_level, const char *comment,
     if (comment && (strlen(comment) < MAX_LOG_SIZE - 25))
     {
 	sprintf(buf, "%s (length %i): \n", comment, len);
-	LOG_BEGIN(DEBUG_LOG | 3);
+	LOG_BEGIN(loggerModuleName, DEBUG_LOG | 3);
 	LOG(buf);
 	LOG_END;
     }
@@ -95,7 +87,7 @@ void debughexcprintf(int db_level, const char *comment,
 
 	if ((i+1)%16==0)
 	{
-	    LOG_BEGIN(DEBUG_LOG | 3);
+	    LOG_BEGIN(loggerModuleName, DEBUG_LOG | 3);
 	    LOG(buf);
 	    LOG_END;
 
@@ -107,7 +99,7 @@ void debughexcprintf(int db_level, const char *comment,
     if (buf[0] != '\0')
     {
 	// print the last part of the message
-	LOG_BEGIN(DEBUG_LOG | 3);
+	LOG_BEGIN(loggerModuleName, DEBUG_LOG | 3);
 	LOG(buf);
 	LOG_END;
     }
@@ -125,22 +117,16 @@ void debugprintf(int db_level, const char *format, ...)
 
     va_start(args, format);
 
-/////////////////////////////////////////////////////////////////
-//	NOTE: This would be the best way to go (by using _vscprintf), 
-//	but it is part of the VC7.0, and it can't be used in VC6.0
-/////////////////////////////////////////////////////////////////
-	// _vscprintf doesn't count terminating '\0' so we add one more
-//	int len = _vscprintf( format, args ) + 1;
-
     char *buf = new char[MAX_LOG_SIZE];
 
     if (NULL == buf) return; // not good!
 
-    vsprintf(buf, format, args);
+    vsnprintf(buf, MAX_LOG_SIZE, format, args);
+    buf[MAX_LOG_SIZE - 1] = 0;
 
     va_end(args);
 
-    LOG_BEGIN(DEBUG_LOG | 1);
+    LOG_BEGIN(loggerModuleName, DEBUG_LOG | 1);
     LOG(buf);
     LOG_END;
 
@@ -204,7 +190,7 @@ void decodeString(const unsigned char* in, const int in_length, char* out)
 
   if ((in_length % 2) || (in_length < 0))
   {
-    LOG_BEGIN(WARNING_LOG | 3);
+    LOG_BEGIN(loggerModuleName, WARNING_LOG | 3);
     LOG("decodeString: Illegal input length (len)");
     LOG(in_length);
     LOG_END;
@@ -236,7 +222,7 @@ int getBootCounter(const char *fileName,
 
   if (!file)
   {
-    LOG_BEGIN(ERROR_LOG | 1);
+    LOG_BEGIN(loggerModuleName, ERROR_LOG | 1);
     LOG("getBootCounter: Could not open (file)");
     LOG(fileName);
     LOG_END;
@@ -246,7 +232,7 @@ int getBootCounter(const char *fileName,
 
   if (len > MAXLENGTH_ENGINEID)
   {
-    LOG_BEGIN(ERROR_LOG | 3);
+    LOG_BEGIN(loggerModuleName, ERROR_LOG | 3);
     LOG("getBootCounter: engine id too long, ignoring last bytes (len) (max)");
     LOG(len);
     LOG(MAXLENGTH_ENGINEID);
@@ -278,7 +264,7 @@ int getBootCounter(const char *fileName,
       {
         fclose(file);
 
-        LOG_BEGIN(ERROR_LOG | 3);
+        LOG_BEGIN(loggerModuleName, ERROR_LOG | 3);
         LOG("getBootCounter: Illegal line: (file) (line)");
         LOG(fileName);
         LOG(line);
@@ -289,7 +275,7 @@ int getBootCounter(const char *fileName,
       boot = atoi(ptr);
       fclose(file);
 
-      LOG_BEGIN(DEBUG_LOG | 3);
+      LOG_BEGIN(loggerModuleName, DEBUG_LOG | 3);
       LOG("getBootCounter: found entry (file) (engine id) (boot counter)");
       LOG(fileName);
       LOG(engineId.get_printable());
@@ -301,7 +287,7 @@ int getBootCounter(const char *fileName,
   }
   fclose(file);
 
-  LOG_BEGIN(WARNING_LOG | 3);
+  LOG_BEGIN(loggerModuleName, WARNING_LOG | 3);
   LOG("getBootCounter: No entry found (file) (engine id)");
   LOG(fileName);
   LOG(engineId.get_printable());
@@ -317,7 +303,7 @@ int saveBootCounter(const char *fileName,
   char line[MAX_LINE_LEN];
   char tmpFileName[MAXLENGTH_FILENAME];
   char encoded[MAXLENGTH_ENGINEID * 2 + 2];
-  int found = FALSE;
+  bool found = false;
   int len = engineId.len();
   FILE *file_in, *file_out;
 
@@ -325,7 +311,7 @@ int saveBootCounter(const char *fileName,
   sprintf(tmpFileName, "%s.tmp",fileName);
   if (len > MAXLENGTH_ENGINEID)
   {
-    LOG_BEGIN(ERROR_LOG | 3);
+    LOG_BEGIN(loggerModuleName, ERROR_LOG | 3);
     LOG("saveBootCounter: engine id too long, ignoring last bytes (len) (max)");
     LOG(len);
     LOG(MAXLENGTH_ENGINEID);
@@ -340,7 +326,7 @@ int saveBootCounter(const char *fileName,
     file_in = fopen(fileName, "w");
     if (!file_in)
     {
-      LOG_BEGIN(ERROR_LOG | 3);
+      LOG_BEGIN(loggerModuleName, ERROR_LOG | 3);
       LOG("saveBootCounter: could not create new file (file)");
       LOG(fileName);
       LOG_END;
@@ -348,7 +334,7 @@ int saveBootCounter(const char *fileName,
       return SNMPv3_FILECREATE_ERROR;
     }
 
-    LOG_BEGIN(INFO_LOG | 3);
+    LOG_BEGIN(loggerModuleName, INFO_LOG | 3);
     LOG("saveBootCounter: created new file (file)");
     LOG(fileName);
     LOG_END;
@@ -380,7 +366,7 @@ int saveBootCounter(const char *fileName,
       {
         if (found)
         {
-          LOG_BEGIN(WARNING_LOG | 3);
+          LOG_BEGIN(loggerModuleName, WARNING_LOG | 3);
           LOG("saveBootCounter: Removing doubled entry (file) (line)");
           LOG(fileName);
           LOG(line);
@@ -390,7 +376,7 @@ int saveBootCounter(const char *fileName,
         }
         sprintf(line,"%s%i\n", encoded, boot);
         fputs(line, file_out);
-        found = TRUE;
+        found = true;
         continue;
       }
       fputs(line, file_out);
@@ -407,7 +393,7 @@ int saveBootCounter(const char *fileName,
 #endif
     if (rename(tmpFileName, fileName))
     {
-      LOG_BEGIN(ERROR_LOG | 1);
+      LOG_BEGIN(loggerModuleName, ERROR_LOG | 1);
       LOG("saveBootCounter: Failed to rename temporary file (tmp file) (file)");
       LOG(tmpFileName);
       LOG(fileName);
@@ -416,7 +402,7 @@ int saveBootCounter(const char *fileName,
       return SNMPv3_FILERENAME_ERROR;
     }
 
-    LOG_BEGIN(INFO_LOG | 5);
+    LOG_BEGIN(loggerModuleName, INFO_LOG | 5);
     LOG("saveBootCounter: Saved counter (file) (engine id) (boot)");
     LOG(fileName);
     LOG(engineId.get_printable());
@@ -426,7 +412,7 @@ int saveBootCounter(const char *fileName,
     return SNMPv3_OK;
   }
 
-  LOG_BEGIN(ERROR_LOG | 1);
+  LOG_BEGIN(loggerModuleName, ERROR_LOG | 1);
   LOG("saveBootCounter: Failed to open both files (file) (tmp file)");
   LOG(fileName);
   LOG(tmpFileName);
@@ -438,5 +424,5 @@ int saveBootCounter(const char *fileName,
 #endif
 
 #ifdef SNMP_PP_NAMESPACE
-}; // end of namespace Snmp_pp
+} // end of namespace Snmp_pp
 #endif 

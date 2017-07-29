@@ -1,0 +1,13 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+modules=@WITH_MODULES@
+
+Name: snmp++
+Version: @VERSION@
+Description: SNMP C++ framework version 3
+Requires:
+Libs: -L${libdir} -lsnmp++
+Libs.private: @LIBS@ @LINKFLAGS@
+Cflags: -I${includedir}

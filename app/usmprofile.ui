@@ -153,7 +153,27 @@
         </item>
         <item>
          <property name="text">
-          <string>SHA</string>
+          <string>SHA-1</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>SHA-2-224</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>SHA-2-256</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>SHA-2-384</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>SHA-2-512</string>
          </property>
         </item>
        </widget>

@@ -2,9 +2,9 @@
   _## 
   _##  octet.h  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -22,8 +22,6 @@
   _##  "AS-IS" without warranty of any kind, either express or implied. User 
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
-  _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -54,10 +52,10 @@
   SNMP libraries. This class is portable across any platform
   which supports C++.
 =====================================================================*/
-// $Id$
+// $Id: octet.h 3167 2016-09-26 18:52:43Z katz $
 
-#ifndef _OCTET_CLS
-#define _OCTET_CLS
+#ifndef _SNMP_OCTET_H_
+#define _SNMP_OCTET_H_
 
 #include "snmp_pp/smival.h"
 
@@ -210,7 +208,7 @@ class DLLOPT OctetStr: public  SnmpSyntax
    * @note The given param is not checked for validity.
    */
   unsigned char &operator[](int i)
-    { m_changed = true; return smival.value.string.ptr[i]; };
+    { m_changed = true; validity = true; return smival.value.string.ptr[i]; };
 
   /**
    * Allow access as if it was an array for const OctetStr objects.
@@ -459,4 +457,4 @@ class OpaqueStr: public OctetStr
 } // end of namespace Snmp_pp
 #endif 
 
-#endif // _OCTET_CLS
+#endif // _SNMP_OCTET_H_

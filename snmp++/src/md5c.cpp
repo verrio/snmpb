@@ -2,9 +2,9 @@
   _## 
   _##  md5c.cpp  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -23,10 +23,8 @@
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
   _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
-  _##  
   _##########################################################################*/
-char md5c_cpp_version[]="#(@) SNMP++ $Id$";
+char md5c_cpp_version[]="#(@) SNMP++ $Id: md5c.cpp 3195 2017-01-11 20:07:44Z katz $";
 /* MD5C.C - RSA Data Security, Inc., MD5 message-digest algorithm */
 
 /* Copyright (C) 1991, RSA Data Security, Inc. All rights reserved.
@@ -50,11 +48,11 @@ char md5c_cpp_version[]="#(@) SNMP++ $Id$";
    documentation and/or software.
  */
 
+#include <libsnmp.h>
+
 #include "snmp_pp/md5.h"
 
 #if !defined(_USE_LIBTOMCRYPT) && !defined(_USE_OPENSSL)
-
-#include <string.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -83,11 +81,11 @@ namespace Snmp_pp {
 #define S43 15
 #define S44 21
 
-static void MD5Transform PROTO_LIST ((UINT4 [4], const unsigned char [64]));
-static void Encode PROTO_LIST ((unsigned char *, UINT4 *, unsigned int));
-static void Decode PROTO_LIST ((UINT4 *, const unsigned char *, unsigned int));
-static void MD5_memcpy PROTO_LIST ((POINTER, POINTER, unsigned int));
-static void MD5_memset PROTO_LIST ((POINTER, int, unsigned int));
+static void MD5Transform(UINT4 [4], const unsigned char [64]);
+static void Encode(unsigned char *, UINT4 *, unsigned int);
+static void Decode(UINT4 *, const unsigned char *, unsigned int);
+static void MD5_memcpy(POINTER, POINTER, unsigned int);
+static void MD5_memset(POINTER, int, unsigned int);
 
 static unsigned char PADDING[64] = {
   0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -354,7 +352,7 @@ static void MD5_memset (
 }
 
 #ifdef SNMP_PP_NAMESPACE
-}; // end of namespace Snmp_pp
+} // end of namespace Snmp_pp
 #endif 
 
 #ifdef __cplusplus

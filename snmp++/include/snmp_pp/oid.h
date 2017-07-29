@@ -2,9 +2,9 @@
   _## 
   _##  oid.h  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -22,8 +22,6 @@
   _##  "AS-IS" without warranty of any kind, either express or implied. User 
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
-  _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -55,20 +53,18 @@
   which supports C++.
 
 =====================================================================*/
-// $Id$
+// $Id: oid.h 3169 2016-09-26 20:45:41Z katz $
 
-#ifndef _OID_H_
-#define _OID_H_
+#ifndef _SNMP_OID_H_
+#define _SNMP_OID_H_
 
-//------------------------------------------------------------------------
-
-#include "snmp_pp/smival.h"                // derived class for all values
+#include <libsnmp.h>
+#include "snmp_pp/smival.h"
 #include "snmp_pp/collect.h"
 
 #ifdef SNMP_PP_NAMESPACE
 namespace Snmp_pp {
 #endif
-
 
 /**
  * The Object Identifier Class.
@@ -98,7 +94,13 @@ class DLLOPT Oid : public SnmpSyntax
   /**
    * Construct an invalid Oid.
    */
-  Oid();
+  Oid()
+    : iv_str(0), iv_part_str(0), m_changed(true)
+  {
+    smival.syntax = sNMP_SYNTAX_OID;
+    smival.value.oid.len = 0;
+    smival.value.oid.ptr = 0;
+  }
 
   /**
    * Construct an Oid from a string.
@@ -107,7 +109,7 @@ class DLLOPT Oid : public SnmpSyntax
    * - a dotted oid string (like "1.3.6.1.6"). An arbitrary part
    *   of the oid can be given as a string value enclosed in
    *   '$' characters. For example the oid string
-   *   "1.3.6.1.6.1.12.1.3.$public0$" will result to the oid
+   *   "1.3.6.1.6.1.12.1.3.$public_0$" will result to the oid
    *   1.3.6.1.6.1.12.1.3.112.117.98.108.105.99.95.48
    * - a normal string (like "public"). The Oid will have the
    *   ASCII values of the string characters. So "public" will
@@ -123,7 +125,22 @@ class DLLOPT Oid : public SnmpSyntax
    *
    * @param oid - Source Oid
    */
-  Oid(const Oid &oid);
+  Oid(const Oid &oid)
+    : iv_str(0), iv_part_str(0), m_changed(true)
+  {
+    smival.syntax = sNMP_SYNTAX_OID;
+    smival.value.oid.len = 0;
+    smival.value.oid.ptr = 0;
+
+    // allocate some memory for the oid
+    // in this case the size to allocate is the same size as the source oid
+    if (oid.smival.value.oid.len)
+    {
+      smival.value.oid.ptr = (SmiLPUINT32) new unsigned long[oid.smival.value.oid.len];
+      if (smival.value.oid.ptr)
+        OidCopy((SmiLPOID)&(oid.smival.value.oid), (SmiLPOID)&smival.value.oid);
+    }
+  }
 
   /**
    * Constructor from array.
@@ -131,19 +148,41 @@ class DLLOPT Oid : public SnmpSyntax
    * @param raw_oid - array of oid values
    * @param oid_len - length of array
    */
-  Oid(const unsigned long *raw_oid, int oid_len);
+  Oid(const unsigned long *raw_oid, int oid_len)
+    : iv_str(0), iv_part_str(0), m_changed(true)
+  {
+    smival.syntax = sNMP_SYNTAX_OID;
+    smival.value.oid.len = 0;
+    smival.value.oid.ptr = 0;
+
+    if (raw_oid && (oid_len > 0))
+    {
+      smival.value.oid.ptr = (SmiLPUINT32) new unsigned long[oid_len];
+      if (smival.value.oid.ptr)
+      {
+        smival.value.oid.len = oid_len;
+        for (int i=0; i < oid_len; i++)
+          smival.value.oid.ptr[i] = raw_oid[i];
+      }
+    }
+  }
 
   /**
    * Destructor.
    */
-  virtual ~Oid();
+  virtual ~Oid()
+  {
+    delete_oid_ptr();
+    if (iv_str)      delete [] iv_str;        // free up the output string
+    if (iv_part_str) delete [] iv_part_str;   // free up the output string
+  }
 
   /**
    * Return the current syntax.
    *
    * @return always sNMP_SYNTAX_OID
    */
-  SmiUINT32 get_syntax() const { return sNMP_SYNTAX_OID; };
+  SmiUINT32 get_syntax() const { return sNMP_SYNTAX_OID; }
 
   /**
    * Assignment from a string.
@@ -155,7 +194,22 @@ class DLLOPT Oid : public SnmpSyntax
   /**
    * Assign one Oid to another.
    */
-  virtual Oid& operator=(const Oid &oid);
+  virtual Oid& operator=(const Oid &oid)
+  {
+    if (this == &oid) return *this;  // protect against assignment from self
+
+    delete_oid_ptr();
+
+    // check for zero len on source
+    if (oid.smival.value.oid.len == 0)
+      return *this;
+
+    // allocate some memory for the oid
+    smival.value.oid.ptr = (SmiLPUINT32) new unsigned long[oid.smival.value.oid.len];
+    if (smival.value.oid.ptr)
+      OidCopy((SmiLPOID)&(oid.smival.value.oid), (SmiLPOID)&smival.value.oid);
+    return *this;
+  }
 
   /**
    * Return the space needed for serialization.
@@ -165,72 +219,58 @@ class DLLOPT Oid : public SnmpSyntax
   /**
    * Overloaded equal operator.
    */
-  DLLOPT friend int operator==(const Oid &lhs, const Oid &rhs);
+  bool operator == (const Oid &rhs) const
+  {
+    // ensure same len, then use nCompare
+    if (len() != rhs.len())
+      return 0;
+    return (nCompare(rhs) == 0);
+  }
 
   /**
    * Overloaded not equal operator.
    */
-  DLLOPT friend int operator!=(const Oid &lhs, const Oid &rhs)
-      { return (!(lhs == rhs)); };  // just invert ==
+  bool operator != (const Oid &rhs) const
+      { return (!(*this == rhs)); }  // just invert ==
 
   /**
    * Overloaded less than < operator.
    */
-  DLLOPT friend int operator<(const Oid &lhs, const Oid &rhs);
+  bool operator < (const Oid &rhs) const
+  {
+    int result;
+    // call nCompare with the current
+    // Oidx, Oidy and len of Oidx
+    if((result = nCompare(rhs))<0)  return 1;
+    if (result > 0)    return 0;
+
+    // if here, equivalent substrings, call the shorter one <
+    return (len() < rhs.len());
+  }
 
   /**
    * Overloaded less than <= operator.
    */
-  DLLOPT friend int operator<=(const Oid &lhs, const Oid &rhs)
-      { return ((lhs < rhs) || (lhs == rhs)); };
+  bool operator <= (const Oid &rhs) const
+      { return ((*this < rhs) || (*this == rhs)); }
 
   /**
    * Overloaded greater than > operator.
    */
-  DLLOPT friend int operator>(const Oid &lhs, const Oid &rhs)
-      { return (!(lhs <= rhs)); };  // just invert existing <=
+  bool operator > (const Oid &rhs) const
+      { return (!(*this <= rhs)); }  // just invert existing <=
 
   /**
    * Overloaded greater than >= operator.
    */
-  DLLOPT friend int operator>=(const Oid &lhs, const Oid &rhs)
-      { return (!(lhs < rhs)); };  // just invert existing <
-
-  /**
-   * Overloaded equal operator operator.
-   */
-  DLLOPT friend int operator==(const Oid &lhs, const char *rhs);
-
-  /**
-   * Overloaded not equal operator.
-   */
-  DLLOPT friend int operator!=(const Oid &lhs, const char *rhs);
-
-  /**
-   * Overloaded less than < operator.
-   */
-  DLLOPT friend int operator<(const Oid &lhs, const char *rhs);
-
-  /**
-   * Overloaded less than <= operator.
-   */
-  DLLOPT friend int operator<=(const Oid &lhs, char *rhs);
-
-  /**
-   * Overloaded greater than > operator.
-   */
-  DLLOPT friend int operator>(const Oid &lhs, const char *rhs);
-
-  /**
-   * Overloaded greater than >= operator.
-   */
-  DLLOPT friend int operator>=(const Oid &lhs, const char *rhs);
+  bool operator >= (const Oid &rhs) const
+      { return (!(*this < rhs)); }  // just invert existing <
 
   /**
    * Overloaded operator +, Concatenate two Oids.
    */
   DLLOPT friend Oid operator +(const Oid &lhs, const Oid &rhs)
-    { Oid tmp(lhs); tmp += rhs; return tmp;};
+    { Oid tmp(lhs); tmp += rhs; return tmp;}
 
   /**
    * Append operator, appends the dotted oid string.
@@ -244,14 +284,53 @@ class DLLOPT Oid : public SnmpSyntax
    *
    * @param i - Value to add at the end of the Oid
    */
-  Oid& operator+=(const unsigned long i);
+  Oid& operator+=(const unsigned long i)
+  {
+    Oid other(&i, 1);
+    (*this) += other;
+    return *this;
+  }
 
   /**
    * Appends an Oid.
    *
    * @param o - Oid to add at the end
    */
-  Oid& operator+=(const Oid &o);
+  Oid& operator+=(const Oid &o)
+  {
+    SmiLPUINT32 new_oid;
+
+    if (o.smival.value.oid.len == 0)
+      return *this;
+
+    new_oid = (SmiLPUINT32) new unsigned long[smival.value.oid.len + o.smival.value.oid.len];
+    if (new_oid == 0)
+    {
+      delete_oid_ptr();
+      return *this;
+    }
+
+    if (smival.value.oid.ptr)
+    {
+      MEMCPY((SmiLPBYTE) new_oid,
+             (SmiLPBYTE) smival.value.oid.ptr,
+             (size_t) (smival.value.oid.len*sizeof(SmiUINT32)));
+
+      delete [] smival.value.oid.ptr;
+    }
+
+    // out with the old, in with the new...
+    smival.value.oid.ptr = new_oid;
+
+    MEMCPY((SmiLPBYTE) &new_oid[smival.value.oid.len],
+           (SmiLPBYTE) o.smival.value.oid.ptr,
+           (size_t) (o.smival.value.oid.len*sizeof(SmiUINT32)));
+
+    smival.value.oid.len += o.smival.value.oid.len;
+
+    m_changed = true;
+    return *this;
+  }
 
   /**
    * Allows element access as an array.
@@ -263,7 +342,7 @@ class DLLOPT Oid : public SnmpSyntax
    * @return Value on the given index
    */
   unsigned long &operator[](const unsigned int index)
-    { m_changed = true; return smival.value.oid.ptr[index]; };
+    { m_changed = true; return smival.value.oid.ptr[index]; }
 
   /**
    * Allows element access as an array for const objects.
@@ -275,7 +354,7 @@ class DLLOPT Oid : public SnmpSyntax
    * @return Value on the given position
    */
   unsigned long operator[](const unsigned int index) const
-    { return (index >= len()) ? 0 : smival.value.oid.ptr[index]; };
+    { return (index >= len()) ? 0 : smival.value.oid.ptr[index]; }
 
   /**
    * Get the WinSnmp oid part.
@@ -284,7 +363,7 @@ class DLLOPT Oid : public SnmpSyntax
    *
    * @return pointer to the internal oid structure.
    */
-  SmiLPOID oidval() { return (SmiLPOID) &smival.value.oid; };
+  SmiLPOID oidval() { return (SmiLPOID) &smival.value.oid; }
 
   /**
    * Set the data from raw form.
@@ -305,14 +384,24 @@ class DLLOPT Oid : public SnmpSyntax
   /**
    * Get the length of the oid.
    */
-  unsigned long len() const { return smival.value.oid.len; };
+  unsigned long len() const { return smival.value.oid.len; }
 
   /**
    * Trim off the rightmost values of an oid.
    *
    * @param n - Trim off n values from the right (default is one)
    */
-  void trim(const unsigned long n = 1);
+  void trim(const unsigned long n = 1)
+  {
+    // verify that n is legal
+    if ((n <= smival.value.oid.len) && (n > 0))
+    {
+      smival.value.oid.len -= n;
+      if (smival.value.oid.len == 0)
+        delete_oid_ptr();
+      m_changed = true;
+    }
+  }
 
   /**
    * Compare two Oids from the left in direction left-to-right.
@@ -322,12 +411,100 @@ class DLLOPT Oid : public SnmpSyntax
    *
    * @return 0 if equal / -1 if less / 1 if greater
    */
-  int nCompare(const unsigned long n, const Oid &o) const;
+  int nCompare(const unsigned long n, const Oid &o) const
+  {
+    unsigned long length = n;
+    bool reduced_len = false;
+
+    // If both oids are too short, decrease len
+    if ((smival.value.oid.len < length) && (o.smival.value.oid.len < length))
+      length = smival.value.oid.len < o.smival.value.oid.len ? o.smival.value.oid.len : smival.value.oid.len;
+
+    if (length == 0) return 0; // equal
+      
+    // only compare for the minimal length
+    if (length > smival.value.oid.len)
+    {
+      length = smival.value.oid.len;
+      reduced_len = true;
+    }
+    if (length > o.smival.value.oid.len)
+    {
+      length = o.smival.value.oid.len;
+      reduced_len = true;
+    }
+
+    unsigned long z = 0;
+    while (z < length)
+    {
+      if (smival.value.oid.ptr[z] < o.smival.value.oid.ptr[z])
+        return -1;                              // less than
+      if (smival.value.oid.ptr[z] > o.smival.value.oid.ptr[z])
+        return 1;                               // greater than
+      ++z;
+    }
+
+    // if we truncated the len then these may not be equal
+    if (reduced_len)
+    {
+      if (smival.value.oid.len < o.smival.value.oid.len) return -1;
+      if (smival.value.oid.len > o.smival.value.oid.len) return 1;
+    }
+    return 0;                                 // equal
+  }
+
+  /**
+   * Compare two Oids from the left in direction left-to-right.
+   *
+   * @param n - Subvalues to compare
+   * @param o - The Oid to compare with
+   *
+   * @return 0 if equal / -1 if less / 1 if greater
+   */
+  int nCompare(const Oid &o) const
+  {
+    unsigned long length;
+    bool reduced_len = false;
+
+    length = smival.value.oid.len < o.smival.value.oid.len ? o.smival.value.oid.len : smival.value.oid.len;
+
+    if (length == 0) return 0; // equal
+      
+    // only compare for the minimal length
+    if (length > smival.value.oid.len)
+    {
+      length = smival.value.oid.len;
+      reduced_len = true;
+    }
+    if (length > o.smival.value.oid.len)
+    {
+      length = o.smival.value.oid.len;
+      reduced_len = true;
+    }
+
+    unsigned long z = 0;
+    while (z < length)
+    {
+      if (smival.value.oid.ptr[z] < o.smival.value.oid.ptr[z])
+        return -1;                              // less than
+      if (smival.value.oid.ptr[z] > o.smival.value.oid.ptr[z])
+        return 1;                               // greater than
+      ++z;
+    }
+
+    // if we truncated the len then these may not be equal
+    if (reduced_len)
+    {
+      if (smival.value.oid.len < o.smival.value.oid.len) return -1;
+      if (smival.value.oid.len > o.smival.value.oid.len) return 1;
+    }
+    return 0;                                 // equal
+  }
 
   /**
    * Return validity of the object.
    */
-  bool valid() const { return (smival.value.oid.ptr ? true : false); };
+  bool valid() const { return (smival.value.oid.ptr ? true : false); }
 
   /**
    * Get a printable ASCII string of the whole value.
@@ -381,7 +558,7 @@ class DLLOPT Oid : public SnmpSyntax
    *
    * @return Pointer to the newly created object (allocated through new).
    */
-  SnmpSyntax *clone() const { return (SnmpSyntax *) new Oid(*this); };
+  SnmpSyntax *clone() const { return (SnmpSyntax *) new Oid(*this); }
 
   /**
    * Map other SnmpSyntax objects to Oid.
@@ -391,7 +568,7 @@ class DLLOPT Oid : public SnmpSyntax
   /**
    * Clear the Oid.
    */
-  void clear() { delete_oid_ptr(); };
+  void clear() { delete_oid_ptr(); }
 
  protected:
   /**
@@ -408,7 +585,20 @@ class DLLOPT Oid : public SnmpSyntax
    * @param srcOid - source oid
    * @param dstOid - destination oid
    */
-  virtual int OidCopy(SmiLPOID srcOid, SmiLPOID dstOid) const;
+  virtual int OidCopy(SmiLPOID srcOid, SmiLPOID dstOid) const
+  {
+    // check source len ! zero
+    if (srcOid->len == 0) return -1;
+
+    // copy source to destination
+    MEMCPY((SmiLPBYTE) dstOid->ptr,
+           (SmiLPBYTE) srcOid->ptr,
+           (size_t) (srcOid->len*sizeof(SmiUINT32)));
+
+    //set the new len
+    dstOid->len = srcOid->len;
+    return (int) srcOid->len;
+  }
 
   /**
    * Convert an smi oid to its string representation.
@@ -454,4 +644,4 @@ inline void Oid::delete_oid_ptr()
 } // end of namespace Snmp_pp
 #endif 
 
-#endif //_OID_H_
+#endif // _SNMP_OID_H_

@@ -2,9 +2,9 @@
   _## 
   _##  snmpmsg.cpp  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -22,8 +22,6 @@
   _##  "AS-IS" without warranty of any kind, either express or implied. User 
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
-  _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -50,17 +48,9 @@
 
   DESCRIPTION:      ASN.1	encoding / decoding class
 =====================================================================*/
-char snmpmsg_cpp_version[]="#(@) SNMP++ $Id$";
+char snmpmsg_cpp_version[]="#(@) SNMP++ $Id: snmpmsg.cpp 2361 2013-05-09 22:15:06Z katz $";
 
-#if defined(_AIX)
-#include <unistd.h>
-#endif
-#if defined(__APPLE__)
-#include <unistd.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#endif
-#include <stdio.h>
+#include <libsnmp.h>
 
 #include "snmp_pp/config_snmp_pp.h"
 #include "snmp_pp/snmpmsg.h"                    // header file for SnmpMessage
@@ -72,6 +62,8 @@ char snmpmsg_cpp_version[]="#(@) SNMP++ $Id$";
 #ifdef SNMP_PP_NAMESPACE
 namespace Snmp_pp {
 #endif
+
+static const char *loggerModuleName = "snmp++.snmpmsg";
 
 #define MAX_LEN_COMMUNITY 254
 
@@ -223,7 +215,7 @@ int SnmpMessage::load(const Pdu &cpdu,
   Pdu temppdu;
 
   // make sure pdu is valid
-  if ( !pdu->valid())
+  if (!pdu->valid())
     return SNMP_CLASS_INVALID_PDU;
 
   // create a raw pdu
@@ -247,7 +239,7 @@ int SnmpMessage::load(const Pdu &cpdu,
     // DON'T forget about the v1 trap agent address (changed by Frank Fock)
     GenAddress gen_addr;
     IpAddress ip_addr;
-    int addr_set = FALSE;
+    bool addr_set = false;
 
     if (pdu->get_v1_trap_address(gen_addr))
     {
@@ -255,10 +247,10 @@ int SnmpMessage::load(const Pdu &cpdu,
       if ((gen_addr.get_type() != Address::type_ip) &&
           (gen_addr.get_type() != Address::type_udp) )
       {
-	LOG_BEGIN(ERROR_LOG | 4);
-	LOG("SNMPMessage: Bad v1 trap address type in pdu");
-	LOG(gen_addr.get_type());
-	LOG_END;
+	LOG_BEGIN(loggerModuleName, ERROR_LOG | 4);
+        LOG("SNMPMessage: Bad v1 trap address type in pdu");
+        LOG(gen_addr.get_type());
+        LOG_END;
 
         snmp_free_pdu( raw_pdu);
         return SNMP_CLASS_INVALID_PDU;
@@ -267,14 +259,14 @@ int SnmpMessage::load(const Pdu &cpdu,
       ip_addr = gen_addr;
       if (!ip_addr.valid())
       {
-	LOG_BEGIN(ERROR_LOG | 1);
-	LOG("SNMPMessage: Copied v1 trap address not valid");
-	LOG_END;
+	LOG_BEGIN(loggerModuleName, ERROR_LOG | 1);
+        LOG("SNMPMessage: Copied v1 trap address not valid");
+        LOG_END;
 
         snmp_free_pdu( raw_pdu);
         return SNMP_CLASS_RESOURCE_UNAVAIL;
       }
-      addr_set = TRUE;
+      addr_set = true;
     }
     else
     {
@@ -283,7 +275,7 @@ int SnmpMessage::load(const Pdu &cpdu,
       if (gethostname(addrString, 255) == 0)
       {
           ip_addr = addrString;
-          addr_set = TRUE;
+          addr_set = true;
       }
     }
     struct sockaddr_in agent_addr;  // agent address socket struct
@@ -294,7 +286,7 @@ int SnmpMessage::load(const Pdu &cpdu,
     {
       agent_addr.sin_addr.s_addr
         = inet_addr(((IpAddress &)ip_addr).IpAddress::get_printable());
-      LOG_BEGIN(INFO_LOG | 7);
+      LOG_BEGIN(loggerModuleName, INFO_LOG | 7);
       LOG("SNMPMessage: Setting v1 trap address");
       LOG(((IpAddress &)ip_addr).IpAddress::get_printable());
       LOG_END;
@@ -318,17 +310,17 @@ int SnmpMessage::load(const Pdu &cpdu,
         return SNMP_CLASS_INVALID_NOTIFYID;
       }
     raw_pdu->specific_type=0;
-    if ( trapid == coldStart)
+    if (trapid == coldStart)
       raw_pdu->trap_type = 0;  // cold start
-    else if ( trapid == warmStart)
+    else if (trapid == warmStart)
       raw_pdu->trap_type = 1;  // warm start
-    else if( trapid == linkDown)
+    else if (trapid == linkDown)
       raw_pdu->trap_type = 2;  // link down
-    else if ( trapid == linkUp)
+    else if (trapid == linkUp)
       raw_pdu->trap_type = 3;  // link up
-    else if ( trapid == authenticationFailure )
+    else if (trapid == authenticationFailure )
       raw_pdu->trap_type = 4;  // authentication failure
-    else if ( trapid == egpNeighborLoss)
+    else if (trapid == egpNeighborLoss)
       raw_pdu->trap_type = 5;  // egp neighbor loss
     else {
       raw_pdu->trap_type = 6;     // enterprise specific
@@ -338,14 +330,14 @@ int SnmpMessage::load(const Pdu &cpdu,
       raw_pdu->specific_type = (int) trapid[(int) (trapid.len()-1)];
 
       trapid.trim(1);
-      if ( trapid[(int)(trapid.len()-1)] == 0 )
+      if (trapid[(int)(trapid.len()-1)] == 0 )
         trapid.trim(1);
       enterprise = trapid;
     }
 
-    if ( raw_pdu->trap_type !=6)
+    if (raw_pdu->trap_type != 6)
       pdu->get_notify_enterprise( enterprise);
-    if ( enterprise.len() >0) {
+    if (enterprise.len() >0) {
       // note!!
       // these are hooks into an SNMP++ oid
       // and therefor the raw_pdu enterprise
@@ -358,16 +350,15 @@ int SnmpMessage::load(const Pdu &cpdu,
 
     // timestamp
     TimeTicks timestamp;
-    pdu->get_notify_timestamp( timestamp);
-    raw_pdu->time = ( unsigned long) timestamp;
-
+    pdu->get_notify_timestamp(timestamp);
+    raw_pdu->time = (unsigned long) timestamp;
   }
 
   // if its a v2 trap then we need to make a few adjustments
   // vb #1 is the timestamp
   // vb #2 is the id, represented as an Oid
-  if (( raw_pdu->command == sNMP_PDU_TRAP) ||
-      ( raw_pdu->command == sNMP_PDU_INFORM))
+  if ((raw_pdu->command == sNMP_PDU_TRAP) ||
+      (raw_pdu->command == sNMP_PDU_INFORM))
   {
     Vb tempvb;
 
@@ -433,33 +424,33 @@ int SnmpMessage::load(const Pdu &cpdu,
   {
     if ((!engine_id) || (!security_name))
     {
-      LOG_BEGIN(ERROR_LOG | 4);
+      LOG_BEGIN(loggerModuleName, ERROR_LOG | 4);
       LOG("SNMPMessage: Need security name and engine id for v3 message");
       LOG_END;
 
       // prevention of SNMP++ Enterprise Oid death
       if ( enterprise.len() >0) {
-	raw_pdu->enterprise = 0;
-	raw_pdu->enterprise_length=0;
+        raw_pdu->enterprise = 0;
+        raw_pdu->enterprise_length=0;
       }
       snmp_free_pdu( raw_pdu);
       return SNMP_CLASS_INVALID_TARGET;
     }
 
     status = v3MP::I->snmp_build(raw_pdu, databuff, (int *)&bufflen,
-				 *engine_id, *security_name, security_model,
-				 pdu->get_security_level(),
-				 pdu->get_context_engine_id(),
-				 pdu->get_context_name());
+                                 *engine_id, *security_name, security_model,
+                                 pdu->get_security_level(),
+                                 pdu->get_context_engine_id(),
+                                 pdu->get_context_name());
     if (status == SNMPv3_MP_OK) {
       if ((pdu->get_type() == sNMP_PDU_RESPONSE) &&
           ((int)pdu->get_maxsize_scopedpdu() < pdu->get_asn1_length())) {
 
-	LOG_BEGIN(ERROR_LOG | 1);
-	LOG("SNMPMessage: *BUG*: Serialized response pdu is too big (len) (max)");
-	LOG(pdu->get_asn1_length());
-	LOG(pdu->get_maxsize_scopedpdu());
-	LOG_END;
+	LOG_BEGIN(loggerModuleName, ERROR_LOG | 1);
+        LOG("SNMPMessage: *BUG*: Serialized response pdu is too big (len) (max)");
+        LOG(pdu->get_asn1_length());
+        LOG(pdu->get_maxsize_scopedpdu());
+        LOG_END;
 
         // prevention of SNMP++ Enterprise Oid death
         if ( enterprise.len() >0) {
@@ -473,10 +464,10 @@ int SnmpMessage::load(const Pdu &cpdu,
   }
   else
 #endif
-    status = snmp_build( raw_pdu, databuff, (int *) &bufflen, version,
-                         community.data(), (int) community.len());
+  status = snmp_build(raw_pdu, databuff, (int *) &bufflen, version,
+                      community.data(), (int) community.len());
 
-  LOG_BEGIN(DEBUG_LOG | 4);
+  LOG_BEGIN(loggerModuleName, DEBUG_LOG | 4);
   LOG("SNMPMessage: return value for build message");
   LOG(status);
   LOG_END;
@@ -511,7 +502,7 @@ int SnmpMessage::load(const Pdu &cpdu,
     raw_pdu->enterprise_length=0;
   }
 
-  snmp_free_pdu( raw_pdu);
+  snmp_free_pdu(raw_pdu);
 
   return SNMP_CLASS_SUCCESS;
 }
@@ -613,7 +604,7 @@ int SnmpMessage::unload(Pdu &pdu,                 // Pdu object
     {
       pdu.set_v1_trap_address(agent_addr);
 
-      LOG_BEGIN(DEBUG_LOG | 4);
+      LOG_BEGIN(loggerModuleName, DEBUG_LOG | 4);
       LOG("SNMPMessage: Trap address of received v1 trap");
       LOG(agent_addr.get_printable());
       LOG_END;
@@ -663,7 +654,7 @@ int SnmpMessage::unload(Pdu &pdu,                 // Pdu object
       }
     default:
       {
-	LOG_BEGIN(WARNING_LOG | 3);
+	LOG_BEGIN(loggerModuleName, WARNING_LOG | 3);
 	LOG("SNMPMessage: Received trap with illegal trap type");
 	LOG(raw_pdu->trap_type);
 	LOG_END;
@@ -758,6 +749,7 @@ int SnmpMessage::unload(Pdu &pdu,                 // Pdu object
     case sNMP_SYNTAX_IPADDR:
       {
 	char buffer[42];
+	buffer[0] = 0; // in case we receive an inavlid length IP
 
 	if (vp->val_len == 16)
 	  sprintf( buffer, "%02x%02x:%02x%02x:%02x%02x:%02x%02x:"
@@ -768,12 +760,12 @@ int SnmpMessage::unload(Pdu &pdu,                 // Pdu object
 		   vp->val.string[ 9], vp->val.string[10], vp->val.string[11],
 		   vp->val.string[12], vp->val.string[13], vp->val.string[14],
 		   vp->val.string[15]);
-	else
+	else if (vp->val_len == 4)
 	  sprintf( buffer,"%d.%d.%d.%d",
 		   vp->val.string[0], vp->val.string[1],
 		   vp->val.string[2], vp->val.string[3]);
-	IpAddress ipaddress( buffer);
-	tempvb.set_value( ipaddress);
+	IpAddress ipaddress(buffer);
+	tempvb.set_value(ipaddress);
       }
       break;
 
@@ -828,5 +820,5 @@ int SnmpMessage::unload(Pdu &pdu,                 // Pdu object
 }
 
 #ifdef SNMP_PP_NAMESPACE
-}; // end of namespace Snmp_pp
+} // end of namespace Snmp_pp
 #endif 

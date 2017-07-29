@@ -2,9 +2,9 @@
   _## 
   _##  target.cpp  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -22,8 +22,6 @@
   _##  "AS-IS" without warranty of any kind, either express or implied. User 
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
-  _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -49,7 +47,10 @@
   DESCRIPTION:      Target class defines target SNMP agents.
 
 =====================================================================*/
-char target_cpp_version[]="#(@) SNMP++ $Id$";
+char target_cpp_version[]="#(@) SNMP++ $Id: target.cpp 2361 2013-05-09 22:15:06Z katz $";
+
+#include <libsnmp.h>
+
 #include "snmp_pp/target.h"
 #include "snmp_pp/v3.h"
 
@@ -58,6 +59,12 @@ namespace Snmp_pp {
 #endif
 
 #define PUBLIC "public"
+
+#ifdef _SNMPv3
+#define UTARGET_DEFAULT_VERSION version3
+#else
+#define UTARGET_DEFAULT_VERSION version1
+#endif
 
 // class variables for default behavior control
 unsigned long SnmpTarget::default_timeout = 100;
@@ -68,19 +75,19 @@ int SnmpTarget::default_retries = 1;
 //----------------------------------------------------------------------
 
 // get the address
-int SnmpTarget::get_address(GenAddress &address) const
+bool SnmpTarget::get_address(GenAddress &address) const
 {
-  if (validity == false) return FALSE;
+  if (!validity) return false;
 
   address = my_address;
-  return TRUE;
+  return true;
 }
 
 // set the address
-int SnmpTarget::set_address(const Address &address)
+bool SnmpTarget::set_address(const Address &address)
 {
    my_address = address;
-   if ( my_address.valid())
+   if (my_address.valid())
       validity = true;
    else
       validity = false;
@@ -127,7 +134,7 @@ void SnmpTarget::clear()
 
 //---------[ CTarget::CTarget( void) ]----------------------------------
 // CTarget constructor no args
-CTarget::CTarget( void)
+CTarget::CTarget()
   : read_community(PUBLIC), write_community(PUBLIC)
 {
   ttype = type_ctarget; // overwrite value set in SnmpTarget()
@@ -167,6 +174,7 @@ CTarget::CTarget(const Address &address)
 //-----------[ CTarget:: CTarget( const CTarget &target) ]-------
 // CTarget constructor with args
 CTarget::CTarget( const CTarget &target)
+  : SnmpTarget()
 {
    read_community  = target.read_community;
    write_community = target.write_community;
@@ -181,16 +189,13 @@ CTarget::CTarget( const CTarget &target)
 //----------[ CTarget::resolve_to_V1 ]---------------------------------
 // resolve entity
 // common interface for Community based targets
-int CTarget::resolve_to_C ( OctetStr &read_comm,
-                            OctetStr &write_comm,
-                            GenAddress &address,
-                            unsigned long &t,
-                            int &r,
-                            unsigned char &v) const
+bool CTarget::resolve_to_C(OctetStr &read_comm, OctetStr &write_comm,
+                           GenAddress &address, unsigned long &t,
+                           int &r, unsigned char &v) const
 {
    // if the target is invalid then return false
-   if ( !validity)
-     return FALSE;
+   if (!validity)
+     return false;
 
    read_comm = read_community;
    write_comm = write_community;
@@ -200,11 +205,11 @@ int CTarget::resolve_to_C ( OctetStr &read_comm,
    r = retries;
    v = version;
 
-   return TRUE;
+   return true;
 }
 
 // overloaded assignment
-CTarget& CTarget::operator=( const CTarget& target)
+CTarget& CTarget::operator=(const CTarget& target)
 {
   if (this == &target) return *this;  // check for self assignment
 
@@ -220,7 +225,7 @@ CTarget& CTarget::operator=( const CTarget& target)
 
 //=============[ int operator == CTarget, CTarget ]==========================
 // equivlence operator overloaded
-int CTarget::operator==( const CTarget &rhs) const
+int CTarget::operator==(const CTarget &rhs) const
 {
   if (SnmpTarget::operator==(rhs) == 0)       return 0;
   // need to compare all the members of a CTarget
@@ -252,47 +257,37 @@ UTarget::UTarget()
   security_model(SNMP_SECURITY_MODEL_V1)
 #endif
 {
-#ifdef _SNMPv3
-  version = version3;
-#endif
+  version = UTARGET_DEFAULT_VERSION;
   ttype = type_utarget;
 }
 
 //-----------[ UTarget:: UTarget ]-------------------------------------
 // UTarget constructor with args
-UTarget::UTarget( const Address &address,
-                  const char *sec_name,
-                  const int sec_model)
+UTarget::UTarget(const Address &address, const char *sec_name, const int sec_model)
   : SnmpTarget(address), security_name(sec_name), security_model(sec_model)
 #ifdef _SNMPv3
     ,engine_id("")
 #endif
 {
-#ifdef _SNMPv3
-  version = version3;
-#endif
+  version = UTARGET_DEFAULT_VERSION;
   ttype = type_utarget;
 }
 
 //-----------[ UTarget:: UTarget ]-----------------------------------
 // UTarget constructor with args
-UTarget::UTarget( const Address &address,
-                  const OctetStr &sec_name,
-                  const int sec_model)
+UTarget::UTarget(const Address &address, const OctetStr &sec_name, const int sec_model)
   : SnmpTarget(address), security_name(sec_name), security_model(sec_model)
 #ifdef _SNMPv3
     ,engine_id("")
 #endif
 {
-#ifdef _SNMPv3
-  version = version3;
-#endif
+  version = UTARGET_DEFAULT_VERSION;
   ttype = type_utarget;
 }
 
 //-----------[ UTarget:: UTarget( Address &address) ]--------------
 // UTarget constructor with args
-UTarget::UTarget( const Address &address)
+UTarget::UTarget(const Address &address)
   : SnmpTarget(address), security_name(INITIAL_USER),
 #ifdef _SNMPv3
     security_model(SNMP_SECURITY_MODEL_USM), engine_id("")
@@ -300,15 +295,14 @@ UTarget::UTarget( const Address &address)
     security_model(SNMP_SECURITY_MODEL_V1)
 #endif
 {
-#ifdef _SNMPv3
-  version = version3;
-#endif
+  version = UTARGET_DEFAULT_VERSION;
   ttype = type_utarget;
 }
 
 //-----------[ UTarget:: UTarget( const UTarget &target) ]-------
 // UTarget constructor with args
-UTarget::UTarget( const UTarget &target)
+UTarget::UTarget(const UTarget &target)
+  : SnmpTarget()
 {
 #ifdef _SNMPv3
   engine_id = target.engine_id;
@@ -325,7 +319,7 @@ UTarget::UTarget( const UTarget &target)
 
 
 // set the address
-int UTarget::set_address(const Address &address)
+bool UTarget::set_address(const Address &address)
 {
 #ifdef _SNMPv3
    engine_id = ""; // delete engine_id
@@ -333,16 +327,13 @@ int UTarget::set_address(const Address &address)
    return SnmpTarget::set_address(address);
 }
 
-int UTarget::resolve_to_U( OctetStr&  sec_name,
-                           int &sec_model,
-                           GenAddress &address,
-                           unsigned long &t,
-                           int &r,
-                           unsigned char &v) const
+bool UTarget::resolve_to_U(OctetStr& sec_name, int &sec_model,
+                          GenAddress &address, unsigned long &t,
+                          int &r, unsigned char &v) const
 {
   // if the target is invalid then return false
-  if ( !validity)
-    return FALSE;
+  if (!validity)
+    return false;
 
   sec_name = security_name;
   sec_model = security_model;
@@ -352,7 +343,7 @@ int UTarget::resolve_to_U( OctetStr&  sec_name,
   r = retries;
   v = version;
 
-  return TRUE;
+  return true;
 }
 
 // overloaded assignment
@@ -396,13 +387,13 @@ void UTarget::clear()
 #ifdef _SNMPv3
   security_model = SNMP_SECURITY_MODEL_USM;
   engine_id.clear();
-  version = version3;
 #else
   security_model = SNMP_SECURITY_MODEL_V1;
 #endif
+  version = UTARGET_DEFAULT_VERSION;
   ttype = type_utarget;
 }
 
 #ifdef SNMP_PP_NAMESPACE
-}; // end of namespace Snmp_pp
+} // end of namespace Snmp_pp
 #endif 

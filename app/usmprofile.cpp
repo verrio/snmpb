@@ -242,6 +242,10 @@ int USMProfileManager::UiAuthToLibAuth(int prot)
         case 0: return SNMP_AUTHPROTOCOL_NONE;
         case 1: return SNMP_AUTHPROTOCOL_HMACMD5;
         case 2: return SNMP_AUTHPROTOCOL_HMACSHA;
+        case 3: return SNMP_AUTHPROTOCOL_HMAC128SHA224;
+        case 4: return SNMP_AUTHPROTOCOL_HMAC192SHA256;
+        case 5: return SNMP_AUTHPROTOCOL_HMAC256SHA384;
+        case 6: return SNMP_AUTHPROTOCOL_HMAC384SHA512;
         default:
             break;
     }
@@ -256,6 +260,10 @@ int USMProfileManager::LibAuthToUiAuth(int prot)
         case SNMP_AUTHPROTOCOL_NONE: return 0;
         case SNMP_AUTHPROTOCOL_HMACMD5: return 1;
         case SNMP_AUTHPROTOCOL_HMACSHA: return 2;
+        case SNMP_AUTHPROTOCOL_HMAC128SHA224: return 3;
+        case SNMP_AUTHPROTOCOL_HMAC192SHA256: return 4;
+        case SNMP_AUTHPROTOCOL_HMAC256SHA384: return 5;
+        case SNMP_AUTHPROTOCOL_HMAC384SHA512: return 6;
         default:
             break;
     }

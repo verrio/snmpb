@@ -2,9 +2,9 @@
   _## 
   _##  target.h  
   _##
-  _##  SNMP++v3.2.25
+  _##  SNMP++ v3.3
   _##  -----------------------------------------------
-  _##  Copyright (c) 2001-2010 Jochen Katz, Frank Fock
+  _##  Copyright (c) 2001-2013 Jochen Katz, Frank Fock
   _##
   _##  This software is based on SNMP++2.6 from Hewlett Packard:
   _##  
@@ -22,8 +22,6 @@
   _##  "AS-IS" without warranty of any kind, either express or implied. User 
   _##  hereby grants a royalty-free license to any and all derivatives based
   _##  upon this software code base. 
-  _##  
-  _##  Stuttgart, Germany, Thu Sep  2 00:07:47 CEST 2010 
   _##  
   _##########################################################################*/
 /*===================================================================
@@ -53,13 +51,14 @@
   Target class defines target SNMP agents.
 
 =====================================================================*/
-// $Id$
+// $Id: target.h 3164 2016-09-23 21:30:38Z katz $
 
-#ifndef _TARGET
-#define _TARGET
+#ifndef _SNMP_TARGET_H_
+#define _SNMP_TARGET_H_
 
 //----[ includes ]-----------------------------------------------------
 
+#include <libsnmp.h>
 #include "snmp_pp/config_snmp_pp.h"
 #include "snmp_pp/address.h"
 #include "snmp_pp/octet.h"
@@ -212,9 +211,9 @@ class DLLOPT SnmpTarget
    * Get the address object.
    *
    * @param address - GenAddress object to store the target address.
-   * @return TRUE on success.
+   * @return true on success.
    */
-  int get_address(GenAddress &address) const;
+  bool get_address(GenAddress &address) const;
 
   /**
    * Get the address object.
@@ -227,9 +226,9 @@ class DLLOPT SnmpTarget
    * Set the address object.
    *
    * @param address - The address that this target should use.
-   * @return TRUE on success.
+   * @return true on success.
    */
-  virtual int set_address(const Address &address);
+  virtual bool set_address(const Address &address);
 
   /**
    * Get the SNMP version for this target.
@@ -424,14 +423,14 @@ class DLLOPT CTarget: public SnmpTarget
    * @param r          - Retries value
    * @param v          - The SNMP version of this target
    *
-   * @return TRUE on success and FALSE on failure.
+   * @return true on success and FALSE on failure.
    */
-  int resolve_to_C(OctetStr& read_comm,
-		   OctetStr& write_comm,
-		   GenAddress &address,
-		   unsigned long &t,
-		   int &r,
-		   unsigned char &v) const;
+  bool resolve_to_C(OctetStr& read_comm, 
+                    OctetStr& write_comm,
+                    GenAddress &address, 
+                    unsigned long &t,
+                    int &r, 
+                    unsigned char &v) const;
 
   /**
    * Reset the object.
@@ -528,9 +527,9 @@ class DLLOPT UTarget: public SnmpTarget
    * This method is the same as in SnmpTarget, but it deletes engine_id.
    *
    * @param address - The address that this target should use.
-   * @return TRUE on success.
+   * @return true on success.
    */
-  int set_address(const Address &address);
+  bool set_address(const Address &address);
 
   /**
    * Get the security name.
@@ -641,7 +640,7 @@ class DLLOPT UTarget: public SnmpTarget
    *
    * @return TRUE on success and FALSE on failure.
    */
-  int resolve_to_U(OctetStr&  sec_name,
+  bool resolve_to_U(OctetStr&  sec_name,
 		   int &sec_model,
 		   GenAddress &address,
 		   unsigned long &t,
@@ -665,4 +664,4 @@ class DLLOPT UTarget: public SnmpTarget
 } // end of namespace Snmp_pp
 #endif 
 
-#endif //_TARGET
+#endif // _SNMP_TARGET_H_
