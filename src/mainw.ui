@@ -150,7 +150,7 @@
                   </property>
                   <property name="icon">
                    <iconset resource="snmpb.qrc">
-                    <normaloff>:/images/agentsettings.png</normaloff>:/images/agentsettings.png</iconset>
+                    <normaloff>:/images/agent-settings.png</normaloff>:/images/agent-settings.png</iconset>
                   </property>
                  </widget>
                 </item>
@@ -798,7 +798,7 @@
              </property>
              <property name="icon">
               <iconset resource="snmpb.qrc">
-               <normaloff>:/images/agentsettings.png</normaloff>:/images/agentsettings.png</iconset>
+               <normaloff>:/images/agent-settings.png</normaloff>:/images/agent-settings.png</iconset>
              </property>
             </widget>
            </item>
@@ -1572,7 +1572,7 @@
   <action name="fileNewAction">
    <property name="icon">
     <iconset resource="snmpb.qrc">
-     <normaloff>:/images/filenew.png</normaloff>:/images/filenew.png</iconset>
+     <normaloff>:/images/file-new.png</normaloff>:/images/file-new.png</iconset>
    </property>
    <property name="text">
     <string>&amp;New MIB</string>
@@ -1587,7 +1587,7 @@
   <action name="fileOpenAction">
    <property name="icon">
     <iconset resource="snmpb.qrc">
-     <normaloff>:/images/fileopen.png</normaloff>:/images/fileopen.png</iconset>
+     <normaloff>:/images/file-open.png</normaloff>:/images/file-open.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Open MIB...</string>
@@ -1602,7 +1602,7 @@
   <action name="fileSaveAction">
    <property name="icon">
     <iconset resource="snmpb.qrc">
-     <normaloff>:/images/filesave.png</normaloff>:/images/filesave.png</iconset>
+     <normaloff>:/images/file-save.png</normaloff>:/images/file-save.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Save MIB</string>
@@ -1617,7 +1617,7 @@
   <action name="fileSaveAsAction">
    <property name="icon">
     <iconset resource="snmpb.qrc">
-     <normaloff>:/images/filesave.png</normaloff>:/images/filesave.png</iconset>
+     <normaloff>:/images/file-save.png</normaloff>:/images/file-save.png</iconset>
    </property>
    <property name="text">
     <string>Save MIB &amp;As...</string>

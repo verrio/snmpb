@@ -43,19 +43,19 @@ void MibNode::SetPixmap(bool isOpened)
         setIcon( 0,  QIcon( ":/images/scalar.png" ));
         break;
     case MIBNODE_COLUMN:
-        setIcon( 0,  QIcon( ":/images/column_item.png" ));
+        setIcon( 0,  QIcon( ":/images/column-item.png" ));
         break;
     case MIBNODE_ROW:
        if (isOpened)		
-            setIcon( 0,  QIcon( ":/images/folder_red_open.png" ));
+            setIcon( 0,  QIcon( ":/images/table-row-select.png" ));
         else
-            setIcon( 0,  QIcon( ":/images/folder_red.png" ));
+            setIcon( 0,  QIcon( ":/images/table-row.png" ));
         break;
     case MIBNODE_TABLE:	    
        if (isOpened)		
-            setIcon( 0,  QIcon( ":/images/folder_blue_open.png" ));
+            setIcon( 0,  QIcon( ":/images/table-select.png" ));
         else
-            setIcon( 0,  QIcon( ":/images/folder_blue.png" ));
+            setIcon( 0,  QIcon( ":/images/table.png" ));
         break;
     case MIBNODE_NOTIFICATION:
         setIcon( 0,  QIcon( ":/images/notification.png" ));
@@ -67,14 +67,14 @@ void MibNode::SetPixmap(bool isOpened)
         setIcon( 0,  QIcon( ":/images/compliance.png" ));
         break;
     case MIBNODE_CAPABILITIES:
-        setIcon( 0,  QIcon( ":/images/agentcap.png" ));
+        setIcon( 0,  QIcon( ":/images/agent-cap.png" ));
         break;
     case MIBNODE_NODE:
     default:
         if (isOpened)		
-            setIcon( 0,  QIcon( ":/images/folder_yellow_open.png" ));
+            setIcon( 0,  QIcon( ":/images/folder-open.png" ));
         else
-            setIcon( 0,  QIcon( ":/images/folder_yellow.png" ));
+            setIcon( 0,  QIcon( ":/images/folder.png" ));
     }
 }
 

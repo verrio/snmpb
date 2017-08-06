@@ -58,7 +58,7 @@
           </property>
           <property name="icon">
            <iconset resource="snmpb.qrc">
-            <normaloff>:/images/agentsettings.png</normaloff>:/images/agentsettings.png</iconset>
+            <normaloff>:/images/agent-settings.png</normaloff>:/images/agent-settings.png</iconset>
           </property>
          </widget>
         </item>
