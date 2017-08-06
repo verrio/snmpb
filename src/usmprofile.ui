@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <comment>
+    Copyright (c) 2004-2017 Martin Jolicoeur and contributors
+    
+    This file is part of the snmpb project and is free software: you can
+    redistribute it and/or modify it under the terms of the GNU General
+    Public License as published by the Free Software Foundation, either
+    version 3 of the License, or (at your option) any later version.
+    
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see http://www.gnu.org/licenses/.
+</comment>
+ <class>USMProfile</class>
+ <widget class="QDialog" name="USMProfile">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>634</width>
+    <height>272</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>USM Profiles</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>images/snmpb.png</normaloff>images/snmpb.png</iconset>
+  </property>
+  <layout class="QGridLayout">
+   <property name="margin">
+    <number>9</number>
+   </property>
+   <property name="spacing">
+    <number>6</number>
+   </property>
+   <item row="2" column="0" colspan="2">
+    <widget class="QDialogButtonBox" name="OKCancelBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" rowspan="2">
+    <widget class="QTreeWidget" name="ProfileTree">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <column>
+      <property name="text">
+       <string notr="true">1</string>
+      </property>
+     </column>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QGroupBox" name="Security">
+     <property name="title">
+      <string>Security</string>
+     </property>
+     <layout class="QGridLayout">
+      <property name="margin">
+       <number>9</number>
+      </property>
+      <property name="spacing">
+       <number>6</number>
+      </property>
+      <item row="3" column="1">
+       <widget class="QLineEdit" name="PrivPass">
+        <property name="echoMode">
+         <enum>QLineEdit::Password</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QComboBox" name="PrivProtocol">
+        <item>
+         <property name="text">
+          <string>None</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>DES</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>3DES</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>IDEA</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>AES128</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>AES192</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>AES256</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="AuthPass">
+        <property name="echoMode">
+         <enum>QLineEdit::Password</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="AuthProtocol">
+        <item>
+         <property name="text">
+          <string>None</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>MD5</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>SHA-1</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>SHA-2-224</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>SHA-2-256</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>SHA-2-384</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>SHA-2-512</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="PrivProtocolL">
+        <property name="text">
+         <string>Privacy Protocol</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="AuthPassL">
+        <property name="text">
+         <string>Authentication Password</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="AuthProtocolL">
+        <property name="text">
+         <string>Authentication Protocol</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="PrivPassL">
+        <property name="text">
+         <string>Privacy Password</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QGroupBox" name="User">
+     <property name="title">
+      <string>User</string>
+     </property>
+     <layout class="QGridLayout">
+      <property name="margin">
+       <number>9</number>
+      </property>
+      <property name="spacing">
+       <number>6</number>
+      </property>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="SecName"/>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="SecNameL">
+        <property name="text">
+         <string>Security User Name</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>ProfileTree</tabstop>
+  <tabstop>SecName</tabstop>
+  <tabstop>AuthProtocol</tabstop>
+  <tabstop>AuthPass</tabstop>
+  <tabstop>PrivProtocol</tabstop>
+  <tabstop>PrivPass</tabstop>
+  <tabstop>OKCancelBox</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>OKCancelBox</sender>
+   <signal>accepted()</signal>
+   <receiver>USMProfile</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>258</x>
+     <y>499</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>OKCancelBox</sender>
+   <signal>rejected()</signal>
+   <receiver>USMProfile</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>326</x>
+     <y>499</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

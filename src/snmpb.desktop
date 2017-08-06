@@ -1,0 +1,9 @@
+[Desktop Entry] 
+Exec=snmpb
+TryExec=snmpb
+Name=snmpb
+GenericName=SNMP MIB Browser
+Icon=snmpb
+Categories=Qt;Network;Utility;
+Type=Application
+MimeType=text/x-mib;text/x-mib2;text/x-pib;text/x-pib2;text/x-smi;text/x-mib3;text/x-pib3;text/x-smi2;text/x-smi3;text/x-smi4;text/x-smi5

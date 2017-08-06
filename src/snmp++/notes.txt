@@ -1,0 +1,10 @@
+SNMP++ source fetched from http://www.agentpp.com (v3.3.9) 
+
+Modified file(s):
+  * config_snmp_pp.h
+  * v3.h "Changed debugprintf() macro to log debug messages"
+  * notifyqueue.cpp "Added missing ipv6 include required for compilation on WIN32"
+  * address.cpp "Replaced custom get_printable for IPv6 addresses by inet_ntop()"
+  * notifyqueue.h uxsnmp.h notifyqueue.cpp uxsnmp.cpp 
+  * Modified snmp++ to allow binding trap port on both ipv4 and ipv6 for all interfaces
+  * uxsnmp.h notifyqueue.cpp "Added set/get_notify_callback_fd() to access fd when replying to INFORMS"
