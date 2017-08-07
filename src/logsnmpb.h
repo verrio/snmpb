@@ -38,6 +38,7 @@ protected slots:
     void SetEventLevelState ( int state );
     void SetInfoLevelState ( int state );
     void SetDebugLevelState ( int state );
+    void ClearLog( void );
 
 private:
     Snmpb *s;

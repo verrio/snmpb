@@ -114,17 +114,17 @@
         </item>
         <item>
          <property name="text">
-          <string>AES128</string>
+          <string>AES-128-CFB128</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>AES192</string>
+          <string>AES-192-CFB128</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>AES256</string>
+          <string>AES-256-CFB128</string>
          </property>
         </item>
        </widget>

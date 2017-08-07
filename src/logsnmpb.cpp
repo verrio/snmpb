@@ -41,6 +41,8 @@ LogSnmpb::LogSnmpb(Snmpb *snmpb)
     connect( s->MainUI()->LogDebug, 
              SIGNAL( stateChanged( int ) ),
              this, SLOT( SetDebugLevelState ( int ) ));
+    connect( s->MainUI()->ClearLog, SIGNAL( clicked() ),
+                 this, SLOT( ClearLog() ));
 
     // Initialize SNMP++ logging system
     DefaultLog::init(new SnmpbAgentLog(s->MainUI()->LogOutput));
@@ -167,5 +169,10 @@ void LogSnmpb::SetDebugLevelState ( int state )
     }
 
     settings->setValue("logdebug", (state == Qt::Checked) ? true: false);
+}
+
+void LogSnmpb::ClearLog(void)
+{
+    s->MainUI()->LogOutput->clear();
 }
 
