@@ -102,7 +102,7 @@ Agent::Agent(Snmpb *snmpb)
             snmp = new Snmp(status, UdpAddress("0.0.0.0"));
             if (status != SNMP_CLASS_SUCCESS)
             {
-                start_err = QString("Could not create IPv4 session.\n%1")
+                start_err = QString("could not create IPv4 session\n%1")
                                     .arg(Snmp::error_msg(status));
                 // Disable IPv4, for the current run only
                 s->PreferencesObj()->SetEnableIPv4(false);
@@ -110,7 +110,7 @@ Agent::Agent(Snmpb *snmpb)
                 snmp = new Snmp(status, UdpAddress("::"));
                 if (status != SNMP_CLASS_SUCCESS)
                 {
-                    start_err = QString("Could not create IPv4 and IPv6 sessions.\n%1\nAborting.")
+                    start_err = QString("could not create IPv4 and IPv6 sessions;\n%1\naborting")
                                         .arg(Snmp::error_msg(status));
                     start_result = false;
                     return;
@@ -118,7 +118,7 @@ Agent::Agent(Snmpb *snmpb)
             }
             else
             {
-                start_err = QString("Could not create IPv6 session.\n%1")
+                start_err = QString("could not create IPv6 session\n%1")
                                     .arg(Snmp::error_msg(status2));
                 // Disable IPv6, for the current run only
                 s->PreferencesObj()->SetEnableIPv6(false);
@@ -130,7 +130,7 @@ Agent::Agent(Snmpb *snmpb)
         snmp = new Snmp(status, UdpAddress("0.0.0.0"));
         if (status != SNMP_CLASS_SUCCESS)
         {
-            start_err = QString("Could not create IPv4 session.\n%1\nAborting.")
+            start_err = QString("could not create IPv4 session;\n%1\naborting")
                                 .arg(Snmp::error_msg(status));
             start_result = false;
             return;
@@ -141,7 +141,7 @@ Agent::Agent(Snmpb *snmpb)
         snmp = new Snmp(status, UdpAddress("::"));
         if (status != SNMP_CLASS_SUCCESS)
         {
-            start_err = QString("Could not create IPv6 session.\n%1\nAborting.")
+            start_err = QString("could not create IPv6 session;\n%1\naborting")
                                 .arg(Snmp::error_msg(status));
             start_result = false;
             return;
@@ -149,7 +149,7 @@ Agent::Agent(Snmpb *snmpb)
     }
     else
     {
-        start_err = QString("No transport protocol enabled. Aborting.");
+        start_err = QString("no transport protocol enabled; aborting");
         start_result = false;
         return;
     }
@@ -270,7 +270,7 @@ void Agent::Init(void)
                             engineId, snmpEngineBoots);
     if ((status != SNMPv3_OK) && (status < SNMPv3_FILEOPEN_ERROR))
     {
-        QString err = QString("Error loading snmpEngineBoots counter: %1\n")
+        QString err = QString("error loading snmpEngineBoots counter: %1\n")
                               .arg(status);
         QMessageBox::warning ( NULL, "snmpb", err, 
                                QMessageBox::Ok, Qt::NoButton);
@@ -284,7 +284,7 @@ void Agent::Init(void)
                              engineId, snmpEngineBoots);
     if (status != SNMPv3_OK)
     {
-        QString err = QString("Error saving snmpEngineBoots counter: %1\n")
+        QString err = QString("error saving snmpEngineBoots counter: %1\n")
                               .arg(status);
         QMessageBox::warning ( NULL, "snmpb", err, 
                                QMessageBox::Ok, Qt::NoButton);
@@ -294,7 +294,7 @@ void Agent::Init(void)
     v3mp = new v3MP(engineId, snmpEngineBoots, status);
     if (status != SNMPv3_MP_OK)
     {
-        QString err = QString("Could not create v3MP object:\n")
+        QString err = QString("could not create v3MP object : \n")
                               .arg(Snmp::error_msg(status));
         QMessageBox::warning ( NULL, "snmpb", err, 
                                QMessageBox::Ok, Qt::NoButton);
@@ -440,7 +440,7 @@ int Agent::Setup(const QString& oid, SnmpTarget **t, Pdu **p, bool usevblist)
     // is done by the address object.
     if (!address.valid())
     {
-        QString err = QString("Invalid Address or DNS Name: %1\n")
+        QString err = QString("invalid Address or DNS Name : %1\n")
                               .arg(ap->GetAddress());
         QMessageBox::warning ( NULL, "snmpb", err, 
                                QMessageBox::Ok, Qt::NoButton);
@@ -697,10 +697,12 @@ void Agent::AsyncCallbackTrap(int reason, Pdu &pdu, SnmpTarget &target)
     SmiNode *node = GetNodeFromOid(id);
     if (node)
     {
-        char *b = smiRenderOID(node->oidlen, node->oid, 
+        char *bh = smiRenderOID(node->oidlen, node->oid,
                                SMI_RENDER_NUMERIC);
         char *f = (char*)id.get_printable();
+        char *b = bh;
         while ((*b++ == *f++) && (*b != '\0') && (*f != '\0')) ;
+        smiFree(bh);
         /* f is now the remaining part */
       
         // Print the OID part
@@ -910,10 +912,13 @@ node_restart:
 
                 if (node)
                 {
-                    char *b = smiRenderOID(node->oidlen, node->oid, 
+                    char *bh = smiRenderOID(node->oidlen, node->oid,
                                            SMI_RENDER_NUMERIC);
                     char *f = (char*)vb.get_printable_oid();
+                    char *b = bh;
                     while ((*b++ == *f++) && (*b != '\0') && (*f != '\0')) ;
+                    smiFree(bh);
+
                     /* f is now the remaining part */
 
                     // Oid not fully resolved, attempting to load mib that will
@@ -1122,10 +1127,12 @@ void Agent::AsyncCallbackSet(int reason, Pdu &pdu, SnmpTarget &target)
             SmiNode *node = GetNodeFromOid(tmp);
             if (node)
             {
-                char *b = smiRenderOID(node->oidlen, node->oid, 
+                char *bh = smiRenderOID(node->oidlen, node->oid,
                         SMI_RENDER_NUMERIC);
                 char *f = (char*)vb.get_printable_oid();
-                while ((*b++ == *f++) && (*b != '\0') && (*f != '\0')) ;
+                char *b = bh;
+                while ((*b++ == *f++) && (*b != '\0') && (*f != '\0'));
+                smiFree(bh);
                 /* f is now the remaining part */
 
                 if (vb_error || (pdu_error && (z+1 == pdu_index)))

@@ -324,7 +324,7 @@ void AgentProfileManager::Add(void)
 {
     AgentProfile * newagent = new AgentProfile(&ap);
     // Set default values
-    newagent->SetSupportedProtocol(true, false, false); // SNMPV1 only
+    newagent->SetSupportedProtocol(false, false, true); // SNMPv3 only
     newagent->SetTarget("127.0.0.1", "161");
     newagent->SetRetriesTimeout(1, 3);
     newagent->SetComms("public", "private");

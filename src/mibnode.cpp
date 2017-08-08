@@ -23,7 +23,11 @@ MibNode::MibNode(enum MibType mibtype, SmiNode *node, MibNode * parent, MibNode 
 {    
     Type = mibtype;
     Node = node;
-    setText(0, node->name); 
+    if (node->name != NULL && strlen(node->name)) {
+        setText(0, node->name);
+    } else {
+        setText(0, QVariant(node->oid[node->oidlen-1]).toString());
+    }
     SetPixmap(false);
 }
 
@@ -223,7 +227,7 @@ char *MibNode::GetSmiTypeName(void)
     
     return (char*)"";
 }
-                                  
+
 char *MibNode::GetTypeName(void)
 {
     SmiType *smiType, *parentType;
