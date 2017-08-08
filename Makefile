@@ -1,6 +1,6 @@
 #
 # snmpb project top-level makefile.
-# Supports Linux, MacOSX, NetBSD & Cygwin/Windows
+# Supports Linux, NetBSD & Cygwin/Windows
 #
 # This file is part of the snmpb project 
 #
@@ -42,13 +42,7 @@ src/makefile.snmpb:
 ifneq ($(findstring MINGW,${os}),)
 	cd src; ${WINQT_PREFIX}qmake -o makefile.snmpb snmpb.pro
 else
-ifneq ($(findstring Darwin,${os}),)
-	# MacOSX
-	cd src; qmake -spec macx-g++ -o makefile.snmpb snmpb.pro
-else
-	# Linux/BSD
-	cd src; qmake -o makefile.snmpb snmpb.pro
-endif
+	cd src; qmake -qt=qt5 -o makefile.snmpb snmpb.pro
 endif
 
 src/snmpb: src/makefile.snmpb

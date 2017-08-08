@@ -72,7 +72,7 @@ TEMPLATE = app
 CONFIG += qt warn_on debug
 RESOURCES = snmpb.qrc
 INCLUDEPATH += snmp++/ snmp++/include
-LIBS += -L. -lsmi -l:libcrypto.so.1.1 -lqwt6-qt4
+LIBS += -L. -lsmi -l:libcrypto.so.1.1 -lqwt6-qt5
 LANGUAGE = C++
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
