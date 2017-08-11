@@ -370,10 +370,12 @@ class DLLOPT v3MP
    * @param requestID - The request id.
    * @param local_request - Does the request id belong to a local or to
    *                        a remote request?
+   * @param remove_engine_id - Remove engine ID as well
    */
   void delete_from_cache(unsigned long requestID,
-			 const bool local_request = true)
-    { cache.delete_entry(requestID, local_request); };
+			 const bool local_request = true,
+			 const bool remove_engine_id = false)
+    { cache.delete_all_entries(requestID, local_request, remove_engine_id); };
 
  public:
 
@@ -600,7 +602,8 @@ class DLLOPT v3MP
      *
      * @param req_id - The request id.
      */
-    void delete_entry(unsigned long req_id, bool local_request);
+    void delete_all_entries(unsigned long req_id, bool local_request,
+            bool remove_engine_id);
 
     /**
      * Delete the entry with the given request and message id from the cache.

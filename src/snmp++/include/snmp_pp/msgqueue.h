@@ -53,7 +53,7 @@
       DESIGN + AUTHOR:     Tom Murray
 
       DESCRIPTION:
-	Queue for holing SNMP event sources (outstanding snmp messages)
+	Queue for holding SNMP event sources (outstanding snmp messages)
 
 =====================================================================*/
 // $Id: msgqueue.h 3164 2016-09-23 21:30:38Z katz $
@@ -110,8 +110,7 @@ class DLLOPT CSNMPMessage
   void GetSendTime(msec &sendTime) const { sendTime = m_sendTime; };
   SnmpSocket GetSocket() const { return m_socket; };
   int SetPdu(const int reason, const Pdu &pdu, const UdpAddress &fromaddress);
-  int GetPdu(int &reason, Pdu &pdu)
-                                 { pdu = m_pdu; reason = m_reason; return 0; };
+  int GetPdu(int &reason, Pdu &pdu) { pdu = m_pdu; reason = m_reason; return 0; };
   int GetReceived() const { return m_received; };
   int ResendMessage();
   int Callback(const int reason);

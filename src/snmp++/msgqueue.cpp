@@ -821,8 +821,10 @@ int CSNMPMessageQueue::DoRetries(const msec &now)
         DeleteEntry(req_id);
 #ifdef _SNMPv3
         // delete entry in cache
-        if (v3MP::I)
-          v3MP::I->delete_from_cache(req_id);
+        if (v3MP::I) {
+          // remove engine ID entry as well (force new discovery)
+          v3MP::I->delete_from_cache(req_id, true, true);
+        }
 
         LOG_BEGIN(loggerModuleName, INFO_LOG | 6);
         LOG("MsgQueue: Message timed out, removed id from v3MP cache (rid)");

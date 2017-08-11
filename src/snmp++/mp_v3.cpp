@@ -502,7 +502,8 @@ int v3MP::Cache::get_entry(int msg_id, bool local_request, int *error_code,
 }
 
 // Delete the entry with the given request id from the cache.
-void v3MP::Cache::delete_entry(unsigned long req_id, bool local_request)
+void v3MP::Cache::delete_all_entries(unsigned long req_id, bool local_request,
+        bool remove_engine_id)
 {
   if (!table) return;
 
@@ -518,6 +519,10 @@ void v3MP::Cache::delete_entry(unsigned long req_id, bool local_request)
       LOG(req_id);
       LOG(local_request ? "local" : "remote");
       LOG_END;
+
+      if (remove_engine_id) {
+          v3MP::I->remove_engine_id(table[i].sec_engine_id);
+      }
 
       usm->delete_sec_state_reference(table[i].sec_state_ref);
       entries--;
@@ -716,7 +721,6 @@ int v3MP::remove_engine_id(const OctetStr &engine_id)
   int retval1, retval2;
 
   retval1 = engine_id_table.delete_entry(engine_id);
-
   retval2 = usm->remove_engine_id(engine_id);
 
   if ((retval1 == SNMPv3_MP_NOT_INITIALIZED) ||
