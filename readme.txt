@@ -39,11 +39,10 @@ External packages
 ------------------
 
 Snmp++ is taken from http://www.agentpp.com
-Version: 3.2.25
+Version: 3.3.9
 
 Modified file(s):
 config_snmp_pp.h
-v3.h "Changed debugprintf() macro to log debug messages"
 notifyqueue.cpp "Added missing ipv6 include required for compilation on WIN32"
 address.cpp "Replaced custom get_printable for IPv6 addresses by inet_ntop()"
 notifyqueue.h uxsnmp.h notifyqueue.cpp uxsnmp.cpp 
