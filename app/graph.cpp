@@ -38,12 +38,12 @@ GraphManager::GraphManager(Snmpb *snmpb)
     settings = new QSettings(s->GetGraphsConfigFile(), QSettings::IniFormat, this);
 
      // Set some properties for the ListView
-    ui->GraphList->setSortingEnabled( FALSE );
+    ui->GraphList->setSortingEnabled( false );
     ui->GraphList->setLineWidth( 2 );
     ui->GraphList->setFrameShape(QFrame::WinPanel);
     ui->GraphList->setFrameShadow(QFrame::Plain);
 
-    ui->PlotList->setSortingEnabled( FALSE );
+    ui->PlotList->setSortingEnabled( false );
     ui->PlotList->setLineWidth( 2 );
     ui->PlotList->setFrameShape(QFrame::WinPanel);
     ui->PlotList->setFrameShadow(QFrame::Plain);
