@@ -56,6 +56,7 @@ Modified file(s):
 makefile
 src/headers/tomcrypt_pk.h "Added defined(BSD) around wchar_t definition to fix broken build on *BSD"
 src/headers/tomcrypt_custom.h "Defined LTC_NO_ROLC for MacOSX using LLVM"
+src/headers/tomcrypt_macros.h "Disabled ROL64/ROR64 assembly routines on Windows 64 bits"
 
 Libsmi is taken from http://www.ibr.cs.tu-bs.de/projects/libsmi
 Version: 0.4.8
