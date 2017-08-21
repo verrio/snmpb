@@ -262,7 +262,7 @@ static int inet_pton6(const char *src, unsigned char *dst);
  * author:
  *	Paul Vixie, 1996.
  */
-/* Not needed with Winsock 2 
+/* Not needed with Winsock 2 */
 int
 inet_pton(int af,
 	  const char *src,
@@ -279,9 +279,9 @@ inet_pton(int af,
 		errno = EAFNOSUPPORT;
 		return (-1);
 	}
-	/ * NOTREACHED * /
+	/* NOTREACHED */
 }
-*/
+/**/
 
 /* int
  * inet_pton4(src, dst)

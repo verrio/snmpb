@@ -32,13 +32,6 @@
 #include <libsnmp.h>
 #endif
 
-
-#include <sys/param.h>
-
-#ifdef BSD 
-#define __unix
-#endif
-
 #define SNMP_PP_VERSION_STRING "3.3.9"
 #define SNMP_PP_VERSION 3
 #define SNMP_PP_RELEASE 3
@@ -82,10 +75,10 @@
 #else
 #define _NO_THREADS
 #endif
-#if 1
+#if 0 
 #define HAVE_LIBSSL 1
 #endif
-#if 0
+#if 1 
 #define HAVE_LIBTOMCRYPT 1
 #endif
 #if 0
@@ -96,14 +89,32 @@
 #endif
 
 // define SNMP_PP_NAMESPACE to enclose all library names in Snmp_pp namespace
+#if 0 
+#define SNMP_PP_NAMESPACE
+#else
 #undef SNMP_PP_NAMESPACE
+#endif
 
 // If you do not use SNMP++ for commercial purposes or if you
 // have licensed IDEA (read README.v3) you may define the following
 // to enable IDEA support. (note this is not defined by a rfc)
 #define _USE_IDEA
 
-#define _USE_LIBTOMCRYPT
+#define _USE_3DES_EDE
+
+#if defined(_SNMPv3) || !defined(_NO_SNMPv3)
+#  if defined(HAVE_LIBSSL)
+#    define _USE_OPENSSL
+#  elif defined(HAVE_LIBTOMCRYPT)
+#    define _USE_LIBTOMCRYPT
+#  elif HAVE_LIBDES
+#    define _USE_3DES_EDE
+#  else
+#    warn No crypto library found - disable SNMPv3
+#    undef _SNMPv3
+#    define _NO_SNMPv3
+#  endif
+#endif
 
 // define _NO_LOGGING if you do not want any logging output 
 // (increases performance drastically and minimizes memory consumption)
@@ -157,24 +168,6 @@
 // template classes
 // #define _OLD_TEMPLATE_COLLECTION
 
-// We have inet_aton() function if not compiling with VC++ or Borland C++
-#ifndef _MSC_VER
-#ifndef __BCPLUSPLUS__
-#if !(defined(__GNUC__) && defined(WIN32)) 
-#define HAVE_INET_ATON
-#endif
-#endif
-#endif
-
-// If IPv6 is enabled assume that inet_pton() is available
-// If IPv6 and gcc then assume gethostbyname2() is available
-#ifdef SNMP_PP_IPv6
-#define HAVE_INET_PTON
-#ifdef __GNUC__
-#define HAVE_GETHOSTBYNAME2
-#endif
-#endif
-
 // can we use the reentrant version of these functions or
 // are the standard functions thread safe
 #ifdef __CYGWIN32__
@@ -188,21 +181,6 @@
 #define HAVE_REENTRANT_GETHOSTBYNAME
 #define HAVE_REENTRANT_LOCALTIME
 #define HAVE_REENTRANT_GETHOSTBYADDR
-#elif __APPLE__
-#define HAVE_LOCALTIME_R
-#define HAVE_REENTRANT_LOCALTIME
-#elif __GNUC__
-#ifndef WIN32
-#ifndef BSD
-#define HAVE_GETHOSTBYNAME_R
-#define HAVE_GETHOSTBYADDR_R
-#endif
-#define HAVE_LOCALTIME_R
-#else
-#define HAVE_REENTRANT_GETHOSTBYNAME
-#define HAVE_REENTRANT_LOCALTIME
-#define HAVE_REENTRANT_GETHOSTBYADDR
-#endif
 #elif __DECCXX
 #define HAVE_REENTRANT_GETHOSTBYNAME
 #define HAVE_REENTRANT_GETHOSTBYADDR

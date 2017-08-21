@@ -42,12 +42,13 @@ Snmp++ is taken from http://www.agentpp.com
 Version: 3.3.9
 
 Modified file(s):
-config_snmp_pp.h
+config_snmp_pp.h libsnmp.h config.h (new) "Hard-coded values instead of using package's autoconf"
 notifyqueue.cpp "Added missing ipv6 include required for compilation on WIN32"
 address.cpp "Replaced custom get_printable for IPv6 addresses by inet_ntop()"
 notifyqueue.h uxsnmp.h notifyqueue.cpp uxsnmp.cpp 
 "Modified snmp++ to allow binding trap port on both ipv4 and ipv6 for all interfaces"
 uxsnmp.h notifyqueue.cpp "Added set/get_notify_callback_fd() to access fd when replying to INFORMS"
+IPv6Utility.cpp IPv6Utility.h "Re-enabled local inet_pton unavailable on MSYS2/MINGW"
 
 Libtomcrypt is taken from http://libtom.org
 Version: 1.17
@@ -91,4 +92,4 @@ qwt.pro
 
 --------------------------------
 
-Martin Jolicoeur, May 2015
+Martin Jolicoeur, August 2017

@@ -67,7 +67,7 @@
 
 const char * inet_ntop(int af, const void *src, char *dst, size_t size);
 
-//int inet_pton(int af, PCTSTR src, void *dst);
+int inet_pton(int af, const char *src, void *dst);
 
 #endif // defined(WIN32) && defined(SNMP_PP_IPv6)
 

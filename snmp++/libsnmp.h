@@ -27,9 +27,20 @@
 #ifndef __LIBSNMP_H_INCLUDED__
 #define __LIBSNMP_H_INCLUDED__
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
+#if defined(_WIN32) || defined(_WIN64) || defined(WIN32)
+#define PLATFORM_WINDOWS
+#elif defined(__APPLE__) && defined(__MACH__)
+#define PLATFORM_MACOSX
+#elif defined(__unix__)
+#include <sys/param.h>
+#if defined(BSD)
+#define PLATFORM_BSD
+#define __unix
+#else
+#define PLATFORM_LINUX /* Assume all others (if any) are like linux */
 #endif
+#endif
+#include <config.h>
 
 #if 1
 # include <sys/types.h>
@@ -106,12 +117,12 @@
 #include <sys/timeb.h> // and _ftime
 #endif
 
-#if 0
+#ifdef PLATFORM_WINDOWS
 # include <winsock2.h>
-# if 0
+# if 1 
 #  include <ws2tcpip.h>
 # endif
-# if 0
+# if 1 
 #  include <wspiapi.h>
 # endif
 #elif 0
@@ -132,18 +143,18 @@
 # endif
 #endif
 
-#if 1
+#ifndef PLATFORM_WINDOWS
 # include <poll.h>
 #endif
-#if 1
+#ifndef PLATFORM_WINDOWS
 # include <sys/select.h>
 #endif
 
-#ifdef _WIN32
-# if 0
+#ifdef PLATFORM_WINDOWS
+# if 1 
 #  include <io.h>
 # endif
-# if 0
+# if 1 
 #  include <process.h>
 # endif
 # include <windows.h>
