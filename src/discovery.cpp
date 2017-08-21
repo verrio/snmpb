@@ -100,6 +100,15 @@ static const char *info_oids[] =
     "1.3.6.1.2.1.1.6.0"  // Location
 };
 
+void callback_disco(int reason, Snmp *, Pdu &pdu, SnmpTarget &target, void *thread)
+{
+    if (thread)
+    {
+        UdpAddress utarget(target.get_address());
+        ((DiscoveryThread *) thread)->SendAgentInfo(pdu, utarget, version3);
+    }
+}
+
 Discovery::Discovery(Snmpb *snmpb)
 {
     s = snmpb;
@@ -178,7 +187,7 @@ DiscoveryThread::DiscoveryThread(QObject *parent):QThread(parent)
     snmp->aborting = false;
 };
 
-void DiscoveryThread::SendAgentInfo(Pdu pdu, UdpAddress a, snmp_version v)
+void DiscoveryThread::SendAgentInfo(Pdu &pdu, UdpAddress &a, snmp_version v)
 {
     QStringList agent_info;
     QString name;
@@ -250,10 +259,8 @@ DiscoverySnmp::DiscoverySnmp(int &status, const UdpAddress& addr_v4,
 }
 
 void DiscoverySnmp::discover(const UdpAddress &start_addr, unsigned long long num_addr,
-                             const int timeout_sec, const snmp_version version,
-                             QString readcomm, QString secname, int seclevel, 
-                             QString ctxname, QString ctxengineid, 
-                             bool use_snmpv3_probe, DiscoveryThread* thread)
+             const int timeout_sec, const snmp_version version,
+             AgentProfile &ap, bool use_snmpv3_probe, DiscoveryThread* thread)
 {
     unsigned char *message = NULL;
     int message_length = 0;
@@ -280,20 +287,20 @@ void DiscoverySnmp::discover(const UdpAddress &start_addr, unsigned long long nu
 
         if (version != version3)
         {
-            get_community = readcomm.toUtf8().data();
+            get_community = ap.GetReadComm().toUtf8().data();
         }
         else
         {
             // set the security level to use
-            if (seclevel == 0/*"noAuthNoPriv"*/)
+            if (ap.GetSecLevel() == 0/*"noAuthNoPriv"*/)
                 pdu.set_security_level(SNMP_SECURITY_LEVEL_NOAUTH_NOPRIV);
-            else if (seclevel == 1/*"authNoPriv"*/)
+            else if (ap.GetSecLevel() == 1/*"authNoPriv"*/)
                 pdu.set_security_level(SNMP_SECURITY_LEVEL_AUTH_NOPRIV);
             else
                 pdu.set_security_level(SNMP_SECURITY_LEVEL_AUTH_PRIV);
 
-            pdu.set_context_name(ctxname.toUtf8().data());
-            pdu.set_context_engine_id(ctxengineid.toUtf8().data());
+            pdu.set_context_name(ap.GetContextName().toUtf8().data());
+            pdu.set_context_engine_id(ap.GetContextEngineID().toUtf8().data());
         }
     }
 
@@ -343,7 +350,7 @@ void DiscoverySnmp::discover(const UdpAddress &start_addr, unsigned long long nu
                                                   cur_address.get_printable());
 
                 snmpmsg = new SnmpMessage();
-                if (snmpmsg->loadv3( pdu, engine_id, secname.toUtf8().data(),
+                if (snmpmsg->loadv3( pdu, engine_id, ap.GetSecName().toUtf8().data(),
                                      SNMP_SECURITY_MODEL_USM, 
                                      version) != SNMP_CLASS_SUCCESS)
                     goto next_addr;
@@ -394,6 +401,11 @@ next_addr:
     end_time += 1000;
     int num_sec = 1;
 
+    int unicast_status;
+    Snmp unicast_snmp(unicast_status, UdpAddress("0.0.0.0"), UdpAddress("::"));
+    if (unicast_status == SNMP_CLASS_SUCCESS)
+        unicast_snmp.start_poll_thread(timeout_sec);
+
     lock();
     do
     {
@@ -413,16 +425,27 @@ new_loop:
             int res = receive_snmp_response(sock, *this, in_pdu, from, 
                                             engine_id, true);
 
-            if((res == SNMPv3_MP_UNKNOWN_PDU_HANDLERS) || // SNMPv3
-               (res == SNMP_CLASS_SUCCESS)) // SNMPv1 or SNMPv2c
+            if (res == SNMPv3_MP_UNKNOWN_PDU_HANDLERS) { // SNMPv3 probe
                 thread->SendAgentInfo(in_pdu, from, version);
+            } else if(res == SNMP_CLASS_SUCCESS) {
+                if (version == version3 && unicast_status == SNMP_CLASS_SUCCESS) {
+                    // unicast request to target
+                    UTarget utarget(from);
+                    utarget.set_security_model(SNMP_SECURITY_MODEL_USM);
+                    utarget.set_security_name(ap.GetSecName().toUtf8().data());
+                    utarget.set_version(version3);
+                    utarget.set_retry(ap.GetRetries());
+                    utarget.set_timeout(100 * ap.GetTimeout());
+
+                    unicast_snmp.get(pdu, utarget, callback_disco, thread);
+                } else {
+                    thread->SendAgentInfo(in_pdu, from, version);
+                }
+            }
         }
 
         if (aborting == true)
-        {
-            unlock();
-            return;
-        }
+            goto loop_done;
 
         // A second as elapsed, show progress
         if ((fd_timeout.tv_sec == 0) && (fd_timeout.tv_usec == 0))
@@ -437,6 +460,10 @@ new_loop:
         }
 
     } while ((fd_timeout.tv_sec > 0) || (fd_timeout.tv_usec > 0));
+
+loop_done:
+    if (unicast_status == SNMP_CLASS_SUCCESS)
+        unicast_snmp.stop_poll_thread();
     unlock();
 }
 
@@ -519,11 +546,8 @@ void DiscoveryThread::run(void)
             }
 
             snmp->aborting = false;
-            snmp->discover(start_address, num_addresses, 
-                    wait_time, cur_version, ap->GetReadComm(), 
-                    ap->GetSecName(), ap->GetSecLevel(), 
-                    ap->GetContextName(), ap->GetContextEngineID(), 
-                    s->MainUI()->DiscoverySNMPv3Probe->isChecked(), this);
+            snmp->discover(start_address, num_addresses, wait_time,
+                cur_version, *ap, s->MainUI()->DiscoverySNMPv3Probe->isChecked(), this);
             if (snmp->aborting == true) goto discover_end;
         }
     }

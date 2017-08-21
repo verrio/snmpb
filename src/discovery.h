@@ -20,6 +20,7 @@
 
 #include <qthread.h>
 #include "snmpb.h"
+#include "agentprofile.h"
 #include "snmp_pp/snmp_pp.h"
 
 class DiscoveryThread;
@@ -31,9 +32,7 @@ public:
     DiscoverySnmp(int &status,  const UdpAddress& addr_v4, const UdpAddress& addr_v6);
     void discover(const UdpAddress &start_addr, unsigned long long num_addr,
                   const int timeout_sec, const snmp_version version,
-                  QString readcomm, QString secname, int seclevel, 
-                  QString cxtname, QString ctxengineid, bool use_snmpv3_probe,
-                  DiscoveryThread* thread);
+                  AgentProfile &ap, bool use_snmpv3_probe, DiscoveryThread* thread);
 
     bool aborting;
 };
@@ -45,7 +44,7 @@ class DiscoveryThread: public QThread
 public:
     DiscoveryThread(QObject *parent);
     void run();
-    void SendAgentInfo(Pdu pdu, UdpAddress a, snmp_version v);
+    void SendAgentInfo(Pdu &pdu, UdpAddress &a, snmp_version v);
     void Progress(void);
     void Abort(void);
 
@@ -91,4 +90,3 @@ private:
 };
 
 #endif /* DISCOVERY_H */
-
