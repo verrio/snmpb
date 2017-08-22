@@ -49,6 +49,7 @@ notifyqueue.h uxsnmp.h notifyqueue.cpp uxsnmp.cpp
 "Modified snmp++ to allow binding trap port on both ipv4 and ipv6 for all interfaces"
 uxsnmp.h notifyqueue.cpp "Added set/get_notify_callback_fd() to access fd when replying to INFORMS"
 IPv6Utility.cpp IPv6Utility.h "Re-enabled local inet_pton unavailable on MSYS2/MINGW"
+uxsnmp.h "Redefined INVALID_SOCKET to get rid of compiler warnings"
 
 Libtomcrypt is taken from http://libtom.org
 Version: 1.17

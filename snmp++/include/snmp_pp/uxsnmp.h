@@ -44,9 +44,8 @@ namespace Snmp_pp {
 //-----[ internally used defines ]----------------------------------------
 #define MAXNAME 80                   // maximum name length
 #define MAX_ADDR_LEN 10              // maximum address len, ipx is 4+6
-#ifndef INVALID_SOCKET
-#define INVALID_SOCKET ((SnmpSocket)(~0)) // value for invalid socket
-#endif
+#undef INVALID_SOCKET
+#define INVALID_SOCKET (((SnmpSocket)(-1))<0?(SnmpSocket)(-1):((SnmpSocket)(~0))) // value for invalid socket
 
 //-----[ async defines for engine ]---------------------------------------
 #define sNMP_PDU_GET_ASYNC       21
