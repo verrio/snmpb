@@ -305,7 +305,7 @@
 #define PACKAGE_NAME "snmp++"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "snmp++ 3.3.9"
+#define PACKAGE_STRING "snmp++ 3.3.10"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "snmp++"
@@ -314,7 +314,7 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "3.3.9"
+#define PACKAGE_VERSION "3.3.10"
 
 /* Define to necessary symbol if this constant uses a non-standard name on
    your system. */
@@ -347,7 +347,7 @@
 #define STDC_HEADERS 1
 
 /* Version number of package */
-#define VERSION "3.3.9"
+#define VERSION "3.3.10"
 
 /* define _NO_SNMPv3 if you do not want to use SNMPv3 */
 /* #undef _NO_SNMPv3 */

@@ -25,7 +25,7 @@
   _##  
   _##########################################################################*/
 
-char receivetrap_cpp_version[]="@(#) SNMP++ $Id: receive_trap.cpp 2359 2013-05-09 20:07:01Z fock $";
+char receivetrap_cpp_version[]="@(#) SNMP++ $Id: receive_trap.cpp 3200 2017-04-25 19:53:16Z katz $";
 #include <libsnmp.h>
 
 #include "snmp_pp/snmp_pp.h"
@@ -36,7 +36,7 @@ char receivetrap_cpp_version[]="@(#) SNMP++ $Id: receive_trap.cpp 2359 2013-05-0
 using namespace Snmp_pp;
 #endif
 
-void callback( int reason, Snmp *snmp, Pdu &pdu, SnmpTarget &target, void *cd)
+void callback(int reason, Snmp *snmp, Pdu &pdu, SnmpTarget &target, void *cd)
 {
   Vb nextVb;
   int pdu_error;
@@ -45,35 +45,35 @@ void callback( int reason, Snmp *snmp, Pdu &pdu, SnmpTarget &target, void *cd)
   target.get_address(addr);
   UdpAddress from(addr);
 
-  cout << "reason: " << reason << endl
-       << "msg: " << snmp->error_msg(reason) << endl
-       << "from: " << from.get_printable() << endl;
+  std::cout << "reason: " << reason << std::endl
+       << "msg: " << snmp->error_msg(reason) << std::endl
+       << "from: " << from.get_printable() << std::endl;
 
   pdu_error = pdu.get_error_status();
   if (pdu_error){
-    cout << "Response contains error: " 
-	 << snmp->error_msg(pdu_error)<< endl;
+    std::cout << "Response contains error: " 
+	 << snmp->error_msg(pdu_error)<< std::endl;
   }
   Oid id;
   pdu.get_notify_id(id);
-  cout << "ID:  " << id.get_printable() << endl;
-  cout << "Type:" << pdu.get_type() << endl;
+  std::cout << "ID:  " << id.get_printable() << std::endl;
+  std::cout << "Type:" << pdu.get_type() << std::endl;
 
   for (int i=0; i<pdu.get_vb_count(); i++)
   {
     pdu.get_vb(nextVb, i);
 
-    cout << "Oid: " << nextVb.get_printable_oid() << endl
-	 << "Val: " <<  nextVb.get_printable_value() << endl;
+    std::cout << "Oid: " << nextVb.get_printable_oid() << std::endl
+	 << "Val: " <<  nextVb.get_printable_value() << std::endl;
   }
   if (pdu.get_type() == sNMP_PDU_INFORM) {
-      cout << "pdu type: " << pdu.get_type() << endl;
-      cout << "sending response to inform: " << endl;
+      std::cout << "pdu type: " << pdu.get_type() << std::endl;
+      std::cout << "sending response to inform: " << std::endl;
       nextVb.set_value("This is the response.");
       pdu.set_vb(nextVb, 0);
       snmp->response(pdu, target);
   }
-  cout << endl;
+  std::cout << std::endl;
 }
 
 int main(int argc, char **argv)
@@ -88,9 +88,9 @@ int main(int argc, char **argv)
   int status; 
   Snmp::socket_startup();  // Initialize socket subsystem
   Snmp snmp(status);                // check construction status
-  if ( status != SNMP_CLASS_SUCCESS)
+  if (status != SNMP_CLASS_SUCCESS)
   {
-    cout << "SNMP++ Session Create Fail, " << snmp.error_msg(status) << "\n";
+    std::cout << "SNMP++ Session Create Fail, " << snmp.error_msg(status) << "\n";
     return 1;
   }
 
@@ -106,14 +106,14 @@ int main(int argc, char **argv)
    status = getBootCounter(filename, engineID, snmpEngineBoots);
    if ((status != SNMPv3_OK) && (status < SNMPv3_FILEOPEN_ERROR))
    {
-     cout << "Error loading snmpEngineBoots counter: " << status << endl;
+     std::cout << "Error loading snmpEngineBoots counter: " << status << std::endl;
      return 1;
    }
    snmpEngineBoots++;
    status = saveBootCounter(filename, engineID, snmpEngineBoots);
    if (status != SNMPv3_OK)
    {
-     cout << "Error saving snmpEngineBoots counter: " << status << endl;
+     std::cout << "Error saving snmpEngineBoots counter: " << status << std::endl;
      return 1;
    }
 
@@ -121,7 +121,7 @@ int main(int argc, char **argv)
    v3_MP = new v3MP(engineID, snmpEngineBoots, construct_status);
    if (construct_status != SNMPv3_MP_OK)
    {
-     cout << "Error initializing v3MP: " << construct_status << endl;
+     std::cout << "Error initializing v3MP: " << construct_status << std::endl;
      return 1;
    }
 
@@ -173,22 +173,22 @@ int main(int argc, char **argv)
    OidCollection oidc;
    TargetCollection targetc;
 
-   cout << "Trying to register for traps on port " << trap_port << "." << endl;
+   std::cout << "Trying to register for traps on port " << trap_port << "." << std::endl;
    snmp.notify_set_listen_port(trap_port);
    status = snmp.notify_register(oidc, targetc, callback, NULL);
    if (status != SNMP_CLASS_SUCCESS)
    {
-     cout << "Error register for notify (" << status << "): "
-	  << snmp.error_msg(status) << endl;
+     std::cout << "Error register for notify (" << status << "): "
+	  << snmp.error_msg(status) << std::endl;
      exit(1);
    }
    else
-     cout << "Waiting for traps/informs..." << endl;
+     std::cout << "Waiting for traps/informs..." << std::endl;
 
 
   snmp.start_poll_thread(1000);
 
-  cout << "press return to stop\n";
+  std::cout << "press return to stop\n";
   getc(stdin);
 
   snmp.stop_poll_thread();

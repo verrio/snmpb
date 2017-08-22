@@ -33,7 +33,7 @@
 
       Author:         Peter E Mellquist
 =====================================================================*/
-char snmp_cpp_version[]="#(@) SNMP++ $Id: uxsnmp.cpp 3116 2016-05-30 19:45:22Z katz $";
+char snmp_cpp_version[]="#(@) SNMP++ $Id: uxsnmp.cpp 3206 2017-07-30 18:48:15Z katz $";
 
 /* CK Ng    added support for WIN32 in the whole file */
 
@@ -61,6 +61,10 @@ char snmp_cpp_version[]="#(@) SNMP++ $Id: uxsnmp.cpp 3116 2016-05-30 19:45:22Z k
 #include "snmp_pp/vb.h"
 #include "snmp_pp/log.h"
 #include "snmp_pp/IPv6Utility.h"
+
+#ifndef WIN32
+#include <fcntl.h>
+#endif
 
 #ifdef SNMP_PP_NAMESPACE
 namespace Snmp_pp {
@@ -168,6 +172,38 @@ void v3CallBack(int reason, Snmp *snmp, Pdu &pdu, SnmpTarget &target, void *v3cd
   return;
 }
 #endif
+
+bool setCloseOnExecFlag(SnmpSocket fd)
+{
+#ifdef WIN32
+    return true; // Not implemented for WIN32
+#else
+    // set FD_CLOEXEC to prevent inheriting the file
+    // descriptor of the socket to the child processes
+    int flags = fcntl(fd, F_GETFD, 0);
+    if (flags < 0)
+    {
+        LOG_BEGIN(loggerModuleName, WARNING_LOG | 1);
+        LOG("Snmp: Could not get flags of socket (errno)");
+        LOG(errno);
+        LOG_END;
+
+        return false;
+    }
+    flags |= FD_CLOEXEC;
+    flags = fcntl(fd, F_SETFD, flags);
+    if (flags < 0)
+    {
+        LOG_BEGIN(loggerModuleName, WARNING_LOG | 1);
+        LOG("Snmp: Could not set CloseOnExec flag for socket (errno)");
+        LOG(errno);
+        LOG_END;
+
+        return false;
+    }
+    return true;
+#endif
+}
 
 //--------[ make the pdu request id ]-----------------------------------
 // return a unique rid, clock can be too slow , so use current_rid
@@ -735,6 +771,8 @@ void Snmp::init(int& status, IpAddress *addresses[2],
       mgr_addr.sin_len = sizeof(mgr_addr);
 #endif
 
+      setCloseOnExecFlag(iv_snmp_session);
+
       // bind the socket
       if (bind(iv_snmp_session, (struct sockaddr*)&mgr_addr,
                sizeof(mgr_addr)) < 0)
@@ -816,6 +854,8 @@ void Snmp::init(int& status, IpAddress *addresses[2],
     }
     else
     {
+      setCloseOnExecFlag(iv_snmp_session_ipv6);
+
       // set up the manager socket attributes
       struct sockaddr_in6 mgr_addr;
       memset(&mgr_addr, 0, sizeof(mgr_addr));

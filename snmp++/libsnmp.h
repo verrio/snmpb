@@ -231,8 +231,4 @@ extern "C" int strcasecmp(const char *s1, const char *s2);
 # include <iostream.h>
 #endif
 
-#if 1
-using namespace std;
-#endif
-
 #endif /* ?__LIBSNMP_H_INCLUDED__ */

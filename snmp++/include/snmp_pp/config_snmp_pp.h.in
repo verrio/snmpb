@@ -55,10 +55,6 @@
 #endif
 #endif
 
-#ifndef ON
-#define ON 1
-#endif
-
 /*
  * some permanent parts from autoconf process
  */

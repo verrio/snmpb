@@ -1,3 +1,9 @@
+Changes snmp++v3.3.10
+=====================
+- Improved: Set the FD_CLOEXEC flag on sockets, so they are not "leaked"
+  to spawned processes (suggested by Isaac Nickaein)
+- Changed: Removed unused "#define ON".
+
 Changes snmp++v3.3.9
 ====================
 

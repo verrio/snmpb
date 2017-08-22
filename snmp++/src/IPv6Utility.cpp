@@ -243,9 +243,9 @@ inet_ntop6(const unsigned char *src, char *dst, size_t size)
 }
 #endif /* AF_INET6 */
 
-#endif /* HAVE_NTOP */
+#endif /* HAVE_INET_NTOP */
 
-#ifndef HAVE_PTON
+#ifndef HAVE_INET_PTON
 static int inet_pton4(const char *src, unsigned char *dst);
 #ifdef AF_INET6
 static int inet_pton6(const char *src, unsigned char *dst);

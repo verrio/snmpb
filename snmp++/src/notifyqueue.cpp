@@ -57,7 +57,7 @@
         timeouts
 
 =====================================================================*/
-char notifyqueue_version[]="#(@) SNMP++ $Id: notifyqueue.cpp 2361 2013-05-09 22:15:06Z katz $";
+char notifyqueue_version[]="#(@) SNMP++ $Id: notifyqueue.cpp 3206 2017-07-30 18:48:15Z katz $";
 
 #include <libsnmp.h>
 
@@ -381,6 +381,8 @@ int CNotifyEventQueue::AddEntry(Snmp *snmp,
         return status;
       }
 
+      setCloseOnExecFlag(m_notify_fd);
+
       // set up the manager socket attributes
       unsigned long inaddr = inet_addr(IpAddress(m_notify_addr).get_printable());
       memset(&mgr_addr, 0, sizeof(mgr_addr));
@@ -463,6 +465,8 @@ int CNotifyEventQueue::AddEntry(Snmp *snmp,
         cleanup();
         return status;
       }
+
+      setCloseOnExecFlag(m_notify_fd);
 
 #ifdef NOTIFY_SET_IPV6_V6ONLY
       int on = 1;

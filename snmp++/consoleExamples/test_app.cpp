@@ -24,7 +24,7 @@
   _##  upon this software code base. 
   _##  
   _##########################################################################*/
-char test_app_cpp_version[]="@(#) SNMP++ $Id: test_app.cpp 2471 2013-11-14 19:49:48Z fock $";
+char test_app_cpp_version[]="@(#) SNMP++ $Id: test_app.cpp 3200 2017-04-25 19:53:16Z katz $";
 #include <libsnmp.h>
 
 #include "snmp_pp/snmp_pp.h"
@@ -67,22 +67,22 @@ int main(int argc, char **argv)
 
   IpAddress ipAddr(genAddrStr);
   if (!ipAddr.valid()) {
-    cout << "Invalid destination: " << genAddrStr << endl;
+    std::cout << "Invalid destination: " << genAddrStr << std::endl;
     return(1);
   }
 
   // bind to any port and use IPv6 if needed
   Snmp snmp(status, 0, (ipAddr.get_ip_version() == Address::version_ipv6));
   if (status){
-    cout << "Failed to create SNMP Session: " << status << endl;
+    std::cout << "Failed to create SNMP Session: " << status << std::endl;
     return(1);
   }
-  cout << "Created session successfully" << endl;
+  std::cout << "Created session successfully" << std::endl;
 
 
   CTarget target(ipAddr);
   if (! target.valid()) {
-    cout << "Invalid target" << endl;
+    std::cout << "Invalid target" << std::endl;
     return(1);
   }
 
@@ -99,7 +99,7 @@ int main(int argc, char **argv)
     vbl[5].set_oid(sysLocation);
 //    vbl[6].set_oid(sysServices);
 
-    cout << "Send a GET-REQUEST to: " << ipAddr.get_printable() << endl;
+    std::cout << "Send a GET-REQUEST to: " << ipAddr.get_printable() << std::endl;
     if ( ! oid_str ) {
       if ( strcmp(genAddrStr,"localhost" ) == 0 ||
 	   strcmp(genAddrStr, "127.0.0.1") == 0 ){
@@ -112,7 +112,7 @@ int main(int argc, char **argv)
     else {
       Oid req_oid(oid_str);
       if ( ! req_oid.valid() ) {
-	cout << "Request oid constructor failed for:" << oid_str << endl;
+	std::cout << "Request oid constructor failed for:" << oid_str << std::endl;
 	return(1);
       }
       vb.set_oid(req_oid);
@@ -120,37 +120,37 @@ int main(int argc, char **argv)
     }
     status = snmp.get(pdu, target);
     if (status){
-      cout << "Failed to issue SNMP Get: (" << status  << ") "
-	   << snmp.error_msg(status) << endl;
+      std::cout << "Failed to issue SNMP Get: (" << status  << ") "
+	   << snmp.error_msg(status) << std::endl;
       return(1);
     }
     else{
-      cout << "Issued get successfully" << endl;
+      std::cout << "Issued get successfully" << std::endl;
       int vbcount = pdu.get_vb_count();
       if ( vbcount == NUM_SYS_VBS ) {
 	pdu.get_vblist(vbl, vbcount);
 	for ( int i=0; i<vbcount ; i++ )  {
-	  cout << vbl[i].get_printable_oid() << " : " <<
-	    vbl[i].get_printable_value() << endl;
+	  std::cout << vbl[i].get_printable_oid() << " : " <<
+	    vbl[i].get_printable_value() << std::endl;
 	}
       } else {
 	for ( int i=0; i<vbcount ; i++ )  {
 	  pdu.get_vb(vb, i);
-	  cout << vb.get_printable_oid() << " : " <<
-	    vb.get_printable_value() << endl;
+	  std::cout << vb.get_printable_oid() << " : " <<
+	    vb.get_printable_value() << std::endl;
 	}
       }
     }
   }
   else if ( strcmp(req_str, "trap") == 0 ) {
-    cout << "Send a TRAP to: " << ipAddr.get_printable() << endl;
+    std::cout << "Send a TRAP to: " << ipAddr.get_printable() << std::endl;
 
     if ( ! oid_str )
       oid_str = dflt_trp_oid;
 
     Oid notify_oid(oid_str);
     if ( ! notify_oid.valid() ) {
-      cout << "Notify oid constructor failed for:" << oid_str << endl;
+      std::cout << "Notify oid constructor failed for:" << oid_str << std::endl;
       return(1);
     }
 
@@ -164,17 +164,17 @@ int main(int argc, char **argv)
     status = snmp.trap(pdu, target);
 
     if (status){
-      cout << "Failed to issue SNMP Trap: (" << status  << ") "
-	   << snmp.error_msg(status) << endl;
+      std::cout << "Failed to issue SNMP Trap: (" << status  << ") "
+	   << snmp.error_msg(status) << std::endl;
       return(1);
     } else {
-      cout << "Success" << endl;
+      std::cout << "Success" << std::endl;
     }
 
   }
   else {
-    cout << "Invalid SNMP operation: " << req_str  << endl ;
-    cout << "Usage: " << argv[0] << " hostname [get | trap]" << endl;
+    std::cout << "Invalid SNMP operation: " << req_str  << std::endl ;
+    std::cout << "Usage: " << argv[0] << " hostname [get | trap]" << std::endl;
     return(1);
   }
 

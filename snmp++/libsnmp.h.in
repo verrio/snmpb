@@ -220,8 +220,4 @@ extern "C" int strcasecmp(const char *s1, const char *s2);
 # include <iostream.h>
 #endif
 
-#if @CNF_HAVE_NAMESPACE_STD@
-using namespace std;
-#endif
-
 #endif /* ?__LIBSNMP_H_INCLUDED__ */

@@ -24,7 +24,7 @@
   _##  upon this software code base.
   _##
   _##########################################################################*/
-// $Id: uxsnmp.h 3164 2016-09-23 21:30:38Z katz $
+// $Id: uxsnmp.h 3206 2017-07-30 18:48:15Z katz $
 
 #ifndef _SNMP_UXSNMP_H_
 #define _SNMP_UXSNMP_H_
@@ -77,6 +77,13 @@ class v3MP;
 typedef void (*snmp_callback)(int reason, Snmp *session,
                                Pdu &pdu, SnmpTarget &target, void *data);
 
+
+/**
+ * Set the FD_CLOEXEC flag on the given socket.
+ * @param fd - The socket
+ * @return true on success
+ */
+bool setCloseOnExecFlag(SnmpSocket fd);
 
 //------------[ SNMP Class Def ]---------------------------------------------
 //

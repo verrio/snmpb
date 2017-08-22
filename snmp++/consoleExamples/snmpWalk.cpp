@@ -43,7 +43,7 @@
 
   Peter E. Mellquist
 */
-char snmpwalk_cpp_version[]="@(#) SNMP++ $Id: snmpWalk.cpp 2471 2013-11-14 19:49:48Z fock $";
+char snmpwalk_cpp_version[]="@(#) SNMP++ $Id: snmpWalk.cpp 3200 2017-04-25 19:53:16Z katz $";
 #include <libsnmp.h>
 
 #include "snmp_pp/snmp_pp.h"
@@ -61,46 +61,46 @@ using namespace Snmp_pp;
 static void
 usage()
 {
-    cout << "Usage:\n";
-    cout << "snmpWalk IpAddress | DNSName [StartOid] [options]\n";
+    std::cout << "Usage:\n";
+    std::cout << "snmpWalk IpAddress | DNSName [StartOid] [options]\n";
     exit(1);
 }
 
 static void
 help()
 {
-	  cout << "Usage:\n";
-	  cout << "snmpWalk IpAddress | DNSName [StartOid] [options]\n";
-	  cout << "StartOid: sysDescr object is default\n";
-	  cout << "options: -vN , use SNMP version 1, 2 or 3, default is 1\n";
-	  cout << "         -PPort , remote port to use\n";
-	  cout << "         -S , only walk within subtree\n";
-	  cout << "         -CCommunity_name, specify community default is 'public' \n";
-	  cout << "         -rN , retries default is N = 1 retry\n";
-	  cout << "         -tN , timeout in hundredths of seconds; default is N = 100\n";
+  std::cout << "Usage:\n";
+  std::cout << "snmpWalk IpAddress | DNSName [StartOid] [options]\n";
+  std::cout << "StartOid: sysDescr object is default\n";
+  std::cout << "options: -vN , use SNMP version 1, 2 or 3, default is 1\n";
+  std::cout << "         -PPort , remote port to use\n";
+  std::cout << "         -S , only walk within subtree\n";
+  std::cout << "         -CCommunity_name, specify community default is 'public' \n";
+  std::cout << "         -rN , retries default is N = 1 retry\n";
+  std::cout << "         -tN , timeout in hundredths of seconds; default is N = 100\n";
 #ifdef _SNMPv3
-          cout << "         -snSecurityName, " << endl;
-          cout << "         -slN , securityLevel to use, default N = 3 = authPriv" << endl;
-          cout << "         -smN , securityModel to use, only default N = 3 = USM possible\n";
-          cout << "         -cnContextName, default empty string" << endl;
-          cout << "         -ceContextEngineID, as hex e.g. 800007E580, default empty string" << endl;
-          cout << "         -authPROT, use authentication protocol NONE, SHA or MD5\n";
-          cout << "         -privPROT, use privacy protocol NONE, DES, 3DESEDE, IDEA, AES128, AES192 or AES256\n";
-          cout << "         -uaAuthPassword\n";
-          cout << "         -upPrivPassword\n";
+  std::cout << "         -snSecurityName,\n";
+  std::cout << "         -slN , securityLevel to use, default N = 3 = authPriv\n";
+  std::cout << "         -smN , securityModel to use, only default N = 3 = USM possible\n";
+  std::cout << "         -cnContextName, default empty string\n";
+  std::cout << "         -ceContextEngineID, as hex e.g. 800007E580, default empty string\n";
+  std::cout << "         -authPROT, use authentication protocol NONE, SHA or MD5\n";
+  std::cout << "         -privPROT, use privacy protocol NONE, DES, 3DESEDE, IDEA, AES128, AES192 or AES256\n";
+  std::cout << "         -uaAuthPassword\n";
+  std::cout << "         -upPrivPassword\n";
 #endif
 #ifdef WITH_LOG_PROFILES
-    cout << "         -Lprofile , log profile to use, default is '"
+  std::cout << "         -Lprofile , log profile to use, default is '"
 #ifdef DEFAULT_LOG_PROFILE
          << DEFAULT_LOG_PROFILE
 #else
          << "original"
 #endif
-         << "'" << endl;
+         << "'\n";
 #endif
-    cout << "         -h, -? - prints this help" << endl;
-    exit(1);
-   }
+  std::cout << "         -h, -? - prints this help\n";
+  exit(1);
+}
 
 int main(int argc, char **argv)
 {
@@ -108,11 +108,11 @@ int main(int argc, char **argv)
   int objects  = 0;
 
    //---------[ check the arg count ]----------------------------------------
-   if ( argc < 2 )
+   if (argc < 2)
      usage();
-   if ( strstr( argv[1],"-h") != 0 )
+   if (strstr(argv[1],"-h") != 0)
      help();
-   if ( strstr( argv[1],"-?") != 0 )
+   if (strstr(argv[1],"-?") != 0)
      usage();
 
 #if !defined(_NO_LOGGING) && !defined(WITH_LOG_PROFILES)
@@ -127,20 +127,20 @@ int main(int argc, char **argv)
    Snmp::socket_startup();  // Initialize socket subsystem
 
    //---------[ make a GenAddress and Oid object to retrieve ]---------------
-   UdpAddress address( argv[1]);      // make a SNMP++ Generic address
-   if ( !address.valid()) {           // check validity of address
-	  cout << "Invalid Address or DNS Name, " << argv[1] << "\n";
-	  usage();
+   UdpAddress address(argv[1]);      // make a SNMP++ Generic address
+   if (!address.valid()) {           // check validity of address
+     std::cout << "Invalid Address or DNS Name, " << argv[1] << "\n";
+     usage();
    }
    Oid oid("1");                      // default is beginning of MIB 
-   if ( argc >= 3) {                  // if 3 args, then use the callers Oid
-	  if ( strstr( argv[2],"-")==0) {
-	     oid = argv[2];
-	     if ( !oid.valid()) {            // check validity of user oid
-		    cout << "Invalid Oid, " << argv[2] << "\n";
-		    usage();
-         }
-      }
+   if (argc >= 3) {                  // if 3 args, then use the callers Oid
+     if (strstr(argv[2],"-")==0) {
+       oid = argv[2];
+       if (!oid.valid()) {            // check validity of user oid
+	 std::cout << "Invalid Oid, " << argv[2] << "\n";
+	 usage();
+       }
+     }
    }
 
    //---------[ determine options to use ]-----------------------------------
@@ -167,118 +167,118 @@ int main(int argc, char **argv)
    char *ptr;
 
    for(int x=1;x<argc;x++) {                           // parse for version
-     if ( strstr( argv[x],"-v2")!= 0) {
+     if (strstr(argv[x],"-v2")!= 0) {
        version = version2c;
        continue;
      }
-     if ( strstr( argv[x],"-r")!= 0) {                 // parse for retries
+     if (strstr(argv[x],"-r")!= 0) {                 // parse for retries
        ptr = argv[x]; ptr++; ptr++;
        retries = atoi(ptr);
-       if (( retries<0)|| (retries>5)) retries=1; 
+       if ((retries<0)|| (retries>5)) retries=1; 
        continue;
      }
-     if ( strstr( argv[x], "-t")!=0) {                 // parse for timeout
+     if (strstr(argv[x], "-t")!=0) {                 // parse for timeout
        ptr = argv[x]; ptr++; ptr++;
-       timeout = atoi( ptr);
-       if (( timeout < 100)||( timeout>500)) timeout=100;
+       timeout = atoi(ptr);
+       if ((timeout < 100)||(timeout>500)) timeout=100;
        continue;
      }
-     if ( strstr( argv[x],"-C")!=0) {
+     if (strstr(argv[x],"-C")!=0) {
        ptr = argv[x]; ptr++; ptr++;
        community = ptr;
        continue;
      }
-     if ( strstr( argv[x],"-P")!=0) {
+     if (strstr(argv[x],"-P")!=0) {
        ptr = argv[x]; ptr++; ptr++;
        sscanf(ptr, "%hu", &port);
        continue;
      }
-     if ( strstr( argv[x],"-S") != 0) {
+     if (strstr(argv[x],"-S") != 0) {
        subtree = true;
        continue;
      }
 
 #ifdef WITH_LOG_PROFILES
-     if ( strstr( argv[x], "-L" ) != 0 ) {
+     if (strstr(argv[x], "-L") != 0) {
        ptr = argv[x]; ptr++; ptr++;
        DefaultLog::log()->set_profile(ptr);
      }
 #endif
 
 #ifdef _SNMPv3
-     if ( strstr( argv[x],"-v3")!= 0) {
+     if (strstr(argv[x],"-v3")!= 0) {
        version = version3;
        continue;
      }
-     if ( strstr( argv[x],"-auth") != 0) {
+     if (strstr(argv[x],"-auth") != 0) {
        ptr = argv[x]; ptr+=5;
        if (strcasecmp(ptr, "SHA") == 0)
-	 authProtocol = SNMP_AUTHPROTOCOL_HMACSHA;
+         authProtocol = SNMP_AUTHPROTOCOL_HMACSHA;
        else if (strcasecmp(ptr, "MD5") == 0)
-	 authProtocol = SNMP_AUTHPROTOCOL_HMACMD5;
+         authProtocol = SNMP_AUTHPROTOCOL_HMACMD5;
        else if (strcasecmp(ptr, "NONE") == 0)
-	 authProtocol = SNMP_AUTHPROTOCOL_NONE;
+         authProtocol = SNMP_AUTHPROTOCOL_NONE;
        else
-	 cout << "Warning: ignoring unknown auth protocol: " << ptr << endl;
+         std::cout << "Warning: ignoring unknown auth protocol: " << ptr << std::endl;
        continue;
      }
-     if ( strstr( argv[x],"-priv") != 0) {
+     if (strstr(argv[x],"-priv") != 0) {
        ptr = argv[x]; ptr+=5;
        if (strcasecmp(ptr, "DES") == 0)
-	   privProtocol = SNMP_PRIVPROTOCOL_DES;
+           privProtocol = SNMP_PRIVPROTOCOL_DES;
        else if (strcasecmp(ptr, "3DESEDE") == 0)
-	   privProtocol = SNMP_PRIVPROTOCOL_3DESEDE;
+           privProtocol = SNMP_PRIVPROTOCOL_3DESEDE;
        else if (strcasecmp(ptr, "IDEA") == 0)
-	   privProtocol = SNMP_PRIVPROTOCOL_IDEA;
+           privProtocol = SNMP_PRIVPROTOCOL_IDEA;
        else if (strcasecmp(ptr, "AES128") == 0)
-	   privProtocol = SNMP_PRIVPROTOCOL_AES128;
+           privProtocol = SNMP_PRIVPROTOCOL_AES128;
        else if (strcasecmp(ptr, "AES192") == 0)
-	   privProtocol = SNMP_PRIVPROTOCOL_AES192;
+           privProtocol = SNMP_PRIVPROTOCOL_AES192;
        else if (strcasecmp(ptr, "AES256") == 0)
-	   privProtocol = SNMP_PRIVPROTOCOL_AES256;
+           privProtocol = SNMP_PRIVPROTOCOL_AES256;
        else if (strcasecmp(ptr, "NONE") == 0)
-	   privProtocol = SNMP_PRIVPROTOCOL_NONE;
+           privProtocol = SNMP_PRIVPROTOCOL_NONE;
        else
-	 cout << "Warning: ignoring unknown priv protocol: " << ptr << endl;
+         std::cout << "Warning: ignoring unknown priv protocol: " << ptr << std::endl;
        continue;
      }
-     if ( strstr( argv[x],"-sn")!=0) {
+     if (strstr(argv[x],"-sn")!=0) {
        ptr = argv[x]; ptr+=3;
        securityName = ptr;
        continue;
       }
-     if ( strstr( argv[x], "-sl")!=0) {
+     if (strstr(argv[x], "-sl")!=0) {
        ptr = argv[x]; ptr+=3;
-       securityLevel = atoi( ptr);
-       if (( securityLevel < SNMP_SECURITY_LEVEL_NOAUTH_NOPRIV) ||
-           ( securityLevel > SNMP_SECURITY_LEVEL_AUTH_PRIV))
+       securityLevel = atoi(ptr);
+       if ((securityLevel < SNMP_SECURITY_LEVEL_NOAUTH_NOPRIV) ||
+           (securityLevel > SNMP_SECURITY_LEVEL_AUTH_PRIV))
          securityLevel = SNMP_SECURITY_LEVEL_AUTH_PRIV;
        continue;
      }
-     if ( strstr( argv[x], "-sm")!=0) {
+     if (strstr(argv[x], "-sm")!=0) {
        ptr = argv[x]; ptr+=3;
-       securityModel = atoi( ptr);
-       if (( securityModel < SNMP_SECURITY_MODEL_V1) ||
-           ( securityModel > SNMP_SECURITY_MODEL_USM))
+       securityModel = atoi(ptr);
+       if ((securityModel < SNMP_SECURITY_MODEL_V1) ||
+           (securityModel > SNMP_SECURITY_MODEL_USM))
          securityModel = SNMP_SECURITY_MODEL_USM;
        continue;
      }
-     if ( strstr( argv[x],"-cn")!=0) {
+     if (strstr(argv[x],"-cn")!=0) {
        ptr = argv[x]; ptr+=3;
        contextName = ptr;
        continue;
      }
-     if ( strstr( argv[x],"-ce")!=0) {
+     if (strstr(argv[x],"-ce")!=0) {
        ptr = argv[x]; ptr+=3;
        contextEngineID = OctetStr::from_hex_string(ptr);
        continue;
      }
-     if ( strstr( argv[x],"-ua")!=0) {
+     if (strstr(argv[x],"-ua")!=0) {
        ptr = argv[x]; ptr+=3;
        authPassword = ptr;
        continue;
      }
-     if ( strstr( argv[x],"-up")!=0) {
+     if (strstr(argv[x],"-up")!=0) {
        ptr = argv[x]; ptr+=3;
        privPassword = ptr;
        continue;
@@ -291,8 +291,8 @@ int main(int argc, char **argv)
    // bind to any port and use IPv6 if needed
    Snmp snmp(status, 0, (address.get_ip_version() == Address::version_ipv6));
 
-   if ( status != SNMP_CLASS_SUCCESS) {
-      cout << "SNMP++ Session Create Fail, " << snmp.error_msg(status) << "\n";
+   if (status != SNMP_CLASS_SUCCESS) {
+      std::cout << "SNMP++ Session Create Fail, " << snmp.error_msg(status) << "\n";
       return 1;
    }
 
@@ -307,14 +307,14 @@ int main(int argc, char **argv)
      status = getBootCounter(filename, engineId, snmpEngineBoots);
      if ((status != SNMPv3_OK) && (status < SNMPv3_FILEOPEN_ERROR))
      {
-       cout << "Error loading snmpEngineBoots counter: " << status << endl;
+       std::cout << "Error loading snmpEngineBoots counter: " << status << std::endl;
        return 1;
      }
      snmpEngineBoots++;
      status = saveBootCounter(filename, engineId, snmpEngineBoots);
      if (status != SNMPv3_OK)
      {
-       cout << "Error saving snmpEngineBoots counter: " << status << endl;
+       std::cout << "Error saving snmpEngineBoots counter: " << status << std::endl;
        return 1;
      }
 
@@ -322,14 +322,14 @@ int main(int argc, char **argv)
      v3_MP = new v3MP(engineId, snmpEngineBoots, construct_status);
      if (construct_status != SNMPv3_MP_OK)
      {
-       cout << "Error initializing v3MP: " << construct_status << endl;
+       std::cout << "Error initializing v3MP: " << construct_status << std::endl;
        return 1;
      }
 
      USM *usm = v3_MP->get_usm();
      usm->add_usm_user(securityName,
-		       authProtocol, privProtocol,
-		       authPassword, privPassword);
+                       authProtocol, privProtocol,
+                       authPassword, privPassword);
    }
    else
    {
@@ -342,36 +342,36 @@ int main(int argc, char **argv)
    //--------[ build up SNMP++ object needed ]-------------------------------
    Pdu pdu;                               // construct a Pdu object
    Vb vb;                                 // construct a Vb object
-   vb.set_oid( oid);                      // set the Oid portion of the Vb
+   vb.set_oid(oid);                      // set the Oid portion of the Vb
    pdu += vb;                             // add the vb to the Pdu
 
    address.set_port(port);
-   CTarget ctarget( address);             // make a target using the address
+   CTarget ctarget(address);             // make a target using the address
 #ifdef _SNMPv3
-   UTarget utarget( address);
+   UTarget utarget(address);
 
    if (version == version3) {
-     utarget.set_version( version);          // set the SNMP version SNMPV1 or V2 or V3
-     utarget.set_retry( retries);            // set the number of auto retries
-     utarget.set_timeout( timeout);          // set timeout
-     utarget.set_security_model( securityModel);
-     utarget.set_security_name( securityName);
-     pdu.set_security_level( securityLevel);
+     utarget.set_version(version);          // set the SNMP version SNMPV1 or V2 or V3
+     utarget.set_retry(retries);            // set the number of auto retries
+     utarget.set_timeout(timeout);          // set timeout
+     utarget.set_security_model(securityModel);
+     utarget.set_security_name(securityName);
+     pdu.set_security_level(securityLevel);
      pdu.set_context_name (contextName);
      pdu.set_context_engine_id(contextEngineID);
    }
    else {
 #endif
-     ctarget.set_version( version);         // set the SNMP version SNMPV1 or V2
-     ctarget.set_retry( retries);           // set the number of auto retries
-     ctarget.set_timeout( timeout);         // set timeout
-     ctarget.set_readcommunity( community); // set the read community name
+     ctarget.set_version(version);         // set the SNMP version SNMPV1 or V2
+     ctarget.set_retry(retries);           // set the number of auto retries
+     ctarget.set_timeout(timeout);         // set timeout
+     ctarget.set_readcommunity(community); // set the read community name
 #ifdef _SNMPv3
    }
 #endif
 
    //-------[ issue the request, blocked mode ]-----------------------------
-   cout << "SNMP++ snmpWalk to " << argv[1] << " SNMPV" 
+   std::cout << "SNMP++ snmpWalk to " << argv[1] << " SNMPV" 
 #ifdef _SNMPv3
         << ((version==version3) ? (version) : (version+1))
 #else
@@ -381,16 +381,16 @@ int main(int argc, char **argv)
         << " Timeout=" << timeout * 10 <<"ms";
 #ifdef _SNMPv3
    if (version == version3)
-     cout << endl
+     std::cout << std::endl
           << "securityName= " << securityName.get_printable()
           << ", securityLevel= " << securityLevel
-          << ", securityModel= " << securityModel << endl
+          << ", securityModel= " << securityModel << std::endl
           << "contextName= " << contextName.get_printable()
           << ", contextEngineID= " << contextEngineID.get_printable()
-          << endl;
+          << std::endl;
    else
 #endif
-     cout << " Community=" << community.get_printable() << endl << flush;
+     std::cout << " Community=" << community.get_printable() << std::endl << std::flush;
 
    SnmpTarget *target;
 #ifdef _SNMPv3
@@ -400,51 +400,51 @@ int main(int argc, char **argv)
 #endif
      target = &ctarget;
 
-   while (( status = snmp.get_bulk( pdu,*target,0,BULK_MAX))== SNMP_CLASS_SUCCESS) {
-	  requests++;
-	  for ( int z=0;z<pdu.get_vb_count(); z++) {
-	     pdu.get_vb( vb,z);
+   while ((status = snmp.get_bulk(pdu,*target,0,BULK_MAX))== SNMP_CLASS_SUCCESS) {
+          requests++;
+          for (int z=0;z<pdu.get_vb_count(); z++) {
+             pdu.get_vb(vb,z);
 #ifdef _SNMPv3
-	     if (pdu.get_type() == REPORT_MSG) {
-	       Oid tmp;
-	       vb.get_oid(tmp);
-	       cout << "Received a reportPdu: "
-		    << snmp.error_msg( tmp) 
-		    << endl
-		    << vb.get_printable_oid() << " = "
-		    << vb.get_printable_value() << endl;
-	       return -5;
-	     }
+             if (pdu.get_type() == REPORT_MSG) {
+               Oid tmp;
+               vb.get_oid(tmp);
+               std::cout << "Received a reportPdu: "
+                    << snmp.error_msg(tmp) 
+                    << std::endl
+                    << vb.get_printable_oid() << " = "
+                    << vb.get_printable_value() << std::endl;
+               return -5;
+             }
 #endif
-	     Oid tmp;
-	     vb.get_oid(tmp);
-	     if (subtree && (oid.nCompare(oid.len(), tmp) != 0))
-	     {
-		 cout << "End of SUBTREE Reached\n";
-		 cout << "Total # of Requests = " << requests << "\n";
-		 cout << "Total # of Objects  = " << objects  << "\n";
-		 return -4;
-	     }
-		 objects++;
-		 // look for var bind exception, applies to v2 only   
-		 if ( vb.get_syntax() != sNMP_SYNTAX_ENDOFMIBVIEW) {
-		   cout << vb.get_printable_oid() << " = ";
-		   cout << vb.get_printable_value() << "\n";
-		 }
-		 else {
-		   cout << "End of MIB Reached\n";
-		   cout << "Total # of Requests = " << requests << "\n";
-		   cout << "Total # of Objects  = " << objects  << "\n";
-		   return -4;
-		 }
-	  }
-	  // last vb becomes seed of next rquest
-	  pdu.set_vblist(&vb, 1);
+             Oid tmp;
+             vb.get_oid(tmp);
+             if (subtree && (oid.nCompare(oid.len(), tmp) != 0))
+             {
+                 std::cout << "End of SUBTREE Reached\n";
+                 std::cout << "Total # of Requests = " << requests << "\n";
+                 std::cout << "Total # of Objects  = " << objects  << "\n";
+                 return -4;
+             }
+                 objects++;
+                 // look for var bind exception, applies to v2 only   
+                 if (vb.get_syntax() != sNMP_SYNTAX_ENDOFMIBVIEW) {
+                   std::cout << vb.get_printable_oid() << " = ";
+                   std::cout << vb.get_printable_value() << "\n";
+                 }
+                 else {
+                   std::cout << "End of MIB Reached\n";
+                   std::cout << "Total # of Requests = " << requests << "\n";
+                   std::cout << "Total # of Objects  = " << objects  << "\n";
+                   return -4;
+                 }
+          }
+          // last vb becomes seed of next rquest
+         pdu.set_vblist(&vb, 1);
    }
-   if ( status != SNMP_ERROR_NO_SUCH_NAME)
-     cout << "SNMP++ snmpWalk Error, " << snmp.error_msg( status) << "\n";
-   cout << "Total # of Requests = " << requests << "\n";
-   cout << "Total # of Objects  = " << objects  << "\n";
+   if (status != SNMP_ERROR_NO_SUCH_NAME)
+     std::cout << "SNMP++ snmpWalk Error, " << snmp.error_msg(status) << "\n";
+   std::cout << "Total # of Requests = " << requests << "\n";
+   std::cout << "Total # of Objects  = " << objects  << "\n";
 
    Snmp::socket_cleanup();  // Shut down socket subsystem
 }

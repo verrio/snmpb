@@ -25,7 +25,7 @@
   _##  
   _##########################################################################*/
 
-char snmpdiscover_cpp_version[]="@(#) SNMP++ $Id: snmpDiscover.cpp 2359 2013-05-09 20:07:01Z fock $";
+char snmpdiscover_cpp_version[]="@(#) SNMP++ $Id: snmpDiscover.cpp 3200 2017-04-25 19:53:16Z katz $";
 
 #include <libsnmp.h>
 
@@ -38,31 +38,31 @@ using namespace Snmp_pp;
 static void
 usage()
 {
-    cout << "Usage:\n";
-    cout << "snmpDiscover BroadcastIpAddress [options]\n";
+    std::cout << "Usage:\n";
+    std::cout << "snmpDiscover BroadcastIpAddress [options]\n";
     exit(1);
 }
 
 static void
 help()
 {
-    cout << "Usage:\n";
-    cout << "snmpDiscover BroadcastIpAddress [options]\n";
-    cout << "options: -vN , use SNMP version 1, 2 or 3, default is 1\n";
-    cout << "         -PPort , remote port to use\n";
-    cout << "         -CCommunity_name, specify community default is 'public' \n";
-    cout << "         -rN , retries default is N = 1 retry\n";
-    cout << "         -tN , timeout in hundredths of seconds; default is N = 100\n";
+    std::cout << "Usage:\n";
+    std::cout << "snmpDiscover BroadcastIpAddress [options]\n";
+    std::cout << "options: -vN , use SNMP version 1, 2 or 3, default is 1\n";
+    std::cout << "         -PPort , remote port to use\n";
+    std::cout << "         -CCommunity_name, specify community default is 'public' \n";
+    std::cout << "         -rN , retries default is N = 1 retry\n";
+    std::cout << "         -tN , timeout in hundredths of seconds; default is N = 100\n";
 #ifdef WITH_LOG_PROFILES
-    cout << "         -Lprofile , log profile to use, default is '"
+    std::cout << "         -Lprofile , log profile to use, default is '"
 #ifdef DEFAULT_LOG_PROFILE
          << DEFAULT_LOG_PROFILE
 #else
          << "original"
 #endif
-         << "'" << endl;
+         << "'\n";
 #endif
-    cout << "         -h, -? - prints this help" << endl;
+    std::cout << "         -h, -? - prints this help\n";
     exit(1);
    }
 
@@ -90,7 +90,7 @@ int main(int argc, char **argv)
    //---------[ make a GenAddress and Oid object to retrieve ]---------------
    UdpAddress address( argv[1]);      // make a SNMP++ Generic address
    if ( !address.valid()) {           // check validity of address
-	  cout << "Invalid Address or DNS Name, " << argv[1] << "\n";
+	  std::cout << "Invalid Address or DNS Name, " << argv[1] << "\n";
 	  usage();
    }
    Oid oid("1.3.6.1.2.1.1.1.0");      // default is sysDescr
@@ -157,7 +157,7 @@ int main(int argc, char **argv)
    Snmp snmp(status, 0, (address.get_ip_version() == Address::version_ipv6));
 
    if ( status != SNMP_CLASS_SUCCESS) {
-      cout << "SNMP++ Session Create Fail, " << snmp.error_msg(status) << "\n";
+      std::cout << "SNMP++ Session Create Fail, " << snmp.error_msg(status) << "\n";
       return 1;
    }
 
@@ -168,7 +168,7 @@ int main(int argc, char **argv)
    v3_MP = new v3MP("dummy", 0, construct_status);
    if (construct_status != SNMPv3_MP_OK)
    {
-     cout << "Error initializing v3MP: " << construct_status << endl;
+     std::cout << "Error initializing v3MP: " << construct_status << std::endl;
      return 1;
    }
 #endif
@@ -177,7 +177,7 @@ int main(int argc, char **argv)
    address.set_port(port);
 
    //-------[ issue the broadcast, blocked mode ]----------------------------
-   cout << "SNMP++ broadcast to " << argv[1] << " SNMPV" 
+   std::cout << "SNMP++ broadcast to " << argv[1] << " SNMPV" 
 #ifdef _SNMPv3
         << ((version==version3) ? (version) : (version+1))
 #else
@@ -187,10 +187,10 @@ int main(int argc, char **argv)
         << " Timeout=" << timeout * 10 <<"ms";
 #ifdef _SNMPv3
    if (version == version3)
-     cout << endl;
+     std::cout << std::endl;
    else
 #endif
-     cout << " Community=" << community.get_printable() << endl << flush;
+     std::cout << " Community=" << community.get_printable() << std::endl << std::flush;
 
    UdpAddressCollection addresses;
 
@@ -203,12 +203,12 @@ int main(int argc, char **argv)
 
      if (status == SNMP_CLASS_SUCCESS)
      {
-       cout << "SNMP++ Success sending broadcast " << loops << "." << endl;
+       std::cout << "SNMP++ Success sending broadcast " << loops << "." << std::endl;
      }
      else
      {
-       cout << "SNMP++ Broadcast Error, " << snmp.error_msg( status)
-	    << " (" << status <<")" << endl;
+       std::cout << "SNMP++ Broadcast Error, " << snmp.error_msg( status)
+	    << " (" << status <<")" << std::endl;
      }
    }
 
@@ -221,10 +221,10 @@ int main(int argc, char **argv)
        filtered_addrs += addresses[n];
 
    // print out all addressess
-   cout << "Found " << filtered_addrs.size() << " agents." << endl;
+   std::cout << "Found " << filtered_addrs.size() << " agents." << std::endl;
    for (int m=0; m < filtered_addrs.size(); ++m)
-     cout << "Answer received from: " << filtered_addrs[m].get_printable()
-	  << endl;
+     std::cout << "Answer received from: " << filtered_addrs[m].get_printable()
+	  << std::endl;
 
    Snmp::socket_cleanup();  // Shut down socket subsystem
 }

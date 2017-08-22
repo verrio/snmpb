@@ -29,10 +29,10 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl don't require higher autoconf version for win32 support
 AC_PREREQ([2.64])
-AC_INIT([snmp++], [3.3.9], [support@agentpp.com],[snmp++])
+AC_INIT([snmp++], [3.3.10], [support@agentpp.com],[snmp++])
 SNMP_PP_MAJOR_VERSION=3
 SNMP_PP_MINOR_VERSION=3
-SNMP_PP_MICRO_VERSION=9
+SNMP_PP_MICRO_VERSION=10
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([-Wall foreign])
