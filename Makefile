@@ -36,28 +36,26 @@ ifndef INSTALL_PREFIX
 INSTALL_PREFIX=/usr
 endif
 
-all: snmpb
-
 ifneq ($(findstring MINGW,${os}),)
-snmpb: libtomcrypt/libtomcrypt.a \
-       libsmi/win/libsmi.a \
-       qwt/lib/libqwt.a \
-       app/snmpb
+LIBSMI=libsmi/win/libsmi.a
 else
-snmpb: libtomcrypt/libtomcrypt.a \
-       libsmi/lib/.libs/libsmi.a \
-       qwt/lib/libqwt.a \
-       app/snmpb
+LIBSMI=libsmi/lib/.libs/libsmi.a
 endif
+
+all:app/makefile.snmpb \
+	libtomcrypt/libtomcrypt.a \
+	qwt/lib/libqwt.a \
+	$(LIBSMI)
+	$(MAKE) -C app
 
 libtomcrypt/libtomcrypt.a:
 	$(MAKE) -C libtomcrypt 
 
 ifneq ($(findstring MINGW,${os}),)
-libsmi/win/libsmi.a:
+$(LIBSMI):
 	$(MAKE) -C libsmi/win -f Makefile.mingw libs
 else
-libsmi/lib/.libs/libsmi.a: libsmi/Makefile
+$(LIBSMI): libsmi/Makefile
 	$(MAKE) -C libsmi
 endif
 
@@ -98,9 +96,6 @@ else
 	cd app; qmake -o makefile.snmpb snmpb.pro
 endif
 endif
-
-app/snmpb: app/makefile.snmpb
-	$(MAKE) -C app
 
 clean:
 	-$(MAKE) -C libtomcrypt clean
