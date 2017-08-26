@@ -611,7 +611,7 @@ char *Agent::GetPrintableValue(SmiNode *node, Vb *vb)
                 unsigned long len;
                 vb->get_value(buf, len, 5000);
                 myvalue.len = len;
-                myvalue.value.ptr = (char*)&buf[0];
+                myvalue.value.ptr = &buf[0];
                 myvalue.value.ptr[len] = '\0';
                 return smiRenderValue(&myvalue, type, SMI_RENDER_ALL);
             }
