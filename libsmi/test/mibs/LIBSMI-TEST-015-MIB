@@ -9,7 +9,7 @@ IMPORTS
         FROM LIBSMI-TEST-MIB;
 
 libsmiTest015Mib MODULE-IDENTITY
-    LAST-UPDATED    "200206210000Z"
+    LAST-UPDATED    "201308130000Z"
     ORGANIZATION    
             "TU Braunschweig"
     CONTACT-INFO    
@@ -35,6 +35,11 @@ libsmiTest015Mib MODULE-IDENTITY
 
              The libsmi parser is expected to report:
             "
+
+    REVISION	    "201308130000Z"
+    DESCRIPTION
+	    "Adding valid test cases for notification variations."
+
     REVISION        "200206210000Z"
     DESCRIPTION     
             "Initial Revision."
@@ -84,7 +89,16 @@ agentcaps AGENT-CAPABILITIES
     DEFVAL  { other }
     DESCRIPTION
             "Although in contradiction with the previous variation, this
-	     sets the default value of ifRcvAddressType to `other'."
+             sets the default value of ifRcvAddressType to `other'."
+
+    VARIATION linkUp
+    DESCRIPTION
+            "The linkUp notification is supported."
+
+    VARIATION linkUp
+    ACCESS not-implemented
+    DESCRIPTION
+            "The linkDown notification is not supported."
 
     ::= { libsmiTest015Mib 1 }
 

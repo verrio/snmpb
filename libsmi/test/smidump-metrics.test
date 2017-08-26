@@ -28,6 +28,8 @@ OUTFORMAT=`echo $FORMAT | sed -e 's/[a-z0-9]*-//'`
 
 
 
+# Force locale to avoid sort ordering problems
+LC_ALL=C
 filter() {
     # 1. strip off comments
     # 2. condens white space

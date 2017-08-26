@@ -8,7 +8,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: dump-jax.c 1455 2002-10-30 09:17:37Z schoenw $
+ * @(#) $Id: dump-jax.c 1772 2012-04-01 12:15:23Z schoenw $
  */
 
 #include <config.h>
@@ -200,7 +200,7 @@ static int isAccessible(SmiNode *groupNode)
 }
 
 
-
+#if 0
 static unsigned int getMaxSize(SmiType *smiType)
 {
     SmiRange *smiRange;
@@ -238,7 +238,7 @@ static unsigned int getMaxSize(SmiType *smiType)
 
     return size;
 }
-
+#endif
 
 
 static void dumpTable(SmiNode *smiNode)
@@ -560,7 +560,7 @@ static void dumpEntry(SmiNode *smiNode)
          element;
          element = smiGetNextElement(element)) {
         if (cnt) {
-            fprintf(f, ",\n%*s", 4 + 7 + 1 + strlen(smiNode->name), " ");
+            fprintf(f, ",\n%*s", (int) (4 + 7 + 1 + strlen(smiNode->name)), " ");
         }
         cnt++;
         indexNode = smiGetElementNode(element);
@@ -771,7 +771,7 @@ static void dumpEntryImpl(SmiNode *smiNode)
          element;
          element = smiGetNextElement(element)) {
         if (cnt) {
-            fprintf(f, ",\n%*s", 4 + 7 + 1 + strlen(smiNode->name), " ");
+            fprintf(f, ",\n%*s", (int) (4 + 7 + 1 + strlen(smiNode->name)), " ");
         }
         cnt++;
         indexNode = smiGetElementNode(element);
@@ -786,7 +786,7 @@ static void dumpEntryImpl(SmiNode *smiNode)
          element;
          element = smiGetNextElement(element)) {
         if (cnt) {
-            fprintf(f, ",\n%*s", 2 + strlen(smiNode->name), " ");
+            fprintf(f, ",\n%*s", (int) (2 + strlen(smiNode->name)), " ");
         }
         cnt++;
         indexNode = smiGetElementNode(element);
@@ -1181,9 +1181,6 @@ static void dumpNotifications(SmiNode *smiNode)
     SmiElement *element;
     SmiNode *elementNode;
 
-    SmiType *snt;
-    snt = smiGetNodeType(smiNode);
-
     f = createFile(translate1Upper(smiNode->name), ".java");
     if (! f) {
         return;
@@ -1518,7 +1515,9 @@ void initJax()
 	"jax",
 	dumpJax,
 	SMI_FLAG_NODESCR,
-	SMIDUMP_DRIVER_CANT_UNITE | SMIDUMP_DRIVER_CANT_OUTPUT,
+	SMIDUMP_DRIVER_CANT_UNITE
+	| SMIDUMP_DRIVER_CANT_OUTPUT
+	| SMIDUMP_DRIVER_CANT_YANG,
 	"Java AgentX sub-agent classes in separate files",
 	opt,
 	NULL

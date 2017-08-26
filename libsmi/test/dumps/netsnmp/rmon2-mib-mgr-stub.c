@@ -4,7 +4,7 @@
  *
  * This C file is derived from the RMON2-MIB module.
  *
- * $Id: rmon2-mib-mgr-stub.c 7690 2008-02-05 15:31:35Z schoenw $
+ * $Id: rmon2-mib-mgr-stub.c 1564 2008-02-05 15:31:35Z schoenw $
  */
 
 #include <stdlib.h>

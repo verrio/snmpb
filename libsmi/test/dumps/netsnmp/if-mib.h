@@ -4,7 +4,7 @@
  *
  * This header is derived from the IF-MIB module.
  *
- * $Id: if-mib.h 1154 2001-08-24 10:09:18Z strauss $
+ * $Id: if-mib.h 652 2001-08-24 10:09:18Z strauss $
  */
 
 #ifndef _IF_MIB_H_

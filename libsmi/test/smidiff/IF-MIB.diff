@@ -7,63 +7,63 @@
 ../../mibs/ietf/IF-MIB:79 range `(1..2147483647)' added to type `InterfaceIndex'
 ../../mibs/ietf/IF-MIB:93 warning: type `InterfaceIndexOrZero' has been added
 ../../mibs/ietf/IF-MIB:185 range `(1..2147483647)' added to type used in `ifIndex'
-../../mibs/ietf/IF-MIB:250 warning: description of object definition `ifPhysAddress' changed
+../../mibs/ietf/IF-MIB:250 warning: description of OBJECT-TYPE `ifPhysAddress' changed
 ./IF-MIB.old:220 info: previous definition of `ifPhysAddress'
 ../../mibs/ietf/IF-MIB:285 warning: named number `notPresent' added to type used in `ifOperStatus'
 ../../mibs/ietf/IF-MIB:285 warning: named number `lowerLayerDown' added to type used in `ifOperStatus'
-../../mibs/ietf/IF-MIB:285 warning: description of object definition `ifOperStatus' changed
+../../mibs/ietf/IF-MIB:285 warning: description of OBJECT-TYPE `ifOperStatus' changed
 ./IF-MIB.old:253 info: previous definition of `ifOperStatus'
-../../mibs/ietf/IF-MIB:327 warning: description of object definition `ifInOctets' changed
+../../mibs/ietf/IF-MIB:327 warning: description of OBJECT-TYPE `ifInOctets' changed
 ./IF-MIB.old:293 info: previous definition of `ifInOctets'
-../../mibs/ietf/IF-MIB:343 warning: description of object definition `ifInUcastPkts' changed
+../../mibs/ietf/IF-MIB:343 warning: description of OBJECT-TYPE `ifInUcastPkts' changed
 ./IF-MIB.old:302 info: previous definition of `ifInUcastPkts'
-../../mibs/ietf/IF-MIB:358 warning: description of object definition `ifInNUcastPkts' changed
+../../mibs/ietf/IF-MIB:358 warning: description of OBJECT-TYPE `ifInNUcastPkts' changed
 ./IF-MIB.old:312 info: previous definition of `ifInNUcastPkts'
-../../mibs/ietf/IF-MIB:376 warning: description of object definition `ifInDiscards' changed
+../../mibs/ietf/IF-MIB:376 warning: description of OBJECT-TYPE `ifInDiscards' changed
 ./IF-MIB.old:326 info: previous definition of `ifInDiscards'
-../../mibs/ietf/IF-MIB:395 warning: description of object definition `ifInErrors' changed
+../../mibs/ietf/IF-MIB:395 warning: description of OBJECT-TYPE `ifInErrors' changed
 ./IF-MIB.old:338 info: previous definition of `ifInErrors'
-../../mibs/ietf/IF-MIB:413 warning: description of object definition `ifInUnknownProtos' changed
+../../mibs/ietf/IF-MIB:413 warning: description of OBJECT-TYPE `ifInUnknownProtos' changed
 ./IF-MIB.old:352 info: previous definition of `ifInUnknownProtos'
-../../mibs/ietf/IF-MIB:435 warning: description of object definition `ifOutOctets' changed
+../../mibs/ietf/IF-MIB:435 warning: description of OBJECT-TYPE `ifOutOctets' changed
 ./IF-MIB.old:370 info: previous definition of `ifOutOctets'
-../../mibs/ietf/IF-MIB:449 warning: description of object definition `ifOutUcastPkts' changed
+../../mibs/ietf/IF-MIB:449 warning: description of OBJECT-TYPE `ifOutUcastPkts' changed
 ./IF-MIB.old:379 info: previous definition of `ifOutUcastPkts'
-../../mibs/ietf/IF-MIB:465 warning: description of object definition `ifOutNUcastPkts' changed
+../../mibs/ietf/IF-MIB:465 warning: description of OBJECT-TYPE `ifOutNUcastPkts' changed
 ./IF-MIB.old:392 info: previous definition of `ifOutNUcastPkts'
-../../mibs/ietf/IF-MIB:485 warning: description of object definition `ifOutDiscards' changed
+../../mibs/ietf/IF-MIB:485 warning: description of OBJECT-TYPE `ifOutDiscards' changed
 ./IF-MIB.old:407 info: previous definition of `ifOutDiscards'
-../../mibs/ietf/IF-MIB:501 warning: description of object definition `ifOutErrors' changed
+../../mibs/ietf/IF-MIB:501 warning: description of OBJECT-TYPE `ifOutErrors' changed
 ./IF-MIB.old:420 info: previous definition of `ifOutErrors'
-../../mibs/ietf/IF-MIB:526 warning: description of object definition `ifSpecific' changed
+../../mibs/ietf/IF-MIB:526 warning: description of OBJECT-TYPE `ifSpecific' changed
 ./IF-MIB.old:440 info: previous definition of `ifSpecific'
-../../mibs/ietf/IF-MIB:599 warning: description of object definition `ifName' changed
+../../mibs/ietf/IF-MIB:599 warning: description of OBJECT-TYPE `ifName' changed
 ./IF-MIB.old:509 info: previous definition of `ifName'
-../../mibs/ietf/IF-MIB:621 warning: description of object definition `ifInMulticastPkts' changed
+../../mibs/ietf/IF-MIB:621 warning: description of OBJECT-TYPE `ifInMulticastPkts' changed
 ./IF-MIB.old:530 info: previous definition of `ifInMulticastPkts'
-../../mibs/ietf/IF-MIB:639 warning: description of object definition `ifInBroadcastPkts' changed
+../../mibs/ietf/IF-MIB:639 warning: description of OBJECT-TYPE `ifInBroadcastPkts' changed
 ./IF-MIB.old:542 info: previous definition of `ifInBroadcastPkts'
-../../mibs/ietf/IF-MIB:654 warning: description of object definition `ifOutMulticastPkts' changed
+../../mibs/ietf/IF-MIB:654 warning: description of OBJECT-TYPE `ifOutMulticastPkts' changed
 ./IF-MIB.old:552 info: previous definition of `ifOutMulticastPkts'
-../../mibs/ietf/IF-MIB:671 warning: description of object definition `ifOutBroadcastPkts' changed
+../../mibs/ietf/IF-MIB:671 warning: description of OBJECT-TYPE `ifOutBroadcastPkts' changed
 ./IF-MIB.old:565 info: previous definition of `ifOutBroadcastPkts'
-../../mibs/ietf/IF-MIB:697 warning: description of object definition `ifHCInOctets' changed
+../../mibs/ietf/IF-MIB:697 warning: description of OBJECT-TYPE `ifHCInOctets' changed
 ./IF-MIB.old:587 info: previous definition of `ifHCInOctets'
-../../mibs/ietf/IF-MIB:712 warning: description of object definition `ifHCInUcastPkts' changed
+../../mibs/ietf/IF-MIB:712 warning: description of OBJECT-TYPE `ifHCInUcastPkts' changed
 ./IF-MIB.old:597 info: previous definition of `ifHCInUcastPkts'
-../../mibs/ietf/IF-MIB:728 warning: description of object definition `ifHCInMulticastPkts' changed
+../../mibs/ietf/IF-MIB:728 warning: description of OBJECT-TYPE `ifHCInMulticastPkts' changed
 ./IF-MIB.old:608 info: previous definition of `ifHCInMulticastPkts'
-../../mibs/ietf/IF-MIB:747 warning: description of object definition `ifHCInBroadcastPkts' changed
+../../mibs/ietf/IF-MIB:747 warning: description of OBJECT-TYPE `ifHCInBroadcastPkts' changed
 ./IF-MIB.old:623 info: previous definition of `ifHCInBroadcastPkts'
-../../mibs/ietf/IF-MIB:763 warning: description of object definition `ifHCOutOctets' changed
+../../mibs/ietf/IF-MIB:763 warning: description of OBJECT-TYPE `ifHCOutOctets' changed
 ./IF-MIB.old:634 info: previous definition of `ifHCOutOctets'
-../../mibs/ietf/IF-MIB:778 warning: description of object definition `ifHCOutUcastPkts' changed
+../../mibs/ietf/IF-MIB:778 warning: description of OBJECT-TYPE `ifHCOutUcastPkts' changed
 ./IF-MIB.old:644 info: previous definition of `ifHCOutUcastPkts'
-../../mibs/ietf/IF-MIB:797 warning: description of object definition `ifHCOutMulticastPkts' changed
+../../mibs/ietf/IF-MIB:797 warning: description of OBJECT-TYPE `ifHCOutMulticastPkts' changed
 ./IF-MIB.old:657 info: previous definition of `ifHCOutMulticastPkts'
-../../mibs/ietf/IF-MIB:815 warning: description of object definition `ifHCOutBroadcastPkts' changed
+../../mibs/ietf/IF-MIB:815 warning: description of OBJECT-TYPE `ifHCOutBroadcastPkts' changed
 ./IF-MIB.old:673 info: previous definition of `ifHCOutBroadcastPkts'
-../../mibs/ietf/IF-MIB:947 warning: description of object definition `ifStackTable' changed
+../../mibs/ietf/IF-MIB:947 warning: description of OBJECT-TYPE `ifStackTable' changed
 ./IF-MIB.old:752 info: previous definition of `ifStackTable'
 ../../mibs/ietf/IF-MIB:1002 range `(0..2147483647)' added to type used in `ifStackHigherLayer'
 ../../mibs/ietf/IF-MIB:1015 range `(0..2147483647)' added to type used in `ifStackLowerLayer'
@@ -80,11 +80,11 @@
 ../../mibs/ietf/IF-MIB:1644 warning: legal status change from `current' to `deprecated' for `ifTestResult'
 ./IF-MIB.old:1058 info: previous definition of `ifTestResult'
 ../../mibs/ietf/IF-MIB:1665 warning: legal status change from `current' to `deprecated' for `ifTestCode'
-../../mibs/ietf/IF-MIB:1665 warning: description of object definition `ifTestCode' changed
+../../mibs/ietf/IF-MIB:1665 warning: description of OBJECT-TYPE `ifTestCode' changed
 ./IF-MIB.old:1081 info: previous definition of `ifTestCode'
 ../../mibs/ietf/IF-MIB:1685 warning: legal status change from `current' to `deprecated' for `ifTestOwner'
 ./IF-MIB.old:1101 info: previous definition of `ifTestOwner'
-../../mibs/ietf/IF-MIB:1070 warning: description of object definition `ifRcvAddressTable' changed
+../../mibs/ietf/IF-MIB:1070 warning: description of OBJECT-TYPE `ifRcvAddressTable' changed
 ./IF-MIB.old:1123 info: previous definition of `ifRcvAddressTable'
 ../../mibs/ietf/IF-MIB:1112 warning: access of `ifRcvAddressAddress' changed from `read-write' to `not-accessible'
 ./IF-MIB.old:1163 info: previous definition of `ifRcvAddressAddress'
@@ -92,21 +92,21 @@
 ../../mibs/ietf/IF-MIB:924 warning: column `ifCounterDiscontinuityTime' has been added
 ../../mibs/ietf/IF-MIB:117 warning: scalar `ifTableLastChange' has been added
 ../../mibs/ietf/IF-MIB:1045 warning: scalar `ifStackLastChange' has been added
-../../mibs/ietf/IF-MIB:1157 warning: description of notification definition `linkDown' changed
+../../mibs/ietf/IF-MIB:1157 warning: description of NOTIFICATION-TYPE `linkDown' changed
 ./IF-MIB.old:1211 info: previous definition of `linkDown'
-../../mibs/ietf/IF-MIB:1169 warning: description of notification definition `linkUp' changed
+../../mibs/ietf/IF-MIB:1169 warning: description of NOTIFICATION-TYPE `linkUp' changed
 ./IF-MIB.old:1223 info: previous definition of `linkUp'
 ../../mibs/ietf/IF-MIB:1697 warning: legal status change from `current' to `deprecated' for `ifGeneralGroup'
-../../mibs/ietf/IF-MIB:1697 warning: description of object group definition `ifGeneralGroup' changed
+../../mibs/ietf/IF-MIB:1697 warning: description of OBJECT-GROUP `ifGeneralGroup' changed
 ./IF-MIB.old:1326 info: previous definition of `ifGeneralGroup'
-../../mibs/ietf/IF-MIB:1315 warning: description of object group definition `ifFixedLengthGroup' changed
+../../mibs/ietf/IF-MIB:1315 warning: description of OBJECT-GROUP `ifFixedLengthGroup' changed
 ./IF-MIB.old:1340 info: previous definition of `ifFixedLengthGroup'
-../../mibs/ietf/IF-MIB:1340 warning: description of object group definition `ifPacketGroup' changed
+../../mibs/ietf/IF-MIB:1340 warning: description of OBJECT-GROUP `ifPacketGroup' changed
 ./IF-MIB.old:1364 info: previous definition of `ifPacketGroup'
 ../../mibs/ietf/IF-MIB:1709 warning: legal status change from `current' to `deprecated' for `ifTestGroup'
 ./IF-MIB.old:1428 info: previous definition of `ifTestGroup'
 ../../mibs/ietf/IF-MIB:1719 warning: legal status change from `current' to `deprecated' for `ifStackGroup'
-../../mibs/ietf/IF-MIB:1719 warning: description of object group definition `ifStackGroup' changed
+../../mibs/ietf/IF-MIB:1719 warning: description of OBJECT-GROUP `ifStackGroup' changed
 ./IF-MIB.old:1437 info: previous definition of `ifStackGroup'
 ../../mibs/ietf/IF-MIB:1300 warning: group `ifGeneralInformationGroup' has been added
 ../../mibs/ietf/IF-MIB:1402 warning: group `ifStackGroup2' has been added
@@ -114,7 +114,7 @@
 ../../mibs/ietf/IF-MIB:1410 warning: group `ifCounterDiscontinuityGroup' has been added
 ../../mibs/ietf/IF-MIB:1418 warning: group `linkUpDownNotificationsGroup' has been added
 ../../mibs/ietf/IF-MIB:1741 warning: legal status change from `current' to `deprecated' for `ifCompliance'
-../../mibs/ietf/IF-MIB:1741 warning: description of module compliance definition `ifCompliance' changed
+../../mibs/ietf/IF-MIB:1741 warning: description of MODULE-COMPLIANCE `ifCompliance' changed
 ./IF-MIB.old:1244 info: previous definition of `ifCompliance'
 ../../mibs/ietf/IF-MIB:1820 warning: compliance `ifCompliance2' has been added
 ../../mibs/ietf/IF-MIB:1193 warning: compliance `ifCompliance3' has been added

@@ -11,7 +11,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: dump-xsd.c 8090 2008-04-18 12:56:29Z strauss $
+ * @(#) $Id: dump-xsd.c 1772 2012-04-01 12:15:23Z schoenw $
  */
 
 #include <config.h>
@@ -546,8 +546,6 @@ static void fprintRestriction(FILE *f, SmiType *smiType)
 		
 		else if( smiType->name &&
 			 ! strcmp( smiType->name, "IpAddress" ) ) {
-		    SmiUnsigned32 lengths[] = {4, 4};
-		    lengths[0] = 4; lengths[1] = 4;
 		    fprintSegment( f, 1, "<xsd:restriction base=\"xsd:string\">\n" );
 		    fprintSegment( f, 0, "<xsd:pattern "
 				   "value=\"(0|[1-9](([0-9]){0,2}))."
@@ -633,18 +631,20 @@ static void fprintRestriction(FILE *f, SmiType *smiType)
 	
 	smiRange = smiGetFirstRange( smiType );
 	while( smiRange ) {
-	    if( smiRange->minValue.value.unsigned64 < min ) {
+	    if( min == SMI_BASETYPE_UNSIGNED64_MIN ||
+                smiRange->minValue.value.unsigned64 < min ) {
 		min = smiRange->minValue.value.unsigned64;
 	    }
-	    if( smiRange->maxValue.value.unsigned64 > max ) {
+	    if( max == SMI_BASETYPE_UNSIGNED64_MAX ||
+                smiRange->maxValue.value.unsigned64 > max ) {
 		max = smiRange->maxValue.value.unsigned64;
 	    }
 	    smiRange = smiGetNextRange( smiRange );
 	}
-	fprintSegment( f, 0, "<xsd:minInclusive value=\"%lu\"/>\n",
+	fprintSegment( f, 0, "<xsd:minInclusive value=" UINT64_FORMAT "\"/>\n",
 		       (unsigned long)min );
 
-	fprintSegment( f, 0, "<xsd:maxInclusive value=\"%lu\"/>\n",
+	fprintSegment( f, 0, "<xsd:maxInclusive value=" UINT64_FORMAT "\"/>\n",
 		       (unsigned long)max );
 	
 	fprintSegment(f, -1, "</xsd:restriction>\n");
@@ -656,17 +656,19 @@ static void fprintRestriction(FILE *f, SmiType *smiType)
     {
 	SmiUnsigned32 min, max;
 
-	min = 0;
-	max = 4294967295UL;
+	min = SMI_BASETYPE_UNSIGNED32_MIN;
+	max = SMI_BASETYPE_UNSIGNED32_MAX;
 
 	fprintStdRestHead( f, smiType );
 	
 	smiRange = smiGetFirstRange( smiType );
 	while( smiRange ) {
-	    if( smiRange->minValue.value.unsigned32 < min ) {
+	    if( min == SMI_BASETYPE_UNSIGNED32_MIN ||
+                smiRange->minValue.value.unsigned32 < min ) {
 		min = smiRange->minValue.value.unsigned32;
 	    }
-	    if( smiRange->maxValue.value.unsigned32 > max ) {
+	    if( max == SMI_BASETYPE_UNSIGNED32_MAX ||
+                smiRange->maxValue.value.unsigned32 > max ) {
 		max = smiRange->maxValue.value.unsigned32;
 	    }
 	    smiRange = smiGetNextRange( smiRange );
@@ -1287,7 +1289,6 @@ static void fprintComplexType( FILE *f, SmiNode *smiNode, const char *name,
 			       SmiNode *parent )
 {
     SmiNode *iterNode;
-    int numChildren;
     
     if( name ) {
 	fprintSegment( f, 1, "<xsd:complexType name=\"%sType\">\n",
@@ -1297,8 +1298,6 @@ static void fprintComplexType( FILE *f, SmiNode *smiNode, const char *name,
     }
 
 /*    fprintAnnotationElem( f, smiNode ); */
-
-    numChildren = hasChildren( smiNode, SMI_NODEKIND_ANY );
 
     fprintSegment( f, 1, "<xsd:sequence>\n");
 
@@ -2153,7 +2152,8 @@ void initXsd()
 	"xsd",
 	dumpXsd,
 	0,
-	SMIDUMP_DRIVER_CANT_UNITE,
+	SMIDUMP_DRIVER_CANT_UNITE
+	| SMIDUMP_DRIVER_CANT_YANG,
 	"XML schema definitions",
 	opt,
 	NULL

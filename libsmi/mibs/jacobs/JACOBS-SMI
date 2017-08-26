@@ -1,0 +1,32 @@
+JACOBS-SMI DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-IDENTITY, enterprises
+        FROM SNMPv2-SMI;
+
+jacobs MODULE-IDENTITY
+    LAST-UPDATED "200804240800Z"
+    ORGANIZATION "Jacobs University Bremen"
+    CONTACT-INFO
+        "Juergen Schoenwaelder
+         <j.schoenwaelder@jacobs-university.de>
+         Jacobs University Bremen
+         Campus Ring 1
+         28757 Bremen
+         Germany"
+    DESCRIPTION
+        "The toplevel OID registration for Jacobs University 
+	 Bremen, Germany."
+    REVISION "200804240800Z"
+    DESCRIPTION
+        "Initial version."
+    ::= { enterprises 30982 }
+
+cnds OBJECT-IDENTITY
+    STATUS	current
+    DESCRIPTION
+	"The subtree delegated to the Computer Networks and
+ 	 Distributed Systems group at Jacobs University."
+    ::= { jacobs 1 }
+
+END

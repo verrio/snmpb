@@ -1,0 +1,152 @@
+JACOBS-FS20-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,
+    Unsigned32
+        FROM SNMPv2-SMI
+    TimeStamp, RowStatus
+        FROM SNMPv2-TC
+    cnds
+        FROM JACOBS-SMI;
+
+fs20Mib MODULE-IDENTITY
+    LAST-UPDATED "200804240800Z"
+    ORGANIZATION "Jacobs University Bremen"
+    CONTACT-INFO
+        "Juergen Schoenwaelder
+         <j.schoenwaelder@jacobs-university.de>
+         Jacobs University Bremen
+         Campus Ring 1
+         28757 Bremen
+         Germany"
+    DESCRIPTION
+        "This MIB modulef represent an interface to the ELV FS20
+         protocol used by several home automation devices available in
+         Germany."
+    REVISION "200804240800Z"
+    DESCRIPTION
+        "Initial version."
+    ::= { cnds 1 }
+
+fs20Notifications OBJECT IDENTIFIER ::= { fs20Mib 0 }
+fs20Objects       OBJECT IDENTIFIER ::= { fs20Mib 1 }
+
+-- object definitions
+
+fs20Table OBJECT-TYPE
+    SYNTAX      SEQUENCE OF Fs20MsgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "A table containing information about locally known fs20
+        devices."
+    ::= { fs20Objects 1 }
+
+fs20Entry OBJECT-TYPE
+    SYNTAX      Fs20MsgEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "An entry of the fs20Table."
+    INDEX { fs20HC1, fs20HC2, fs20Addr }
+    ::= { fs20Table 1 }
+
+Fs20MsgEntry ::= SEQUENCE {
+    fs20HC1       Unsigned32,
+    fs20HC2       Unsigned32,
+    fs20Addr      Unsigned32,
+    fs20Cmd       Unsigned32,
+    fs20LastHeard TimeStamp,
+    fs20LastSent  TimeStamp,
+    fs20Status    INTEGER,
+    fs20RowStatus RowStatus
+}
+
+fs20HC1 OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..255)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "The haus code HC1 of an FS20 message."
+    ::= { fs20Entry 1 }
+
+fs20HC2 OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..255)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "The haus code HC1 of an FS20 message."
+    ::= { fs20Entry 2 }
+
+fs20Addr OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..255)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+       "The address of an FS20 message."
+    ::= { fs20Entry 3 }
+
+fs20Cmd OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..65535)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "The command of the FS20 protocol. [TODO: Explain how
+        normal and extend commands map to this value.]"
+    DEFVAL	{ 0 }
+    ::= { fs20Entry 4 }
+
+fs20LastHeard OBJECT-TYPE
+    SYNTAX	TimeStamp
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "The timestamp when we have seen an FS20 message from this
+        device. The value 0 indicates that we never saw a message
+	from this device."
+    DEFVAL	{ 0 }
+    ::= { fs20Entry 5 }
+
+fs20LastSent OBJECT-TYPE
+    SYNTAX	TimeStamp
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "The timestamp when we have sent the last FS20 message to this
+        device device. The value 0 indicates that we never sent a
+        message to this device."
+    DEFVAL	{ 0 }
+    ::= { fs20Entry 6 }
+
+fs20Status OBJECT-TYPE
+    SYNTAX	INTEGER {
+                    unknown(0)
+                }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "The status of this FS20 device."
+    DEFVAL      { unknown }
+    ::= { fs20Entry 7 }
+    
+fs20RowStatus OBJECT-TYPE
+    SYNTAX	RowStatus
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+       "The row status column used to create and delete rows in the
+        fs20Table."
+    ::= { fs20Entry 8 }
+    
+-- notification definitions
+
+fs20Notification NOTIFICATION-TYPE
+    OBJECTS     { fs20Cmd }
+    STATUS      current
+    DESCRIPTION
+       "The fs20Notification is generated when the agent received an 
+        FS20 message from an FS enabled device."
+    ::= { fs20Notifications 1 }
+
+
+END

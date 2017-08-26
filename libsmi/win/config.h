@@ -1,14 +1,17 @@
 /*
  * config.h.  Generated manually for windows / vc++ 6.0
  *
- * @(#) $Id: config.h.in 8079 2008-04-17 18:12:48Z schoenw $
+ * @(#) $Id: config.h.in 1736 2011-12-14 14:06:39Z schoenw $
  */
 
 /* Define if the SMIv1/v2 parser shall be active. */
 #define BACKEND_SMI
 
 /* Define if the SMIng parser shall be active. */
-#undef BACKEND_SMING
+/* #define BACKEND_SMING */
+
+/* Define if the SMIng parser shall be active. */
+/* #define BACKEND_YANG */
 
 /* The default error level at libsmi initialization. */
 #define DEFAULT_ERRORLEVEL 3
@@ -23,7 +26,7 @@
 #define DEFAULT_USERCONFIG ".smirc"
 
 /* The default search path to lookup SMI module files. */
-#define DEFAULT_SMIPATH "mibs;pibs"
+#define DEFAULT_SMIPATH "mibs"
 
 /* The default path separator character. */
 #define PATH_SEPARATOR ';'
@@ -89,4 +92,4 @@
 #define PACKAGE "libsmi"
 
 /* Version number of package */
-#define VERSION "0.4.8"
+#define VERSION "0.5.0"

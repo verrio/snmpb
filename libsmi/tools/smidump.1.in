@@ -1,5 +1,5 @@
 .\"
-.\" $Id: smidump.1.in 7608 2008-01-22 13:05:41Z schoenw $
+.\" $Id: smidump.1.in 1557 2008-01-22 13:05:41Z schoenw $
 .\"
 .TH smidump 1  "August 10, 2004" "IBR" "SMI Tools"
 .SH NAME

@@ -1,5 +1,5 @@
 .\"
-.\" $Id: smi_config.3.in 4432 2006-05-29 16:21:11Z strauss $
+.\" $Id: smi_config.3.in 1683 2010-12-14 15:43:46Z schoenw $
 .\"
 .TH smi_config 3  "August 22, 2001" "IBR" "SMI Management Information Library"
 .SH NAME
@@ -70,19 +70,21 @@ These functions provide some initialization and adjustment operations
 for the SMI library.
 .PP
 The \fBsmiInit()\fP function should be the first SMI function called
-in an application. It initializes its internal structures. If \fItag\fP is
-not NULL, the global configuration file and (on UNIX systems)
-a user configuration file are read implicitly, if existent. All
-global statements and those statements with a tag (a ``tag: '' prefix) that
-matches the \fBtag\fP argument are executed. 
-(see also CONFIGURATION FILES below).
-\fBsmiInit()\fP returns zero on success, or otherwise a negative value.
+in an application. It initializes internal structures. If \fItag\fP is
+not NULL, the global configuration file and (on UNIX systems) a user
+configuration file are read implicitly, if existent. All global
+statements and those statements with a tag (a "tag:" prefix) that
+matches the \fBtag\fP argument are executed (see also CONFIGURATION
+FILES below). If \fItag\fP is NULL, no configuration files are read,
+leaving full control to the application. \fBsmiInit()\fP returns zero
+on success, or otherwise a negative value.
 .PP
-The \fBsmiInit()\fP function can also be used to support multiple sets
-of MIB data. In this case, the \fBtag\fP argument may be prepended by
-a colon and a name to differentiate the data sets. Any library
-function call subsequent to an \fBsmiInit("tag:dataset")\fP call is
-using the specified data set.
+The \fBsmiInit()\fP function can also be used to support multiple
+different sets of loaded MIB modules. In this case, the \fBtag\fP
+argument consists of the tag followed by a colon and a name to
+differentiate the loaded MIB module data sets. Any library function
+call subsequent to an \fBsmiInit("tag:dataset")\fP call is using the
+most recently selected data set.
 .PP
 The \fBsmiExit()\fP function should be called when the application
 no longer needs any SMI information to release any allocated SMI

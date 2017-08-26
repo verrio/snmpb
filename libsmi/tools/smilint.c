@@ -8,7 +8,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: smilint.c 1867 2004-10-06 13:45:31Z strauss $
+ * @(#) $Id: smilint.c 1673 2010-06-24 10:09:36Z schoenw $
  */
 
 #include <config.h>
@@ -70,10 +70,10 @@ static void fold(FILE *f, int indent, const char *msg)
     for (s = msg; *s; s++) {
 	for (p = s; *p && *p != '\n'; p++) ;
 	if (*p) {
-	    fprintf(f, "%.*s\n%*s", p - s, s, indent, "");
+	    fprintf(f, "%.*s\n%*s", (int) (p - s), s, indent, "");
 	    s = p;
 	} else {
-	    fprintf(f, "%.*s\n", p - s, s);
+	    fprintf(f, "%.*s\n", (int) (p - s), s);
 	    break;
 	}
     }

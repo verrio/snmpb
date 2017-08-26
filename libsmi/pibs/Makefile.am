@@ -8,7 +8,7 @@
 # See the file "COPYING" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# @(#) $Id: Makefile.am 1508 2002-12-22 16:14:01Z strauss $
+# @(#) $Id: Makefile.am 1006 2002-12-22 16:14:01Z strauss $
 #
 
 PIBDIRS			= ietf tubs site

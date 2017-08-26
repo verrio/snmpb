@@ -8,7 +8,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: scanner-smi.l 6539 2007-02-01 08:23:54Z strauss $
+ * @(#) $Id: scanner-smi.l 1675 2010-08-20 06:44:18Z schoenw $
  */
 
 %option noyywrap
@@ -19,6 +19,7 @@
     
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>

@@ -9,7 +9,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: dump-identifiers.c 5758 2006-08-16 21:10:05Z schoenw $
+ * @(#) $Id: dump-identifiers.c 1772 2012-04-01 12:15:23Z schoenw $
  */
 
 #include <config.h>
@@ -24,6 +24,15 @@
 #include "smi.h"
 #include "smidump.h"
 
+/*
+ * TODO:
+ *
+ *  - yang does not provide line numbers :-(
+ *
+ *  - mixed SMI and YANG modules not handled
+ *
+ */
+
 
 static int moduleLen = 0;
 static int identifierLen = 0;
@@ -32,26 +41,7 @@ static int showlines = 0;
 static int showpath = 0;
 static int ctagfmt = 0;
 
-
-static char *smiStringNodekind(SmiNodekind nodekind)
-{
-    return
-        (nodekind == SMI_NODEKIND_UNKNOWN)      ? "<unknown>" :
-        (nodekind == SMI_NODEKIND_NODE)         ? "node" :
-        (nodekind == SMI_NODEKIND_SCALAR)       ? "scalar" :
-        (nodekind == SMI_NODEKIND_TABLE)        ? "table" :
-        (nodekind == SMI_NODEKIND_ROW)          ? "row" :
-        (nodekind == SMI_NODEKIND_COLUMN)       ? "column" :
-        (nodekind == SMI_NODEKIND_NOTIFICATION) ? "notification" :
-        (nodekind == SMI_NODEKIND_GROUP)        ? "group" :
-        (nodekind == SMI_NODEKIND_COMPLIANCE)   ? "compliance" :
-        (nodekind == SMI_NODEKIND_CAPABILITIES) ? "capabilities" :
-                                                  "<UNDEFINED>";
-}
-
-
-
-static void fprintNodeIdentifiers(FILE *f, int modc, SmiModule **modv)
+static void fprintSmiNodeIdentifiers(FILE *f, int modc, SmiModule **modv)
 {
     SmiNode      *smiNode;
     unsigned int j;
@@ -67,7 +57,7 @@ static void fprintNodeIdentifiers(FILE *f, int modc, SmiModule **modv)
 		    fprintf(f, " %d", smiGetNodeLine(smiNode));
 		    fprintf(f, " %*s", -moduleLen, modv[i]->path);
 		    fprintf(f, " %s OBJECT-TYPE -- %s\n", smiNode->name,
-			    smiStringNodekind(smiNode->nodekind));
+			    smiNodekindAsString(smiNode->nodekind));
 		} else {
 		    fprintf(f, "%*s",
 			    -moduleLen, showpath ? modv[i]->path : modv[i]->name);
@@ -75,7 +65,7 @@ static void fprintNodeIdentifiers(FILE *f, int modc, SmiModule **modv)
 			    fprintf(f, ":%d:", smiGetNodeLine(smiNode));
 		    }
 		    fprintf(f, " %*s %-12s ", -identifierLen, smiNode->name,
-			    smiStringNodekind(smiNode->nodekind));
+			    smiNodekindAsString(smiNode->nodekind));
 		    for (j = 0; j < smiNode->oidlen; j++) {
 			    fprintf(f, j ? ".%u" : "%u", smiNode->oid[j]);
 		    }
@@ -88,7 +78,7 @@ static void fprintNodeIdentifiers(FILE *f, int modc, SmiModule **modv)
 
 
 
-static void fprintTypeIdentifiers(FILE *f, int modc, SmiModule **modv)
+static void fprintSmiTypeIdentifiers(FILE *f, int modc, SmiModule **modv)
 {
     SmiType   *smiType;
     int	      i;
@@ -118,6 +108,69 @@ static void fprintTypeIdentifiers(FILE *f, int modc, SmiModule **modv)
 }
 
 
+#ifdef BACKEND_YANG
+
+static void fprintYangAll(FILE *f, const char *module, YangNode *node)
+{
+    YangNode *childNode;
+
+    for (childNode = yangGetFirstChildNode(node);
+	 childNode;
+	 childNode = yangGetNextChildNode(childNode)) {
+	switch (childNode->nodeKind) {
+	case YANG_DECL_MODULE:
+	case YANG_DECL_SUBMODULE:
+	case YANG_DECL_CONTAINER:
+	case YANG_DECL_LEAF:
+	case YANG_DECL_LEAF_LIST:
+	case YANG_DECL_LIST:
+	case YANG_DECL_GROUPING:
+	case YANG_DECL_RPC:
+	case YANG_DECL_TYPEDEF:
+	case YANG_DECL_NOTIFICATION:
+	case YANG_DECL_FEATURE:
+	case YANG_DECL_IDENTITY:
+	case YANG_DECL_DEVIATION:
+	    if (! f) {
+		int len;
+		len = strlen(childNode->value);
+		if (len > identifierLen) identifierLen = len;
+	    } else {
+		if (ctagfmt) {
+		    fprintf(f, "%*s", -identifierLen, childNode->value);
+		    fprintf(f, " %d", 0);
+		    fprintf(f, " %*s", -moduleLen, module);
+		    fprintf(f, " %s %s\n", childNode->value,
+			    yangDeclAsString(childNode->nodeKind));
+		} else {
+		    fprintf(f, "%*s", -moduleLen, module);
+		    if (showlines) {
+			fprintf(f, ":%d:", 0);
+		    }
+		    fprintf(f, " %*s %s\n", -identifierLen, childNode->value,
+			    yangDeclAsString(childNode->nodeKind), childNode);
+		}
+	    }
+	    break;
+	default:
+	    break;
+	}
+	fprintYangAll(f, module, childNode);
+    }
+}
+
+static void fprintYangIdentifiers(FILE *f, int modc, SmiModule **modv)
+{
+    YangNode *typeNode;
+    int	      i;
+
+    for (i = 0; i < modc; i++) {
+	fprintYangAll(f, (showpath || ctagfmt) ? modv[i]->path : modv[i]->name,
+		      yangGetModule(modv[i]->name));
+    }
+}
+#endif
+
 
 static void dumpIdentifiers(int modc, SmiModule **modv, int flags,
 			    char *output)
@@ -142,18 +195,26 @@ static void dumpIdentifiers(int modc, SmiModule **modv, int flags,
 	    len = strlen(modv[i]->name);
 	}
 	if (len > moduleLen) moduleLen = len;
-	for (smiNode = smiGetFirstNode(modv[i], SMI_NODEKIND_ANY);
-	     smiNode;
-	     smiNode = smiGetNextNode(smiNode, SMI_NODEKIND_ANY)) {
-	    if (smiNode->name) {
-		len = strlen(smiNode->name);
-		if (len > identifierLen) identifierLen = len;
+#ifdef BACKEND_YANG
+	if (modv[i]->language == SMI_LANGUAGE_YANG) {
+	    fprintYangAll(NULL, NULL, yangGetModule(modv[i]->name));
+	}
+#endif
+	if (modv[i]->language == SMI_LANGUAGE_SMIV1
+	    || modv[i]->language == SMI_LANGUAGE_SMIV2) {
+	    for (smiNode = smiGetFirstNode(modv[i], SMI_NODEKIND_ANY);
+		 smiNode;
+		 smiNode = smiGetNextNode(smiNode, SMI_NODEKIND_ANY)) {
+		if (smiNode->name) {
+		    len = strlen(smiNode->name);
+		    if (len > identifierLen) identifierLen = len;
+		}
 	    }
 	}
     }
 
     if (flags & SMIDUMP_FLAG_UNITE) {
-
+	
 	if (! (flags & SMIDUMP_FLAG_SILENT)) {
 	    fprintf(f, "# united list of identifiers (generated by smidump "
 		    SMI_VERSION_STRING ")\n\n");
@@ -164,8 +225,16 @@ static void dumpIdentifiers(int modc, SmiModule **modv, int flags,
 		    "significant parse errors\n\n");
 	}
 
-	fprintTypeIdentifiers(f, modc, modv);
-	fprintNodeIdentifiers(f, modc, modv);
+#ifdef BACKEND_YANG
+	if (modv[0]->language == SMI_LANGUAGE_YANG) {
+	    fprintYangIdentifiers(f, modc, modv);
+	}
+#endif
+	if (modv[0]->language == SMI_LANGUAGE_SMIV1
+	    || modv[0]->language == SMI_LANGUAGE_SMIV2) {
+	    fprintSmiTypeIdentifiers(f, modc, modv);
+	    fprintSmiNodeIdentifiers(f, modc, modv);
+	}
 
     } else {
 
@@ -181,9 +250,16 @@ static void dumpIdentifiers(int modc, SmiModule **modv, int flags,
 		fprintf(f, "# WARNING: this output may be incorrect due to "
 			"significant parse errors\n\n");
 	    }
-	    
-	    fprintTypeIdentifiers(f, 1, &(modv[i]));
-	    fprintNodeIdentifiers(f, 1, &(modv[i]));
+#ifdef BACKEND_YANG
+	    if (modv[i]->language == SMI_LANGUAGE_YANG) {
+		fprintYangIdentifiers(f, 1, &(modv[i]));
+	    }
+#endif
+	    if (modv[i]->language == SMI_LANGUAGE_SMIV1
+		|| modv[i]->language == SMI_LANGUAGE_SMIV2) {
+		fprintSmiTypeIdentifiers(f, 1, &(modv[i]));
+		fprintSmiNodeIdentifiers(f, 1, &(modv[i]));
+	    }
 	}
     }
 

@@ -61,25 +61,22 @@ src/headers/tomcrypt_custom.h "Defined LTC_NO_ROLC for MacOSX using LLVM"
 src/headers/tomcrypt_macros.h "Disabled ROL64/ROR64 assembly routines on Windows 64 bits"
 
 Libsmi is taken from http://www.ibr.cs.tu-bs.de/projects/libsmi
-Version: 0.4.8
+Version: 0.5.0
 
 Modified file(s):
 win/Makefile.mingw
 win/config.h
-lib/smi.h.in "Changed parameter named 'class' to allow compilation on C++"
-lib/smi.c "Fixed a bug on paths with spaces in smiReadConfig()"
-lib/data.c, loadModule() -> changed allowed mib files extensions
-lib/util.c, smiIsPath() -> removed condition for "." in filename
-lib/snprintf.c, "Upgraded snprintf.c from source to support 64 bits printing on Windows"
-lib/smi.c  "Fixed stack overwrite in smiRenderValue due to uint64 format"
-lib/smi.c  "Fixed display for non-printable octet-strings -tracker 3096221"
-lib/smi.c  "Allows OCTET STRING to be printable with \v, \t , \r, \n, \f"
-lib/error.c "Changed the definition of yyerror for bison 3.2 (from libsmi 5.0)"
-lib/parser-smi.y "YYPARSE_PARAM,YYLEX_PARAM->parse-param,lex-param for bison 3.2 (from libsmi 5.0)"
-lib/scanner-smi.h "Commented yyleng for bison 3.x (from libsmi 5.0)"
-
+Makefile.am     "Removed compilation of all subdirs except lib"
+lib/Makefile.am "Fixed file generation rules: broke parallel build"
+lib/util.c      "smiIsPath(): removed condition for "." in filename"
+lib/snprintf.c  "Upgraded snprintf.c from source to support 64 bits printing on Windows"
+lib/smi.c       "Fixed a bug on paths with spaces in smiReadConfig()"
+lib/smi.c       "Fixed stack overwrite in smiRenderValue due to uint64 format"
+lib/smi.c       "Fixed display for non-printable octet-strings -tracker 3096221"
+lib/smi.c       "Allows OCTET STRING to be printable with \v, \t , \r, \n, \f"
 Deleted mibs/ietf/IANA-ITU-ALARM-TC-MIB: redundant with one in iana folder 
 (prevented proper copy in win32 installer)
+Ran 'autoreconf -i' to generate Makefiles for 1.15 libtools
 
 QWT is taken from http://qwt.sourceforge.net
 Version: 6.1.2

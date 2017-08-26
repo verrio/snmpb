@@ -8,7 +8,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: smi.h.in 8090 2008-04-18 12:56:29Z strauss $
+ * @(#) $Id: smi.h.in 1801 2013-10-18 07:58:17Z schoenw $
  */
 
 #ifndef _SMI_H
@@ -24,6 +24,7 @@
 #endif
 #include <time.h>
 
+#include "yang.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,9 +35,9 @@ extern "C" {
 extern const char *smi_library_version;
 
 #define SMI_VERSION_MAJOR 0
-#define SMI_VERSION_MINOR 4
-#define SMI_VERSION_PATCHLEVEL 8
-#define SMI_VERSION_STRING "0.4.8"
+#define SMI_VERSION_MINOR 5
+#define SMI_VERSION_PATCHLEVEL 0
+#define SMI_VERSION_STRING "0.5.0"
 extern const char *smi_version_string;
 
 
@@ -75,8 +76,11 @@ typedef enum SmiLanguage {
     SMI_LANGUAGE_SMIV1                  = 1,
     SMI_LANGUAGE_SMIV2                  = 2,
     SMI_LANGUAGE_SMING                  = 3,
-    SMI_LANGUAGE_SPPI                   = 4
+    SMI_LANGUAGE_SPPI                   = 4,
+    SMI_LANGUAGE_YANG                   = 5
 } SmiLanguage;
+
+extern char *smiLanguageAsString(SmiLanguage language);
 
 /* SmiBasetype -- base types of all languages                                */
 typedef enum SmiBasetype {
@@ -94,6 +98,8 @@ typedef enum SmiBasetype {
     SMI_BASETYPE_BITS                   = 11, /* SMIv2, SMIng and SPPI       */
     SMI_BASETYPE_POINTER		= 12  /* only SMIng                  */
 } SmiBasetype;
+
+extern char *smiBasetypeAsString(SmiBasetype basetype);
 
 #ifdef INT32_MIN
 #define SMI_BASETYPE_INTEGER32_MIN  INT32_MIN
@@ -126,6 +132,8 @@ typedef enum SmiStatus {
     SMI_STATUS_OBSOLETE         = 5  /* SMIv1, SMIv2, SMIng and SPPI         */
 } SmiStatus;
 
+extern char *smiStatusAsString(SmiStatus status);
+
 /* SmiAccess -- values of access levels                                      */
 typedef enum SmiAccess {
     SMI_ACCESS_UNKNOWN          = 0, /* should not occur                     */
@@ -137,8 +145,10 @@ typedef enum SmiAccess {
     SMI_ACCESS_INSTALL          = 6, /* these three entries are only valid   */
     SMI_ACCESS_INSTALL_NOTIFY   = 7, /* for SPPI                             */
     SMI_ACCESS_REPORT_ONLY      = 8,
-    SMI_ACCESS_EVENT_ONLY      	= 9	 /* this entry is valid only for SMIng	 */
+    SMI_ACCESS_EVENT_ONLY      	= 9  /* this entry is valid only for SMIng   */
 } SmiAccess;
+
+extern char *smiAccessAsString(SmiAccess access);
 
 /* SmiNodekind -- type or statement that leads to a definition               */
 typedef unsigned int SmiNodekind;
@@ -153,6 +163,8 @@ typedef unsigned int SmiNodekind;
 #define SMI_NODEKIND_COMPLIANCE   0x0080
 #define SMI_NODEKIND_CAPABILITIES 0x0100
 #define SMI_NODEKIND_ANY          0xffff
+
+extern char *smiNodekindAsString(SmiNodekind nodekind);
 
 /* SmiDecl -- type or statement that leads to a definition                   */
 typedef enum SmiDecl {
@@ -194,6 +206,8 @@ typedef enum SmiDecl {
     SMI_DECL_EVENT		= 47
 } SmiDecl;
 
+extern char *smiDeclAsString(SmiDecl decl);
+
 /* SmiIndexkind -- actual kind of a table row's index method                 */
 typedef enum SmiIndexkind {
     SMI_INDEX_UNKNOWN           = 0, 
@@ -217,7 +231,7 @@ typedef struct SmiValue {
         SmiFloat64          float64;
         SmiFloat128         float128;
         SmiSubid	    *oid;
-        char                *ptr;	 /* OctetString, Bits                */
+        unsigned char       *ptr;	 /* OctetString, Bits                */
     } value;
 } SmiValue;
 
@@ -291,6 +305,9 @@ typedef struct SmiType {
     char                *reference;
 } SmiType;
 
+extern char *smiValueAsString(SmiValue *smiValue,
+			      SmiType *smiType, SmiLanguage smiLanguage);
+
 /* SmiNode -- the main structure of any clause that defines a node           */
 typedef struct SmiNode {
     SmiIdentifier       name;
@@ -312,9 +329,10 @@ typedef struct SmiNode {
 
 /* SmiElement -- an item in a list (row index column, notification object)   */
 typedef struct SmiElement {
-#ifndef __GNUC__
-    char dummy;		/* many compilers are unhappy with empty structures. */
-#endif
+    char dummy;		/* C99 does not allow empty structs; some compilers
+			   accept them (gcc) but there are size differences
+			   between C and C++. So for portability reasons,
+			   we have this unused struct member. */
     /* no visible attributes */
 } SmiElement;
 
@@ -383,8 +401,6 @@ extern void smiSetSeverity(char *pattern, int severity);
 extern int smiReadConfig(const char *filename, const char *tag);
 
 extern char *smiLoadModule(const char *module);
-
-extern void smiFreeModule(SmiModule *smiModulePtr);
 
 extern int smiIsLoaded(const char *module);
 
@@ -463,7 +479,7 @@ extern SmiClass *smiGetParentClass(SmiClass *smiClassPtr);
 
 extern SmiModule *smiGetClassModule(SmiClass *smiClassPtr);
 
-extern SmiClass *smiGetClass(SmiModule *smiModulePtr,char *classs);
+extern SmiClass *smiGetClass(SmiModule *smiModulePtr, char *className);
 
 extern int smiGetClassLine(SmiClass *smiClassPtr);
 
@@ -538,7 +554,9 @@ extern SmiType *smiGetNodeType(SmiNode *smiNodePtr);
 
 extern int smiGetNodeLine(SmiNode *smiNodePtr);
 
+extern SmiNode *smiGetFirstAlias(SmiNode *smiNode);
 
+extern SmiNode *smiGetNextAlias(SmiNode *smiNode);
 
 
 extern SmiElement *smiGetFirstElement(SmiNode *smiNodePtr);
@@ -593,6 +611,7 @@ extern char *smiRenderType(SmiType *smiTypePtr, int flags);
 				     string if all octets are isprint() */
 #define SMI_RENDER_UNKNOWN   0x20 /* render even unknown items as strings
   				     ("<unknown>") so that we never get NULL */
+#define SMI_RENDER_TYPE_RECURSIVE 0x40 /* iterate up the type derivation chain */
 #define SMI_RENDER_ALL       0xff /* render as `human friendly' as possible */
 
 #define SMI_UNKNOWN_LABEL "<unknown>"
@@ -621,8 +640,8 @@ extern int smiPack(SmiNode *row, SmiValue *vals, int valslen,
 		   SmiSubid **oid, unsigned int *oidlen);
 
 /*
- * Two printf functions that allocate memory dynamically. The call has
- * to free the allocated memory.
+ * Two printf functions that allocate memory dynamically. The caller
+ * has to free the allocated memory using smiFree().
  */
 
 extern int smiAsprintf(char **strp, const char *format, ...);

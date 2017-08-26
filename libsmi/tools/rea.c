@@ -10,7 +10,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: rea.c 7823 2008-03-01 13:53:12Z schoenw $
+ * @(#) $Id: rea.c 1734 2011-12-14 08:02:20Z schoenw $
  */
 
 
@@ -1156,15 +1156,9 @@ static void algCheckForExpandRel(SmiNode *smiNode)
 static void algCheckForSparseRel(SmiNode *smiNode) 
 {
     SmiNode      *tNode = NULL;
-    SmiNode      *table;
     SmiElement   *smiElement;
-    unsigned int basecounter;
 
     if (!smiNode) return;
-
-    table = smiGetParentNode(smiNode);
-
-    basecounter = algCountIndexElements(smiNode);
 
     /* getting the basetable via the father node of the last element
        to handle multiple instanceing */
@@ -1308,7 +1302,7 @@ void algCheckLinksByName()
 {
     GraphEdge *tEdge, *tEdge2, *newEdge;
     char      *start, *end, *end2;
-    int       overlap, longestOverlap, i;
+    int       overlap, i;
 
     for (tEdge = graph->edges; tEdge; tEdge = tEdge->nextPtr) {
 
@@ -1325,7 +1319,6 @@ void algCheckLinksByName()
 	     * using tEdge->startNode
 	     */  
 	    newEdge = NULL;
-	    longestOverlap = overlap;
 	    for (tEdge2 = graphGetFirstEdgeByNode(graph,tEdge->startNode);
 		 tEdge2;
 		 tEdge2 = graphGetNextEdgeByNode(graph, tEdge2,
@@ -1351,7 +1344,6 @@ void algCheckLinksByName()
 			    break;
 			}
 
-			longestOverlap=i;
 			newEdge = tEdge2;
 		    }
 		}

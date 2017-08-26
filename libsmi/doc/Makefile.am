@@ -8,7 +8,7 @@
 # See the file "COPYING" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# @(#) $Id: Makefile.am 1509 2002-12-22 16:23:04Z strauss $
+# @(#) $Id: Makefile.am 1007 2002-12-22 16:23:04Z strauss $
 #
 
 EXTRA_DIST		= draft-irtf-nmrg-sming-02.txt \

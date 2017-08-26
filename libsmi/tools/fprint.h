@@ -10,7 +10,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: fprint.h 7289 2007-09-28 06:48:22Z schoenw $
+ * @(#) $Id: fprint.h 1522 2007-09-28 06:48:22Z schoenw $
  */
 
 #ifndef _FPRINT_H

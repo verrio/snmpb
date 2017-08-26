@@ -11,7 +11,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: dump-metrics.c 8090 2008-04-18 12:56:29Z strauss $
+ * @(#) $Id: dump-metrics.c 1734 2011-12-14 08:02:20Z schoenw $
  */
 
 /*
@@ -1052,12 +1052,10 @@ addMetrics(Metrics *metrics, SmiModule *smiModule)
 {
     SmiNode *smiNode;
     SmiType *smiType;
-    size_t len;
 
     for (smiNode = smiGetFirstNode(smiModule, SMI_NODEKIND_ANY);
 	 smiNode;
 	 smiNode = smiGetNextNode(smiNode, SMI_NODEKIND_ANY)) {
-	len = smiNode->description ? strlen(smiNode->description) : 0;
 	switch (smiNode->nodekind) {
 	case SMI_NODEKIND_TABLE:
 	    incrStatusCounter(&metrics->statusTables, smiNode->status);
@@ -1677,7 +1675,7 @@ initMetrics()
 	"metrics",
 	dumpMetrics,
 	0,
-	0,
+	SMIDUMP_DRIVER_CANT_YANG,
 	"metrics characterizing MIB modules",
 	opt,
 	NULL

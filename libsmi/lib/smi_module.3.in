@@ -1,5 +1,5 @@
 .\"
-.\" $Id: smi_module.3.in 4432 2006-05-29 16:21:11Z strauss $
+.\" $Id: smi_module.3.in 1655 2009-12-21 21:41:14Z schoenw $
 .\"
 .TH smi_module 3  "August 16, 2001" "IBR" "SMI Management Information Library"
 .SH NAME
@@ -77,8 +77,11 @@ modules. Other functions to retrieve the definitions within a module are
 documented in \fBsmi_type\fP(3), \fBsmi_node\fP(3), and \fBsmi_macro\fP(3).
 .PP
 The \fBsmiGetModule()\fP function retrieves a \fBstruct SmiModule\fP
-that represents the SMI module named \fBmodule\fP. Elements not available
-or not present for this module contain NULL. If the module is not found,
+that represents the SMI module named \fBmodule\fP. Elements not
+available or not present for this module contain NULL. The conformance
+member of a \fBstruct SmiModule\fP indicates the smallest
+error/warning severity raised while parsing the module or the value 0
+if no error/warning was raised. If the module is not found,
 \fBsmiGetModule()\fP returns NULL.
 .PP
 The \fBsmiGetFirstModule()\fP and \fBsmiGetNextModule()\fP functions are

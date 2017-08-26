@@ -4,7 +4,7 @@
  *
  * This C file is derived from the IF-MIB module.
  *
- * $Id: if-mib-mgr-stub.c 7690 2008-02-05 15:31:35Z schoenw $
+ * $Id: if-mib-mgr-stub.c 1564 2008-02-05 15:31:35Z schoenw $
  */
 
 #include <stdlib.h>

@@ -9,7 +9,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: smidump.c 7870 2008-03-11 19:29:58Z schoenw $
+ * @(#) $Id: smidump.c 1749 2012-03-28 11:42:07Z schoenw $
  */
 
 #include <config.h>
@@ -153,6 +153,25 @@ void smidumpRegisterDriver(SmidumpDriver *driver)
 	opt[opts-1].arg       = driver->opt[i].arg;
 	opt[opts-1].flags     = driver->opt[i].flags;
 	opts++;
+    }
+}
+
+
+static char * getLanguageString(SmiLanguage lang)
+{
+    switch (lang) {
+    case SMI_LANGUAGE_SMIV1:
+	return "SMIv1";
+    case SMI_LANGUAGE_SMIV2:
+	return "SMIv2";
+    case SMI_LANGUAGE_SMING:
+	return "SMIng";
+    case SMI_LANGUAGE_SPPI:
+	return "SPPI";
+    case SMI_LANGUAGE_YANG:
+	return "YANG";
+    default:
+	return "unknown";
     }
 }
 
@@ -314,7 +333,8 @@ int main(int argc, char *argv[])
     int smiflags, i;
     SmiModule **modv = NULL;
     int modc = 0;
-
+    int matching_driver = 1;
+ 
     output = NULL;
     firstDriver = lastDriver = defaultDriver = NULL;
 
@@ -349,8 +369,10 @@ int main(int argc, char *argv[])
     initXml();
     initXsd();
     initCompliances();
+#ifdef BACKEND_YANG
     initYang();
-    initBoilerplate();
+#endif
+    initIetf();
     
     for (i = 1; i < argc; i++)
 	if ((strstr(argv[i], "-c") == argv[i]) ||
@@ -408,7 +430,37 @@ int main(int argc, char *argv[])
 			    argv[i]);
 		}
 	    }
-	    modv[modc++] = smiModule;
+
+	    if (smiModule->language == SMI_LANGUAGE_YANG
+		&& (driver->ignflags & SMIDUMP_DRIVER_CANT_YANG)) {
+		matching_driver = 0;
+	    }
+	    if (smiModule->language == SMI_LANGUAGE_SPPI
+		&& (driver->ignflags & SMIDUMP_DRIVER_CANT_SPPI)) {
+		matching_driver = 0;
+	    }
+	    if (smiModule->language == SMI_LANGUAGE_SMING
+		&& (flags & SMIDUMP_DRIVER_CANT_SMING)) {
+		matching_driver = 0;
+	    }
+	    if ((smiModule->language == SMI_LANGUAGE_SMIV1
+		 ||smiModule->language == SMI_LANGUAGE_SMIV2)
+		&& (driver->ignflags & SMIDUMP_DRIVER_CANT_SMI)) {
+		matching_driver = 0;
+	    }
+	    if (! matching_driver) {
+		if (! (flags & SMIDUMP_FLAG_SILENT)) {
+		    fprintf(stderr,
+			    "smidump: driver `%s' cannot handle %s module `%s'\n",
+			    driver->name,
+			    getLanguageString(smiModule->language),
+			    argv[i]);
+		}
+		fprintf(stderr,
+			"smidump: skipping module `%s'\n", argv[i]);
+	    } else {
+		modv[modc++] = smiModule;
+	    }
 	} else {
 	    fprintf(stderr, "smidump: cannot locate module `%s'\n",
 		    argv[i]);

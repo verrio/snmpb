@@ -4,7 +4,7 @@
  *
  * This C file is derived from the SNMPv2-MIB module.
  *
- * $Id: snmpv2-mib-mgr-stub.c 7690 2008-02-05 15:31:35Z schoenw $
+ * $Id: snmpv2-mib-mgr-stub.c 1564 2008-02-05 15:31:35Z schoenw $
  */
 
 #include <stdlib.h>

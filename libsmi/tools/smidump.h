@@ -10,7 +10,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: smidump.h 7870 2008-03-11 19:29:58Z schoenw $
+ * @(#) $Id: smidump.h 1749 2012-03-28 11:42:07Z schoenw $
  */
 
 #ifndef _SMIDUMP_H
@@ -37,7 +37,10 @@
 
 #define SMIDUMP_DRIVER_CANT_UNITE	0x02
 #define SMIDUMP_DRIVER_CANT_OUTPUT	0x04
-
+#define SMIDUMP_DRIVER_CANT_YANG	0x08
+#define SMIDUMP_DRIVER_CANT_SPPI	0x10
+#define SMIDUMP_DRIVER_CANT_SMING	0x20
+#define SMIDUMP_DRIVER_CANT_SMI		0x40
 
 
 /*
@@ -103,7 +106,7 @@ extern void initXsd(void);
 extern void initSizes(void);
 extern void initCompliances(void);
 extern void initYang(void);
-extern void initBoilerplate(void);
+extern void initIetf(void);
 
 extern void initSql(void);
 extern void initFig(void);

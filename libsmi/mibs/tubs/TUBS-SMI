@@ -1,6 +1,6 @@
 TUBS-SMI DEFINITIONS ::= BEGIN
 
--- @(#) $Id: TUBS-SMI 3211 2006-02-20 09:30:29Z strauss $
+-- @(#) $Id: TUBS-SMI 1617 2008-07-02 10:56:08Z strauss $
 
 IMPORTS
     MODULE-IDENTITY, OBJECT-IDENTITY, enterprises
@@ -46,6 +46,14 @@ ibr OBJECT-IDENTITY
 	 and Computer Networks (Institut fuer Betriebssysteme und
 	 Rechnerverbund)."
     ::= { tubs 1 }
+
+ida OBJECT-IDENTITY
+    STATUS	current
+    DESCRIPTION
+	"The subtree delegated to the Institute for
+	Computer and Communication Network Engineering."
+	-- Matthias Ivers <ivers@ida.ing.tu-bs.de>
+    ::= { tubs 2 }
 
 ibrpib OBJECT-IDENTITY
     STATUS      current

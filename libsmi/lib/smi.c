@@ -8,7 +8,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: smi.c 8071 2008-04-17 11:14:46Z schoenw $
+ * @(#) $Id: smi.c 1798 2013-06-06 09:14:13Z schoenw $
  */
 
 #include <config.h>
@@ -18,6 +18,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <sys/types.h>
+#include <limits.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -25,10 +26,10 @@
 #include <pwd.h>
 #endif
 
+#include "common.h"
 #include "smi.h"
-#include "data.h"
-#include "error.h"
-#include "util.h"
+#include "smi-data.h"
+#include "yang-data.h"
 #include "snprintf.h"
 
 #ifdef BACKEND_SMI
@@ -178,6 +179,505 @@ static Object *getNextChildObject(Node *startNodePtr, Module *modulePtr,
 }
 
 
+/*
+ * Stringification functions. We are using verbose switch statements
+ * since this allows the compiler to check completeness and we like
+ * to handle invalid values gracefully.
+ */
+
+char *smiLanguageAsString(SmiLanguage language)
+{
+    char *s = "<LANGUAGE-UNDEFINED>";
+
+    switch (language) {
+    case SMI_LANGUAGE_UNKNOWN:
+	s = "<unknown>";
+	break;
+    case SMI_LANGUAGE_SMIV1:
+	s = "SMIv1";
+	break;
+    case SMI_LANGUAGE_SMIV2:
+	s = "SMIv2";
+	break;
+    case SMI_LANGUAGE_SMING:
+	s = "SMIng";
+	break;
+    case SMI_LANGUAGE_SPPI:
+	s = "SPPI";
+	break;
+    case SMI_LANGUAGE_YANG:
+	s = "YANG";
+	break;
+    }
+    return s;
+}
+
+char *smiBasetypeAsString(SmiBasetype basetype)
+{
+    char *s = "<BASETYPE-UNDEFINED>";
+
+    switch (basetype) {
+    case SMI_BASETYPE_UNKNOWN:
+	s = "<unknown>";
+ 	break;
+    case SMI_BASETYPE_OCTETSTRING:
+	s = "OctetString";
+	break;
+    case SMI_BASETYPE_OBJECTIDENTIFIER:
+	s = "ObjectIdentifier";
+	break;
+    case SMI_BASETYPE_UNSIGNED32:
+        s = "Unsigned32";
+	break;
+    case SMI_BASETYPE_INTEGER32:
+	s = "Integer32";
+	break;
+    case SMI_BASETYPE_UNSIGNED64:
+        s = "Unsigned64";
+	break;
+    case SMI_BASETYPE_INTEGER64:
+	s = "Integer64";
+	break;
+    case SMI_BASETYPE_FLOAT32:
+	s = "Float32";
+	break;
+    case SMI_BASETYPE_FLOAT64:
+	s = "Float64";
+	break;
+    case SMI_BASETYPE_FLOAT128:
+	s = "Float128";
+	break;
+    case SMI_BASETYPE_ENUM:
+	s = "Enumeration";
+	break;
+    case SMI_BASETYPE_BITS:
+	s = "Bits";
+	break;
+    case SMI_BASETYPE_POINTER:
+	s = "Pointer";
+	break;
+    }
+    return s;
+}
+
+char *smiStatusAsString(SmiStatus status)
+{
+    char *s = "<STATUS-UNDEFINED>";
+    
+    switch (status) {
+    case SMI_STATUS_UNKNOWN:
+	s = "<unknown>";
+	break;
+    case SMI_STATUS_CURRENT:
+	s = "current";
+	break;
+    case SMI_STATUS_DEPRECATED:
+	s = "deprecated";
+	break;
+    case SMI_STATUS_OBSOLETE:
+	s = "obsolete";
+	break;
+    case SMI_STATUS_MANDATORY:
+	s = "mandatory";
+	break;
+    case SMI_STATUS_OPTIONAL:
+	s = "optional";
+	break;
+    }
+    return s;
+}
+
+char *smiAccessAsString(SmiAccess access)
+{
+    char *s = "<ACCESS-UNDEFINED>";
+
+    switch (access) {
+    case SMI_ACCESS_UNKNOWN:
+	s = "<unknown>";
+	break;
+    case SMI_ACCESS_NOT_IMPLEMENTED:
+	s = "not-implemented";
+	break;
+    case SMI_ACCESS_NOT_ACCESSIBLE:
+	s = "not-accessible";
+	break;
+    case SMI_ACCESS_NOTIFY:
+	s = "accessible-for-notify";
+	break;
+    case SMI_ACCESS_READ_ONLY:
+	s = "read-only";
+	break;
+    case SMI_ACCESS_READ_WRITE:
+	s = "read-write";
+	break;
+    case SMI_ACCESS_INSTALL:
+	s = "install";
+	break;
+    case SMI_ACCESS_INSTALL_NOTIFY:
+	s = "notify";
+	break;
+    case SMI_ACCESS_REPORT_ONLY:
+	s = "report-only";
+	break;
+    case SMI_ACCESS_EVENT_ONLY:
+	s = "event-only";
+	break;
+    }
+    return s;
+}
+
+char *smiNodekindAsString(SmiNodekind nodekind)
+{
+    char *s = "<NODEKIND-UNDEFINED>";
+
+    switch (nodekind) {
+    case SMI_NODEKIND_UNKNOWN:
+	s = "<unknown>";
+	break;
+    case SMI_NODEKIND_NODE:
+	s = "node";
+	break;
+    case SMI_NODEKIND_SCALAR:
+	s = "scalar";
+	break;
+    case SMI_NODEKIND_TABLE:
+        s = "table";
+	break;
+    case SMI_NODEKIND_ROW:
+	s = "row";
+	break;
+    case SMI_NODEKIND_COLUMN:
+	s = "column";
+	break;
+    case SMI_NODEKIND_NOTIFICATION:
+	s = "notification";
+	break;
+    case SMI_NODEKIND_GROUP:
+	s = "group";
+	break;
+    case SMI_NODEKIND_COMPLIANCE:
+	s = "compliance";
+	break;
+    case SMI_NODEKIND_CAPABILITIES:
+	s = "capabilities";
+	break;
+    }
+    return s;
+}
+
+char *smiDeclAsString(SmiDecl decl)
+{
+    char *s = "<DECL-UNDEFINED>";
+
+    switch (decl) {
+    case SMI_DECL_UNKNOWN:
+	s = "<unknown>";
+	break;
+    case SMI_DECL_IMPLICIT_TYPE:
+	s = "<implicit>";
+	break;
+    case SMI_DECL_TYPEASSIGNMENT:
+	s = "<type-assignment>";
+	break;
+    case SMI_DECL_IMPL_SEQUENCEOF:
+	s = "<implicit-sequence-of>";
+	break;
+    case SMI_DECL_VALUEASSIGNMENT:
+	s = "<value-assignment>";
+	break;
+    case SMI_DECL_OBJECTTYPE:
+        s = "OBJECT-TYPE";
+	break;
+    case SMI_DECL_OBJECTIDENTITY:
+	s = "OBJECT-IDENTITY";
+	break;
+    case SMI_DECL_MODULEIDENTITY:
+	s = "MODULE-IDENTITY";
+	break;
+    case SMI_DECL_NOTIFICATIONTYPE:
+	s = "NOTIFICATION-TYPE";
+	break;
+    case SMI_DECL_TRAPTYPE:
+	s = "TRAP-TYPE";
+	break;
+    case SMI_DECL_OBJECTGROUP:
+	s = "OBJECT-GROUP";
+	break;
+    case SMI_DECL_NOTIFICATIONGROUP:
+	s = "NOTIFICATION-GROUP";
+	break;
+    case SMI_DECL_MODULECOMPLIANCE:
+	s = "MODULE-COMPLIANCE";
+	break;
+    case SMI_DECL_AGENTCAPABILITIES:
+	s = "AGENT-CAPABILITIES";
+	break;
+    case SMI_DECL_TEXTUALCONVENTION:
+	s = "TEXTUAL-CONVENTION";
+	break;
+    case SMI_DECL_MACRO:
+	s = "MACRO";
+	break;
+    case SMI_DECL_COMPL_GROUP:
+	s = "GROUP";
+	break;
+    case SMI_DECL_COMPL_OBJECT:
+	s = "OBJECT";
+	break;
+    case SMI_DECL_MODULE:
+	s = "module";
+	break;
+    case SMI_DECL_EXTENSION:
+	s = "extension";
+	break;
+    case SMI_DECL_TYPEDEF:
+	s = "typedef";
+	break;
+    case SMI_DECL_NODE:
+	s = "node";
+	break;
+    case SMI_DECL_SCALAR:
+	s = "scalar";
+	break;
+    case SMI_DECL_TABLE:
+	s = "table";
+	break;
+    case SMI_DECL_ROW:
+	s = "row";
+	break;
+    case SMI_DECL_COLUMN:
+	s = "column";
+	break;
+    case SMI_DECL_NOTIFICATION:
+	s = "notification";
+	break;
+    case SMI_DECL_GROUP:
+	s = "group";
+	break;
+    case SMI_DECL_COMPLIANCE:
+        s = "compliance";
+	break;
+    case SMI_DECL_IDENTITY:
+        s = "identity";
+	break;
+    case SMI_DECL_CLASS:
+	s = "class";
+	break;
+    case SMI_DECL_ATTRIBUTE:
+	s = "attribute";
+	break;
+    case SMI_DECL_EVENT:
+	s = "event";
+	break;
+    case SMI_DECL_IMPL_OBJECT:
+	s = "<implicit object>";
+	break;
+    }
+    return s;
+}
+
+char *smiValueAsString(SmiValue *smiValue,
+		       SmiType *smiType, SmiLanguage smiLanguage)
+{
+    static char    s[1024];
+    char           ss[9];
+    int		   n;
+    unsigned int   i;
+    size_t	   len;
+    SmiNamedNumber *nn;
+    SmiNode        *nodePtr;
+    
+    s[0] = 0;
+    
+    switch (smiValue->basetype) {
+    case SMI_BASETYPE_UNSIGNED32:
+	snprintf(s, sizeof(s), "%lu", smiValue->value.unsigned32);
+	break;
+    case SMI_BASETYPE_INTEGER32:
+	snprintf(s, sizeof(s), "%ld", smiValue->value.integer32);
+	break;
+    case SMI_BASETYPE_UNSIGNED64:
+	snprintf(s, sizeof(s), UINT64_FORMAT, smiValue->value.unsigned64);
+	break;
+    case SMI_BASETYPE_INTEGER64:
+	snprintf(s, sizeof(s), INT64_FORMAT, smiValue->value.integer64);
+	break;
+    case SMI_BASETYPE_FLOAT32:
+    case SMI_BASETYPE_FLOAT64:
+    case SMI_BASETYPE_FLOAT128:
+	break;
+    case SMI_BASETYPE_ENUM:
+	for (nn = smiGetFirstNamedNumber(smiType); nn;
+	     nn = smiGetNextNamedNumber(nn)) {
+	    if (nn->value.value.unsigned32 == smiValue->value.unsigned32)
+		break;
+	}
+	if (nn) {
+	    snprintf(s, sizeof(s), "%s", nn->name);
+	} else {
+	    snprintf(s, sizeof(s), "%ld", smiValue->value.integer32);
+	}
+	break;
+    case SMI_BASETYPE_OCTETSTRING:
+	switch (smiLanguage) {
+	case SMI_LANGUAGE_SMIV1:
+	case SMI_LANGUAGE_SMIV2:
+	case SMI_LANGUAGE_SPPI:
+	    for (i = 0; i < smiValue->len; i++) {
+		if (!isprint((int)smiValue->value.ptr[i])) break;
+	    }
+	    if (i == smiValue->len) {
+		snprintf(s, sizeof(s), "\"%s\"", smiValue->value.ptr);
+	    } else {
+		snprintf(s, sizeof(s), "'%*s'H", 2 * smiValue->len, "");
+		for (i=0; i < smiValue->len; i++) {
+		    sprintf(ss, "%02x", smiValue->value.ptr[i]);
+		    strncpy(&s[1+2*i], ss, 2);
+		}
+	    }
+	    break;
+	case SMI_LANGUAGE_SMING:
+	    for (i = 0; i < smiValue->len; i++) {
+		if (!isprint((int)smiValue->value.ptr[i])) break;
+	    }
+	    if (i == smiValue->len) {
+		snprintf(s, sizeof(s), "\"%s\"", smiValue->value.ptr);
+	    } else {
+		snprintf(s, sizeof(s), "0x%*s", 2 * smiValue->len, "");
+		for (i=0; i < smiValue->len; i++) {
+		    sprintf(ss, "%02x", smiValue->value.ptr[i]);
+		    strncpy(&s[2+2*i], ss, 2);
+		}
+	    }
+	    break;
+	case SMI_LANGUAGE_YANG:
+	    /* xxx we need to handle UTF8 and what do we do about
+	       octet strings that contain true binary data? */
+	    break;
+	}
+	break;
+    case SMI_BASETYPE_BITS:
+	/* xxx - return NULL if we run out of space? */
+	switch (smiLanguage) {
+	case SMI_LANGUAGE_SMIV1:
+	    sprintf(s, "'%*s'H", 2 * smiValue->len, "");
+            for (i = 0; i < smiValue->len; i++) {
+		sprintf(ss, "%02x", smiValue->value.ptr[i]);
+		strncpy(&s[1+2*i], ss, 2);
+            }
+	    break;
+	case SMI_LANGUAGE_SMIV2:
+	case SMI_LANGUAGE_SPPI:
+	    strcpy(s, "{");
+	    for (i = 0, n = 0, len = 1; i < smiValue->len * 8; i++, len = strlen(s)) {
+		if (smiValue->value.ptr[i/8] & (1 << (7-(i%8)))) {
+		    if (n) {
+			snprintf(s + len, sizeof(s)-len-3, "%s", ", ");
+			len = strlen(s);
+		    }
+		    n++;
+		    for (nn = smiGetFirstNamedNumber(smiType); nn;
+			 nn = smiGetNextNamedNumber(nn)) {
+			if (nn->value.value.unsigned32 == i)
+			    break;
+		    }
+		    if (nn) {
+			snprintf(s + len, sizeof(s)-len-1, "%s", nn->name);
+		    }
+		}
+	    }
+	    snprintf(s + len, sizeof(s)-len-2, "}");
+	    break;
+	case SMI_LANGUAGE_SMING:
+	    strcpy(s, "(");
+	    for (i = 0, n = 0, len = 1; i < smiValue->len * 8; i++, len = strlen(s)) {
+		if (smiValue->value.ptr[i/8] & (1 << i%8)) {
+		    if (n) {
+			snprintf(s + len, sizeof(s)-len-3, "%s", ", ");
+			len = strlen(s);
+		    }
+		    n++;
+		    for (nn = smiGetFirstNamedNumber(smiType); nn;
+			 nn = smiGetNextNamedNumber(nn)) {
+			if (nn->value.value.unsigned32 == i)
+			    break;
+		    }
+		    if (nn) {
+			snprintf(s + len, sizeof(s)-len-1, "%s", nn->name);
+		    } else {
+			snprintf(s + len, sizeof(s)-len-1, "%d", i);
+		    }
+		}
+	    }
+	    snprintf(s + len, sizeof(s)-len-2, ")");
+	    break;
+	default:
+	    s[0] = 0;
+	    for (i = 0, n = 0, len = 0; i < smiValue->len * 8; i++, len = strlen(s)) {
+		if (smiValue->value.ptr[i/8] & (1 << i%8)) {
+		    if (n) {
+			snprintf(s + len, sizeof(s)-len-2, "%s", " ");
+			len = strlen(s);
+		    }
+		    n++;
+		    for (nn = smiGetFirstNamedNumber(smiType); nn;
+			 nn = smiGetNextNamedNumber(nn)) {
+			if (nn->value.value.unsigned32 == i)
+			    break;
+		    }
+		    if (nn) {
+			snprintf(s + len, sizeof(s)-len-1, "%s", nn->name);
+		    } else {
+			snprintf(s + len, sizeof(s)-len-1, "%d", i);
+		    }
+		}
+	    }
+	    break;
+	}
+    case SMI_BASETYPE_UNKNOWN:
+	break;
+    case SMI_BASETYPE_POINTER:
+	break;
+    case SMI_BASETYPE_OBJECTIDENTIFIER:
+	/* xxx - return NULL if we run out of space? */
+	nodePtr = smiGetNodeByOID(smiValue->len, smiValue->value.oid);
+	if (nodePtr) {
+	    snprintf(s, sizeof(s), "%s", nodePtr->name);
+	} else {
+	    switch (smiLanguage) {
+	    case SMI_LANGUAGE_SMIV1:
+	    case SMI_LANGUAGE_SMIV2:
+	    case SMI_LANGUAGE_SPPI:
+		strcpy(s, "{");
+		for (i = 0, len = 1; i < smiValue->len; i++, len = strlen(s)) {
+		    if (i && len < sizeof(s)-2) {
+			strcat(s, " ");
+			len++;
+		    }
+		    snprintf(s + len, sizeof(s)-len-2,
+			     "%u", smiValue->value.oid[i]);
+		}
+		snprintf(s + len, sizeof(s)-len-2, "}");
+		break;
+	    default:
+		strcpy(s, "");
+		for (i = 0, len = 0; i < smiValue->len; i++, len = strlen(s)) {
+		    if (i && len < sizeof(s)-2) {
+			strcat(s, ".");
+			len++;
+		    }
+		    snprintf(s + len, sizeof(s)-len-2,
+			     "%u", smiValue->value.oid[i]);
+		}
+		break;
+	    }
+	}
+	break;
+    }
+
+    return s;
+}
+
 
 /*
  * Interface Functions.
@@ -192,7 +692,7 @@ int smiInit(const char *tag)
 
     smiHandle = findHandleByName(tag);
     if (smiHandle) {
-	return 0;
+        return 0;
     }
     smiHandle = addHandle(tag);
     
@@ -206,7 +706,7 @@ int smiInit(const char *tag)
 #endif
     
     if (smiInitData()) {
-	return -1;
+        return -1;
     }
 
     /*
@@ -269,6 +769,9 @@ void smiExit()
 	return;
 
     smiFreeData();
+#ifdef BACKEND_YANG
+    yangFreeData();
+#endif
 
     smiFree(smiHandle->path);
 #if !defined(_MSC_VER)
@@ -281,8 +784,6 @@ void smiExit()
     smiHandle = NULL;
     return;
 }
-
-
 
 char *smiGetPath()
 {
@@ -403,18 +904,32 @@ int smiIsLoaded(const char *module)
     return isInView(module);
 }
 
-
+extern _YangNode *loadYangModule(const char *modulename, const char *revision, Parser *parserPtr);
 
 char *smiLoadModule(const char *module)
 {
     Module *modulePtr;
+    SmiLanguage lang;
     
     if (!smiHandle) smiInit(NULL);
+    
+    lang = smiGuessModuleLanguage(module);
+
+#ifdef BACKEND_YANG
+    if (lang == SMI_LANGUAGE_YANG) {
+        _YangNode *yangModulePtr = loadYangModule(module, NULL, NULL);
+        if (yangModulePtr) {
+            return yangModulePtr->export.value;
+        } else {
+            return NULL;
+        }
+    }
+#endif
 
     if (smiIsPath(module)) {
-
+	
 	modulePtr = loadModule(module, NULL);
-
+	
 	if (modulePtr) {
 	    if (!isInView(modulePtr->export.name)) {
 		addView(modulePtr->export.name);
@@ -423,9 +938,7 @@ char *smiLoadModule(const char *module)
 	} else {
 	    return NULL;
 	}
-
-    } else {
-	
+    } else {	
 	if ((modulePtr = findModuleByName(module))) {
 	    /* already loaded. */
 	    if (!isInView(module)) {
@@ -444,12 +957,6 @@ char *smiLoadModule(const char *module)
 	}
     }
 }
- 
-void smiFreeModule(SmiModule *smiModulePtr)
-{
-    freeModule((Module*)smiModulePtr);
-}
-
 
 void smiSetErrorLevel(int level)
 {
@@ -864,7 +1371,10 @@ SmiRange *smiGetNextRange(SmiRange *smiRangePtr)
  
     for (listPtr = typePtr->listPtr; listPtr; listPtr = listPtr->nextPtr) {
 	if (!memcmp(&((Range *)listPtr->ptr)->export.minValue,
-		    &smiRangePtr->minValue, sizeof(struct SmiValue)))
+		    &smiRangePtr->minValue, sizeof(struct SmiValue))
+	    && !memcmp(&((Range *)listPtr->ptr)->export.maxValue,
+		       &smiRangePtr->maxValue, sizeof(struct SmiValue))
+	    && smiRangePtr == &((Range *)listPtr->ptr)->export)
 	    break;
     }
 
@@ -911,7 +1421,10 @@ SmiRange *smiGetAttributeNextRange(SmiRange *smiRangePtr)
  
     for (listPtr = attributePtr->listPtr; listPtr; listPtr = listPtr->nextPtr) {
 	if (!memcmp(&((Range *)listPtr->ptr)->export.minValue,
-		    &smiRangePtr->minValue, sizeof(struct SmiValue)))
+		    &smiRangePtr->minValue, sizeof(struct SmiValue))
+	    && !memcmp(&((Range *)listPtr->ptr)->export.maxValue,
+		       &smiRangePtr->maxValue, sizeof(struct SmiValue))
+	    && smiRangePtr == &((Range *)listPtr->ptr)->export)
 	    break;
     }
 
@@ -925,7 +1438,7 @@ SmiRange *smiGetAttributeNextRange(SmiRange *smiRangePtr)
 
 SmiIdentity *smiGetFirstIdentity(SmiModule *smiModulePtr)
 {
-	if (!smiModulePtr) {
+    if (!smiModulePtr) {
 	return NULL;
     }
     
@@ -956,22 +1469,17 @@ SmiIdentity *smiGetParentIdentity(SmiIdentity *smiIdentityPtr)
 
 SmiIdentity *smiGetIdentity(SmiModule *smiModulePtr, char *identity)
 {
-	
-	if (!smiModulePtr) {
+    SmiIdentity *ide; 
+    
+    if (!smiModulePtr) {
 	return NULL;
     }
-    else
-    {
-    	SmiIdentity *ide; 
     	
-    	for(ide = smiGetFirstIdentity(smiModulePtr); 
-    		ide;
-    		ide = smiGetNextIdentity(ide))
-    			if(!strncmp(ide->name,identity,64))return ide;
-    		
-    	return NULL;
+    for (ide = smiGetFirstIdentity(smiModulePtr); 
+	 ide; ide = smiGetNextIdentity(ide)) {
+	if (!strncmp(ide->name,identity,64)) break;
     }
-    
+    return ide;
 }
 
 int smiGetIdentityLine(SmiIdentity *smiIdentityPtr)
@@ -982,7 +1490,7 @@ int smiGetIdentityLine(SmiIdentity *smiIdentityPtr)
 	
 SmiClass *smiGetFirstClass(SmiModule *smiModulePtr)
 {
-	if (!smiModulePtr) {
+    if (!smiModulePtr) {
 	return NULL;
     }
     
@@ -996,7 +1504,7 @@ SmiClass *smiGetNextClass(SmiClass *smiClassPtr)
     if (!smiClassPtr) {
 	return NULL;
     }
-
+    
     return ((Class *)smiClassPtr)->nextPtr ?
 	&((Class *)smiClassPtr)->nextPtr->export : NULL;
 }
@@ -1011,24 +1519,19 @@ SmiClass *smiGetParentClass(SmiClass *smiClassPtr)
     return (SmiClass*)(((Class *)smiClassPtr)->parentPtr);
 }
 
-SmiClass *smiGetClass(SmiModule *smiModulePtr, char *class)
+SmiClass *smiGetClass(SmiModule *smiModulePtr, char *className)
 {
-	
-	if (!smiModulePtr) {
+    SmiClass *cl;
+    
+    if (!smiModulePtr) {
 	return NULL;
     }
-    else
-    {
-    	SmiClass *cl; 
-    	
-    	for(cl = smiGetFirstClass(smiModulePtr); 
-    		cl;
-    		cl = smiGetNextClass(cl))
-    			if(!strncmp(cl->name,class,64))return cl;
-    		
-    	return NULL;
-    }
     
+    for (cl = smiGetFirstClass(smiModulePtr); 
+	 cl; cl = smiGetNextClass(cl)) {
+	if (!strncmp(cl->name, className, 64)) break;
+    }
+    return cl;
 }
 
 int smiGetClassLine(SmiClass *smiClassPtr)
@@ -1044,12 +1547,11 @@ SmiAttribute *smiGetFirstAttribute(SmiClass *smiClassPtr)
 	return NULL;
     }
     
-  	attributePtr = ((Class *)smiClassPtr)->firstAttributePtr;
-    
+    attributePtr = ((Class *)smiClassPtr)->firstAttributePtr;
     return &attributePtr->export;
 }
 
- SmiAttribute *smiGetNextAttribute( SmiAttribute *smiTypePtr)
+SmiAttribute *smiGetNextAttribute(SmiAttribute *smiTypePtr)
 {
     Attribute *attributePtr;
 
@@ -1058,7 +1560,6 @@ SmiAttribute *smiGetFirstAttribute(SmiClass *smiClassPtr)
     }
 
     attributePtr = ((Attribute *)smiTypePtr)->nextPtr;
-    
     return &attributePtr->export;
 }
 
@@ -1069,8 +1570,6 @@ SmiAttribute *smiGetAttribute(SmiClass *smiClassPtr, char *attribute)
     if (! smiClassPtr) {
 	return NULL;
     }
-    
-    attributePtr = ((Class *)smiClassPtr)->firstAttributePtr;
     
     for (attributePtr = ((Class *)smiClassPtr)->firstAttributePtr; 
 	 attributePtr; attributePtr = attributePtr->nextPtr)
@@ -1324,8 +1823,8 @@ SmiNode *smiGetNode(SmiModule *smiModulePtr, const char *node)
 	    oid[oidlen] = strtoul(p, NULL, 0);
 	}
 	if (p) {
-            /* the numeric OID is too long */
-            return NULL;
+	    /* the numeric OID is too long */
+	    return NULL;
 	}
 	nodePtr = getNode(oidlen, oid);
 	if (nodePtr) {
@@ -1928,8 +2427,8 @@ char *smiRenderValue(SmiValue *smiValuePtr, SmiType *smiTypePtr, int flags)
     SmiUnsigned64 vv;
     int xlen;
     SmiNamedNumber *nn;
-    char *s, *ss;
-    char f[15];
+    char *s = NULL, *ss;
+    char f[20];
     SmiUnsigned32 v32;
     SmiUnsigned64 v64;
     
@@ -2143,18 +2642,19 @@ char *smiRenderValue(SmiValue *smiValuePtr, SmiType *smiTypePtr, int flags)
 	break;
     case SMI_BASETYPE_OCTETSTRING:
 	if (!(flags & SMI_RENDER_FORMAT) ||
+	    (!smiTypePtr->format && !smiTypePtr->name) ||
 	    (!smiTypePtr->format &&
 	     (smiTypePtr->name && strcmp( smiTypePtr->name, "IpAddress")) ) ) {
 	    for (i = 0; i < smiValuePtr->len; i++) {
-                int val = smiValuePtr->value.ptr[i];
-		if (!(isprint(val) || ((val >= 0x9) && (val <= 0xd)))) break; /* HTAB,VTAB,LF,FF,CR */
+        int val = smiValuePtr->value.ptr[i];
+        if (!(isprint(val) || ((val >= 0x9) && (val <= 0xd)))) break; /* HTAB,VTAB,LF,FF,CR */
 	    }
 	    if ((i < smiValuePtr->len) ||
 		!(flags & SMI_RENDER_PRINTABLE)) {
 		smiAsprintf(&s, "");
 		for (i=0; i < smiValuePtr->len; i++) {
 		    ss = s;
-		    smiAsprintf(&s, "%s%02X ", ss, (smiValuePtr->value.ptr[i]&0xFF));
+            smiAsprintf(&s, "%s%02X ", ss, (smiValuePtr->value.ptr[i]&0xFF));
 		    smiFree(ss);
 		}
 	    } else {
@@ -2374,6 +2874,9 @@ char *smiRenderType(SmiType *smiTypePtr, int flags)
     SmiModule *modulePtr;
     
     if ((!smiTypePtr) || (smiTypePtr->name == NULL)) {
+        if (smiTypePtr && (flags & SMI_RENDER_TYPE_RECURSIVE)) {
+	    return smiRenderType(smiGetParentType(smiTypePtr), flags);
+	}
 	if (flags & SMI_RENDER_UNKNOWN) {
 	    smiAsprintf(&s, SMI_UNKNOWN_LABEL);
 	} else {
@@ -2674,4 +3177,52 @@ int smiGetMinMaxRange(SmiType *smiType, SmiValue *min, SmiValue *max)
     }
 
     return 0;
+}
+
+
+SmiNode *smiGetFirstAlias(SmiNode *smiNodePtr)
+{
+    Object *objectPtr;
+    Node *nodePtr;
+
+    if (! smiNodePtr) {
+	return NULL;
+    }
+
+    objectPtr = (Object *) smiNodePtr;
+    nodePtr = objectPtr->nodePtr;
+
+    if (!nodePtr || !nodePtr->firstChildPtr) {
+	return NULL;
+    }
+
+    return &(nodePtr->firstObjectPtr->export);
+}
+
+SmiNode *smiGetNextAlias(SmiNode *smiNodePtr)
+{
+    Object *objectPtr;
+    Node *nodePtr;
+
+    if (!smiNodePtr) {
+	return NULL;
+    }
+
+    objectPtr = (Object *) smiNodePtr;
+    nodePtr = objectPtr->nodePtr;
+
+    if (!nodePtr) {
+	return NULL;
+    }
+
+    for (objectPtr = nodePtr->firstObjectPtr;
+	 objectPtr && &objectPtr->export != smiNodePtr;
+	 objectPtr = objectPtr->nextSameNodePtr) {
+    }
+
+    if (!objectPtr || !objectPtr->nextSameNodePtr) {
+	return NULL;
+    }
+
+    return &objectPtr->nextSameNodePtr->export;
 }

@@ -150,6 +150,21 @@ o API: several applications need a mechanism to iterate through the
 o API/Utility Functions: getMinSize()/getMaxSize() is needed by multiple
   smidump drivers. See dump-scli.c for a good implementation.
 
-o generate a warning if a module is listed multiple times in the
+o RFC 2578: If any columnar object in a conceptual row has
+  "read-create" as its maximal level of access, then no other columnar
+  object of the same conceptual row may have a maximal access of
+  "read-write". We should check this constraint.
+
+o Generate a warning if a module is listed multiple times in the
   imports and if a symbol is imported twice (Dave Perkins)
 
+o error detection: read-write in a read-create row
+
+o reorganize the source code modules to more cleanly separate smi
+  related sources files from yang related source files and common
+  source files
+
+o cleanup the C namespace pollution; all SMI API functions should
+  start with smi, all YANG API functions with yang, all SMI internal
+  functions should start with _smi, all YANG internal functions should
+  start with _yang

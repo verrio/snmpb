@@ -8,7 +8,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: dump-sizes.c 8090 2008-04-18 12:56:29Z strauss $
+ * @(#) $Id: dump-sizes.c 1772 2012-04-01 12:15:23Z schoenw $
  */
 
 #include <config.h>
@@ -1335,7 +1335,7 @@ initSizes()
 	"sizes",
 	dumpSizes,
 	SMI_FLAG_NODESCR,
-	0,
+	SMIDUMP_DRIVER_CANT_YANG,
 	"RFC 3416 PDU sizes excluding message / transport headers",
 	opt,
 	NULL

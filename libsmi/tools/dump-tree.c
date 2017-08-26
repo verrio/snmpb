@@ -3,14 +3,15 @@
  *
  *      Operations to dump the OID tree in a human readable format.
  *
- * Copyright (c) 1999 Frank Strauss, Technical University of Braunschweig.
- * Copyright (c) 1999 J. Schoenwaelder, Technical University of Braunschweig.
- * Copyright (c) 2002 J. Schoenwaelder, University of Osnabrueck.
+ * Copyright (c) 1999 Frank Strauss, Technical University of Braunschweig
+ * Copyright (c) 1999 J. Schoenwaelder, Technical University of Braunschweig
+ * Copyright (c) 2002 J. Schoenwaelder, University of Osnabrueck
+ * Copyright (c) 2011 J. Schoenwaelder, Jacobs University Bremen
  *
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: dump-tree.c 8090 2008-04-18 12:56:29Z strauss $
+ * @(#) $Id: dump-tree.c 1813 2014-10-13 12:53:06Z schoenw $
  */
 
 #include <config.h>
@@ -28,11 +29,13 @@ static SmiModule **pmodv = NULL;
 static int ignoreconformance = 0;
 static int ignoreleafs = 0;
 static int full = 0;
-static int compact = 0;
+static int noids = 0;
 
-static char *getFlags(SmiNode *smiNode)
+static char *getSmiFlags(SmiNode *smiNode)
 {
+    SmiNode *parentNode = smiGetParentNode(smiNode);
 
+#if 0
     switch (smiNode->access) {
     case SMI_ACCESS_UNKNOWN:
 	return "---";
@@ -45,7 +48,7 @@ static char *getFlags(SmiNode *smiNode)
     case SMI_ACCESS_READ_ONLY:
 	return "r-n";
     case SMI_ACCESS_READ_WRITE:
-	return "rwn";
+	return (parentNode && parentNode->create) ? "rcn" : "rwn";
     case SMI_ACCESS_NOT_IMPLEMENTED:
 	return "---";
     case SMI_ACCESS_INSTALL:
@@ -55,13 +58,53 @@ static char *getFlags(SmiNode *smiNode)
     case SMI_ACCESS_REPORT_ONLY:
 	return "--r";
     }
+#else
+    switch (smiNode->access) {
+    case SMI_ACCESS_UNKNOWN:
+	return "---";
+    case SMI_ACCESS_NOT_ACCESSIBLE:
+	return "---";
+    case SMI_ACCESS_EVENT_ONLY:
+	return "---";
+    case SMI_ACCESS_NOTIFY:
+	return "-n-";
+    case SMI_ACCESS_READ_ONLY:
+	return "-r-";
+    case SMI_ACCESS_READ_WRITE:
+	return (parentNode && parentNode->create) ? "-rc" : "-rw";
+    case SMI_ACCESS_NOT_IMPLEMENTED:
+	return "---";
+    case SMI_ACCESS_INSTALL:
+	return "-i-";
+    case SMI_ACCESS_INSTALL_NOTIFY:
+	return "-in";
+    case SMI_ACCESS_REPORT_ONLY:
+	return "--r";
+    }
+#endif
 
     return "";
 }
 
 
+#ifdef BACKEND_YANG
+static char *getYangFlags(YangNode *yangNode)
+{
+    switch (yangNode->config) {
+    case YANG_CONFIG_DEFAULT:
+	return "--";
+    case YANG_CONFIG_FALSE:
+	return "ro";
+    case YANG_CONFIG_TRUE:
+	return "rw";
+    }
 
-static char getStatusChar(SmiStatus status)
+    return "";
+}
+#endif
+
+
+static char getSmiStatusChar(SmiStatus status)
 {
     switch (status) {
     case SMI_STATUS_UNKNOWN:
@@ -82,8 +125,26 @@ static char getStatusChar(SmiStatus status)
 }
 
 
+#ifdef BACKEND_YANG
+static char getYangStatusChar(YangStatus status)
+{
+    switch (status) {
+    case YANG_STATUS_DEFAULT_CURRENT:
+	return '+';
+    case YANG_STATUS_CURRENT:
+	return '+';
+    case YANG_STATUS_DEPRECATED:
+	return 'x';
+    case YANG_STATUS_OBSOLETE:
+	return 'o';
+    }
 
-static char *getTypeName(SmiNode *smiNode)
+    return ' ';
+}
+#endif
+
+
+static char *getSmiTypeName(SmiNode *smiNode)
 {
     char *type;
     SmiType *smiType, *parentType;
@@ -100,8 +161,50 @@ static char *getTypeName(SmiNode *smiNode)
 	smiType = parentType;
     }
 
-    type = xstrdup(smiType->name);
+    type = smiStrdup(smiType->name);
     return type;
+}
+
+
+#ifdef BACKEND_YANG
+static char *getYangTypeName(YangNode *yangNode)
+{
+    char *type;
+    YangNode *typeNode = NULL;
+    
+    for (typeNode = yangGetFirstChildNode(yangNode);
+	 typeNode; typeNode = yangGetNextChildNode(typeNode)) {
+	if (typeNode->nodeKind == YANG_DECL_TYPE) break;
+    }
+
+    if (! typeNode) {
+	return NULL;
+    }
+
+    type = smiStrdup(typeNode->value);
+    return type;
+}
+#endif
+
+
+static char *getSmiLabel(SmiNode *smiNode)
+{
+    char *label;
+
+    if (noids) {
+	label = smiStrdup(smiNode->name);
+    } else {
+	
+	if (smiNode->oid) {
+	    smiAsprintf(&label, "%s(%u)",
+			smiNode->name,
+			smiNode->oid[smiNode->oidlen-1]);
+	} else {
+	    smiAsprintf(&label, "%s(?)", smiNode->name);
+	}
+    }
+
+    return label;
 }
 
 
@@ -117,7 +220,7 @@ static void fprintIndex(FILE *f, SmiNode *smiNode)
 	 smiElement; smiElement = smiGetNextElement(smiElement), i++) {
 	if (i > 0) fprintf(f, ",");
 	if (indexname) {
-	    fprintf(f, indexname);
+	    fprintf(f, "%s", indexname);
 	}
 	indexname = smiGetElementNode(smiElement)->name;
     }
@@ -143,7 +246,7 @@ static void fprintObjects(FILE *f, SmiNode *smiNode)
 	 smiElement = smiGetNextElement(smiElement), i++) {
 	if (i > 0) fprintf(f, ",");
 	if (objectname) {
-	    fprintf(f, objectname);
+	    fprintf(f, "%s", objectname);
 	}
 	objectname = smiGetElementNode(smiElement)->name;
     }
@@ -242,7 +345,7 @@ static int pruneSubTree(SmiNode *smiNode)
 	 * In the case of ignoreleafs, we have to peek at the child
 	 * nodes. Otherwise, we would prune too much. we still want to
 	 * see the path to the leafs we have pruned away. This also
-	 * interact with the semantics of ignoreconformance since we
+	 * interacts with the semantics of ignoreconformance since we
 	 * still want in combination with ignoreleafs to see the path
 	 * to the pruned conformance leafs.
 	 */
@@ -270,12 +373,12 @@ static void fprintSubTree(FILE *f, SmiNode *smiNode,
 			  char *prefix, size_t typefieldlen)
 {
     SmiNode     *childNode, *indexNode;
-    SmiNodekind lastNodeKind = SMI_NODEKIND_UNKNOWN;
     SmiType     *type;
     int         i = 0, cnt, prefixlen;
     size_t      newtypefieldlen = 9;
     char        c = 0;
     char	*type_name;
+    char        *label;
 
     if (smiNode) {
 	prefixlen = strlen(prefix);
@@ -284,18 +387,19 @@ static void fprintSubTree(FILE *f, SmiNode *smiNode,
 	case SMI_NODEKIND_COLUMN:
 	    if (prefixlen > 0) {
 	        c = prefix[prefixlen-1];
-		prefix[prefixlen-1] = getStatusChar(smiNode->status);
+		prefix[prefixlen-1] = getSmiStatusChar(smiNode->status);
 	    }
-	    type_name = getTypeName(smiNode);
+	    type_name = getSmiTypeName(smiNode);
 	    if (type_name) {
-		fprintf(f, "%s-- %s %-*s %s(%u)\n",
+		label = getSmiLabel(smiNode);
+		fprintf(f, "%s-%s %-*s %s\n",
 			prefix,
-			getFlags(smiNode),
-			typefieldlen,
-			type_name,
-			smiNode->name,
-			smiNode->oid[smiNode->oidlen-1]);
-		xfree(type_name);
+			getSmiFlags(smiNode),
+			(int) typefieldlen,
+			label,
+			type_name);
+		smiFree(type_name);
+		smiFree(label);
 	    }
 	    if (prefixlen > 0 && c) {
 		prefix[prefixlen-1] = c;
@@ -304,11 +408,11 @@ static void fprintSubTree(FILE *f, SmiNode *smiNode,
 	case SMI_NODEKIND_ROW:
 	    if (prefixlen > 0) {
 		c = prefix[prefixlen-1];
-		prefix[prefixlen-1] = getStatusChar(smiNode->status);
+		prefix[prefixlen-1] = getSmiStatusChar(smiNode->status);
 	    }
-	    fprintf(f, "%s--%s(%u) [", prefix,
-		    smiNode->name,
-		    smiNode->oid[smiNode->oidlen-1]);
+	    label = getSmiLabel(smiNode);
+	    fprintf(f, "%s---- %s [", prefix, label);
+	    smiFree(label);
 	    switch (smiNode->indexkind) {
 	    case SMI_INDEX_INDEX:
 	    case SMI_INDEX_REORDER:
@@ -334,13 +438,13 @@ static void fprintSubTree(FILE *f, SmiNode *smiNode,
 	case SMI_NODEKIND_NOTIFICATION:
 	    if (prefixlen > 0) {
 		c = prefix[prefixlen-1];
-		prefix[prefixlen-1] = getStatusChar(smiNode->status);
+		prefix[prefixlen-1] = getSmiStatusChar(smiNode->status);
 	    }
-	    fprintf(f, "%s--%s(%u) [", prefix,
-		    smiNode->name,
-		    smiNode->oid[smiNode->oidlen-1]);
+	    label = getSmiLabel(smiNode);
+	    fprintf(f, "%s---- %s {", prefix, label);
+	    smiFree(label);
 	    fprintObjects(f, smiNode);
-	    fprintf(f, "]\n");
+	    fprintf(f, "}\n");
 	    if (prefixlen > 0 && c) {
 		prefix[prefixlen-1] = c;
 	    }
@@ -348,25 +452,31 @@ static void fprintSubTree(FILE *f, SmiNode *smiNode,
 	default:
 	    if (prefixlen > 0) {
 		c = prefix[prefixlen-1];
-		prefix[prefixlen-1] = getStatusChar(smiNode->status);
+		prefix[prefixlen-1] = getSmiStatusChar(smiNode->status);
 	    }
-	    if (smiNode->oid)
+	    if (smiNode->oid) {
 		if (prefixlen > 0) {
-		    fprintf(f, "%s--%s(%u)\n", prefix,
-			    smiNode->name ? smiNode->name : " ",
-			    smiNode->oid[smiNode->oidlen-1]);
+		    label = getSmiLabel(smiNode);
+		    fprintf(f, "%s---- %s\n", prefix, label);
+		    smiFree(label);
 		} else {
 		    unsigned int j;
-		    fprintf(f, "%s--%s(", prefix,
+		    fprintf(f, "%s---- %s", prefix,
 			    smiNode->name ? smiNode->name : " ");
-		    for (j = 0; j < smiNode->oidlen; j++) {
-			fprintf(f, "%s%u", j ? "." : "", smiNode->oid[j]);
+		    if (! noids) {
+			fprintf(f, "(");
+			for (j = 0; j < smiNode->oidlen; j++) {
+			    fprintf(f, "%s%u", j ? "." : "", smiNode->oid[j]);
+			}
+			fprintf(f, ")");
 		    }
-		    fprintf(f, ")\n");
+		    fprintf(f, "\n");
 		}
-	    else
-		fprintf(f, "%s--%s(?)\n", prefix,
-			smiNode->name ? smiNode->name : " ");
+	    } else {
+		label = getSmiLabel(smiNode);
+		fprintf(f, "%s-- %s\n", prefix, label);
+		smiFree(label);
+	    }
 	    if (prefixlen > 0 && c) {
 		prefix[prefixlen-1] = c;
 	    }
@@ -375,15 +485,12 @@ static void fprintSubTree(FILE *f, SmiNode *smiNode,
 	     childNode;
 	     childNode = smiGetNextChildNode(childNode)) {
 	    if (! pruneSubTree(childNode)) {
-		type = smiGetNodeType(childNode);
-		if (type) {
-		    type_name = getTypeName(childNode);
-		    if (type_name) {
-			if (strlen(type_name) > newtypefieldlen) {
-			    newtypefieldlen = strlen(type_name);
-			}
-			xfree(type_name);
-		    }
+		int len = 0;
+		label = getSmiLabel(childNode);
+		len = strlen(label);
+		smiFree(label);
+		if (len > newtypefieldlen) {
+		    newtypefieldlen = len;
 		}
 		cnt++;
 	    }
@@ -396,13 +503,7 @@ static void fprintSubTree(FILE *f, SmiNode *smiNode,
 		continue;
 	    }
 	    i++;
-	    if (! compact &&
-		((childNode->nodekind != SMI_NODEKIND_COLUMN
-		  && childNode->nodekind != SMI_NODEKIND_SCALAR)
-		 || (lastNodeKind != childNode->nodekind))) {
-		fprintf(f, "%s  |\n", prefix);
-	    }
-	    newprefix = xmalloc(strlen(prefix)+10);
+	    newprefix = smiMalloc(strlen(prefix)+10);
 	    strcpy(newprefix, prefix);
 	    if (cnt == 1 || cnt == i) {
 		strcat(newprefix, "   ");
@@ -410,15 +511,14 @@ static void fprintSubTree(FILE *f, SmiNode *smiNode,
 		strcat(newprefix, "  |");
 	    }
 	    fprintSubTree(f, childNode, newprefix, newtypefieldlen);
-	    xfree(newprefix);
-	    lastNodeKind = childNode->nodekind;
+	    smiFree(newprefix);
 	}
     }
 }
 
 
 
-static void fprintTree(FILE *f)
+static void fprintSmiTree(FILE *f)
 {
     SmiNode *smiNode;
     SmiNode *childNode;
@@ -452,20 +552,10 @@ static void fprintTree(FILE *f)
 
 
 
-static void dumpTree(int modc, SmiModule **modv, int flags, char *output)
+static void dumpOidTree(FILE *f, int modc, SmiModule **modv, int flags)
 {
-    int     i;
-    FILE    *f = stdout;
+    int i;
     
-    if (output) {
-	f = fopen(output, "w");
-	if (!f) {
-	    fprintf(stderr, "smidump: cannot open %s for writing: ", output);
-	    perror(NULL);
-	    exit(1);
-	}
-    }
-
     if (flags & SMIDUMP_FLAG_UNITE) {
 	
 	pmodc = modc;
@@ -479,7 +569,7 @@ static void dumpTree(int modc, SmiModule **modv, int flags, char *output)
 	    fprintf(f, "# WARNING: this output may be incorrect due to "
 		    "significant parse errors\n\n");
 	}
-	fprintTree(f);
+	fprintSmiTree(f);
 	
     } else {
 
@@ -496,9 +586,165 @@ static void dumpTree(int modc, SmiModule **modv, int flags, char *output)
 		fprintf(f, "# WARNING: this output may be incorrect due to "
 			"significant parse errors\n\n");
 	    }
-	    fprintTree(f);
+	    fprintSmiTree(f);
 	}
     }
+}
+
+
+#ifdef BACKEND_YANG
+static void fprintYangTree(FILE *f, YangNode *node, char *prefix, int flags)
+{
+    int i = 0, cnt = 0, c = 0;
+    YangNode *childNode;
+    size_t prefixlen = 0;
+    char *type_name;
+
+    for (childNode = yangGetFirstChildNode(node), cnt = 0;
+	 childNode; childNode = yangGetNextChildNode(childNode)) {
+	switch (childNode->nodeKind) {
+	case YANG_DECL_CONTAINER:
+	case YANG_DECL_LIST:
+	case YANG_DECL_LEAF_LIST:
+	case YANG_DECL_LEAF:
+	    cnt++;
+	    break;
+	default:
+	    break;
+	}
+    }
+
+    if (prefix) {
+	prefixlen = strlen(prefix);
+    }
+
+    for (childNode = yangGetFirstChildNode(node);
+	 childNode; childNode = yangGetNextChildNode(childNode)) {
+	char *newprefix;
+
+	switch (childNode->nodeKind) {
+	case YANG_DECL_CONTAINER:
+	case YANG_DECL_LIST:
+	case YANG_DECL_LEAF_LIST:
+	case YANG_DECL_LEAF:
+	    break;
+	default:
+	    continue;
+	}
+#ifdef DEBUG
+	fprintf(f, "** processing child %s **\n", childNode->value);
+#endif
+
+	if (prefixlen > 0) {
+	    c = prefix[prefixlen-1];
+	    prefix[prefixlen-1] = getYangStatusChar(childNode->status);
+	}
+
+	switch (childNode->nodeKind) {
+	case YANG_DECL_CONTAINER:
+	case YANG_DECL_LIST:
+	    fprintf(f, "%s--%s %s (%s)\n",
+		    prefix,
+		    getYangFlags(childNode),
+		    childNode->value,
+		    yangDeclAsString(childNode->nodeKind));
+	    break;
+	case YANG_DECL_LEAF_LIST:
+	case YANG_DECL_LEAF:
+	    type_name = getYangTypeName(childNode);
+	    fprintf(f, "%s--%s %s %s (%s)\n",
+		    prefix,
+		    getYangFlags(childNode),
+		    childNode->value,
+		    type_name ? type_name : "",
+		    yangDeclAsString(childNode->nodeKind));
+	    smiFree(type_name);
+	    break;
+	default:
+	    break;
+	}
+	
+	i++;
+	if (prefixlen > 0 && c) {
+	    prefix[prefixlen-1] = c;
+	    c = 0;
+	}
+	newprefix = smiMalloc(strlen(prefix)+10);
+	strcpy(newprefix, prefix);
+	if (cnt == 1 || cnt == i) {
+	    strcat(newprefix, "   ");
+	} else {
+	    strcat(newprefix, "  |");
+	}
+	fprintYangTree(f, childNode, newprefix, flags);
+#ifdef DEBUG
+	fprintf(f, "** iterating on %s **\n", childNode->value);
+#endif
+	smiFree(newprefix);
+    }
+}
+
+
+
+static void dumpYangTree(FILE *f, int modc, SmiModule **modv, int flags)
+{
+    int i;
+    
+    if (flags & SMIDUMP_FLAG_UNITE) {
+	fprintf(stderr, "smidump: tree format does not support united YANG output:"
+		" ignoring -u\n");
+	flags = (flags & ~SMIDUMP_FLAG_UNITE);
+    }
+
+    for (i = 0; i < modc; i++) {
+
+	if (! (flags & SMIDUMP_FLAG_SILENT)) {
+	    fprintf(f, "# %s YANG naming tree (generated by smidump "
+		    SMI_VERSION_STRING ")\n\n", modv[i]->name);
+	}
+	if (! (flags & SMIDUMP_FLAG_SILENT) && (flags & SMIDUMP_FLAG_ERROR)) {
+	    fprintf(f, "# WARNING: this output may be incorrect due to "
+		    "significant parse errors\n\n");
+	}
+
+	fprintYangTree(f, yangGetModule(modv[i]->name), "", flags);
+    }
+}
+#endif
+
+
+static void dumpTree(int modc, SmiModule **modv, int flags, char *output)
+{
+    int i, cntSmi = 0;
+#ifdef BACKEND_YANG
+    int cntYang = 0;
+#endif
+    FILE *f = stdout;
+    
+    if (output) {
+	f = fopen(output, "w");
+	if (!f) {
+	    fprintf(stderr, "smidump: cannot open %s for writing: ", output);
+	    perror(NULL);
+	    exit(1);
+	}
+    }
+
+    for (i = 0; i < modc; i++) {
+#ifdef BACKEND_YANG
+	if (modv[i]->language == SMI_LANGUAGE_YANG) cntYang++;
+#endif
+	if (modv[i]->language == SMI_LANGUAGE_SMIV1
+	    || modv[i]->language == SMI_LANGUAGE_SMIV2) cntSmi++;
+    }
+    if (cntSmi) {
+	dumpOidTree(f, modc, modv, flags);
+    }
+#ifdef BACKEND_YANG
+    if (cntYang) {
+	dumpYangTree(f, modc, modv, flags);
+    }
+#endif
 
     if (fflush(f) || ferror(f)) {
 	perror("smidump: write error");
@@ -521,8 +767,8 @@ void initTree()
 	  "do not show leaf nodes"},
 	{ "full-root", OPT_FLAG, &full, 0,
 	  "generate the full path to the root"},
-	{ "compact", OPT_FLAG, &compact, 0,
-	  "generate a more compact representation"},
+	{ "no-ids", OPT_FLAG, &noids, 0,
+	  "do not show (sub-)identifiers"},
         { 0, OPT_END, 0, 0 }
     };
     
@@ -531,7 +777,7 @@ void initTree()
 	dumpTree,
 	SMI_FLAG_NODESCR,
 	0,
-	"structure of the OID tree",
+	"structure of the naming tree",
 	opt,
 	NULL
     };

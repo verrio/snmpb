@@ -1,5 +1,5 @@
 .\"
-.\" $Id: smiquery.1.in 1676 2004-08-10 10:58:12Z strauss $
+.\" $Id: smiquery.1.in 1174 2004-08-10 10:58:12Z strauss $
 .\"
 .TH smiquery 1  "August 10, 2004" "IBR" "SMI Tools"
 .SH NAME

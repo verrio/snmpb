@@ -8,7 +8,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: dump-smi.c 8090 2008-04-18 12:56:29Z strauss $
+ * @(#) $Id: dump-smi.c 1796 2013-06-06 09:11:43Z schoenw $
  */
 
 #include <config.h>
@@ -543,7 +543,7 @@ static void createImportList(SmiModule *smiModule)
 
 	if ((!smiv1) &&
 	    (smiNode->value.basetype == SMI_BASETYPE_OBJECTIDENTIFIER) &&
-	    (!strcmp(smiNode->value.value.ptr, "zeroDotZero"))) {
+	    (!strcmp((char *) smiNode->value.value.ptr, "zeroDotZero"))) {
 	    addImport("SNMPv2-SMI", "zeroDotZero");
 	}
     }
@@ -740,111 +740,6 @@ static void fprintMultilineString2(FILE *f, const char *s, const int comment)
 
 
 
-static char *getValueString(SmiValue *valuePtr, SmiType *typePtr)
-{
-    static char    s[1024];
-    char           ss[9];
-    int		   n;
-    unsigned int   i;
-    SmiNamedNumber *nn;
-    SmiNode        *nodePtr;
-    
-    s[0] = 0;
-    
-    switch (valuePtr->basetype) {
-    case SMI_BASETYPE_UNSIGNED32:
-	sprintf(s, "%lu", valuePtr->value.unsigned32);
-	break;
-    case SMI_BASETYPE_INTEGER32:
-	sprintf(s, "%ld", valuePtr->value.integer32);
-	break;
-    case SMI_BASETYPE_UNSIGNED64:
-	sprintf(s, UINT64_FORMAT, valuePtr->value.unsigned64);
-	break;
-    case SMI_BASETYPE_INTEGER64:
-	sprintf(s, INT64_FORMAT, valuePtr->value.integer64);
-	break;
-    case SMI_BASETYPE_FLOAT32:
-    case SMI_BASETYPE_FLOAT64:
-    case SMI_BASETYPE_FLOAT128:
-	break;
-    case SMI_BASETYPE_ENUM:
-	for (nn = smiGetFirstNamedNumber(typePtr); nn;
-	     nn = smiGetNextNamedNumber(nn)) {
-	    if (nn->value.value.unsigned32 == valuePtr->value.unsigned32)
-		break;
-	}
-	if (nn) {
-	    sprintf(s, "%s", nn->name);
-	} else {
-	    sprintf(s, "%ld", valuePtr->value.integer32);
-	}
-	break;
-    case SMI_BASETYPE_OCTETSTRING:
-	for (i = 0; i < valuePtr->len; i++) {
-	    if (!isprint((int)valuePtr->value.ptr[i])) break;
-	}
-	if (i == valuePtr->len) {
-	    sprintf(s, "\"%s\"", valuePtr->value.ptr);
-	} else {
-            sprintf(s, "'%*s'H", 2 * valuePtr->len, " ");
-            for (i=0; i < valuePtr->len; i++) {
-                sprintf(ss, "%02x", valuePtr->value.ptr[i]);
-                strncpy(&s[1+2*i], ss, 2);
-            }
-	}
-	break;
-    case SMI_BASETYPE_BITS:
-	if (smiv1) {
-            sprintf(s, "'%*s'H", 2 * valuePtr->len, " ");
-            for (i=0; i < valuePtr->len; i++) {
-                sprintf(ss, "%02x", valuePtr->value.ptr[i]);
-                strncpy(&s[1+2*i], ss, 2);
-            }
-	} else {
-	    sprintf(s, "{");
-	    for (i = 0, n = 0; i < valuePtr->len * 8; i++) {
-		if (valuePtr->value.ptr[i/8] & (1 << (7-(i%8)))) {
-		    for (nn = smiGetFirstNamedNumber(typePtr); nn;
-			 nn = smiGetNextNamedNumber(nn)) {
-			if (nn->value.value.unsigned32 == i)
-			    break;
-		    }
-		    if (nn) {
-			if (n)
-			    sprintf(&s[strlen(s)], ", ");
-			n++;
-			sprintf(&s[strlen(s)], "%s", nn->name);
-		    }
-		}
-	    }
-	    sprintf(&s[strlen(s)], "}");
-	}
-	break;
-    case SMI_BASETYPE_UNKNOWN:
-	break;
-    case SMI_BASETYPE_POINTER:
-	break;
-    case SMI_BASETYPE_OBJECTIDENTIFIER:
-	nodePtr = smiGetNodeByOID(valuePtr->len, valuePtr->value.oid);
-	if (nodePtr) {
-	    sprintf(s, "%s", nodePtr->name);
-	} else {
-	    strcpy(s, "{");
-	    for (i=0; i < valuePtr->len; i++) {
-		if (i) strcat(s, " ");
-		sprintf(&s[strlen(s)], "%u", valuePtr->value.oid[i]);
-	    }
-	    strcat(s, "}");
-	}
-	break;
-    }
-
-    return s;
-}
-
-
-
 static void fprintSubtype(FILE *f, SmiType *smiType, const int comment)
 {
     SmiRange       *range;
@@ -875,7 +770,8 @@ static void fprintSubtype(FILE *f, SmiType *smiType, const int comment)
 		}
 	    }
 	    sprintf(s, "%s(%s)", nn->name,
-		    getValueString(&nn->value, smiType));
+		    smiValueAsString(&nn->value, smiType,
+			     smiv1 ? SMI_LANGUAGE_SMIV1 : SMI_LANGUAGE_SMIV2));
 	    fprintWrapped(f, INDENTVALUE + INDENT, s, c);
 	}
 	if (i) {
@@ -895,11 +791,16 @@ static void fprintSubtype(FILE *f, SmiType *smiType, const int comment)
 	    }	    
 	    if (memcmp(&range->minValue, &range->maxValue,
 		       sizeof(SmiValue))) {
-		sprintf(s, "%s", getValueString(&range->minValue, smiType));
+		sprintf(s, "%s",
+			smiValueAsString(&range->minValue, smiType,
+			    smiv1 ? SMI_LANGUAGE_SMIV1 : SMI_LANGUAGE_SMIV2));
 		sprintf(&s[strlen(s)], "..%s", 
-			getValueString(&range->maxValue, smiType));
+			smiValueAsString(&range->maxValue, smiType,
+                            smiv1 ? SMI_LANGUAGE_SMIV1 : SMI_LANGUAGE_SMIV2));
 	    } else {
-		sprintf(s, "%s", getValueString(&range->minValue, smiType));
+		sprintf(s, "%s",
+			smiValueAsString(&range->minValue, smiType,
+			    smiv1 ? SMI_LANGUAGE_SMIV1 : SMI_LANGUAGE_SMIV2));
 	    }
 	    fprintWrapped(f, INDENTVALUE + INDENT, s, 0);
 	}
@@ -1249,7 +1150,7 @@ static void fprintObjects(FILE *f, SmiModule *smiModule)
     SmiNode	 *smiNode, *rowNode, *colNode, *smiParentNode, *relatedNode;
     SmiType	 *smiType;
     SmiNodekind  nodekinds;
-    int		 i, invalid, create, assignement, indentsequence, addrowstatus;
+    int		 i, invalid, create, assignement, indentsequence;
     
     nodekinds =  SMI_NODEKIND_NODE | SMI_NODEKIND_TABLE |
 	SMI_NODEKIND_ROW | SMI_NODEKIND_COLUMN | SMI_NODEKIND_SCALAR |
@@ -1441,7 +1342,9 @@ static void fprintObjects(FILE *f, SmiModule *smiModule)
 	
 	if (smiNode->value.basetype != SMI_BASETYPE_UNKNOWN) {
 	    fprintSegment(f, INDENT, "DEFVAL", INDENTVALUE, invalid);
-	    fprint(f, "{ %s }", getValueString(&smiNode->value, smiType));
+	    fprint(f, "{ %s }",
+		   smiValueAsString(&smiNode->value, smiType,
+			    smiv1 ? SMI_LANGUAGE_SMIV1 : SMI_LANGUAGE_SMIV2));
 	    fprint(f, "\n");
 	}
 
@@ -1449,11 +1352,8 @@ static void fprintObjects(FILE *f, SmiModule *smiModule)
 	fprint(f, "{ %s }\n\n", getOidString(smiNode, 0));
 
 	smiType = smiGetNodeType(smiNode);
-        addrowstatus = 0;
 	if (smiNode->nodekind == SMI_NODEKIND_ROW) {
-            if (pibtomib)
-                addrowstatus = 1;
-	    if (smiType) {
+ 	    if (smiType) {
 		fprint(f, "%s ::= SEQUENCE {", smiType->name);
 	    } else {
 		/* guess type name is uppercase row name */
@@ -1830,22 +1730,30 @@ static void fprintModuleCompliances(FILE *f, SmiModule *smiModule)
 
 			smiType = smiGetRefinementType(smiRefinement);
 			if (smiType) {
+  			    SmiType *parentType = smiGetParentType(smiType);
+			    if (! parentType->name) {
+			        parentType = smiGetParentType(parentType);
+			    }
 			    fprintSegment(f, 2 * INDENT, "SYNTAX", INDENTVALUE,
 					  smiv1);
 			    fprint(f, "%s",
-				   getTypeString(smiType->basetype,
-						 smiGetParentType(smiType)));
+				   getTypeString(smiType->basetype, 
+						 parentType));
 			    fprintSubtype(f, smiType, smiv1);
 			    fprint(f, "\n");
 			}
 			
 			smiType = smiGetRefinementWriteType(smiRefinement);
 			if (smiType) {
+			    SmiType *parentType = smiGetParentType(smiType);
+			    if (! parentType->name) {
+			        parentType = smiGetParentType(parentType);
+			    }
 			    fprintSegment(f, 2 * INDENT, "WRITE-SYNTAX",
 					  INDENTVALUE, smiv1);
 			    fprint(f, "%s",
 				   getTypeString(smiType->basetype,
-						 smiGetParentType(smiType)));
+						 parentType));
 			    fprintSubtype(f, smiType, smiv1);
 			    fprint(f, "\n");
 			}
@@ -2034,7 +1942,7 @@ void initSmi()
 	"smiv2",
 	dumpSmiV2,
 	0,
-	SMIDUMP_DRIVER_CANT_UNITE,
+	SMIDUMP_DRIVER_CANT_UNITE | SMIDUMP_DRIVER_CANT_YANG,
 	"SMIv2 (RFC 2578, RFC 2579, RFC 2580)",
 	NULL,
 	NULL

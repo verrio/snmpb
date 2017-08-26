@@ -1,4 +1,4 @@
-/* $Id: shhopt.h 8040 2008-04-14 09:20:35Z schoenw $ */
+/* $Id: shhopt.h 1602 2008-04-14 09:20:35Z schoenw $ */
 #ifndef SHHOPT_H
 #define SHHOPT_H
 

@@ -8,7 +8,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: scanner-sming.h 973 2000-07-17 09:34:36Z strauss $
+ * @(#) $Id: scanner-sming.h 471 2000-07-17 09:34:36Z strauss $
  */
 
 #ifndef _SCANNER_SMING_H

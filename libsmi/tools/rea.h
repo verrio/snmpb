@@ -9,7 +9,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: rea.h 7382 2007-10-19 23:40:24Z schoenw $
+ * @(#) $Id: rea.h 1538 2007-10-19 23:40:24Z schoenw $
  */
 
 #ifndef _REA_H

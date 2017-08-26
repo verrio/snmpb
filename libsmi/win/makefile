@@ -11,7 +11,7 @@
 # See the file "COPYING" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# @(#) $Id: makefile 8084 2008-04-18 07:51:26Z schoenw $
+# @(#) $Id: makefile 1660 2010-02-02 08:28:01Z schoenw $
 
 !include "config.nmake"
 !include <win32.mak>
@@ -172,54 +172,69 @@ smixlate.exe:	$(SMIXLATEOBJS) $(SMILIB)
 !ENDIF
 
 clean:
-	rm -f *.lib
-	rm -f *.obj
-	rm -f *.exe
-	rm -f *.ilk
-	rm -f *.pdb
-	rm -f *.mdp
-	rm -f *.dll
-	rm -f *.exp
+	$(RM) *.lib
+	$(RM) *.obj
+	$(RM) *.exe
+	$(RM) *.ilk
+	$(RM) *.pdb
+	$(RM) *.mdp
+	$(RM) *.dll
+	$(RM) *.exp
+	$(RM) *.manifest
 
 install:	all install-doc install-bin install-lib install-mibs install-pibs
 
 install-doc:
-	$(MKDIR) $(INSTROOT)
+	-$(MKDIR) $(INSTROOT)
 	$(CP) ..\README $(INSTROOT)
 	$(CP) ..\COPYING $(INSTROOT)
 	$(CP) README.win $(INSTROOT)
-	$(MKDIR) $(INSTROOT)\doc
+	-$(MKDIR) $(INSTROOT)\doc
 	$(CP) ..\doc\*.txt $(INSTROOT)\doc
 	-$(CP) ..\doc\*.ps $(INSTROOT)\doc
+	-$(MKDIR) $(INSTROOT)\etc\smi
+	$(CP) ..\smi.conf-example $(INSTROOT)\etc\smi
 
 install-bin:
-	$(MKDIR) $(BINDIR)
+	-$(MKDIR) $(BINDIR)
 	$(CP) *.exe $(BINDIR)
+!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20"
+	$(CP) *.manifest $(BINDIR)
+!ENDIF
+!IFDEF ENABLE_LIBSMI_DLL
+	$(CP) *.dll $(BINDIR)
+!ENDIF
 
 install-lib:
-	$(MKDIR) $(LIBDIR)
+	-$(MKDIR) $(INCDIR)
+	$(CP) ..\lib\smi.h $(INCDIR)
+	$(CP) ..\lib\yang.h $(INCDIR)
+	-$(MKDIR) $(LIBDIR)
 	$(CP) *.lib $(LIBDIR)
+!IFDEF ENABLE_LIBSMI_DLL
+	$(CP) *.dll $(LIBDIR)
+!ENDIF
 
 install-mibs:
-	$(MKDIR) $(MIBDIR)
-	$(MKDIR) $(MIBDIR)\iana
+	-$(MKDIR) $(MIBDIR)
+	-$(MKDIR) $(MIBDIR)\iana
 	$(CP) ..\mibs\iana\*.* $(MIBDIR)\iana
-	$(MKDIR) $(MIBDIR)\ietf
+	-$(MKDIR) $(MIBDIR)\ietf
 	$(CP) ..\mibs\ietf\*.* $(MIBDIR)\ietf
-	$(MKDIR) $(MIBDIR)\irtf
+	-$(MKDIR) $(MIBDIR)\irtf
 	$(CP) ..\mibs\irtf\*.* $(MIBDIR)\irtf
-	$(MKDIR) $(MIBDIR)\tubs
+	-$(MKDIR) $(MIBDIR)\tubs
 	$(CP) ..\mibs\tubs\*.* $(MIBDIR)\tubs
-	$(MKDIR) $(MIBDIR)\site
+	-$(MKDIR) $(MIBDIR)\site
 
 
 install-pibs:
-	$(MKDIR) $(PIBDIR)
-	$(MKDIR) $(PIBDIR)\ietf
+	-$(MKDIR) $(PIBDIR)
+	-$(MKDIR) $(PIBDIR)\ietf
 	$(CP) ..\pibs\ietf\*.* $(PIBDIR)\ietf
-	$(MKDIR) $(PIBDIR)\tubs
+	-$(MKDIR) $(PIBDIR)\tubs
 	$(CP) ..\pibs\tubs\*.* $(PIBDIR)\tubs
-	$(MKDIR) $(PIBDIR)\site
+	-$(MKDIR) $(PIBDIR)\site
 
 # !include "local.nmake"
 

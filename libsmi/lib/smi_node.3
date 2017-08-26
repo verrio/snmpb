@@ -1,5 +1,5 @@
 .\"
-.\" $Id: smi_node.3.in 5762 2006-08-17 08:10:17Z schoenw $
+.\" $Id: smi_node.3.in 1725 2011-11-24 15:04:35Z schoenw $
 .\"
 .TH smi_node 3  "March 30, 2004" "IBR" "SMI Management Information Library"
 .SH NAME
@@ -46,6 +46,12 @@ information routines
 .RE
 .sp
 .BI "SmiNode *smiGetNextNode(SmiNode *" smiNodePtr ", SmiNodekind " kinds );
+.RE
+.sp
+.BI "SmiNode *smiGetFirstAlias(SmiNode *" smiNodePtr );
+.RE
+.sp
+.BI "SmiNode *smiGetNextAlias(SmiNode *" smiNodePtr );
 .RE
 .sp
 .BI "SmiNode *smiGetParentNode(SmiNode *" smiNodePtr );
@@ -163,6 +169,11 @@ the \fIkinds\fP bitset.
 Subsequent calls to \fBsmiGetNextNode()\fP return the next node of
 any kind specified in the \fIkinds\fP bitset. If there are no
 more node definitions in the module, NULL is returned.
+.PP
+The \fBsmiGetFirstAlias()\fP and \fBsmiGetNextAlias()\fP functions are
+used to iteratively retrieve \fBstruct SmiNode\fPs that have the same
+object identifier as the \fIsmiNodePtr\fP given as an argument. There
+is always one alias node which is the \fIsmiNodePtr\fP itself.
 .PP
 The \fBsmiGetFirstChildNode()\fP and \fBsmiGetNextChildNode()\fP
 functions are used to iteratively retrieve \fBstruct SmiNode\fPs that

@@ -4,7 +4,7 @@
  *
  * This C file is derived from the IF-MIB module.
  *
- * $Id: if-mib-agt.c 1606 2003-12-01 12:24:15Z strauss $
+ * $Id: if-mib-agt.c 1104 2003-12-01 12:24:15Z strauss $
  */
 
 #include <stdio.h>

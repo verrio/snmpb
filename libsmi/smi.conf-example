@@ -6,7 +6,7 @@
 # See the file "COPYING" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# @(#) $Id: smi.conf-example 1134 2001-06-11 09:59:13Z strauss $
+# @(#) $Id: smi.conf-example 632 2001-06-11 09:59:13Z strauss $
 #
 #
 # See smi_config(3) for detailed information on configuration files.

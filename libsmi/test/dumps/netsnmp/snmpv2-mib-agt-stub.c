@@ -4,7 +4,7 @@
  *
  * This C file is derived from the SNMPv2-MIB module.
  *
- * $Id: snmpv2-mib-agt-stub.c 1606 2003-12-01 12:24:15Z strauss $
+ * $Id: snmpv2-mib-agt-stub.c 1104 2003-12-01 12:24:15Z strauss $
  */
 
 #include <stdio.h>

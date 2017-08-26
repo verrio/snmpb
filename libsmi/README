@@ -7,25 +7,26 @@ Copyright (c) 1999-2008 Frank Strauss, Technical University of Braunschweig.
 See the file "COPYING" for information on usage and redistribution
 of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
-@(#) $Id: README 7795 2008-02-27 10:23:25Z strauss $
+@(#) $Id: README 1694 2011-03-14 12:45:43Z schoenw $
 
 This project has been started as part of Frank Strauss' master's
 thesis at the Technical University of Braunschweig, Germany in 1999.
 Since then numerous people applied very major improvements, fixes, and
 new features, namely Juergen Schoenwaelder who also initiated the
 whole project and supervised my thesis work, as well as Torsten Klie,
-Andreas Mueller, Moritz Bunkus, Jens Mueller, and Klaus Sperner. Many
-others contributed lots of patches, improvements, and feature requests.
+Andreas Mueller, Moritz Bunkus, Jens Mueller, Klaus Sperner, Kaloyan
+Kanev, and Siarhei Kuryla. Many others contributed patches,
+improvements, and feature requests.
 
 This software comprises 
 
- - a library to parse and maintain MIB and PIB modules,
+ - a library to parse MIB, PIB and YANG modules,
 
  - a set of tools based on the library to check, convert, and compare
-   MIB and PIB modules.
+   MIB, PIB and YANG modules.
 
- - a collection of all published IETF and IANA Standards Track MIB
-   and PIB modules and some more.
+ - a collection of all published IETF and IANA Standards Track MIB,
+   PIB and YANG modules and some more.
 
 Please read the manual pages and the project's web pages for further
 information.
@@ -47,6 +48,7 @@ mibs/					MIB modules to be installed
 pibs/					PIB modules to be installed
 test/					some test patterns
 win/					Win32 port source code
+yang/					YANG modules to be installed
 
 
 INSTALLATION

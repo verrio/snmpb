@@ -8,11 +8,12 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: parser-smi.y 8090 2008-04-18 12:56:29Z strauss $
+ * @(#) $Id: parser-smi.y 1812 2014-10-11 16:08:24Z schoenw $
  */
 
 %parse-param { struct Parser *parserPtr }
 %lex-param { struct Parser *parserPtr }
+    
 %{
 
 #include <config.h>
@@ -35,8 +36,8 @@
 #include "error.h"
 #include "parser-smi.h"
 #include "scanner-smi.h"
-#include "data.h"
-#include "check.h"
+#include "smi-data.h"
+#include "smi-check.h"
 #include "util.h"
     
 #ifdef HAVE_DMALLOC_H
@@ -44,10 +45,6 @@
 #endif
 
 
-
-
-    
-    
 #define thisParserPtr      ((Parser *)parserPtr)
 #define thisModulePtr     (((Parser *)parserPtr)->modulePtr)
 
@@ -178,6 +175,7 @@ checkModuleName(Parser *parserPtr, Module *modulePtr)
 	     smiPrintError(parserPtr, ERR_PIB_MODULENAME_SUFFIX, name);
 	 }
 	 break;
+     case SMI_LANGUAGE_YANG:
      case SMI_LANGUAGE_UNKNOWN:
 	 break;
      }
@@ -239,7 +237,9 @@ checkObjects(Parser *parserPtr, Module *modulePtr)
 		   (objectPtr->typePtr->export.decl == SMI_DECL_IMPL_SEQUENCEOF)) {
 	    objectPtr->export.nodekind = SMI_NODEKIND_TABLE;
 	} else if ((objectPtr->export.decl == SMI_DECL_OBJECTTYPE) &&
-		   (objectPtr->export.indexkind != SMI_INDEX_UNKNOWN)) {
+		   ((objectPtr->export.indexkind != SMI_INDEX_UNKNOWN)
+		    || (parentPtr
+			&& parentPtr->export.nodekind == SMI_NODEKIND_TABLE))) {
 	    objectPtr->export.nodekind = SMI_NODEKIND_ROW;
 	} else if ((objectPtr->export.decl == SMI_DECL_NOTIFICATIONTYPE) ||
 		   (objectPtr->export.decl == SMI_DECL_TRAPTYPE)) {
@@ -253,7 +253,9 @@ checkObjects(Parser *parserPtr, Module *modulePtr)
 	    objectPtr->export.nodekind = SMI_NODEKIND_CAPABILITIES;
 	} else if ((objectPtr->export.decl == SMI_DECL_OBJECTTYPE) &&
 		   (parentPtr) &&
-		   (parentPtr->export.indexkind != SMI_INDEX_UNKNOWN)) {
+		   ((parentPtr->export.indexkind != SMI_INDEX_UNKNOWN)
+		    || (parentPtr
+			&& parentPtr->export.nodekind == SMI_NODEKIND_ROW))) {
 	    objectPtr->export.nodekind = SMI_NODEKIND_COLUMN;
 	} else if ((objectPtr->export.decl == SMI_DECL_OBJECTTYPE) &&
 		   (parentPtr) &&
@@ -287,13 +289,6 @@ checkObjects(Parser *parserPtr, Module *modulePtr)
 				objectPtr->typePtr->export.name ?
 				objectPtr->typePtr->export.name : "[unknown]",
 				objectPtr->export.name);
-	    if (objectPtr->nodePtr->parentPtr->firstObjectPtr->export.nodekind
-		== SMI_NODEKIND_TABLE) {
-		/* the parent node is a table node, so assume this is
-		 *  a row node. this adjusts missing INDEXs in RFC 1158.
-		 */
-		objectPtr->export.nodekind = SMI_NODEKIND_ROW;
-	    }
 	}
 
 	/*
@@ -424,6 +419,16 @@ checkObjects(Parser *parserPtr, Module *modulePtr)
 		}
 		break;
 	    }
+	}
+
+	/*
+	 * Check whether a row has only object-type children and
+	 * that their types are consistent with the type of the
+	 * row.
+	 */
+
+	if (objectPtr->export.nodekind == SMI_NODEKIND_ROW) {
+	    smiCheckRowMembers(parserPtr, objectPtr);
 	}
 	
 	/*
@@ -691,6 +696,7 @@ checkObjects(Parser *parserPtr, Module *modulePtr)
 		     nodePtr->parentPtr != thisParserPtr->pendingNodePtr &&
 			 nodePtr->parentPtr != smiHandle->rootNodePtr &&
 			 nodePtr != nodePtr->parentPtr &&
+			 nodePtr->parentPtr != NULL &&
 			 i <= 128;
 		     nodePtr = nodePtr->parentPtr, i++);
 		if ((objectPtr->export.name) &&
@@ -712,6 +718,7 @@ checkObjects(Parser *parserPtr, Module *modulePtr)
 
 	if ((objectPtr->export.decl != SMI_DECL_UNKNOWN)
 	    && (objectPtr->export.nodekind != SMI_NODEKIND_NODE)
+	    && (objectPtr->export.nodekind != SMI_NODEKIND_UNKNOWN)
 	    && objectPtr->export.name
 	    && objectPtr->export.oid[objectPtr->export.oidlen-1] == 0
 	    && objectPtr->export.oidlen != 2 && objectPtr->export.oid[0] != 0) {
@@ -741,6 +748,11 @@ checkObjects(Parser *parserPtr, Module *modulePtr)
 	    case SMI_INDEX_AUGMENT:
             case SMI_INDEX_SPARSE:
 		smiCheckAugment(parserPtr, objectPtr);
+		break;
+	    case SMI_INDEX_UNKNOWN:
+		smiPrintErrorAtLine(parserPtr, ERR_INDEX_MISSING,
+				    objectPtr->line,
+				    objectPtr->export.name);
 		break;
 	    default:
 		break;
@@ -2834,6 +2846,7 @@ objectTypeClause:	LOWERCASE_IDENTIFIER
 				}
 			    }
                             indexFlag = 0;
+			    variationkind = SMI_NODEKIND_UNKNOWN;
 			}
 			SYNTAX Syntax                /* old $6, new $6 */
 		        UnitsPart                    /* old $7, new $7 */
@@ -4295,14 +4308,14 @@ valueofSimpleSyntax:	NUMBER			/* 0..2147483647 */
 			    } else {
 				$$->basetype = defaultBasetype;
 				$$->len = -1;  /* indicates unresolved ptr */
-				$$->value.ptr = $1; /* JS: needs strdup? */
+				$$->value.ptr = (unsigned char *) $1; /* JS: needs strdup? */
 			    }
 			}
 	|		QUOTED_STRING		/* an OCTET STRING */
 			{
 			    $$ = smiMalloc(sizeof(SmiValue));
 			    $$->basetype = SMI_BASETYPE_OCTETSTRING;
-			    $$->value.ptr = smiStrdup($1);
+			    $$->value.ptr = (unsigned char *) smiStrdup($1);
 			    $$->len = strlen($1);
 			}
 			/* NOTE: If the value is an OBJECT IDENTIFIER, then
@@ -4561,13 +4574,17 @@ ApplicationSyntax:	IPADDRESS anySubType
 				}
 			    }
 			}
-	|		UNSIGNED32 integerSubType
+	|		UNSIGNED32
+			{
+			    defaultBasetype = SMI_BASETYPE_UNSIGNED32;
+			}
+			integerSubType
 			{
 			    Import *importPtr;
 			    
 			    $$ = duplicateType(smiHandle->typeUnsigned32Ptr, 0,
 					       thisParserPtr);
-			    setTypeList($$, $2);
+			    setTypeList($$, $3);
 			    smiCheckTypeRanges(thisParserPtr, $$);
 
 			    importPtr = findImportByName("Unsigned32",
@@ -5715,6 +5732,11 @@ Entry:			ObjectName
 
 DefValPart:		DEFVAL '{' Value '}'
 			{
+			    /* must not be present in notification variations */
+			    if (variationkind == SMI_NODEKIND_NOTIFICATION) {
+				smiPrintError(thisParserPtr,
+					      ERR_NOTIFICATION_VARIATION_DEFVAL);
+			    }
 			    $$ = $3;
 			    if ((defaultBasetype == SMI_BASETYPE_BITS) &&
 				($$->basetype != SMI_BASETYPE_BITS)) {
@@ -6832,6 +6854,7 @@ ComplianceGroup:	GROUP
 ComplianceObject:	OBJECT
 			{
 			    thisParserPtr->firstNestedStatementLine = thisParserPtr->line;
+			    variationkind = SMI_NODEKIND_UNKNOWN;
 			}
 			ObjectName
 			SyntaxPart
@@ -6878,6 +6901,11 @@ ComplianceObject:	OBJECT
 
 SyntaxPart:		SYNTAX Syntax
 			{
+			    /* must not be present in notification variations */
+			    if (variationkind == SMI_NODEKIND_NOTIFICATION) {
+				smiPrintError(thisParserPtr,
+				      ERR_NOTIFICATION_VARIATION_SYNTAX);
+			    }
 			    if ($2->export.name) {
 				$$ = duplicateType($2, 0, thisParserPtr);
 			    } else {
@@ -6893,8 +6921,14 @@ SyntaxPart:		SYNTAX Syntax
 WriteSyntaxPart:	WRITE_SYNTAX WriteSyntax
 			{
                             /* must not be present in PIBs */
-                            if (thisParserPtr->modulePtr->export.language == SMI_LANGUAGE_SPPI)
+                            if (thisParserPtr->modulePtr->export.language == SMI_LANGUAGE_SPPI) {
                                 smiPrintError(thisParserPtr, ERR_SMI_CONSTRUCT_IN_PIB, "WRITE-SYNTAX");
+			    }
+			    /* must not be present in notification variations */
+			    if (variationkind == SMI_NODEKIND_NOTIFICATION) {
+				smiPrintError(thisParserPtr,
+				      ERR_NOTIFICATION_VARIATION_WRITESYNTAX);
+			    }
 			    if ($2->export.name) {
 				$$ = duplicateType($2, 0, thisParserPtr);
 			    } else {
@@ -7113,38 +7147,17 @@ Variation:		VARIATION ObjectName
 			    }
 			}
 			SyntaxPart
-			{
-			    if (variationkind == SMI_NODEKIND_NOTIFICATION) {
-				smiPrintError(thisParserPtr,
-				      ERR_NOTIFICATION_VARIATION_SYNTAX);
-			    }
-			}
 			WriteSyntaxPart
-			{
-			    if (variationkind == SMI_NODEKIND_NOTIFICATION) {
-				smiPrintError(thisParserPtr,
-				      ERR_NOTIFICATION_VARIATION_WRITESYNTAX);
-			    }
-			}
 			VariationAccessPart
 			CreationPart
-			{
-			    if (variationkind == SMI_NODEKIND_NOTIFICATION) {
-				smiPrintError(thisParserPtr,
-				      ERR_NOTIFICATION_VARIATION_CREATION);
-			    }
-			}
 			DefValPart
 			{
-			    if (variationkind == SMI_NODEKIND_NOTIFICATION) {
-				smiPrintError(thisParserPtr,
-				      ERR_NOTIFICATION_VARIATION_DEFVAL);
-			    } else if ($11) {
+			    if ($8) {
 				adjustDefval(thisParserPtr,
-					     $11, $2->typePtr,
+					     $8, $2->typePtr,
 					     thisParserPtr->line);
 				smiCheckValueType(thisParserPtr,
-						  $11, $2->typePtr,
+						  $8, $2->typePtr,
 						  thisParserPtr->line);
 			    }
 			}
@@ -7154,7 +7167,7 @@ Variation:		VARIATION ObjectName
 			    $$ = 0;
 			    variationkind = SMI_NODEKIND_UNKNOWN;
 
-			    checkDescr(thisParserPtr, $14);
+			    checkDescr(thisParserPtr, $10);
 			}
 	;
 
@@ -7230,7 +7243,14 @@ VariationAccess:	LOWERCASE_IDENTIFIER
         ;
 
 CreationPart:		CREATION_REQUIRES '{' Cells '}'
-			{ $$ = 0; }
+			{
+			    /* must not be present in notification variations */
+			    if (variationkind == SMI_NODEKIND_NOTIFICATION) {
+				smiPrintError(thisParserPtr,
+				      ERR_NOTIFICATION_VARIATION_CREATION);
+			    }
+			    $$ = 0;
+			}
 	|		/* empty */
 			{ $$ = 0; }
 	;

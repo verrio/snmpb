@@ -2,7 +2,7 @@
 LIBSMI NOTES FOR NATIVE WIN32 SUPPORT USING MINGW
 =================================================
 
-@(#) $Id: README.mingw 7800 2008-02-27 13:55:53Z schoenw $
+@(#) $Id: README.mingw 1576 2008-02-27 13:55:53Z schoenw $
 
 Mingw32 is a gcc based environment allowing to build free Win32
 executables.

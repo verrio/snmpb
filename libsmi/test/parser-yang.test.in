@@ -1,0 +1,27 @@
+#!@BASH@
+
+WORKDIR=yang-test.out
+rm -rf  $WORKDIR
+mkdir $WORKDIR
+
+abssrcdir=`cd @srcdir@; pwd`
+
+RC=0
+
+for n in $abssrcdir/yang/*.yang ; do
+    mib=`basename $n`
+    echo -n "Checking $mib. "
+    cd $WORKDIR
+    ../../tools/smilint -c/dev/null -l9 $n 2>&1 | sed -e "s/^.*\/$m\(.*\)/$m\1/" > $mib.out
+     cd ..
+    cmp -s $WORKDIR/$mib.out yang/$mib.exp
+    if [ $? -ne 0 ] ; then
+        RC=1
+        echo "unexpected output. see yang-test.out directory."
+    else
+        WC=`cat $WORKDIR/$mib.out | wc -l`
+	echo $WC " errors/warnings, ok."
+    fi
+done
+
+exit ${RC}

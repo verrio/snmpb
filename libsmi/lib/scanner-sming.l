@@ -8,7 +8,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: scanner-sming.l 7734 2008-02-15 07:49:14Z schoenw $
+ * @(#) $Id: scanner-sming.l 1569 2008-02-15 07:49:14Z schoenw $
  */
 
 %option noyywrap

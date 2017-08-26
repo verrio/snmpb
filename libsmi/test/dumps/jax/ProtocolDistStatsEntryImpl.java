@@ -3,7 +3,7 @@
  * is intended to be edited by the application programmer and
  * to be used within a Java AgentX sub-agent environment.
  *
- * $Id: ProtocolDistStatsEntryImpl.java 4432 2006-05-29 16:21:11Z strauss $
+ * $Id: ProtocolDistStatsEntryImpl.java 1458 2006-05-29 16:21:11Z strauss $
  */
 
 /**

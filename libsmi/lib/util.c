@@ -8,7 +8,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: util.c 1470 2002-11-13 13:15:03Z strauss $
+ * @(#) $Id: util.c 1656 2009-12-28 17:56:12Z schoenw $
  */
 
 #include <config.h>
@@ -22,6 +22,10 @@
 #include "util.h"
 #include "snprintf.h"
 
+#ifdef HAVE_WIN_H
+#include "win.h"
+#endif
+
 #ifdef HAVE_DMALLOC_H
 #include <dmalloc.h>
 #endif
@@ -32,7 +36,7 @@
 
 void *_smiMalloc(char *file, int line, size_t size)
 {
-    char *m = _calloc_leap(file, line, 1, size);
+    char *m = dmalloc_malloc(file, line, size, DMALLOC_FUNC_CALLOC, 0, 0);
     if (! m) {
 	smiPrintError(NULL, ERR_OUT_OF_MEMORY);
     }
@@ -41,7 +45,7 @@ void *_smiMalloc(char *file, int line, size_t size)
 
 void *_smiRealloc(char *file, int line, void *ptr, size_t size)
 {
-    char *m = _realloc_leap(file, line, ptr, size);
+    char *m = dmalloc_realloc(file, line, ptr, size, DMALLOC_FUNC_RECALLOC, 0);
     if (! m) {
 	smiPrintError(NULL, ERR_OUT_OF_MEMORY);
     }
@@ -51,7 +55,7 @@ void *_smiRealloc(char *file, int line, void *ptr, size_t size)
 char *_smiStrdup(char *file, int line, const char *s1)
 {
     if (s1) {
-	char *m = _strdup_leap(file, line, s1);
+	char *m = dmalloc_strdup(file, line, s1, 0);
 	if (! m) {
 	    smiPrintError(NULL, ERR_OUT_OF_MEMORY);
 	}
@@ -77,7 +81,7 @@ char *_smiStrndup(char *file, int line, const char *s1, size_t n)
 void _smiFree(char *file, int line, void *ptr)
 {
     if (ptr) {
-	_free_leap(file, line, ptr);
+	dmalloc_free(file, line, ptr, DMALLOC_FUNC_FREE);
     }
 }
 

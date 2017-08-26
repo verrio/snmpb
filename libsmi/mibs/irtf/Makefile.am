@@ -8,7 +8,7 @@
 # See the file "COPYING" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# @(#) $Id: Makefile.am 1607 2003-12-01 19:01:38Z strauss $
+# @(#) $Id: Makefile.am 1105 2003-12-01 19:01:38Z strauss $
 #
 
 irtfdir			= $(mibdir)/irtf

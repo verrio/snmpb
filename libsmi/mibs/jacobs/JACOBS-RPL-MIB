@@ -1,0 +1,1217 @@
+JACOBS-RPL-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, Unsigned32, Counter32, mib-2
+        FROM SNMPv2-SMI                                 -- RFC 2578
+    TEXTUAL-CONVENTION, TruthValue
+        FROM SNMPv2-TC                                  -- RFC 2579
+    OBJECT-GROUP, MODULE-COMPLIANCE
+        FROM SNMPv2-CONF                                -- RFC 2580
+
+
+
+    InterfaceIndex
+        FROM IF-MIB                                     -- RFC 2863
+    InetAddressIPv6
+        FROM INET-ADDRESS-MIB                           -- RFC 4001
+    cnds
+        FROM JACOBS-SMI;
+
+rplMib MODULE-IDENTITY
+    LAST-UPDATED "201210190000Z"
+    ORGANIZATION
+        "Jacobs University Bremen"
+    CONTACT-INFO
+        "Kevin Dominik Korte
+         Jacobs University Bremen
+         Email: k.korte@jacobs-university.de
+
+         Anuj Sehgal
+         Jacobs University Bremen
+         Email: s.anuj@jacobs-university.de
+
+         Juergen Schoenwaelder
+         Jacobs University Bremen
+         Email: j.schoenwaelder@jacobs-university.de
+
+         Tina Tsou
+         Huawei Technologies
+         Email: tina.tsou.zouting@huawei.com
+
+         Cathy Zhou
+         Huawei Technologies
+         Email: cathyzhou@huawei.com"
+    DESCRIPTION
+        "The MIB module for monitoring nodes implementing the IPv6
+         routing protocol for low power and lossy networks (RPL).
+
+         Copyright (c) 2012 IETF Trust and the persons identified as
+         authors of the code.  All rights reserved.
+
+         Redistribution and use in source and binary forms, with or
+         without modification, is permitted pursuant to, and subject
+         to the license terms contained in, the Simplified BSD
+         License set forth in Section 4.c of the IETF Trust's
+         Legal Provisions Relating to IETF Documents
+         (http://trustee.ietf.org/license-info)."
+
+    REVISION "201210190000Z"
+    DESCRIPTION
+        "Initial version, published as RFC 8888."
+    -- RFC Ed.: replace 8888 with actual RFC number & remove this note
+
+
+
+
+    ::= { cnds 2 }
+
+RplMessageType ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d"
+    STATUS      current
+    DESCRIPTION
+        "The type of an RPL control message as defined in Section
+         6 of RFC 6550."
+    REFERENCE
+        "RFC 6550: RPL: IPv6 Routing Protocol for LLNs"
+    SYNTAX      Unsigned32 (0..255)
+
+RplInstanceID ::=  TEXTUAL-CONVENTION
+    DISPLAY-HINT "d"
+    STATUS      current
+    DESCRIPTION
+        "A global or local RPLinstanceID as defined in Section 5.1. of
+         RFC 6550."
+    REFERENCE
+        "RFC 6550: RPL: IPv6 Routing Protocol for LLNs"
+    SYNTAX      Unsigned32 (0..255)
+
+RplDodagVersionNumber ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d"
+    STATUS      current
+    DESCRIPTION
+        "The version number of a DODAG as defined in Section 6.3 of
+         RFC 6550."
+    REFERENCE
+        "RFC 6550: RPL: IPv6 Routing Protocol for LLNs"
+    SYNTAX      Unsigned32 (0..255)
+
+RplRank ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d"
+    STATUS      current
+    DESCRIPTION
+        "The rank of a node within a DODAG as defined in Section 6.3
+         of RFC 6550."
+    REFERENCE
+        "RFC 6550: RPL: IPv6 Routing Protocol for LLNs"
+    SYNTAX      Unsigned32 (0..65535)
+
+RplObjectiveCodePoint ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d"
+    STATUS      current
+    DESCRIPTION
+        "The Objective Code Point of a DODAG as defined in
+         Section 6.7.6 of RFC 6550."
+
+
+
+    REFERENCE
+        "RFC 6550: RPL: IPv6 Routing Protocol for LLNs"
+    SYNTAX      Unsigned32 (0..65535)
+
+RplDISMode ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "Determines whether a DIS message is send upon boot-up
+         or not as defined in Section 18.2.1.1 of RFC 6550:
+
+         silent(1)  do not send DIS messages
+         send(2)    send DIS messages"
+    REFERENCE
+        "RFC 6550: RPL: IPv6 Routing Protocol for LLNs"
+    SYNTAX      INTEGER {
+                    silent(1),
+                    send(2)
+                }
+
+RplModeOfOperation ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "Determines the mode of operation."
+    REFERENCE
+        "RFC 6550: RPL: IPv6 Routing Protocol for LLNs"
+    SYNTAX      INTEGER {
+                    noDownwardRoutes(0),
+                    nonStoringMode(1),
+                    storingWithoutMulticastSupport(2),
+                    storingWithMulticastSupport(3)
+                }
+
+RplDAODelay ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d"
+    STATUS      current
+    DESCRIPTION
+        "The delay time used for aggregation before a DAO message
+         is send."
+    REFERENCE
+        "RFC 6550: RPL: IPv6 Routing Protocol for LLNs"
+    SYNTAX      Unsigned32
+
+RplDodagPreference ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d"
+    STATUS      current
+    DESCRIPTION
+        "The preference of a DODAG compared to another DODAG of the
+         same instance as defined in Section 6.3 of RFC 6550."
+
+
+
+    REFERENCE
+        "RFC 6550: RPL: IPv6 Routing Protocol for LLNs"
+    SYNTAX      Unsigned32 (0..7)
+
+RplMinHopRankIncrease ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d"
+    STATUS      current
+    DESCRIPTION
+        "The minimal incerease of a rank within a single hop as
+         defined in Section 6.7.6 of RFC 6550."
+    REFERENCE
+        "RFC 6550: RPL: IPv6 Routing Protocol for LLNs"
+    SYNTAX      Unsigned32 (0..131071)
+
+RplPathControlSize ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d"
+    STATUS      current
+    DESCRIPTION
+        "The Path Control Size within a DODAG as defined in
+         Section 6.7.6 of RFC 6550."
+    REFERENCE
+        "RFC 6550: RPL: IPv6 Routing Protocol for LLNs"
+    SYNTAX      Unsigned32 (0..7)
+
+-- object definitions
+
+rplNotifications OBJECT IDENTIFIER ::= { rplMib 0 }
+rplObjects       OBJECT IDENTIFIER ::= { rplMib 1 }
+rplConformance   OBJECT IDENTIFIER ::= { rplMib 2 }
+
+rplDefaults OBJECT IDENTIFIER ::= { rplObjects 1 }
+
+rplDefaultDISMode OBJECT-TYPE
+    SYNTAX      RplDISMode
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Determines whether a DIS message is send upon boot-up.
+         Changes to this value may not persist across restarts."
+    ::= { rplDefaults 1 }
+
+rplDefaultDISMessages OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..255)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The number of DIS messages that are sent as an initial
+         probe for nearby DODAGs if the DIS mode is 'send'. The
+
+
+
+         value of this object is ignored if the DIS mode is
+         'silent'. Changes to this value may not persist across
+         restarts."
+    DEFVAL      { 1 }
+    ::= { rplDefaults 2 }
+
+rplDefaultDISTimeout OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..255)
+    UNITS       "seconds"
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The number of seconds after which a node in DIS mode 'send'
+         in the absence of DIO messages may decide to root a
+         floating DODAG. Changes to this value may not persist
+         across restarts."
+    DEFVAL      { 60 }
+    ::= { rplDefaults 3 }
+
+rplDefaultDAODelay OBJECT-TYPE
+    SYNTAX      RplDAODelay
+    UNITS       "milliseconds"
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The default delay for aggregations before a DAO is send.
+         Changes to this value may not persist across restarts."
+    DEFVAL      { 1000 }
+    ::= { rplDefaults 4 }
+
+rplDefaultDAOAckEnabled OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Indicates whether DAO Acknowledgements are sent on this
+         RPL instance. Changes to this value may not persist
+         across restarts."
+    DEFVAL      { false }
+    ::= { rplDefaults 5 }
+
+rplDefaultPreference OBJECT-TYPE
+    SYNTAX      RplDodagPreference
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The default preference of this DODAG compared to other
+         DODAGs within the same instance. Changes to this value
+
+
+
+         may not persist across restarts."
+    DEFVAL      { 0 }
+    ::= { rplDefaults 6 }
+
+rplDefaultMinHopRankIncrease OBJECT-TYPE
+    SYNTAX      RplMinHopRankIncrease
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The default minimum increase of the rank in a single hop.
+         Changes to this value may not persist across restarts."
+    DEFVAL      { 256 }
+    ::= { rplDefaults 7 }
+
+rplDefaultMaxRankIncrease OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..65535)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+         "The default maximum allowable increase in rank in support
+          of local repair.  If DAGMaxRankIncrease is 0 then this
+          mechanism is disabled. Changes to this value may not
+          persist across restarts."
+    DEFVAL      { 65535 }
+    ::= { rplDefaults 8 }
+
+rplDefaultModeOfOperation OBJECT-TYPE
+    SYNTAX      RplModeOfOperation
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The mode of operation of the RPL instance. Changes to this
+         value may not persist across restarts."
+    DEFVAL      { storingWithoutMulticastSupport }
+    ::= { rplDefaults 9 }
+
+rplDefaultIntervalDoublings OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..255)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The default Imax parameter of the DIO trickle timer. Changes
+         to this value may not persist across restarts."
+    REFERENCE
+        "RFC 6206: The Trickle Algorithm"
+    DEFVAL      { 20 }
+    ::= { rplDefaults 10 }
+
+
+
+
+rplDefaultIntervalMin OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..255)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The default Imin parameter of the DIO trickle timer. Changes
+         to this value may not persist across restarts."
+    REFERENCE
+        "RFC 6206: The Trickle Algorithm"
+    DEFVAL      { 3 }
+    ::= { rplDefaults 11 }
+
+rplDefaultRedundancyConstant OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..255)
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The default k parameter of the DIO trickle timer. Changes to
+         this value may not persist across restarts."
+    REFERENCE
+        "RFC 6206: The Trickle Algorithm"
+    DEFVAL      { 10 }
+    ::= { rplDefaults 12 }
+
+rplActive OBJECT IDENTIFIER ::= { rplObjects 2 }
+
+rplActiveInstance OBJECT-TYPE
+    SYNTAX       RplInstanceID
+    MAX-ACCESS   read-write
+    STATUS       current
+    DESCRIPTION
+        "The currently active RPL Instance. Changes to this value
+         may not persist across restarts."
+    ::= { rplActive 1 }
+
+rplActiveDodag OBJECT-TYPE
+    SYNTAX      InetAddressIPv6
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The currently active RPL DODAG in the active RPL Instance.
+         Changes to this value may not persist across restarts."
+    ::= { rplActive 2 }
+
+rplActiveDodagTriggerSequence OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..255)
+    MAX-ACCESS  read-write
+    STATUS      current
+
+
+
+    DESCRIPTION
+        "The DAO Trigger Sequence Number (DTSN) of the active
+         DODAG as defined in Section 6.3.1 of RFC 6550. Changes to
+         this value may not persist across restarts."
+    REFERENCE
+        "RFC 6550: RPL: IPv6 Routing Protocol for LLNs"
+    ::= { rplActive 3 }
+
+rplOCPTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF RplOCPEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "The table of all supported Objective Code Points (OCPs)."
+    ::= { rplObjects 3 }
+
+rplOCPEntry OBJECT-TYPE
+    SYNTAX      RplOCPEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "An entry representing a supported Objective Code Point."
+    INDEX { rplOCPCodepoint }
+    ::= { rplOCPTable 1 }
+
+RplOCPEntry ::= SEQUENCE {
+    rplOCPCodepoint  RplObjectiveCodePoint,
+    rplOCPEnabled    TruthValue
+}
+
+rplOCPCodepoint OBJECT-TYPE
+    SYNTAX      RplObjectiveCodePoint
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "A supported Objective Code Point."
+    ::= { rplOCPEntry 1 }
+
+rplOCPEnabled OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Enables the usage of this Objective Code Point. Changes to
+         this value may not persist across restarts."
+    ::= { rplOCPEntry 2 }
+
+rplInstanceTable OBJECT-TYPE
+
+
+
+    SYNTAX      SEQUENCE OF RplInstanceEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "The table represents information about all known
+         RPL Instances."
+    ::= { rplObjects 4 }
+
+rplInstanceEntry OBJECT-TYPE
+    SYNTAX      RplInstanceEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "An entry representing information about a RPL Instance."
+    INDEX { rplInstanceID }
+    ::= { rplInstanceTable 1 }
+
+RplInstanceEntry ::= SEQUENCE {
+    rplInstanceID               RplInstanceID,
+    rplInstanceDISMode          RplDISMode,
+    rplInstanceDISMessages      Unsigned32,
+    rplInstanceDISTimeout       Unsigned32,
+    rplInstanceModeOfOperation  RplModeOfOperation
+}
+
+rplInstanceID OBJECT-TYPE
+    SYNTAX      RplInstanceID
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "The InstanceID of this RPL Instance."
+    ::= { rplInstanceEntry 1 }
+
+rplInstanceDISMode OBJECT-TYPE
+    SYNTAX      RplDISMode
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Reports whether a DIS message is send for this instance
+         upon boot-up."
+    ::= { rplInstanceEntry 2 }
+
+rplInstanceDISMessages OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..255)
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The number of DIS messages that are sent as an initial
+
+
+
+         probe for nearby DODAGs if the DIS mode is 'send'."
+    ::= { rplInstanceEntry 3 }
+
+rplInstanceDISTimeout OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..255)
+    UNITS       "seconds"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The number of seconds after which a node in DIS mode 'send'
+         in the absence of DIO messages may decide to root a
+         floating DODAG."
+    ::= { rplInstanceEntry 4 }
+
+rplInstanceModeOfOperation OBJECT-TYPE
+    SYNTAX      RplModeOfOperation
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The mode of operation of the RPL instance."
+    ::= { rplInstanceEntry 5 }
+
+rplDodagTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF RplDodagEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "The table represents information about all locally known
+         DODAGs."
+    ::= { rplObjects 5 }
+
+rplDodagEntry OBJECT-TYPE
+    SYNTAX      RplDodagEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "An entry representing information about a DODAG."
+    INDEX { rplInstanceID, rplDodagIndex }
+    ::= { rplDodagTable 1 }
+
+RplDodagEntry ::= SEQUENCE {
+    rplDodagIndex               Unsigned32,
+    rplDodagID                  InetAddressIPv6,
+    rplDodagVersion             RplDodagVersionNumber,
+    rplDodagRank                RplRank,
+    rplDodagState               INTEGER,
+    rplDodagOCP                 RplObjectiveCodePoint,
+    rplDodagDAODelay            RplDAODelay,
+
+
+
+    rplDodagDAOAckEnabled       TruthValue,
+    rplDodagPreference          RplDodagPreference,
+    rplDodagMinHopRankIncrease  RplMinHopRankIncrease,
+    rplDodagMaxRankIncrease     Unsigned32,
+    rplDodagIntervalDoublings   Unsigned32,
+    rplDodagIntervalMin         Unsigned32,
+    rplDodagRedundancyConstant  Unsigned32,
+    rplDodagPathControlSize     RplPathControlSize
+}
+
+rplDodagIndex OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..4294967295)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "The index identifying a DODAG within an RPL instance. This
+         index is used to keep the table indexes short. The RPL protocol
+         identifies a DODAG within an RPL instance by the DODAGID."
+    ::= { rplDodagEntry 1 }
+
+rplDodagID OBJECT-TYPE
+    SYNTAX      InetAddressIPv6
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The identifier of a DODAG root (DODAGID) of this RPL
+         instance. The root of the DODAG reports its own IPv6
+         address as the DODAG root. This is uniquely identifying
+         a DODAG within an RPL instance."
+    ::= { rplDodagEntry 2 }
+
+rplDodagVersion OBJECT-TYPE
+    SYNTAX      RplDodagVersionNumber
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The version of the DODAG in this RPL instance."
+    ::= { rplDodagEntry 3 }
+
+rplDodagRank OBJECT-TYPE
+    SYNTAX      RplRank
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The rank of the node within the DODAG."
+    ::= { rplDodagEntry 4 }
+
+rplDodagState OBJECT-TYPE
+
+
+
+    SYNTAX      INTEGER {
+                    other(0),
+                    grounded(1),
+                    floating(2)
+                }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The status of the DODAG:
+
+         other(0)      An unknown state.
+
+         grounded(1)   The DODAG is grounded.
+
+         floating(2)   The DODAG is floating (not grounded)."
+    ::= { rplDodagEntry 5 }
+
+rplDodagOCP OBJECT-TYPE
+    SYNTAX      RplObjectiveCodePoint
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The Objective Code Point of this DODAG."
+    ::= { rplDodagEntry 6 }
+
+rplDodagDAODelay OBJECT-TYPE
+    SYNTAX      RplDAODelay
+    UNITS       "milliseconds"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The delay for aggregations before a DAO is send."
+    ::= { rplDodagEntry 7 }
+
+rplDodagDAOAckEnabled OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Indicates whether DAO Acknowledgements are sent on this
+         DODAG."
+    ::= { rplDodagEntry 8 }
+
+rplDodagPreference OBJECT-TYPE
+    SYNTAX      RplDodagPreference
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+
+
+
+        "How preferred this DODAG is compared to other DODAGs
+         within the same instance."
+    ::= { rplDodagEntry 9 }
+
+rplDodagMinHopRankIncrease OBJECT-TYPE
+    SYNTAX      RplMinHopRankIncrease
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The minimum increase of the rank in a single hop."
+    ::= { rplDodagEntry 10 }
+
+rplDodagMaxRankIncrease OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..65535)
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+         "The maximum allowable increase in rank in support of local
+          repair.  If DAGMaxRankIncrease is 0 then this mechanism is
+          disabled."
+    ::= { rplDodagEntry 11 }
+
+rplDodagIntervalDoublings OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..255)
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The Imax parameter of the DIO trickle timer."
+    REFERENCE
+        "RFC 6206: The Trickle Algorithm"
+    ::= { rplDodagEntry 12 }
+
+rplDodagIntervalMin OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..255)
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The Imin parameter of the DIO trickle timer."
+    REFERENCE
+        "RFC 6206: The Trickle Algorithm"
+    ::= { rplDodagEntry 13 }
+
+rplDodagRedundancyConstant OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..255)
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The k parameter of the DIO trickle timer."
+
+
+
+    REFERENCE
+        "RFC 6206: The Trickle Algorithm"
+    ::= { rplDodagEntry 14 }
+
+rplDodagPathControlSize OBJECT-TYPE
+    SYNTAX      RplPathControlSize
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The Path Control Size of this DODAG."
+    ::= { rplDodagEntry 15 }
+
+rplDodagParentTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF RplDodagParentEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "The list of parents for a DODAG."
+    ::= { rplObjects 6 }
+
+rplDodagParentEntry OBJECT-TYPE
+    SYNTAX      RplDodagParentEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Information about a known DODAG parent."
+    INDEX { rplInstanceID, rplDodagIndex, rplDodagParentID }
+    ::= { rplDodagParentTable 1 }
+
+RplDodagParentEntry ::= SEQUENCE {
+    rplDodagParentID     InetAddressIPv6,
+    rplDodagParentIf     InterfaceIndex
+}
+
+rplDodagParentID OBJECT-TYPE
+    SYNTAX      InetAddressIPv6
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "An RPL parent associated with this DODAG."
+    ::= { rplDodagParentEntry 1 }
+
+rplDodagParentIf OBJECT-TYPE
+    SYNTAX      InterfaceIndex
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The interface over which the parent can be reached."
+
+
+
+    ::= { rplDodagParentEntry 2 }
+
+rplDodagChildTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF RplDodagChildEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "The list of children for a DODAG."
+    ::= { rplObjects 7 }
+
+rplDodagChildEntry OBJECT-TYPE
+    SYNTAX      RplDodagChildEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Information about a known DODAG child."
+    INDEX { rplInstanceID, rplDodagIndex, rplDodagChildID }
+    ::= { rplDodagChildTable 1 }
+
+RplDodagChildEntry ::= SEQUENCE {
+    rplDodagChildID     InetAddressIPv6,
+    rplDodagChildIf     InterfaceIndex
+}
+
+rplDodagChildID OBJECT-TYPE
+    SYNTAX      InetAddressIPv6
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "An RPL child associated with this DODAG."
+    ::= { rplDodagChildEntry 1 }
+
+rplDodagChildIf OBJECT-TYPE
+    SYNTAX      InterfaceIndex
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The interface over which the child can be reached."
+    ::= { rplDodagChildEntry 2 }
+
+rplStats OBJECT IDENTIFIER ::= { rplObjects 8 }
+
+rplMemOverflows OBJECT-TYPE
+    SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The number of memory allocation failures (e.g., routing table
+
+
+
+         overflows)."
+    ::= { rplStats 1 }
+
+rplParseErrors OBJECT-TYPE
+    SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The number of received malformed messages."
+    ::= { rplStats 2 }
+
+rplUnknownMsgTypes OBJECT-TYPE
+    SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The number of received RPL messages that we dropped because
+         the message type is not recognized by the implementation."
+    ::= { rplStats 3 }
+
+rplSecurityPolicyViolations OBJECT-TYPE
+    SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The number of messages discarded because the described level
+         of security for the message type and originator is unknown or
+         does not meet locally maintained security policies as defined
+         in Section 10.7. of RFC 6550."
+    REFERENCE
+        "RFC 6550: RPL: IPv6 Routing Protocol for LLNs"
+    ::= { rplStats 4 }
+
+rplIntegrityCheckFailures OBJECT-TYPE
+    SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The number of messages discarded because the integrity
+         check failed against the received message authentication
+         code (MAC) as defined in Section 10.7. of RFC 6550."
+    REFERENCE
+        "RFC 6550: RPL: IPv6 Routing Protocol for LLNs"
+    ::= { rplStats 5 }
+
+rplReplayProtectionFailures OBJECT-TYPE
+    SYNTAX      Counter32
+    MAX-ACCESS  read-only
+
+
+
+    STATUS      current
+    DESCRIPTION
+        "The number of messages discarded because the received
+         message Counter value is non-zero and less than the
+         maintained incoming Counter watermark or because the
+         received Timestamp Counter value indicates a message
+         transmission time that is earlier than the Current time
+         less the acceptable packet delay as defined in Section
+         10.7. of RFC 6550. This counter is also incremented if the
+         temporal consistency check of the message fails as defined
+         in Section 10.7.1."
+    REFERENCE
+        "RFC 6550: RPL: IPv6 Routing Protocol for LLNs"
+    ::= { rplStats 6 }
+
+rplValidParentFailures OBJECT-TYPE
+    SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The number of times a packet could not be sent to a DODAG
+         parent flagged as valid."
+    ::= { rplStats 7 }
+
+rplNoInstanceIDs OBJECT-TYPE
+    SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The number of times a packet could not be sent because of
+         a missing RPLInstanceID."
+    ::= { rplStats 8 }
+
+rplTriggeredLocalRepairs OBJECT-TYPE
+    SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The number of times a local repair procedure was triggered."
+    ::= { rplStats 9 }
+
+rplTriggeredGlobalRepairs OBJECT-TYPE
+    SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The number of times a global repair procedure was triggered."
+    ::= { rplStats 10 }
+
+
+
+rplNoParentSecs OBJECT-TYPE
+    SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The number of seconds without a next hop (DODAG parent)."
+    ::= { rplStats 11 }
+
+rplActiveNoParentSecs OBJECT-TYPE
+    SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The number of seconds with packets to forward without a
+         next hop (DODAG parent)."
+    ::= { rplStats 12 }
+
+rplOBitSetDownwards OBJECT-TYPE
+    SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Number of packets received with the 'O' bit set from
+         a node with a higher rank as defined in Section 18.3.2
+         of RFC 6550."
+    REFERENCE
+        "RFC 6550: RPL: IPv6 Routing Protocol for LLNs"
+    ::= { rplStats 13 }
+
+rplOBitClearedUpwards OBJECT-TYPE
+    SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Number of packets received with the 'O' bit cleared
+         from a node with a lower rank as defined in Section 18.3.2
+         of RFC 6550."
+    REFERENCE
+        "RFC 6550: RPL: IPv6 Routing Protocol for LLNs"
+    ::= { rplStats 14 }
+
+rplFBitSet OBJECT-TYPE
+    SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Number of packets received with the 'F' bit set as
+         defined in Section 18.3.2 of RFC 6550."
+
+
+
+    REFERENCE
+        "RFC 6550: RPL: IPv6 Routing Protocol for LLNs"
+    ::= { rplStats 15 }
+
+rplRBitSet OBJECT-TYPE
+    SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Number of packets received with the 'R' bit set as
+         defined in Section 18.3.2 of RFC 6550."
+    REFERENCE
+        "RFC 6550: RPL: IPv6 Routing Protocol for LLNs"
+    ::= { rplStats 16 }
+
+rplTrickleTimerResets OBJECT-TYPE
+    SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The number of trickle timer resets."
+    ::= { rplStats 17 }
+
+rplMsgStatsTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF RplMsgStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Basic RPL message statistics by message type."
+    ::= { rplObjects 9 }
+
+rplMsgStatsEntry OBJECT-TYPE
+    SYNTAX      RplMsgStatsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Statistics for a specific RPL message type."
+    INDEX { rplMsgStatsType }
+    ::= { rplMsgStatsTable 1 }
+
+RplMsgStatsEntry ::= SEQUENCE {
+    rplMsgStatsType    RplMessageType,
+    rplMsgStatsInMsgs  Counter32,
+    rplMsgStatsOutMsgs Counter32
+}
+
+rplMsgStatsType OBJECT-TYPE
+    SYNTAX      RplMessageType
+
+
+
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "The RPL message type being counted by this row."
+    ::= { rplMsgStatsEntry 1 }
+
+rplMsgStatsInMsgs OBJECT-TYPE
+    SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The number of RPL messages received of this type."
+    ::= { rplMsgStatsEntry 2 }
+
+rplMsgStatsOutMsgs OBJECT-TYPE
+    SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The number of RPL messages sent of this type."
+    ::= { rplMsgStatsEntry 3 }
+
+-- conformance definitions
+
+rplGroups      OBJECT IDENTIFIER ::= { rplConformance 1 }
+rplCompliances OBJECT IDENTIFIER ::= { rplConformance 2 }
+
+rplFullCompliance MODULE-COMPLIANCE
+    STATUS      current
+    DESCRIPTION
+        "Compliance statement for implementations supporting
+         read/write access, according to the object definitions."
+    MODULE      -- this module
+    MANDATORY-GROUPS {
+        rplGeneralGroup,
+        rplInstanceGroup,
+        rplStatsGroup
+    }
+    ::= { rplCompliances 1 }
+
+rplReadOnlyCompliance MODULE-COMPLIANCE
+    STATUS      current
+    DESCRIPTION
+        "Compliance statement for implementations supporting
+         only readonly access."
+    MODULE      -- this module
+    MANDATORY-GROUPS {
+        rplGeneralGroup,
+
+
+
+        rplInstanceGroup,
+        rplStatsGroup
+    }
+
+    OBJECT rplDefaultDISMode
+    MIN-ACCESS  read-only
+    DESCRIPTION
+        "Write access is not required."
+
+    OBJECT rplDefaultDISMessages
+    MIN-ACCESS  read-only
+    DESCRIPTION
+        "Write access is not required."
+
+    OBJECT rplDefaultDISTimeout
+    MIN-ACCESS  read-only
+    DESCRIPTION
+        "Write access is not required."
+
+    OBJECT rplDefaultDAODelay
+    MIN-ACCESS  read-only
+    DESCRIPTION
+        "Write access is not required."
+
+    OBJECT rplDefaultDAOAckEnabled
+    MIN-ACCESS  read-only
+    DESCRIPTION
+        "Write access is not required."
+
+    OBJECT rplDefaultPreference
+    MIN-ACCESS  read-only
+    DESCRIPTION
+        "Write access is not required."
+
+    OBJECT rplDefaultMinHopRankIncrease
+    MIN-ACCESS  read-only
+    DESCRIPTION
+        "Write access is not required."
+
+    OBJECT rplDefaultMaxRankIncrease
+    MIN-ACCESS  read-only
+    DESCRIPTION
+        "Write access is not required."
+
+    OBJECT rplDefaultModeOfOperation
+    MIN-ACCESS  read-only
+    DESCRIPTION
+        "Write access is not required."
+
+
+
+    OBJECT rplDefaultIntervalDoublings
+    MIN-ACCESS  read-only
+    DESCRIPTION
+        "Write access is not required."
+
+    OBJECT rplDefaultIntervalMin
+    MIN-ACCESS  read-only
+    DESCRIPTION
+        "Write access is not required."
+
+    OBJECT rplDefaultRedundancyConstant
+    MIN-ACCESS  read-only
+    DESCRIPTION
+        "Write access is not required."
+
+    OBJECT rplActiveInstance
+    MIN-ACCESS  read-only
+    DESCRIPTION
+        "Write access is not required."
+
+    OBJECT rplActiveDodag
+    MIN-ACCESS  read-only
+    DESCRIPTION
+        "Write access is not required."
+
+    OBJECT rplActiveDodagTriggerSequence
+    MIN-ACCESS  read-only
+    DESCRIPTION
+        "Write access is not required."
+
+    OBJECT rplOCPEnabled
+    MIN-ACCESS  read-only
+    DESCRIPTION
+        "Write access is not required."
+
+    ::= { rplCompliances 2 }
+
+rplGeneralGroup OBJECT-GROUP
+    OBJECTS {
+        rplDefaultDISMode,
+        rplDefaultDISMessages,
+        rplDefaultDISTimeout,
+        rplDefaultDAODelay,
+        rplDefaultDAOAckEnabled,
+        rplDefaultPreference,
+        rplDefaultMinHopRankIncrease,
+        rplDefaultMaxRankIncrease,
+        rplDefaultModeOfOperation,
+
+
+
+        rplDefaultIntervalDoublings,
+        rplDefaultIntervalMin,
+        rplDefaultRedundancyConstant,
+        rplActiveInstance,
+        rplActiveDodag,
+        rplActiveDodagTriggerSequence,
+        -- rplOCPCodepoint,
+        rplOCPEnabled
+    }
+    STATUS      current
+    DESCRIPTION
+        "A collection of objects providing general information about
+         the RPL implementation."
+    ::= { rplGroups 1 }
+
+rplInstanceGroup OBJECT-GROUP
+    OBJECTS {
+        -- rplInstanceID,
+        rplInstanceDISMode,
+        rplInstanceDISMessages,
+        rplInstanceDISTimeout,
+        rplInstanceModeOfOperation,
+        -- rplDodagIndex,
+        rplDodagID,
+        rplDodagVersion,
+        rplDodagRank,
+        rplDodagState,
+        rplDodagOCP,
+        rplDodagDAODelay,
+        rplDodagDAOAckEnabled,
+        rplDodagPreference,
+        rplDodagMinHopRankIncrease,
+        rplDodagMaxRankIncrease,
+        rplDodagIntervalDoublings,
+        rplDodagIntervalMin,
+        rplDodagRedundancyConstant,
+        rplDodagPathControlSize,
+        -- rplDodagParentID,
+        rplDodagParentIf,
+        -- rplDodagChildID,
+        rplDodagChildIf
+    }
+    STATUS      current
+    DESCRIPTION
+        "A collection of objects providing insight into RPL
+         Instances and RPL DODAGs."
+    ::= { rplGroups 2 }
+
+
+
+
+rplStatsGroup OBJECT-GROUP
+    OBJECTS {
+        rplMemOverflows,
+        rplParseErrors,
+        rplUnknownMsgTypes,
+        rplSecurityPolicyViolations,
+        rplIntegrityCheckFailures,
+        rplReplayProtectionFailures,
+        rplValidParentFailures,
+        rplNoInstanceIDs,
+        rplTriggeredLocalRepairs,
+        rplTriggeredGlobalRepairs,
+        rplNoParentSecs,
+        rplActiveNoParentSecs,
+        rplOBitSetDownwards,
+        rplOBitClearedUpwards,
+        rplFBitSet,
+        rplRBitSet,
+        rplTrickleTimerResets,
+        -- rplMsgStatsType,
+        rplMsgStatsInMsgs,
+        rplMsgStatsOutMsgs
+    }
+    STATUS      current
+    DESCRIPTION
+        "A collection of objects providing statistics about the
+         RPL implementation."
+    ::= { rplGroups 3 }
+
+END

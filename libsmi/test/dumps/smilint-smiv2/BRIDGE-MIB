@@ -1,0 +1,9 @@
+../dumps/smiv2/BRIDGE-MIB:175: warning: named number `transparent-only' must not include a hyphen in SMIv2
+../dumps/smiv2/BRIDGE-MIB:176: warning: named number `sourceroute-only' must not include a hyphen in SMIv2
+../dumps/smiv2/BRIDGE-MIB:196: warning: index element `dot1dBasePort' of row `dot1dBasePortEntry' should be not-accessible in SMIv2 MIB
+../dumps/smiv2/BRIDGE-MIB:504: warning: index element `dot1dStpPort' of row `dot1dStpPortEntry' should be not-accessible in SMIv2 MIB
+../dumps/smiv2/BRIDGE-MIB:733: warning: index element `dot1dTpFdbAddress' of row `dot1dTpFdbEntry' should be not-accessible in SMIv2 MIB
+../dumps/smiv2/BRIDGE-MIB:820: warning: index element `dot1dTpPort' of row `dot1dTpPortEntry' should be not-accessible in SMIv2 MIB
+../dumps/smiv2/BRIDGE-MIB:927: warning: index element `dot1dStaticAddress' of row `dot1dStaticEntry' should be not-accessible in SMIv2 MIB
+../dumps/smiv2/BRIDGE-MIB:927: warning: index element `dot1dStaticReceivePort' of row `dot1dStaticEntry' should be not-accessible in SMIv2 MIB
+../dumps/smiv2/BRIDGE-MIB:78: warning: type `BridgeId' has no format specification

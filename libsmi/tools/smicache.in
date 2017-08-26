@@ -9,7 +9,7 @@
 # See the file "COPYING" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# $Id: smicache.in 8090 2008-04-18 12:56:29Z strauss $
+# $Id: smicache.in 1614 2008-04-18 12:56:29Z strauss $
 #
 # NOTE, that this script relies on wget and getopts
 # (shell builtin like in bash or standalone).

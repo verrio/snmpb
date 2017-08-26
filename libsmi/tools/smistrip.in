@@ -9,7 +9,7 @@
 # See the file "COPYING" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# $Id: smistrip.in 3434 2006-04-07 07:02:51Z strauss $
+# $Id: smistrip.in 1452 2006-04-07 07:02:51Z strauss $
 #
 # NOTE, that this script relies on awk (tested with GNU awk) and getopts
 # (shell builtin like in bash or standalone).

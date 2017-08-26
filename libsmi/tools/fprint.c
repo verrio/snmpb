@@ -10,7 +10,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: fprint.c 8024 2008-04-11 13:25:26Z schoenw $
+ * @(#) $Id: fprint.c 1601 2008-04-11 13:25:26Z schoenw $
  */
 
 

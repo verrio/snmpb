@@ -8,18 +8,19 @@
 # See the file "COPYING" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# @(#) $Id: Makefile.am 1670 2004-08-09 14:06:04Z strauss $
+# @(#) $Id: Makefile.am 1820 2014-10-13 15:06:41Z schoenw $
 #
 
 AUTOMAKE_OPTIONS	= no-dependencies foreign
 
 EXTRA_DIST		= ANNOUNCE \
-			  win/Makefile.mingw win/README.mingw win/README.win \
-			  win/config.h win/config.h.in \
-			  win/makefile win/GNUmakefile win/win.c win/win.h \
+			  win/README.win win/config.h win/config.h.in \
+			  win/GNUmakefile win/win.c win/win.h \
+			  win/makefile win/config.nmake win/smi.def \
+			  win/Makefile.mingw win/README.mingw \
 			  smi.conf-example libsmi.m4 libsmi.pc
 
-SUBDIRS			= lib tools mibs pibs test doc
+SUBDIRS			= lib
 
 m4datadir		= $(datadir)/aclocal
 m4data_DATA		= libsmi.m4
@@ -30,3 +31,7 @@ $(pkgconfig_DATA):	config.status
 
 anoncvs:
 	RSYNC_RSH=ssh rsync -rlt --delete $(HOME)/.cvs-repository/libsmi anoncvs@anoncvs:/var/lib/cvs
+
+ChangeLog:
+#	svn2cl --ignore-message-starting='***' -o $@
+	svn2cl -i -a -o $@

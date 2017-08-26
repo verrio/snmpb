@@ -1,10 +1,13 @@
-/* config.h.in.  Generated from configure.in by autoheader.  */
+/* config.h.in.  Generated from configure.ac by autoheader.  */
 
 /* "" */
 #undef BACKEND_SMI
 
 /* "" */
 #undef BACKEND_SMING
+
+/* "" */
+#undef BACKEND_YANG
 
 /* The default error level at libsmi initialization. */
 #undef DEFAULT_ERRORLEVEL
@@ -108,6 +111,9 @@
 /* The unsigned 64 bit integer maximum value. */
 #undef LIBSMI_UINT64_MAX
 
+/* Define to the sub-directory where libtool stores uninstalled libraries. */
+#undef LT_OBJDIR
+
 /* The maximum module import recursion depth. */
 #undef MAX_LEX_DEPTH
 
@@ -125,6 +131,9 @@
 
 /* Define to the one symbol short name of this package. */
 #undef PACKAGE_TARNAME
+
+/* Define to the home page for this package. */
+#undef PACKAGE_URL
 
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION

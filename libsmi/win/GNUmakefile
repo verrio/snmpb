@@ -10,7 +10,7 @@
 # See the file "COPYING" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# @(#) $Id: GNUmakefile 2409 2005-05-30 13:14:21Z strauss $
+# @(#) $Id: GNUmakefile 1657 2009-12-28 19:43:45Z schoenw $
 
 ##
 ## Project directories -- these may need to be customized for your site
@@ -30,12 +30,14 @@ TOOLS32	= C:\PROGRA~1\MICROS~2\VC98
 ## MIBDIR   -- same in windows style
 ## BINDIR   -- destination for the binaries (smidump.exe, ...)
 ## LIBDIR   -- destination for the library (smi.lib)
+## INCDIR   -- destination for the header (smi.h)
 ##
 MIBROOT = c:/smi/mibs
 INSTROOT = c:\smi
 MIBDIR = $(INSTROOT)\mibs
 BINDIR = $(INSTROOT)\bin
 LIBDIR = $(INSTROOT)\lib
+INCDIR = $(INSTROOT)\include
 
 ##
 ## This include is for smidump_SOURCES definition.
@@ -92,43 +94,45 @@ smilint.exe:	$(SMILINTOBJS) smi.lib
 smidump.exe:	$(SMIDUMPOBJS) smi.lib
 
 clean:
-	del *.lib
-	del *.obj
-	del *.exe
-	del *.ilk
-	del *.pdb
-	del *.mdp
+	$(RM) *.lib
+	$(RM) *.obj
+	$(RM) *.exe
+	$(RM) *.ilk
+	$(RM) *.pdb
+	$(RM) *.mdp
 
 install:	all install-doc install-bin install-lib install-mibs
 
 install-doc:
-	$(MKDIR) $(INSTROOT)
+	-$(MKDIR) $(INSTROOT)
 	$(CP) ..\README $(INSTROOT)
 	$(CP) ..\COPYING $(INSTROOT)
 	$(CP) README.win $(INSTROOT)
-	$(MKDIR) $(INSTROOT)\doc
+	-$(MKDIR) $(INSTROOT)\doc
 	$(CP) ..\doc\*.txt $(INSTROOT)\doc
 	$(CP) ..\doc\*.ps $(INSTROOT)\doc
 
 install-bin:
-	$(MKDIR) $(BINDIR)
+	-$(MKDIR) $(BINDIR)
 	$(CP) *.exe $(BINDIR)
 
 install-lib:
-	$(MKDIR) $(LIBDIR)
+ 	-$(MKDIR) $(INCDIR)
+	$(CP) ..\lib\smi.h $(INCDIR)
+	-$(MKDIR) $(LIBDIR)
 	$(CP) *.lib $(LIBDIR)
 
 install-mibs:
-	$(MKDIR) $(MIBDIR)
-	$(MKDIR) $(MIBDIR)\iana
+	-$(MKDIR) $(MIBDIR)
+	-$(MKDIR) $(MIBDIR)\iana
 	$(CP) ..\mibs\iana\*.* $(MIBDIR)\iana
-	$(MKDIR) $(MIBDIR)\ietf
+	-$(MKDIR) $(MIBDIR)\ietf
 	$(CP) ..\mibs\ietf\*.* $(MIBDIR)\ietf
-	$(MKDIR) $(MIBDIR)\irtf
+	-$(MKDIR) $(MIBDIR)\irtf
 	$(CP) ..\mibs\irtf\*.* $(MIBDIR)\irtf
-	$(MKDIR) $(MIBDIR)\tubs
+	-$(MKDIR) $(MIBDIR)\tubs
 	$(CP) ..\mibs\tubs\*.* $(MIBDIR)\tubs
-	$(MKDIR) $(MIBDIR)\site
+	-$(MKDIR) $(MIBDIR)\site
 
 ##
 ## Generic rules

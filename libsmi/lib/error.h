@@ -8,13 +8,13 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: error.h 1151 2001-08-22 17:51:42Z strauss $
+ * @(#) $Id: error.h 1812 2014-10-11 16:08:24Z schoenw $
  */
 
 #ifndef _ERROR_H
 #define _ERROR_H
 
-#include "data.h"
+#include "smi-data.h"
 #include "errormacros.h" /* list of error macros generated from error.c */
 
 
@@ -22,8 +22,8 @@
 #ifdef yyerror
 #undef yyerror
 #endif
+#define yyerror(parserPtr, msg)	smiyyerror(msg, parserPtr)
 
-#define yyerror(parserPtr, msg) smiyyerror(msg, parserPtr)
 
 extern int smiErrorLevel;	/* Higher levels produce more warnings */
 

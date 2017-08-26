@@ -8,7 +8,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: dump-cm.c 2718 2005-08-24 06:59:15Z sperner $
+ * @(#) $Id: dump-cm.c 1803 2013-12-02 20:49:41Z schoenw $
  */
 
 
@@ -466,7 +466,7 @@ static int getConPoint(GraphNode *snode, GraphNode *enode)
     y2 = enode->dia.y;    
 
     if (x1 == x2 && y1 < y2) con = 6;
-    if (x1 == x2 && y1 > y1) con = 1;
+    if (x1 == x2 && y1 > y2) con = 1;
     if (x1 > x2 && y1 == y2) con = 3;
     if (x1 < x2 && y1 == y2) con = 4;
     if (x1 > x2 && y1 > y2)  con = 0;
@@ -1199,7 +1199,8 @@ void initCm()
 	"cm",
 	dumpCm,
 	SMI_FLAG_NODESCR,
-	SMIDUMP_DRIVER_CANT_OUTPUT,
+	SMIDUMP_DRIVER_CANT_OUTPUT
+	| SMIDUMP_DRIVER_CANT_YANG,
 	"reverse engineered conceptual model",
 	opt,
 	NULL

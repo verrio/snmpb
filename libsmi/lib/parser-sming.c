@@ -1,24 +1,21 @@
-/* A Bison parser, made by GNU Bison 2.3.  */
+/* A Bison parser, made by GNU Bison 2.7.12-4996.  */
 
-/* Skeleton implementation for Bison's Yacc-like parsers in C
-
-   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
-   Free Software Foundation, Inc.
-
-   This program is free software; you can redistribute it and/or modify
+/* Bison implementation for Yacc-like parsers in C
+   
+      Copyright (C) 1984, 1989-1990, 2000-2013 Free Software Foundation, Inc.
+   
+   This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2, or (at your option)
-   any later version.
-
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+   
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-
+   
    You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin Street, Fifth Floor,
-   Boston, MA 02110-1301, USA.  */
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 /* As a special exception, you may create a larger work that contains
    part or all of the Bison parser skeleton and distribute that work
@@ -29,7 +26,7 @@
    special exception, which will cause the skeleton and the resulting
    Bison output files to be licensed under the GNU General Public
    License without this special exception.
-
+   
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
@@ -47,7 +44,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "2.3"
+#define YYBISON_VERSION "2.7.12-4996"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -55,172 +52,25 @@
 /* Pure parsers.  */
 #define YYPURE 1
 
-/* Using locations.  */
-#define YYLSP_NEEDED 0
+/* Push parsers.  */
+#define YYPUSH 0
+
+/* Pull parsers.  */
+#define YYPULL 1
+
 
 /* Substitute the variable and function names.  */
-#define yyparse smingparse
-#define yylex   sminglex
-#define yyerror smingerror
-#define yylval  sminglval
-#define yychar  smingchar
-#define yydebug smingdebug
-#define yynerrs smingnerrs
-
-
-/* Tokens.  */
-#ifndef YYTOKENTYPE
-# define YYTOKENTYPE
-   /* Put the tokens into the symbol table, so that GDB and other debuggers
-      know about them.  */
-   enum yytokentype {
-     DOT = 258,
-     DOT_DOT = 259,
-     COLON_COLON = 260,
-     ucIdentifier = 261,
-     lcIdentifier = 262,
-     floatValue = 263,
-     textSegment = 264,
-     decimalNumber = 265,
-     hexadecimalNumber = 266,
-     OID = 267,
-     moduleKeyword = 268,
-     importKeyword = 269,
-     revisionKeyword = 270,
-     identityKeyword = 271,
-     oidKeyword = 272,
-     dateKeyword = 273,
-     organizationKeyword = 274,
-     contactKeyword = 275,
-     descriptionKeyword = 276,
-     referenceKeyword = 277,
-     extensionKeyword = 278,
-     typedefKeyword = 279,
-     typeKeyword = 280,
-     formatKeyword = 281,
-     unitsKeyword = 282,
-     statusKeyword = 283,
-     accessKeyword = 284,
-     defaultKeyword = 285,
-     impliedKeyword = 286,
-     indexKeyword = 287,
-     augmentsKeyword = 288,
-     reordersKeyword = 289,
-     sparseKeyword = 290,
-     expandsKeyword = 291,
-     createKeyword = 292,
-     membersKeyword = 293,
-     objectsKeyword = 294,
-     mandatoryKeyword = 295,
-     optionalKeyword = 296,
-     refineKeyword = 297,
-     abnfKeyword = 298,
-     OctetStringKeyword = 299,
-     ObjectIdentifierKeyword = 300,
-     Integer32Keyword = 301,
-     Unsigned32Keyword = 302,
-     Integer64Keyword = 303,
-     Unsigned64Keyword = 304,
-     Float32Keyword = 305,
-     Float64Keyword = 306,
-     Float128Keyword = 307,
-     BitsKeyword = 308,
-     EnumerationKeyword = 309,
-     currentKeyword = 310,
-     deprecatedKeyword = 311,
-     obsoleteKeyword = 312,
-     readonlyKeyword = 313,
-     readwriteKeyword = 314,
-     parentKeyword = 315,
-     classKeyword = 316,
-     extendsKeyword = 317,
-     attributeKeyword = 318,
-     uniqueKeyword = 319,
-     eventKeyword = 320,
-     PointerKeyword = 321,
-     eventonlyKeyword = 322,
-     neginfKeyword = 323,
-     posinfKeyword = 324,
-     snanKeyword = 325,
-     qnanKeyword = 326
-   };
-#endif
-/* Tokens.  */
-#define DOT 258
-#define DOT_DOT 259
-#define COLON_COLON 260
-#define ucIdentifier 261
-#define lcIdentifier 262
-#define floatValue 263
-#define textSegment 264
-#define decimalNumber 265
-#define hexadecimalNumber 266
-#define OID 267
-#define moduleKeyword 268
-#define importKeyword 269
-#define revisionKeyword 270
-#define identityKeyword 271
-#define oidKeyword 272
-#define dateKeyword 273
-#define organizationKeyword 274
-#define contactKeyword 275
-#define descriptionKeyword 276
-#define referenceKeyword 277
-#define extensionKeyword 278
-#define typedefKeyword 279
-#define typeKeyword 280
-#define formatKeyword 281
-#define unitsKeyword 282
-#define statusKeyword 283
-#define accessKeyword 284
-#define defaultKeyword 285
-#define impliedKeyword 286
-#define indexKeyword 287
-#define augmentsKeyword 288
-#define reordersKeyword 289
-#define sparseKeyword 290
-#define expandsKeyword 291
-#define createKeyword 292
-#define membersKeyword 293
-#define objectsKeyword 294
-#define mandatoryKeyword 295
-#define optionalKeyword 296
-#define refineKeyword 297
-#define abnfKeyword 298
-#define OctetStringKeyword 299
-#define ObjectIdentifierKeyword 300
-#define Integer32Keyword 301
-#define Unsigned32Keyword 302
-#define Integer64Keyword 303
-#define Unsigned64Keyword 304
-#define Float32Keyword 305
-#define Float64Keyword 306
-#define Float128Keyword 307
-#define BitsKeyword 308
-#define EnumerationKeyword 309
-#define currentKeyword 310
-#define deprecatedKeyword 311
-#define obsoleteKeyword 312
-#define readonlyKeyword 313
-#define readwriteKeyword 314
-#define parentKeyword 315
-#define classKeyword 316
-#define extendsKeyword 317
-#define attributeKeyword 318
-#define uniqueKeyword 319
-#define eventKeyword 320
-#define PointerKeyword 321
-#define eventonlyKeyword 322
-#define neginfKeyword 323
-#define posinfKeyword 324
-#define snanKeyword 325
-#define qnanKeyword 326
-
-
-
+#define yyparse         smingparse
+#define yylex           sminglex
+#define yyerror         smingerror
+#define yylval          sminglval
+#define yychar          smingchar
+#define yydebug         smingdebug
+#define yynerrs         smingnerrs
 
 /* Copy the first part of user declarations.  */
-#line 14 "parser-sming.y"
+/* Line 371 of yacc.c  */
+#line 17 "parser-sming.y"
 
 
 #include <config.h>
@@ -249,8 +99,8 @@
 #include "error.h"
 #include "parser-sming.h"
 #include "scanner-sming.h"
-#include "data.h"
-#include "check.h"
+#include "smi-data.h"
+#include "smi-check.h"
 #include "util.h"
     
 #ifdef HAVE_DMALLOC_H
@@ -258,14 +108,6 @@
 #endif
 
 
-/*
- * These arguments are passed to yyparse() and yylex().
- */
-#define YYPARSE_PARAM parserPtr
-#define YYLEX_PARAM   parserPtr
-
-    
-    
 #define thisParserPtr      ((Parser *)parserPtr)
 #define thisModulePtr     (((Parser *)parserPtr)->modulePtr)
 
@@ -291,13 +133,17 @@ static Attribute *attributePtr = NULL;
 static Event *eventPtr = NULL;
 static SmiBasetype defaultBasetype = SMI_BASETYPE_UNKNOWN;
 static NamedNumber *namedNumberPtr = NULL;
-static int bitsFlag = 0; /* used to differentiate bits definition from enum*/
-static int attributeFlag = 0; /* 
-							   *Used to differentiate between attribute and
-							   *and typedef to tie the type statement
-							   *respectively to class or module.
-							   */
 
+/* The bitsFlag is used to differentiate bits definition from enum. */
+ 
+static int bitsFlag = 0; 
+
+/* 
+ * The attributeFlag is used to differentiate between attribute and
+ * and typedef to tie the type statement respectively to class or
+ * module.
+ */
+static int attributeFlag = 0;
 
 #define SMI_EPOCH	631152000	/* 01 Jan 1990 00:00:00 */ 
  
@@ -548,11 +394,16 @@ static void createBitsValue(SmiValue *valuePtr, Type *typePtr)
 
 			    
 
+/* Line 371 of yacc.c  */
+#line 399 "parser-sming.c"
 
-/* Enabling traces.  */
-#ifndef YYDEBUG
-# define YYDEBUG 1
-#endif
+# ifndef YY_NULL
+#  if defined __cplusplus && 201103L <= __cplusplus
+#   define YY_NULL nullptr
+#  else
+#   define YY_NULL 0
+#  endif
+# endif
 
 /* Enabling verbose error messages.  */
 #ifdef YYERROR_VERBOSE
@@ -562,15 +413,103 @@ static void createBitsValue(SmiValue *valuePtr, Type *typePtr)
 # define YYERROR_VERBOSE 0
 #endif
 
-/* Enabling the token table.  */
-#ifndef YYTOKEN_TABLE
-# define YYTOKEN_TABLE 0
+/* In a future release of Bison, this section will be replaced
+   by #include "parser-sming.tab.h".  */
+#ifndef YY_SMING_PARSER_SMING_TAB_H_INCLUDED
+# define YY_SMING_PARSER_SMING_TAB_H_INCLUDED
+/* Enabling traces.  */
+#ifndef YYDEBUG
+# define YYDEBUG 1
 #endif
+#if YYDEBUG
+extern int smingdebug;
+#endif
+
+/* Tokens.  */
+#ifndef YYTOKENTYPE
+# define YYTOKENTYPE
+   /* Put the tokens into the symbol table, so that GDB and other debuggers
+      know about them.  */
+   enum yytokentype {
+     DOT = 258,
+     DOT_DOT = 259,
+     COLON_COLON = 260,
+     ucIdentifier = 261,
+     lcIdentifier = 262,
+     floatValue = 263,
+     textSegment = 264,
+     decimalNumber = 265,
+     hexadecimalNumber = 266,
+     OID = 267,
+     moduleKeyword = 268,
+     importKeyword = 269,
+     revisionKeyword = 270,
+     identityKeyword = 271,
+     oidKeyword = 272,
+     dateKeyword = 273,
+     organizationKeyword = 274,
+     contactKeyword = 275,
+     descriptionKeyword = 276,
+     referenceKeyword = 277,
+     extensionKeyword = 278,
+     typedefKeyword = 279,
+     typeKeyword = 280,
+     formatKeyword = 281,
+     unitsKeyword = 282,
+     statusKeyword = 283,
+     accessKeyword = 284,
+     defaultKeyword = 285,
+     impliedKeyword = 286,
+     indexKeyword = 287,
+     augmentsKeyword = 288,
+     reordersKeyword = 289,
+     sparseKeyword = 290,
+     expandsKeyword = 291,
+     createKeyword = 292,
+     membersKeyword = 293,
+     objectsKeyword = 294,
+     mandatoryKeyword = 295,
+     optionalKeyword = 296,
+     refineKeyword = 297,
+     abnfKeyword = 298,
+     OctetStringKeyword = 299,
+     ObjectIdentifierKeyword = 300,
+     Integer32Keyword = 301,
+     Unsigned32Keyword = 302,
+     Integer64Keyword = 303,
+     Unsigned64Keyword = 304,
+     Float32Keyword = 305,
+     Float64Keyword = 306,
+     Float128Keyword = 307,
+     BitsKeyword = 308,
+     EnumerationKeyword = 309,
+     currentKeyword = 310,
+     deprecatedKeyword = 311,
+     obsoleteKeyword = 312,
+     readonlyKeyword = 313,
+     readwriteKeyword = 314,
+     parentKeyword = 315,
+     classKeyword = 316,
+     extendsKeyword = 317,
+     attributeKeyword = 318,
+     uniqueKeyword = 319,
+     eventKeyword = 320,
+     PointerKeyword = 321,
+     eventonlyKeyword = 322,
+     neginfKeyword = 323,
+     posinfKeyword = 324,
+     snanKeyword = 325,
+     qnanKeyword = 326
+   };
+#endif
+
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 360 "parser-sming.y"
 {
+/* Line 387 of yacc.c  */
+#line 359 "parser-sming.y"
+
     char           *id;				/* identifier name           */
     int            rc;				/* >=0: ok, <0: error        */
     time_t	   date;			/* a date value		     */
@@ -594,22 +533,37 @@ typedef union YYSTYPE
     SmiValue	   *valuePtr;
     List	   *listPtr;
     Revision	   *revisionPtr;
-}
-/* Line 187 of yacc.c.  */
-#line 600 "parser-sming.c"
-	YYSTYPE;
+
+
+/* Line 387 of yacc.c  */
+#line 540 "parser-sming.c"
+} YYSTYPE;
+# define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
-# define YYSTYPE_IS_TRIVIAL 1
 #endif
 
 
+#ifdef YYPARSE_PARAM
+#if defined __STDC__ || defined __cplusplus
+int smingparse (void *YYPARSE_PARAM);
+#else
+int smingparse ();
+#endif
+#else /* ! YYPARSE_PARAM */
+#if defined __STDC__ || defined __cplusplus
+int smingparse (struct Parser *parserPtr);
+#else
+int smingparse ();
+#endif
+#endif /* ! YYPARSE_PARAM */
+
+#endif /* !YY_SMING_PARSER_SMING_TAB_H_INCLUDED  */
 
 /* Copy the second part of user declarations.  */
 
-
-/* Line 216 of yacc.c.  */
-#line 613 "parser-sming.c"
+/* Line 390 of yacc.c  */
+#line 567 "parser-sming.c"
 
 #ifdef short
 # undef short
@@ -659,39 +613,48 @@ typedef short int yytype_int16;
 #define YYSIZE_MAXIMUM ((YYSIZE_T) -1)
 
 #ifndef YY_
-# if YYENABLE_NLS
+# if defined YYENABLE_NLS && YYENABLE_NLS
 #  if ENABLE_NLS
 #   include <libintl.h> /* INFRINGES ON USER NAME SPACE */
-#   define YY_(msgid) dgettext ("bison-runtime", msgid)
+#   define YY_(Msgid) dgettext ("bison-runtime", Msgid)
 #  endif
 # endif
 # ifndef YY_
-#  define YY_(msgid) msgid
+#  define YY_(Msgid) Msgid
+# endif
+#endif
+
+#ifndef __attribute__
+/* This feature is available in gcc versions 2.5 and later.  */
+# if (! defined __GNUC__ || __GNUC__ < 2 \
+      || (__GNUC__ == 2 && __GNUC_MINOR__ < 5))
+#  define __attribute__(Spec) /* empty */
 # endif
 #endif
 
 /* Suppress unused-variable warnings by "using" E.  */
 #if ! defined lint || defined __GNUC__
-# define YYUSE(e) ((void) (e))
+# define YYUSE(E) ((void) (E))
 #else
-# define YYUSE(e) /* empty */
+# define YYUSE(E) /* empty */
 #endif
+
 
 /* Identity function, used to suppress warnings about constant conditions.  */
 #ifndef lint
-# define YYID(n) (n)
+# define YYID(N) (N)
 #else
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static int
-YYID (int i)
+YYID (int yyi)
 #else
 static int
-YYID (i)
-    int i;
+YYID (yyi)
+    int yyi;
 #endif
 {
-  return i;
+  return yyi;
 }
 #endif
 
@@ -712,11 +675,12 @@ YYID (i)
 #    define alloca _alloca
 #   else
 #    define YYSTACK_ALLOC alloca
-#    if ! defined _ALLOCA_H && ! defined _STDLIB_H && (defined __STDC__ || defined __C99__FUNC__ \
+#    if ! defined _ALLOCA_H && ! defined EXIT_SUCCESS && (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 #     include <stdlib.h> /* INFRINGES ON USER NAME SPACE */
-#     ifndef _STDLIB_H
-#      define _STDLIB_H 1
+      /* Use EXIT_SUCCESS as a witness for stdlib.h.  */
+#     ifndef EXIT_SUCCESS
+#      define EXIT_SUCCESS 0
 #     endif
 #    endif
 #   endif
@@ -739,24 +703,24 @@ YYID (i)
 #  ifndef YYSTACK_ALLOC_MAXIMUM
 #   define YYSTACK_ALLOC_MAXIMUM YYSIZE_MAXIMUM
 #  endif
-#  if (defined __cplusplus && ! defined _STDLIB_H \
+#  if (defined __cplusplus && ! defined EXIT_SUCCESS \
        && ! ((defined YYMALLOC || defined malloc) \
 	     && (defined YYFREE || defined free)))
 #   include <stdlib.h> /* INFRINGES ON USER NAME SPACE */
-#   ifndef _STDLIB_H
-#    define _STDLIB_H 1
+#   ifndef EXIT_SUCCESS
+#    define EXIT_SUCCESS 0
 #   endif
 #  endif
 #  ifndef YYMALLOC
 #   define YYMALLOC malloc
-#   if ! defined malloc && ! defined _STDLIB_H && (defined __STDC__ || defined __C99__FUNC__ \
+#   if ! defined malloc && ! defined EXIT_SUCCESS && (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 void *malloc (YYSIZE_T); /* INFRINGES ON USER NAME SPACE */
 #   endif
 #  endif
 #  ifndef YYFREE
 #   define YYFREE free
-#   if ! defined free && ! defined _STDLIB_H && (defined __STDC__ || defined __C99__FUNC__ \
+#   if ! defined free && ! defined EXIT_SUCCESS && (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 void free (void *); /* INFRINGES ON USER NAME SPACE */
 #   endif
@@ -772,9 +736,9 @@ void free (void *); /* INFRINGES ON USER NAME SPACE */
 /* A type that is properly aligned for any stack member.  */
 union yyalloc
 {
-  yytype_int16 yyss;
-  YYSTYPE yyvs;
-  };
+  yytype_int16 yyss_alloc;
+  YYSTYPE yyvs_alloc;
+};
 
 /* The size of the maximum gap between one aligned stack and the next.  */
 # define YYSTACK_GAP_MAXIMUM (sizeof (union yyalloc) - 1)
@@ -785,41 +749,45 @@ union yyalloc
      ((N) * (sizeof (yytype_int16) + sizeof (YYSTYPE)) \
       + YYSTACK_GAP_MAXIMUM)
 
-/* Copy COUNT objects from FROM to TO.  The source and destination do
-   not overlap.  */
-# ifndef YYCOPY
-#  if defined __GNUC__ && 1 < __GNUC__
-#   define YYCOPY(To, From, Count) \
-      __builtin_memcpy (To, From, (Count) * sizeof (*(From)))
-#  else
-#   define YYCOPY(To, From, Count)		\
-      do					\
-	{					\
-	  YYSIZE_T yyi;				\
-	  for (yyi = 0; yyi < (Count); yyi++)	\
-	    (To)[yyi] = (From)[yyi];		\
-	}					\
-      while (YYID (0))
-#  endif
-# endif
+# define YYCOPY_NEEDED 1
 
 /* Relocate STACK from its old location to the new one.  The
    local variables YYSIZE and YYSTACKSIZE give the old and new number of
    elements in the stack, and YYPTR gives the new location of the
    stack.  Advance YYPTR to a properly aligned location for the next
    stack.  */
-# define YYSTACK_RELOCATE(Stack)					\
+# define YYSTACK_RELOCATE(Stack_alloc, Stack)				\
     do									\
       {									\
 	YYSIZE_T yynewbytes;						\
-	YYCOPY (&yyptr->Stack, Stack, yysize);				\
-	Stack = &yyptr->Stack;						\
+	YYCOPY (&yyptr->Stack_alloc, Stack, yysize);			\
+	Stack = &yyptr->Stack_alloc;					\
 	yynewbytes = yystacksize * sizeof (*Stack) + YYSTACK_GAP_MAXIMUM; \
 	yyptr += yynewbytes / sizeof (*yyptr);				\
       }									\
     while (YYID (0))
 
 #endif
+
+#if defined YYCOPY_NEEDED && YYCOPY_NEEDED
+/* Copy COUNT objects from SRC to DST.  The source and destination do
+   not overlap.  */
+# ifndef YYCOPY
+#  if defined __GNUC__ && 1 < __GNUC__
+#   define YYCOPY(Dst, Src, Count) \
+      __builtin_memcpy (Dst, Src, (Count) * sizeof (*(Src)))
+#  else
+#   define YYCOPY(Dst, Src, Count)              \
+      do                                        \
+        {                                       \
+          YYSIZE_T yyi;                         \
+          for (yyi = 0; yyi < (Count); yyi++)   \
+            (Dst)[yyi] = (Src)[yyi];            \
+        }                                       \
+      while (YYID (0))
+#  endif
+# endif
+#endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  3
@@ -1006,38 +974,38 @@ static const yytype_int16 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   611,   611,   622,   625,   631,   635,   650,   665,   695,
-     702,   709,   716,   664,   736,   739,   749,   753,   769,   784,
-     793,   799,   806,   813,   783,   827,   830,   840,   844,   860,
-     875,   889,   909,   932,   941,   947,   953,   960,   874,   978,
-     981,   991,   995,  1011,  1026,  1042,  1048,  1091,  1097,  1104,
-    1025,  1118,  1121,  1131,  1135,  1151,  1166,  1180,  1191,  1211,
-    1228,  1244,  1256,  1261,  1266,  1165,  1279,  1282,  1292,  1296,
-    1312,  1327,  1333,  1338,  1343,  1326,  1355,  1358,  1364,  1368,
-    1383,  1398,  1403,  1397,  1430,  1433,  1439,  1443,  1458,  1472,
-    1482,  1485,  1495,  1499,  1515,  1530,  1538,  1544,  1550,  1557,
-    1529,  1568,  1574,  1580,  1586,  1592,  1599,  1602,  1608,  1615,
-    1618,  1624,  1631,  1634,  1640,  1647,  1650,  1656,  1662,  1670,
-    1682,  1685,  1691,  1702,  1705,  1711,  1718,  1721,  1727,  1733,
-    1737,  1741,  1748,  1751,  1757,  1767,  1770,  1776,  1783,  1786,
-    1792,  1799,  1802,  1808,  1816,  1820,  1826,  1830,  1837,  1852,
-    1856,  1871,  1886,  1901,  1916,  1931,  1946,  1961,  1972,  1988,
-    1987,  2016,  2028,  2034,  2047,  2060,  2073,  2086,  2099,  2112,
-    2125,  2134,  2148,  2147,  2173,  2187,  2220,  2223,  2229,  2233,
-    2240,  2243,  2249,  2259,  2262,  2268,  2274,  2287,  2293,  2308,
-    2311,  2317,  2324,  2327,  2333,  2343,  2346,  2352,  2358,  2371,
-    2377,  2394,  2397,  2403,  2410,  2414,  2418,  2422,  2429,  2432,
-    2441,  2447,  2453,  2463,  2466,  2472,  2478,  2493,  2499,  2507,
-    2516,  2519,  2525,  2531,  2544,  2550,  2556,  2560,  2570,  2573,
-    2579,  2585,  2598,  2604,  2608,  2614,  2625,  2631,  2640,  2646,
-    2666,  2669,  2675,  2679,  2689,  2695,  2701,  2707,  2720,  2740,
-    2778,  2798,  2835,  2883,  2924,  2965,  2978,  3011,  3025,  3034,
-    3041,  3045,  3049,  3055,  3061,  3069,  3082,  3086,  3097,  3104,
-    3110,  3116
+       0,   610,   610,   621,   624,   630,   634,   649,   664,   694,
+     701,   708,   715,   663,   735,   738,   748,   752,   768,   783,
+     792,   798,   805,   812,   782,   826,   829,   839,   843,   859,
+     874,   888,   908,   930,   939,   945,   951,   958,   873,   976,
+     979,   989,   993,  1009,  1024,  1037,  1044,  1082,  1088,  1095,
+    1023,  1109,  1112,  1122,  1126,  1142,  1157,  1171,  1182,  1202,
+    1219,  1235,  1247,  1252,  1257,  1156,  1270,  1273,  1283,  1287,
+    1303,  1318,  1324,  1330,  1336,  1317,  1349,  1352,  1358,  1362,
+    1377,  1392,  1397,  1391,  1424,  1427,  1433,  1437,  1452,  1466,
+    1476,  1479,  1489,  1493,  1509,  1524,  1532,  1538,  1544,  1551,
+    1523,  1562,  1568,  1574,  1580,  1586,  1593,  1596,  1602,  1609,
+    1612,  1618,  1625,  1628,  1634,  1641,  1644,  1650,  1656,  1665,
+    1677,  1680,  1686,  1697,  1700,  1706,  1713,  1716,  1722,  1728,
+    1732,  1736,  1743,  1746,  1752,  1762,  1765,  1771,  1778,  1781,
+    1787,  1794,  1797,  1803,  1811,  1815,  1821,  1825,  1832,  1847,
+    1851,  1866,  1881,  1896,  1911,  1926,  1941,  1956,  1967,  1983,
+    1982,  2010,  2022,  2028,  2041,  2054,  2067,  2080,  2093,  2106,
+    2119,  2128,  2142,  2141,  2166,  2180,  2213,  2216,  2222,  2226,
+    2233,  2236,  2242,  2252,  2255,  2261,  2267,  2280,  2286,  2301,
+    2304,  2310,  2317,  2320,  2326,  2336,  2339,  2345,  2351,  2364,
+    2370,  2387,  2390,  2396,  2403,  2407,  2411,  2415,  2422,  2425,
+    2434,  2440,  2446,  2456,  2459,  2465,  2471,  2486,  2492,  2500,
+    2509,  2512,  2518,  2524,  2537,  2543,  2549,  2553,  2563,  2566,
+    2572,  2578,  2591,  2597,  2601,  2607,  2618,  2624,  2633,  2639,
+    2659,  2662,  2668,  2672,  2682,  2688,  2694,  2700,  2713,  2732,
+    2770,  2790,  2827,  2875,  2916,  2957,  2970,  3003,  3017,  3026,
+    3033,  3037,  3041,  3047,  3053,  3061,  3074,  3078,  3089,  3096,
+    3102,  3108
 };
 #endif
 
-#if YYDEBUG || YYERROR_VERBOSE || YYTOKEN_TABLE
+#if YYDEBUG || YYERROR_VERBOSE || 0
 /* YYTNAME[SYMBOL-NUM] -- String name of the symbol SYMBOL-NUM.
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
@@ -1063,27 +1031,28 @@ static const char *const yytname[] =
   "neginfKeyword", "posinfKeyword", "snanKeyword", "qnanKeyword", "'{'",
   "'}'", "';'", "'('", "')'", "'|'", "','", "'-'", "$accept", "smingFile",
   "moduleStatement_optsep_0n", "moduleStatement_optsep_1n",
-  "moduleStatement_optsep", "moduleStatement", "@1", "@2", "@3", "@4",
-  "@5", "extensionStatement_stmtsep_0n", "extensionStatement_stmtsep_1n",
-  "extensionStatement_stmtsep", "extensionStatement", "@6", "@7", "@8",
-  "@9", "@10", "typedefStatement_stmtsep_0n",
+  "moduleStatement_optsep", "moduleStatement", "$@1", "$@2", "$@3", "$@4",
+  "$@5", "extensionStatement_stmtsep_0n", "extensionStatement_stmtsep_1n",
+  "extensionStatement_stmtsep", "extensionStatement", "$@6", "$@7", "$@8",
+  "$@9", "$@10", "typedefStatement_stmtsep_0n",
   "typedefStatement_stmtsep_1n", "typedefStatement_stmtsep",
-  "typedefStatement", "@11", "@12", "@13", "@14", "@15", "@16", "@17",
-  "@18", "classStatement_stmtsep_0n", "classStatement_stmtsep_1n",
-  "classStatement_stmtsep", "classStatement", "@19", "@20", "@21", "@22",
-  "@23", "@24", "attributeStatement_stmtsep_0n",
+  "typedefStatement", "$@11", "$@12", "$@13", "$@14", "$@15", "$@16",
+  "$@17", "$@18", "classStatement_stmtsep_0n", "classStatement_stmtsep_1n",
+  "classStatement_stmtsep", "classStatement", "$@19", "$@20", "$@21",
+  "$@22", "$@23", "$@24", "attributeStatement_stmtsep_0n",
   "attributeStatement_stmtsep_1n", "attributeStatement_stmtsep",
-  "attributeStatement", "@25", "@26", "@27", "@28", "@29", "@30", "@31",
-  "@32", "@33", "eventStatement_stmtsep_0n", "eventStatement_stmtsep_1n",
-  "eventStatement_stmtsep", "eventStatement", "@34", "@35", "@36", "@37",
-  "importStatement_stmtsep_0n", "importStatement_stmtsep_1n",
-  "importStatement_stmtsep", "importStatement", "@38", "@39",
-  "revisionStatement_stmtsep_0n", "revisionStatement_stmtsep_1n",
-  "revisionStatement_stmtsep", "revisionStatement",
-  "identityStatement_stmtsep_0n", "identityStatement_stmtsep_1n",
-  "identityStatement_stmtsep", "identityStatement", "@40", "@41", "@42",
-  "@43", "@44", "typedefTypeStatement", "attributeTypeStatement",
-  "dateStatement", "organizationStatement", "contactStatement",
+  "attributeStatement", "$@25", "$@26", "$@27", "$@28", "$@29", "$@30",
+  "$@31", "$@32", "$@33", "eventStatement_stmtsep_0n",
+  "eventStatement_stmtsep_1n", "eventStatement_stmtsep", "eventStatement",
+  "$@34", "$@35", "$@36", "$@37", "importStatement_stmtsep_0n",
+  "importStatement_stmtsep_1n", "importStatement_stmtsep",
+  "importStatement", "$@38", "$@39", "revisionStatement_stmtsep_0n",
+  "revisionStatement_stmtsep_1n", "revisionStatement_stmtsep",
+  "revisionStatement", "identityStatement_stmtsep_0n",
+  "identityStatement_stmtsep_1n", "identityStatement_stmtsep",
+  "identityStatement", "$@40", "$@41", "$@42", "$@43", "$@44",
+  "typedefTypeStatement", "attributeTypeStatement", "dateStatement",
+  "organizationStatement", "contactStatement",
   "formatStatement_stmtsep_01", "formatStatement",
   "unitsStatement_stmtsep_01", "unitsStatement",
   "statusStatement_stmtsep_01", "statusStatement",
@@ -1096,7 +1065,7 @@ static const char *const yytname[] =
   "referenceStatement_stmtsep_01", "referenceStatement",
   "abnfStatement_stmtsep_01", "abnfStatement",
   "refinedBaseType_refinedType", "attribute_refinedBaseType_refinedType",
-  "refinedBaseType", "@45", "attribute_refinedBaseType", "@46",
+  "refinedBaseType", "$@45", "attribute_refinedBaseType", "$@46",
   "refinedType", "attribute_refinedType", "optsep_anySpec_01", "anySpec",
   "optsep_numberSpec_01", "numberSpec", "furtherNumberElement_0n",
   "furtherNumberElement_1n", "furtherNumberElement", "numberElement",
@@ -1113,7 +1082,7 @@ static const char *const yytname[] =
   "qucIdentifier", "qlcIdentifier", "text", "optsep_textSegment_0n",
   "optsep_textSegment_1n", "optsep_textSegment", "date", "format", "units",
   "anyValue", "qOID", "status", "number", "negativeNumber", "signedNumber",
-  "optsep_comma_01", "sep", "optsep", "stmtsep", 0
+  "optsep_comma_01", "sep", "optsep", "stmtsep", YY_NULL
 };
 #endif
 
@@ -1199,8 +1168,8 @@ static const yytype_uint8 yyr2[] =
        0,     0
 };
 
-/* YYDEFACT[STATE-NAME] -- Default rule to reduce with in state
-   STATE-NUM when YYTABLE doesn't specify something else to do.  Zero
+/* YYDEFACT[STATE-NAME] -- Default reduction number in state STATE-NUM.
+   Performed when YYTABLE doesn't specify something else to do.  Zero
    means the default is an error.  */
 static const yytype_uint16 yydefact[] =
 {
@@ -1371,8 +1340,7 @@ static const yytype_int16 yypgoto[] =
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
    positive, shift that token.  If negative, reduce the rule which
-   number is the opposite.  If zero, do what YYDEFACT says.
-   If YYTABLE_NINF, syntax error.  */
+   number is the opposite.  If YYTABLE_NINF, syntax error.  */
 #define YYTABLE_NINF -271
 static const yytype_int16 yytable[] =
 {
@@ -1432,6 +1400,12 @@ static const yytype_int16 yytable[] =
        0,     0,     0,   535,     0,     0,     0,     0,     0,     0,
        0,   479,   543
 };
+
+#define yypact_value_is_default(Yystate) \
+  (!!((Yystate) == (-391)))
+
+#define yytable_value_is_error(Yytable_value) \
+  YYID (0)
 
 static const yytype_int16 yycheck[] =
 {
@@ -1565,82 +1539,54 @@ static const yytype_uint8 yystos[] =
 
 /* Like YYERROR except do call yyerror.  This remains here temporarily
    to ease the transition to the new meaning of YYERROR, for GCC.
-   Once GCC version 2 has supplanted version 1, this can go.  */
+   Once GCC version 2 has supplanted version 1, this can go.  However,
+   YYFAIL appears to be in use.  Nevertheless, it is formally deprecated
+   in Bison 2.4.2's NEWS entry, where a plan to phase it out is
+   discussed.  */
 
 #define YYFAIL		goto yyerrlab
+#if defined YYFAIL
+  /* This is here to suppress warnings from the GCC cpp's
+     -Wunused-macros.  Normally we don't worry about that warning, but
+     some users do, and we want to make it easy for users to remove
+     YYFAIL uses, which will produce warnings from Bison 2.5.  */
+#endif
 
 #define YYRECOVERING()  (!!yyerrstatus)
 
-#define YYBACKUP(Token, Value)					\
-do								\
-  if (yychar == YYEMPTY && yylen == 1)				\
-    {								\
-      yychar = (Token);						\
-      yylval = (Value);						\
-      yytoken = YYTRANSLATE (yychar);				\
-      YYPOPSTACK (1);						\
-      goto yybackup;						\
-    }								\
-  else								\
-    {								\
-      yyerror (YY_("syntax error: cannot back up")); \
+#define YYBACKUP(Token, Value)                                  \
+do                                                              \
+  if (yychar == YYEMPTY)                                        \
+    {                                                           \
+      yychar = (Token);                                         \
+      yylval = (Value);                                         \
+      YYPOPSTACK (yylen);                                       \
+      yystate = *yyssp;                                         \
+      goto yybackup;                                            \
+    }                                                           \
+  else                                                          \
+    {                                                           \
+      yyerror (parserPtr, YY_("syntax error: cannot back up")); \
       YYERROR;							\
     }								\
 while (YYID (0))
 
-
+/* Error token number */
 #define YYTERROR	1
 #define YYERRCODE	256
 
 
-/* YYLLOC_DEFAULT -- Set CURRENT to span from RHS[1] to RHS[N].
-   If N is 0, then set CURRENT to the empty location which ends
-   the previous symbol: RHS[0] (always defined).  */
-
-#define YYRHSLOC(Rhs, K) ((Rhs)[K])
-#ifndef YYLLOC_DEFAULT
-# define YYLLOC_DEFAULT(Current, Rhs, N)				\
-    do									\
-      if (YYID (N))                                                    \
-	{								\
-	  (Current).first_line   = YYRHSLOC (Rhs, 1).first_line;	\
-	  (Current).first_column = YYRHSLOC (Rhs, 1).first_column;	\
-	  (Current).last_line    = YYRHSLOC (Rhs, N).last_line;		\
-	  (Current).last_column  = YYRHSLOC (Rhs, N).last_column;	\
-	}								\
-      else								\
-	{								\
-	  (Current).first_line   = (Current).last_line   =		\
-	    YYRHSLOC (Rhs, 0).last_line;				\
-	  (Current).first_column = (Current).last_column =		\
-	    YYRHSLOC (Rhs, 0).last_column;				\
-	}								\
-    while (YYID (0))
-#endif
-
-
-/* YY_LOCATION_PRINT -- Print the location on the stream.
-   This macro was not mandated originally: define only if we know
-   we won't break user code: when these are the locations we know.  */
-
+/* This macro is provided for backward compatibility. */
 #ifndef YY_LOCATION_PRINT
-# if YYLTYPE_IS_TRIVIAL
-#  define YY_LOCATION_PRINT(File, Loc)			\
-     fprintf (File, "%d.%d-%d.%d",			\
-	      (Loc).first_line, (Loc).first_column,	\
-	      (Loc).last_line,  (Loc).last_column)
-# else
-#  define YY_LOCATION_PRINT(File, Loc) ((void) 0)
-# endif
+# define YY_LOCATION_PRINT(File, Loc) ((void) 0)
 #endif
 
 
 /* YYLEX -- calling `yylex' with the right arguments.  */
-
 #ifdef YYLEX_PARAM
 # define YYLEX yylex (&yylval, YYLEX_PARAM)
 #else
-# define YYLEX yylex (&yylval)
+# define YYLEX yylex (&yylval, parserPtr)
 #endif
 
 /* Enable debugging if requested.  */
@@ -1663,7 +1609,7 @@ do {									  \
     {									  \
       YYFPRINTF (stderr, "%s ", Title);					  \
       yy_symbol_print (stderr,						  \
-		  Type, Value); \
+		  Type, Value, parserPtr); \
       YYFPRINTF (stderr, "\n");						  \
     }									  \
 } while (YYID (0))
@@ -1677,28 +1623,28 @@ do {									  \
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep)
+yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, struct Parser *parserPtr)
 #else
 static void
-yy_symbol_value_print (yyoutput, yytype, yyvaluep)
+yy_symbol_value_print (yyoutput, yytype, yyvaluep, parserPtr)
     FILE *yyoutput;
     int yytype;
     YYSTYPE const * const yyvaluep;
+    struct Parser *parserPtr;
 #endif
 {
+  FILE *yyo = yyoutput;
+  YYUSE (yyo);
   if (!yyvaluep)
     return;
+  YYUSE (parserPtr);
 # ifdef YYPRINT
   if (yytype < YYNTOKENS)
     YYPRINT (yyoutput, yytoknum[yytype], *yyvaluep);
 # else
   YYUSE (yyoutput);
 # endif
-  switch (yytype)
-    {
-      default:
-	break;
-    }
+  YYUSE (yytype);
 }
 
 
@@ -1709,13 +1655,14 @@ yy_symbol_value_print (yyoutput, yytype, yyvaluep)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep)
+yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, struct Parser *parserPtr)
 #else
 static void
-yy_symbol_print (yyoutput, yytype, yyvaluep)
+yy_symbol_print (yyoutput, yytype, yyvaluep, parserPtr)
     FILE *yyoutput;
     int yytype;
     YYSTYPE const * const yyvaluep;
+    struct Parser *parserPtr;
 #endif
 {
   if (yytype < YYNTOKENS)
@@ -1723,7 +1670,7 @@ yy_symbol_print (yyoutput, yytype, yyvaluep)
   else
     YYFPRINTF (yyoutput, "nterm %s (", yytname[yytype]);
 
-  yy_symbol_value_print (yyoutput, yytype, yyvaluep);
+  yy_symbol_value_print (yyoutput, yytype, yyvaluep, parserPtr);
   YYFPRINTF (yyoutput, ")");
 }
 
@@ -1735,17 +1682,20 @@ yy_symbol_print (yyoutput, yytype, yyvaluep)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_stack_print (yytype_int16 *bottom, yytype_int16 *top)
+yy_stack_print (yytype_int16 *yybottom, yytype_int16 *yytop)
 #else
 static void
-yy_stack_print (bottom, top)
-    yytype_int16 *bottom;
-    yytype_int16 *top;
+yy_stack_print (yybottom, yytop)
+    yytype_int16 *yybottom;
+    yytype_int16 *yytop;
 #endif
 {
   YYFPRINTF (stderr, "Stack now");
-  for (; bottom <= top; ++bottom)
-    YYFPRINTF (stderr, " %d", *bottom);
+  for (; yybottom <= yytop; yybottom++)
+    {
+      int yybot = *yybottom;
+      YYFPRINTF (stderr, " %d", yybot);
+    }
   YYFPRINTF (stderr, "\n");
 }
 
@@ -1763,12 +1713,13 @@ do {								\
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_reduce_print (YYSTYPE *yyvsp, int yyrule)
+yy_reduce_print (YYSTYPE *yyvsp, int yyrule, struct Parser *parserPtr)
 #else
 static void
-yy_reduce_print (yyvsp, yyrule)
+yy_reduce_print (yyvsp, yyrule, parserPtr)
     YYSTYPE *yyvsp;
     int yyrule;
+    struct Parser *parserPtr;
 #endif
 {
   int yynrhs = yyr2[yyrule];
@@ -1779,18 +1730,18 @@ yy_reduce_print (yyvsp, yyrule)
   /* The symbols being reduced.  */
   for (yyi = 0; yyi < yynrhs; yyi++)
     {
-      fprintf (stderr, "   $%d = ", yyi + 1);
+      YYFPRINTF (stderr, "   $%d = ", yyi + 1);
       yy_symbol_print (stderr, yyrhs[yyprhs[yyrule] + yyi],
 		       &(yyvsp[(yyi + 1) - (yynrhs)])
-		       		       );
-      fprintf (stderr, "\n");
+		       		       , parserPtr);
+      YYFPRINTF (stderr, "\n");
     }
 }
 
 # define YY_REDUCE_PRINT(Rule)		\
 do {					\
   if (yydebug)				\
-    yy_reduce_print (yyvsp, Rule); \
+    yy_reduce_print (yyvsp, Rule, parserPtr); \
 } while (YYID (0))
 
 /* Nonzero means print parse trace.  It is left uninitialized so that
@@ -1820,7 +1771,6 @@ int yydebug;
 # define YYMAXDEPTH 10000
 #endif
 
-
 
 #if YYERROR_VERBOSE
 
@@ -1923,115 +1873,145 @@ yytnamerr (char *yyres, const char *yystr)
 }
 # endif
 
-/* Copy into YYRESULT an error message about the unexpected token
-   YYCHAR while in state YYSTATE.  Return the number of bytes copied,
-   including the terminating null byte.  If YYRESULT is null, do not
-   copy anything; just return the number of bytes that would be
-   copied.  As a special case, return 0 if an ordinary "syntax error"
-   message will do.  Return YYSIZE_MAXIMUM if overflow occurs during
-   size calculation.  */
-static YYSIZE_T
-yysyntax_error (char *yyresult, int yystate, int yychar)
+/* Copy into *YYMSG, which is of size *YYMSG_ALLOC, an error message
+   about the unexpected token YYTOKEN for the state stack whose top is
+   YYSSP.
+
+   Return 0 if *YYMSG was successfully written.  Return 1 if *YYMSG is
+   not large enough to hold the message.  In that case, also set
+   *YYMSG_ALLOC to the required number of bytes.  Return 2 if the
+   required number of bytes is too large to store.  */
+static int
+yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
+                yytype_int16 *yyssp, int yytoken)
 {
-  int yyn = yypact[yystate];
+  YYSIZE_T yysize0 = yytnamerr (YY_NULL, yytname[yytoken]);
+  YYSIZE_T yysize = yysize0;
+  enum { YYERROR_VERBOSE_ARGS_MAXIMUM = 5 };
+  /* Internationalized format string. */
+  const char *yyformat = YY_NULL;
+  /* Arguments of yyformat. */
+  char const *yyarg[YYERROR_VERBOSE_ARGS_MAXIMUM];
+  /* Number of reported tokens (one for the "unexpected", one per
+     "expected"). */
+  int yycount = 0;
 
-  if (! (YYPACT_NINF < yyn && yyn <= YYLAST))
-    return 0;
-  else
+  /* There are many possibilities here to consider:
+     - Assume YYFAIL is not used.  It's too flawed to consider.  See
+       <http://lists.gnu.org/archive/html/bison-patches/2009-12/msg00024.html>
+       for details.  YYERROR is fine as it does not invoke this
+       function.
+     - If this state is a consistent state with a default action, then
+       the only way this function was invoked is if the default action
+       is an error action.  In that case, don't check for expected
+       tokens because there are none.
+     - The only way there can be no lookahead present (in yychar) is if
+       this state is a consistent state with a default action.  Thus,
+       detecting the absence of a lookahead is sufficient to determine
+       that there is no unexpected or expected token to report.  In that
+       case, just report a simple "syntax error".
+     - Don't assume there isn't a lookahead just because this state is a
+       consistent state with a default action.  There might have been a
+       previous inconsistent state, consistent state with a non-default
+       action, or user semantic action that manipulated yychar.
+     - Of course, the expected token list depends on states to have
+       correct lookahead information, and it depends on the parser not
+       to perform extra reductions after fetching a lookahead from the
+       scanner and before detecting a syntax error.  Thus, state merging
+       (from LALR or IELR) and default reductions corrupt the expected
+       token list.  However, the list is correct for canonical LR with
+       one exception: it will still contain any token that will not be
+       accepted due to an error action in a later state.
+  */
+  if (yytoken != YYEMPTY)
     {
-      int yytype = YYTRANSLATE (yychar);
-      YYSIZE_T yysize0 = yytnamerr (0, yytname[yytype]);
-      YYSIZE_T yysize = yysize0;
-      YYSIZE_T yysize1;
-      int yysize_overflow = 0;
-      enum { YYERROR_VERBOSE_ARGS_MAXIMUM = 5 };
-      char const *yyarg[YYERROR_VERBOSE_ARGS_MAXIMUM];
-      int yyx;
+      int yyn = yypact[*yyssp];
+      yyarg[yycount++] = yytname[yytoken];
+      if (!yypact_value_is_default (yyn))
+        {
+          /* Start YYX at -YYN if negative to avoid negative indexes in
+             YYCHECK.  In other words, skip the first -YYN actions for
+             this state because they are default actions.  */
+          int yyxbegin = yyn < 0 ? -yyn : 0;
+          /* Stay within bounds of both yycheck and yytname.  */
+          int yychecklim = YYLAST - yyn + 1;
+          int yyxend = yychecklim < YYNTOKENS ? yychecklim : YYNTOKENS;
+          int yyx;
 
-# if 0
-      /* This is so xgettext sees the translatable formats that are
-	 constructed on the fly.  */
-      YY_("syntax error, unexpected %s");
-      YY_("syntax error, unexpected %s, expecting %s");
-      YY_("syntax error, unexpected %s, expecting %s or %s");
-      YY_("syntax error, unexpected %s, expecting %s or %s or %s");
-      YY_("syntax error, unexpected %s, expecting %s or %s or %s or %s");
-# endif
-      char *yyfmt;
-      char const *yyf;
-      static char const yyunexpected[] = "syntax error, unexpected %s";
-      static char const yyexpecting[] = ", expecting %s";
-      static char const yyor[] = " or %s";
-      char yyformat[sizeof yyunexpected
-		    + sizeof yyexpecting - 1
-		    + ((YYERROR_VERBOSE_ARGS_MAXIMUM - 2)
-		       * (sizeof yyor - 1))];
-      char const *yyprefix = yyexpecting;
-
-      /* Start YYX at -YYN if negative to avoid negative indexes in
-	 YYCHECK.  */
-      int yyxbegin = yyn < 0 ? -yyn : 0;
-
-      /* Stay within bounds of both yycheck and yytname.  */
-      int yychecklim = YYLAST - yyn + 1;
-      int yyxend = yychecklim < YYNTOKENS ? yychecklim : YYNTOKENS;
-      int yycount = 1;
-
-      yyarg[0] = yytname[yytype];
-      yyfmt = yystpcpy (yyformat, yyunexpected);
-
-      for (yyx = yyxbegin; yyx < yyxend; ++yyx)
-	if (yycheck[yyx + yyn] == yyx && yyx != YYTERROR)
-	  {
-	    if (yycount == YYERROR_VERBOSE_ARGS_MAXIMUM)
-	      {
-		yycount = 1;
-		yysize = yysize0;
-		yyformat[sizeof yyunexpected - 1] = '\0';
-		break;
-	      }
-	    yyarg[yycount++] = yytname[yyx];
-	    yysize1 = yysize + yytnamerr (0, yytname[yyx]);
-	    yysize_overflow |= (yysize1 < yysize);
-	    yysize = yysize1;
-	    yyfmt = yystpcpy (yyfmt, yyprefix);
-	    yyprefix = yyor;
-	  }
-
-      yyf = YY_(yyformat);
-      yysize1 = yysize + yystrlen (yyf);
-      yysize_overflow |= (yysize1 < yysize);
-      yysize = yysize1;
-
-      if (yysize_overflow)
-	return YYSIZE_MAXIMUM;
-
-      if (yyresult)
-	{
-	  /* Avoid sprintf, as that infringes on the user's name space.
-	     Don't have undefined behavior even if the translation
-	     produced a string with the wrong number of "%s"s.  */
-	  char *yyp = yyresult;
-	  int yyi = 0;
-	  while ((*yyp = *yyf) != '\0')
-	    {
-	      if (*yyp == '%' && yyf[1] == 's' && yyi < yycount)
-		{
-		  yyp += yytnamerr (yyp, yyarg[yyi++]);
-		  yyf += 2;
-		}
-	      else
-		{
-		  yyp++;
-		  yyf++;
-		}
-	    }
-	}
-      return yysize;
+          for (yyx = yyxbegin; yyx < yyxend; ++yyx)
+            if (yycheck[yyx + yyn] == yyx && yyx != YYTERROR
+                && !yytable_value_is_error (yytable[yyx + yyn]))
+              {
+                if (yycount == YYERROR_VERBOSE_ARGS_MAXIMUM)
+                  {
+                    yycount = 1;
+                    yysize = yysize0;
+                    break;
+                  }
+                yyarg[yycount++] = yytname[yyx];
+                {
+                  YYSIZE_T yysize1 = yysize + yytnamerr (YY_NULL, yytname[yyx]);
+                  if (! (yysize <= yysize1
+                         && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
+                    return 2;
+                  yysize = yysize1;
+                }
+              }
+        }
     }
+
+  switch (yycount)
+    {
+# define YYCASE_(N, S)                      \
+      case N:                               \
+        yyformat = S;                       \
+      break
+      YYCASE_(0, YY_("syntax error"));
+      YYCASE_(1, YY_("syntax error, unexpected %s"));
+      YYCASE_(2, YY_("syntax error, unexpected %s, expecting %s"));
+      YYCASE_(3, YY_("syntax error, unexpected %s, expecting %s or %s"));
+      YYCASE_(4, YY_("syntax error, unexpected %s, expecting %s or %s or %s"));
+      YYCASE_(5, YY_("syntax error, unexpected %s, expecting %s or %s or %s or %s"));
+# undef YYCASE_
+    }
+
+  {
+    YYSIZE_T yysize1 = yysize + yystrlen (yyformat);
+    if (! (yysize <= yysize1 && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
+      return 2;
+    yysize = yysize1;
+  }
+
+  if (*yymsg_alloc < yysize)
+    {
+      *yymsg_alloc = 2 * yysize;
+      if (! (yysize <= *yymsg_alloc
+             && *yymsg_alloc <= YYSTACK_ALLOC_MAXIMUM))
+        *yymsg_alloc = YYSTACK_ALLOC_MAXIMUM;
+      return 1;
+    }
+
+  /* Avoid sprintf, as that infringes on the user's name space.
+     Don't have undefined behavior even if the translation
+     produced a string with the wrong number of "%s"s.  */
+  {
+    char *yyp = *yymsg;
+    int yyi = 0;
+    while ((*yyp = *yyformat) != '\0')
+      if (*yyp == '%' && yyformat[1] == 's' && yyi < yycount)
+        {
+          yyp += yytnamerr (yyp, yyarg[yyi++]);
+          yyformat += 2;
+        }
+      else
+        {
+          yyp++;
+          yyformat++;
+        }
+  }
+  return 0;
 }
 #endif /* YYERROR_VERBOSE */
-
 
 /*-----------------------------------------------.
 | Release the memory associated to this symbol.  |
@@ -2041,47 +2021,25 @@ yysyntax_error (char *yyresult, int yystate, int yychar)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep)
+yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, struct Parser *parserPtr)
 #else
 static void
-yydestruct (yymsg, yytype, yyvaluep)
+yydestruct (yymsg, yytype, yyvaluep, parserPtr)
     const char *yymsg;
     int yytype;
     YYSTYPE *yyvaluep;
+    struct Parser *parserPtr;
 #endif
 {
   YYUSE (yyvaluep);
+  YYUSE (parserPtr);
 
   if (!yymsg)
     yymsg = "Deleting";
   YY_SYMBOL_PRINT (yymsg, yytype, yyvaluep, yylocationp);
 
-  switch (yytype)
-    {
-
-      default:
-	break;
-    }
+  YYUSE (yytype);
 }
-
-
-/* Prevent warnings from -Wmissing-prototypes.  */
-
-#ifdef YYPARSE_PARAM
-#if defined __STDC__ || defined __cplusplus
-int yyparse (void *YYPARSE_PARAM);
-#else
-int yyparse ();
-#endif
-#else /* ! YYPARSE_PARAM */
-#if defined __STDC__ || defined __cplusplus
-int yyparse (void);
-#else
-int yyparse ();
-#endif
-#endif /* ! YYPARSE_PARAM */
-
-
 
 
 
@@ -2104,30 +2062,77 @@ yyparse (YYPARSE_PARAM)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 int
-yyparse (void)
+yyparse (struct Parser *parserPtr)
 #else
 int
-yyparse ()
-
+yyparse (parserPtr)
+    struct Parser *parserPtr;
 #endif
 #endif
 {
-  /* The look-ahead symbol.  */
+/* The lookahead symbol.  */
 int yychar;
 
-/* The semantic value of the look-ahead symbol.  */
-YYSTYPE yylval;
 
-/* Number of syntax errors so far.  */
-int yynerrs;
+#if defined __GNUC__ && 407 <= __GNUC__ * 100 + __GNUC_MINOR__
+/* Suppress an incorrect diagnostic about yylval being uninitialized.  */
+# define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN \
+    _Pragma ("GCC diagnostic push") \
+    _Pragma ("GCC diagnostic ignored \"-Wuninitialized\"")\
+    _Pragma ("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
+# define YY_IGNORE_MAYBE_UNINITIALIZED_END \
+    _Pragma ("GCC diagnostic pop")
+#else
+/* Default value used for initialization, for pacifying older GCCs
+   or non-GCC compilers.  */
+static YYSTYPE yyval_default;
+# define YY_INITIAL_VALUE(Value) = Value
+#endif
+#ifndef YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
+# define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
+# define YY_IGNORE_MAYBE_UNINITIALIZED_END
+#endif
+#ifndef YY_INITIAL_VALUE
+# define YY_INITIAL_VALUE(Value) /* Nothing. */
+#endif
 
-  int yystate;
+/* The semantic value of the lookahead symbol.  */
+YYSTYPE yylval YY_INITIAL_VALUE(yyval_default);
+
+    /* Number of syntax errors so far.  */
+    int yynerrs;
+
+    int yystate;
+    /* Number of tokens to shift before error messages enabled.  */
+    int yyerrstatus;
+
+    /* The stacks and their tools:
+       `yyss': related to states.
+       `yyvs': related to semantic values.
+
+       Refer to the stacks through separate pointers, to allow yyoverflow
+       to reallocate them elsewhere.  */
+
+    /* The state stack.  */
+    yytype_int16 yyssa[YYINITDEPTH];
+    yytype_int16 *yyss;
+    yytype_int16 *yyssp;
+
+    /* The semantic value stack.  */
+    YYSTYPE yyvsa[YYINITDEPTH];
+    YYSTYPE *yyvs;
+    YYSTYPE *yyvsp;
+
+    YYSIZE_T yystacksize;
+
   int yyn;
   int yyresult;
-  /* Number of tokens to shift before error messages enabled.  */
-  int yyerrstatus;
-  /* Look-ahead token as an internal (translated) token number.  */
+  /* Lookahead token as an internal (translated) token number.  */
   int yytoken = 0;
+  /* The variables used to return semantic value and location from the
+     action routines.  */
+  YYSTYPE yyval;
+
 #if YYERROR_VERBOSE
   /* Buffer for error messages, and its allocated size.  */
   char yymsgbuf[128];
@@ -2135,54 +2140,22 @@ int yynerrs;
   YYSIZE_T yymsg_alloc = sizeof yymsgbuf;
 #endif
 
-  /* Three stacks and their tools:
-     `yyss': related to states,
-     `yyvs': related to semantic values,
-     `yyls': related to locations.
-
-     Refer to the stacks thru separate pointers, to allow yyoverflow
-     to reallocate them elsewhere.  */
-
-  /* The state stack.  */
-  yytype_int16 yyssa[YYINITDEPTH];
-  yytype_int16 *yyss = yyssa;
-  yytype_int16 *yyssp;
-
-  /* The semantic value stack.  */
-  YYSTYPE yyvsa[YYINITDEPTH];
-  YYSTYPE *yyvs = yyvsa;
-  YYSTYPE *yyvsp;
-
-
-
 #define YYPOPSTACK(N)   (yyvsp -= (N), yyssp -= (N))
-
-  YYSIZE_T yystacksize = YYINITDEPTH;
-
-  /* The variables used to return semantic value and location from the
-     action routines.  */
-  YYSTYPE yyval;
-
 
   /* The number of symbols on the RHS of the reduced rule.
      Keep to zero when no symbol should be popped.  */
   int yylen = 0;
+
+  yyssp = yyss = yyssa;
+  yyvsp = yyvs = yyvsa;
+  yystacksize = YYINITDEPTH;
 
   YYDPRINTF ((stderr, "Starting parse\n"));
 
   yystate = 0;
   yyerrstatus = 0;
   yynerrs = 0;
-  yychar = YYEMPTY;		/* Cause a token to be read.  */
-
-  /* Initialize stack pointers.
-     Waste one element of value and location stack
-     so that they stay on the same level as the state stack.
-     The wasted elements are never initialized.  */
-
-  yyssp = yyss;
-  yyvsp = yyvs;
-
+  yychar = YYEMPTY; /* Cause a token to be read.  */
   goto yysetstate;
 
 /*------------------------------------------------------------.
@@ -2209,7 +2182,6 @@ int yynerrs;
 	YYSTYPE *yyvs1 = yyvs;
 	yytype_int16 *yyss1 = yyss;
 
-
 	/* Each stack pointer address is followed by the size of the
 	   data in use in that stack, in bytes.  This used to be a
 	   conditional around just the two extra args, but that might
@@ -2217,7 +2189,6 @@ int yynerrs;
 	yyoverflow (YY_("memory exhausted"),
 		    &yyss1, yysize * sizeof (*yyssp),
 		    &yyvs1, yysize * sizeof (*yyvsp),
-
 		    &yystacksize);
 
 	yyss = yyss1;
@@ -2240,9 +2211,8 @@ int yynerrs;
 	  (union yyalloc *) YYSTACK_ALLOC (YYSTACK_BYTES (yystacksize));
 	if (! yyptr)
 	  goto yyexhaustedlab;
-	YYSTACK_RELOCATE (yyss);
-	YYSTACK_RELOCATE (yyvs);
-
+	YYSTACK_RELOCATE (yyss_alloc, yyss);
+	YYSTACK_RELOCATE (yyvs_alloc, yyvs);
 #  undef YYSTACK_RELOCATE
 	if (yyss1 != yyssa)
 	  YYSTACK_FREE (yyss1);
@@ -2253,7 +2223,6 @@ int yynerrs;
       yyssp = yyss + yysize - 1;
       yyvsp = yyvs + yysize - 1;
 
-
       YYDPRINTF ((stderr, "Stack size increased to %lu\n",
 		  (unsigned long int) yystacksize));
 
@@ -2263,6 +2232,9 @@ int yynerrs;
 
   YYDPRINTF ((stderr, "Entering state %d\n", yystate));
 
+  if (yystate == YYFINAL)
+    YYACCEPT;
+
   goto yybackup;
 
 /*-----------.
@@ -2271,16 +2243,16 @@ int yynerrs;
 yybackup:
 
   /* Do appropriate processing given the current state.  Read a
-     look-ahead token if we need one and don't already have one.  */
+     lookahead token if we need one and don't already have one.  */
 
-  /* First try to decide what to do without reference to look-ahead token.  */
+  /* First try to decide what to do without reference to lookahead token.  */
   yyn = yypact[yystate];
-  if (yyn == YYPACT_NINF)
+  if (yypact_value_is_default (yyn))
     goto yydefault;
 
-  /* Not known => get a look-ahead token if don't already have one.  */
+  /* Not known => get a lookahead token if don't already have one.  */
 
-  /* YYCHAR is either YYEMPTY or YYEOF or a valid look-ahead symbol.  */
+  /* YYCHAR is either YYEMPTY or YYEOF or a valid lookahead symbol.  */
   if (yychar == YYEMPTY)
     {
       YYDPRINTF ((stderr, "Reading a token: "));
@@ -2306,29 +2278,27 @@ yybackup:
   yyn = yytable[yyn];
   if (yyn <= 0)
     {
-      if (yyn == 0 || yyn == YYTABLE_NINF)
-	goto yyerrlab;
+      if (yytable_value_is_error (yyn))
+        goto yyerrlab;
       yyn = -yyn;
       goto yyreduce;
     }
-
-  if (yyn == YYFINAL)
-    YYACCEPT;
 
   /* Count tokens shifted since error; after three, turn off error
      status.  */
   if (yyerrstatus)
     yyerrstatus--;
 
-  /* Shift the look-ahead token.  */
+  /* Shift the lookahead token.  */
   YY_SYMBOL_PRINT ("Shifting", yytoken, &yylval, &yylloc);
 
-  /* Discard the shifted token unless it is eof.  */
-  if (yychar != YYEOF)
-    yychar = YYEMPTY;
+  /* Discard the shifted token.  */
+  yychar = YYEMPTY;
 
   yystate = yyn;
+  YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
   *++yyvsp = yylval;
+  YY_IGNORE_MAYBE_UNINITIALIZED_END
 
   goto yynewstate;
 
@@ -2365,39 +2335,44 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 612 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 611 "parser-sming.y"
     {
 			    /*
 			     * Return the number of successfully
 			     * parsed modules.
 			     */
 			    (yyval.rc) = (yyvsp[(2) - (2)].rc);
-			;}
+			}
     break;
 
   case 3:
-#line 622 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 621 "parser-sming.y"
     {
 			    (yyval.rc) = 0;
-			;}
+			}
     break;
 
   case 4:
-#line 626 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 625 "parser-sming.y"
     {
 			    (yyval.rc) = (yyvsp[(1) - (1)].rc);
-			;}
+			}
     break;
 
   case 5:
-#line 632 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 631 "parser-sming.y"
     {
 			    (yyval.rc) = (yyvsp[(1) - (1)].rc);
-			;}
+			}
     break;
 
   case 6:
-#line 636 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 635 "parser-sming.y"
     {
 			    /*
 			     * Sum up the number of successfully parsed
@@ -2409,11 +2384,12 @@ yyreduce:
 			    } else {
 				(yyval.rc) = -1;
 			    }
-			;}
+			}
     break;
 
   case 7:
-#line 651 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 650 "parser-sming.y"
     {
 			    /*
 			     * If we got a (Module *) return rc == 1,
@@ -2424,11 +2400,12 @@ yyreduce:
 			    } else {
 				(yyval.rc) = -1;
 			    }
-			;}
+			}
     break;
 
   case 8:
-#line 665 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 664 "parser-sming.y"
     {
 			    thisParserPtr->modulePtr = findModuleByName((yyvsp[(3) - (3)].text));
 			    if (!thisParserPtr->modulePtr) {
@@ -2455,85 +2432,94 @@ yyreduce:
 			    thisParserPtr->modulePtr->numModuleIdentities = 0;
 			    thisParserPtr->firstIndexlabelPtr = NULL;
 			    thisParserPtr->identityObjectName = NULL;
-			;}
+			}
     break;
 
   case 9:
-#line 695 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 694 "parser-sming.y"
     {
 			    if ((yyvsp[(9) - (10)].text)) {
 				setModuleOrganization(thisParserPtr->modulePtr,
 						      (yyvsp[(9) - (10)].text));
 			    }
-			;}
+			}
     break;
 
   case 10:
-#line 702 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 701 "parser-sming.y"
     {
 			    if ((yyvsp[(12) - (13)].text)) {
 				setModuleContactInfo(thisParserPtr->modulePtr,
 						     (yyvsp[(12) - (13)].text));
 			    }
-			;}
+			}
     break;
 
   case 11:
-#line 709 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 708 "parser-sming.y"
     {
 			    if ((yyvsp[(15) - (16)].text)) {
 				setModuleDescription(thisParserPtr->modulePtr,
 						     (yyvsp[(15) - (16)].text), thisParserPtr);
 			    }
-			;}
+			}
     break;
 
   case 12:
-#line 716 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 715 "parser-sming.y"
     {
 			    if ((yyvsp[(18) - (18)].text)) {
 				setModuleReference(thisParserPtr->modulePtr,
 						   (yyvsp[(18) - (18)].text), thisParserPtr);
 			    }
-			;}
+			}
     break;
 
   case 13:
-#line 728 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 727 "parser-sming.y"
     {
 			    checkTypes(thisParserPtr, thisModulePtr);
 			    
 			    (yyval.modulePtr) = thisModulePtr;
-			;}
+			}
     break;
 
   case 14:
-#line 736 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 735 "parser-sming.y"
     {
 			    (yyval.rc) = 0;
-			;}
+			}
     break;
 
   case 15:
-#line 740 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 739 "parser-sming.y"
     {
 			    /*
 			     * Return the number of successfully
 			     * parsed extension statements.
 			     */
 			    (yyval.rc) = (yyvsp[(1) - (1)].rc);
-			;}
+			}
     break;
 
   case 16:
-#line 750 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 749 "parser-sming.y"
     {
 			    (yyval.rc) = (yyvsp[(1) - (1)].rc);
-			;}
+			}
     break;
 
   case 17:
-#line 755 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 754 "parser-sming.y"
     {
 			    /*
 			     * Sum up the number of successfully parsed
@@ -2545,11 +2531,12 @@ yyreduce:
 			    } else {
 				(yyval.rc) = -1;
 			    }
-			;}
+			}
     break;
 
   case 18:
-#line 770 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 769 "parser-sming.y"
     {
 			    /*
 			     * If we got a (Type *) return rc == 1,
@@ -2560,94 +2547,104 @@ yyreduce:
 			    } else {
 				(yyval.rc) = -1;
 			    }
-			;}
+			}
     break;
 
   case 19:
-#line 784 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 783 "parser-sming.y"
     {
 			    macroIdentifier = (yyvsp[(3) - (3)].text);
 			    macroPtr = addMacro(macroIdentifier,
 						0,
 						thisParserPtr);
 			    setMacroDecl(macroPtr, SMI_DECL_EXTENSION);
-			;}
+			}
     break;
 
   case 20:
-#line 793 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 792 "parser-sming.y"
     {
 			    if (macroPtr && (yyvsp[(8) - (8)].status)) {
 				setMacroStatus(macroPtr, (yyvsp[(8) - (8)].status));
 			    }
-			;}
+			}
     break;
 
   case 21:
-#line 799 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 798 "parser-sming.y"
     {
 			    if (macroPtr && (yyvsp[(10) - (10)].text)) {
 				setMacroDescription(macroPtr, (yyvsp[(10) - (10)].text),
 						    thisParserPtr);
 			    }
-			;}
+			}
     break;
 
   case 22:
-#line 806 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 805 "parser-sming.y"
     {
 			    if (macroPtr && (yyvsp[(12) - (12)].text)) {
 				setMacroReference(macroPtr, (yyvsp[(12) - (12)].text),
 						  thisParserPtr);
 			    }
-			;}
+			}
     break;
 
   case 23:
-#line 813 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 812 "parser-sming.y"
     {
 			   if (macroPtr && (yyvsp[(14) - (14)].text)) {
 				setMacroAbnf(macroPtr, (yyvsp[(14) - (14)].text),
 						  thisParserPtr);
 			   }
-			;}
+			}
     break;
 
   case 24:
-#line 820 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 819 "parser-sming.y"
     {
 			    (yyval.macroPtr) = 0;
 			    macroPtr = NULL;
-			;}
+			}
     break;
 
   case 25:
-#line 827 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 826 "parser-sming.y"
     {
 			    (yyval.rc) = 0;
-			;}
+			}
     break;
 
   case 26:
-#line 831 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 830 "parser-sming.y"
     {
 			    /*
 			     * Return the number of successfully
 			     * parsed typedef statements.
 			     */
 			    (yyval.rc) = (yyvsp[(1) - (1)].rc);
-			;}
+			}
     break;
 
   case 27:
-#line 841 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 840 "parser-sming.y"
     {
 			    (yyval.rc) = (yyvsp[(1) - (1)].rc);
-			;}
+			}
     break;
 
   case 28:
-#line 846 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 845 "parser-sming.y"
     {
 			    /*
 			     * Sum up the number of successfully parsed
@@ -2659,11 +2656,12 @@ yyreduce:
 			    } else {
 				(yyval.rc) = -1;
 			    }
-			;}
+			}
     break;
 
   case 29:
-#line 861 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 860 "parser-sming.y"
     {
 			    /*
 			     * If we got a (Type *) return rc == 1,
@@ -2674,11 +2672,12 @@ yyreduce:
 			    } else {
 				(yyval.rc) = -1;
 			    }
-			;}
+			}
     break;
 
   case 30:
-#line 875 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 874 "parser-sming.y"
     {
 			    typeIdentifier = (yyvsp[(3) - (3)].text);
 			    /* 
@@ -2688,13 +2687,14 @@ yyreduce:
 			    	findType(typeIdentifier, thisParserPtr,thisModulePtr)) 
 					if( typePtr->modulePtr == thisParserPtr->modulePtr)
 					       smiPrintError(thisParserPtr,
-										ERR_DUPLICATE_TYPE_NAME,
-					      				typeIdentifier);
-			;}
+							     ERR_DUPLICATE_TYPE_NAME,
+							     typeIdentifier);
+			}
     break;
 
   case 31:
-#line 889 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 888 "parser-sming.y"
     {
 			    if ((yyvsp[(8) - (9)].typePtr)) {
 				if ((yyvsp[(8) - (9)].typePtr)->export.name) {
@@ -2713,37 +2713,38 @@ yyreduce:
 				setTypeDecl(typePtr, SMI_DECL_TYPEDEF);
 			    }
 			    defaultBasetype = typePtr->export.basetype;
-			;}
+			}
     break;
 
   case 32:
-#line 909 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 908 "parser-sming.y"
     {
 			    if (typePtr && (yyvsp[(11) - (11)].valuePtr)) {
-			    	if(typePtr->export.basetype == 
-			    					SMI_BASETYPE_ENUM) 
-			    					//check ENUM value for correctness
-    				{
-    					if((yyvsp[(11) - (11)].valuePtr)->len)
-    	 				if(namedNumberPtr = findNamedNumberByName(typePtr,
-    	 												 (yyvsp[(11) - (11)].valuePtr)->value.ptr)){
-    	 					smiFree((yyvsp[(11) - (11)].valuePtr));
-    	 					(yyvsp[(11) - (11)].valuePtr) = &namedNumberPtr->export.value;
-    	 				}
-    	 				else{ smiPrintError(thisParserPtr,
-					      		ERR_ENUM_NAME_NOT_DEFINED,
-					      		(yyvsp[(11) - (11)].valuePtr)->value.ptr);
-					    }
+			    	if (typePtr->export.basetype == SMI_BASETYPE_ENUM) {
+				    /* check ENUM value for correctness */
+				    if ((yyvsp[(11) - (11)].valuePtr)->len) {
+    	 				if (namedNumberPtr = findNamedNumberByName(typePtr,
+										   (yyvsp[(11) - (11)].valuePtr)->value.ptr)) {
+					    smiFree((yyvsp[(11) - (11)].valuePtr));
+					    (yyvsp[(11) - (11)].valuePtr) = &namedNumberPtr->export.value;
+    	 				} else {
+					    smiPrintError(thisParserPtr,
+							  ERR_ENUM_NAME_NOT_DEFINED,
+							  (yyvsp[(11) - (11)].valuePtr)->value.ptr);
+					}
+				    }
     	 			}
-    	 			//NOTE that the bits default value is set in the anyval
-    	 			//rule
+    	 			/* NOTE that the bits default value is
+				   set in the anyval rule. */
 				setTypeValue(typePtr, (yyvsp[(11) - (11)].valuePtr));
 			    }
-			;}
+			}
     break;
 
   case 33:
-#line 932 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 930 "parser-sming.y"
     {
 			    if (typePtr && (yyvsp[(13) - (13)].text)
 				&& smiCheckFormat(thisParserPtr,
@@ -2751,48 +2752,53 @@ yyreduce:
 						  (yyvsp[(13) - (13)].text), 0)) {
 				setTypeFormat(typePtr, (yyvsp[(13) - (13)].text));
 			    }
-			;}
+			}
     break;
 
   case 34:
-#line 941 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 939 "parser-sming.y"
     {
 			    if (typePtr && (yyvsp[(15) - (15)].text)) {
 				setTypeUnits(typePtr, (yyvsp[(15) - (15)].text));
 			    }
-			;}
+			}
     break;
 
   case 35:
-#line 947 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 945 "parser-sming.y"
     {
 			    if (typePtr && (yyvsp[(17) - (17)].status)) {
 				setTypeStatus(typePtr, (yyvsp[(17) - (17)].status));
 			    }
-			;}
+			}
     break;
 
   case 36:
-#line 953 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 951 "parser-sming.y"
     {
 			    if (typePtr && (yyvsp[(19) - (19)].text)) {
 				setTypeDescription(typePtr, (yyvsp[(19) - (19)].text),
 						   thisParserPtr);
 			    }
-			;}
+			}
     break;
 
   case 37:
-#line 960 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 958 "parser-sming.y"
     {
 			    if (typePtr && (yyvsp[(21) - (21)].text)) {
 				setTypeReference(typePtr, (yyvsp[(21) - (21)].text), thisParserPtr);
 			    }
-			;}
+			}
     break;
 
   case 38:
-#line 966 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 964 "parser-sming.y"
     {
 			    smiCheckNamedNumberSubtyping(thisParserPtr , typePtr);
 			    smiCheckNamedNumbersOrder(thisParserPtr , typePtr);
@@ -2801,36 +2807,40 @@ yyreduce:
 			    typePtr = NULL;
 			    free(typeIdentifier);
 			    defaultBasetype = SMI_BASETYPE_UNKNOWN;
-			;}
+			}
     break;
 
   case 39:
-#line 978 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 976 "parser-sming.y"
     {
 			    (yyval.rc) = 0;
-			;}
+			}
     break;
 
   case 40:
-#line 982 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 980 "parser-sming.y"
     {
 			    /*
 			     * Return the number of successfully
 			     * parsed typedef statements.
 			     */
 			    (yyval.rc) = (yyvsp[(1) - (1)].rc);
-			;}
+			}
     break;
 
   case 41:
-#line 992 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 990 "parser-sming.y"
     {
 			    (yyval.rc) = (yyvsp[(1) - (1)].rc);
-			;}
+			}
     break;
 
   case 42:
-#line 997 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 995 "parser-sming.y"
     {
 			    /*
 			     * Sum up the number of successfully parsed
@@ -2842,11 +2852,12 @@ yyreduce:
 			    } else {
 				(yyval.rc) = -1;
 			    }
-			;}
+			}
     break;
 
   case 43:
-#line 1012 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1010 "parser-sming.y"
     {
 			    /*
 			     * If we got a (Type *) return rc == 1,
@@ -2857,144 +2868,148 @@ yyreduce:
 			    } else {
 				(yyval.rc) = -1;
 			    }
-			;}
+			}
     break;
 
   case 44:
-#line 1026 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1024 "parser-sming.y"
     {
 			    classIdentifier = (yyvsp[(3) - (3)].text);
-			    if(findClassByModuleAndName(thisModulePtr, classIdentifier))
-			    {
-			    	smiPrintError(thisParserPtr,
-										ERR_DUPLICATE_CLASS_NAME,
-					      				attributeIdentifier);
+			    if (findClassByModuleAndName(thisModulePtr, classIdentifier)) {
+			    	smiPrintError(thisParserPtr, ERR_DUPLICATE_CLASS_NAME,
+					      attributeIdentifier);
+			    } else {
+				classPtr = addClass(classIdentifier,
+						    thisParserPtr);
+				setClassDecl(classPtr, SMI_DECL_CLASS);
 			    }
-			    else{
-			    classPtr = addClass(classIdentifier,
-						thisParserPtr);
-			    setClassDecl(classPtr, SMI_DECL_CLASS);
-			    }
-			;}
+			}
     break;
 
   case 45:
-#line 1042 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1037 "parser-sming.y"
     {
-				if(classPtr && (yyvsp[(8) - (8)].classPtr))
-					classPtr->parentPtr = (yyvsp[(8) - (8)].classPtr);
-			;}
+			    if (classPtr && (yyvsp[(8) - (8)].classPtr)) {
+				classPtr->parentPtr = (yyvsp[(8) - (8)].classPtr);
+			    }
+			}
     break;
 
   case 46:
-#line 1048 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1044 "parser-sming.y"
     {
-				List *tmpList;
-				Attribute *tmpAttribute;
-				if(classPtr && (yyvsp[(11) - (11)].listPtr))
-				{
-					
-					//Check for "magic" value #@# that defines
-					//scalar class. See NOTE after Class definitino in data.h
-					if(!strcmp((char*)((yyvsp[(11) - (11)].listPtr)->ptr),"#@#"))
-					{	
-						classPtr->uniqueList = (List*)malloc(sizeof(List));
-						classPtr->uniqueList->ptr = classPtr;
-						classPtr->uniqueList->nextPtr = NULL;
-						smiFree((yyvsp[(11) - (11)].listPtr));
-					}
-					else
+			    List *tmpList;
+			    Attribute *tmpAttribute;
+			    if(classPtr && (yyvsp[(11) - (11)].listPtr))
+			    {
+				/* Check for "magic" value #@# that
+				   defines scalar class. See NOTE
+				   after Class definitino in
+				   data.h. */
+				if (!strcmp((char*)((yyvsp[(11) - (11)].listPtr)->ptr),"#@#")) {	
+				    classPtr->uniqueList = (List*)malloc(sizeof(List));
+				    classPtr->uniqueList->ptr = classPtr;
+				    classPtr->uniqueList->nextPtr = NULL;
+				    smiFree((yyvsp[(11) - (11)].listPtr));
+				} else {
+				    tmpList = (yyvsp[(11) - (11)].listPtr);
+				    /* convert  all attribute names to attributes */
+				    for (tmpList; tmpList; tmpList=tmpList->nextPtr) {
+					if (tmpAttribute = 
+					    (Attribute*)smiGetAttribute(&(classPtr->export),(char*)(tmpList->ptr)))
 					{
-						tmpList = (yyvsp[(11) - (11)].listPtr);
-						//convert  all attribute names to atributes
-						for(tmpList; tmpList; tmpList=tmpList->nextPtr)
-						{
-							if(tmpAttribute = 
-							(Attribute*)smiGetAttribute(&(classPtr->export),(char*)(tmpList->ptr)))
-							{
-								smiFree(tmpList->ptr);
-								tmpList->ptr = tmpAttribute;
-							}
-							else
-							{
-								smiFree(tmpList->ptr);
-								tmpList->ptr = NULL;
-								smiPrintError(thisParserPtr,
-										ERR_ATTRIBUTE_NOT_FOUND,
-					      				attributeIdentifier);
-							}
-						}
-						
-						classPtr->uniqueList = (yyvsp[(11) - (11)].listPtr);
+					    smiFree(tmpList->ptr);
+					    tmpList->ptr = tmpAttribute;
+					} else {
+					    smiFree(tmpList->ptr);
+					    tmpList->ptr = NULL;
+					    smiPrintError(thisParserPtr,
+							  ERR_ATTRIBUTE_NOT_FOUND,
+							  attributeIdentifier);
 					}
+				    }
+				    
+				    classPtr->uniqueList = (yyvsp[(11) - (11)].listPtr);
 				}
-			;}
+			    }
+			}
     break;
 
   case 47:
-#line 1091 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1082 "parser-sming.y"
     {
 			    if (classPtr && (yyvsp[(14) - (14)].status)) {
 				setClassStatus(classPtr, (yyvsp[(14) - (14)].status));
 			    }
-			;}
+			}
     break;
 
   case 48:
-#line 1097 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1088 "parser-sming.y"
     {
 			    if (classPtr && (yyvsp[(16) - (16)].text)) {
 				setClassDescription(classPtr, (yyvsp[(16) - (16)].text),
 						    thisParserPtr);
 			    }
-			;}
+			}
     break;
 
   case 49:
-#line 1104 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1095 "parser-sming.y"
     {
 			    if (classPtr && (yyvsp[(18) - (18)].text)) {
 				setClassReference(classPtr, (yyvsp[(18) - (18)].text),
 						  thisParserPtr);
 			    }
-			;}
+			}
     break;
 
   case 50:
-#line 1111 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1102 "parser-sming.y"
     {
 			    (yyval.classPtr) = 0;
 			    classPtr = NULL;
-			;}
+			}
     break;
 
   case 51:
-#line 1118 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1109 "parser-sming.y"
     {
 			    (yyval.rc) = 0;
-			;}
+			}
     break;
 
   case 52:
-#line 1122 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1113 "parser-sming.y"
     {
 			    /*
 			     * Return the number of successfully
 			     * parsed typedef statements.
 			     */
 			    (yyval.rc) = (yyvsp[(1) - (1)].rc);
-			;}
+			}
     break;
 
   case 53:
-#line 1132 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1123 "parser-sming.y"
     {
 			    (yyval.rc) = (yyvsp[(1) - (1)].rc);
-			;}
+			}
     break;
 
   case 54:
-#line 1137 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1128 "parser-sming.y"
     {
 			    /*
 			     * Sum up the number of successfully parsed
@@ -3006,11 +3021,12 @@ yyreduce:
 			    } else {
 				(yyval.rc) = -1;
 			    }
-			;}
+			}
     break;
 
   case 55:
-#line 1152 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1143 "parser-sming.y"
     {
 			    /*
 			     * If we got a (Type *) return rc == 1,
@@ -3021,11 +3037,12 @@ yyreduce:
 			    } else {
 				(yyval.rc) = -1;
 			    }
-			;}
+			}
     break;
 
   case 56:
-#line 1166 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1157 "parser-sming.y"
     {
 						attributeIdentifier = (yyvsp[(3) - (3)].text);
 						attributePtr = (Attribute*)smiGetAttribute(&(classPtr->export),
@@ -3037,11 +3054,12 @@ yyreduce:
 					      				attributeIdentifier);
 					      	attributePtr = NULL;
 						}					
-					;}
+					}
     break;
 
   case 57:
-#line 1180 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1171 "parser-sming.y"
     {
 			    		if ((yyvsp[(8) - (8)].attributePtr)) {
 				    		attributePtr = (yyvsp[(8) - (8)].attributePtr);
@@ -3051,11 +3069,12 @@ yyreduce:
 												SMI_DECL_ATTRIBUTE);
 							defaultBasetype = attributePtr->export.basetype;
 			    		}
-					;}
+					}
     break;
 
   case 58:
-#line 1191 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1182 "parser-sming.y"
     {
 						if((yyvsp[(10) - (10)].access) && attributePtr){
 						/* check whether there's access for class reference, 
@@ -3074,11 +3093,12 @@ yyreduce:
 										ERR_ATTRIBUTE_MISSING_ACCESS,
 					      							attributeIdentifier);
 						}
-					;}
+					}
     break;
 
   case 59:
-#line 1211 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1202 "parser-sming.y"
     {
 						if((yyvsp[(12) - (12)].valuePtr) && attributePtr){
 							if(attributePtr->parentClassPtr)
@@ -3094,11 +3114,12 @@ yyreduce:
 							attributePtr->export.value.basetype = 
 													SMI_BASETYPE_UNKNOWN;
 						}
-					;}
+					}
     break;
 
   case 60:
-#line 1228 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1219 "parser-sming.y"
     {
 			   			if((yyvsp[(14) - (14)].text) && attributePtr){
 							if(attributePtr->parentClassPtr)
@@ -3113,11 +3134,12 @@ yyreduce:
 					      		}
 					      	}
 						}
-			    	;}
+			    	}
     break;
 
   case 61:
-#line 1244 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1235 "parser-sming.y"
     {
 			    		if((yyvsp[(16) - (16)].text) && attributePtr){
 							if(attributePtr->parentClassPtr)
@@ -3128,69 +3150,77 @@ yyreduce:
 									attributePtr->export.units = (yyvsp[(16) - (16)].text);
 					      	}
 						}
-					;}
+					}
     break;
 
   case 62:
-#line 1256 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1247 "parser-sming.y"
     {
 			   			if (attributePtr && (yyvsp[(18) - (18)].status)) 
 							attributePtr->export.status = (yyvsp[(18) - (18)].status);
-					;}
+					}
     break;
 
   case 63:
-#line 1261 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1252 "parser-sming.y"
     {
 						if (attributePtr && (yyvsp[(20) - (20)].text)) 
 							attributePtr->export.description = (yyvsp[(20) - (20)].text);
-					;}
+					}
     break;
 
   case 64:
-#line 1266 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1257 "parser-sming.y"
     {
 						if (attributePtr && (yyvsp[(22) - (22)].text)) 
 							attributePtr->export.reference = (yyvsp[(22) - (22)].text);
-			    	;}
+			    	}
     break;
 
   case 65:
-#line 1271 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1262 "parser-sming.y"
     {
 						(yyval.attributePtr) = attributePtr;
 						attributePtr = NULL;
 						defaultBasetype = SMI_BASETYPE_UNKNOWN;
-					;}
+					}
     break;
 
   case 66:
-#line 1279 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1270 "parser-sming.y"
     {
 			    (yyval.rc) = 0;
-			;}
+			}
     break;
 
   case 67:
-#line 1283 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1274 "parser-sming.y"
     {
 			    /*
 			     * Return the number of successfully
 			     * parsed event statements.
 			     */
 			    (yyval.rc) = (yyvsp[(1) - (1)].rc);
-			;}
+			}
     break;
 
   case 68:
-#line 1293 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1284 "parser-sming.y"
     {
 			    (yyval.rc) = (yyvsp[(1) - (1)].rc);
-			;}
+			}
     break;
 
   case 69:
-#line 1298 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1289 "parser-sming.y"
     {
 			    /*
 			     * Sum up the number of successfully parsed
@@ -3202,11 +3232,12 @@ yyreduce:
 			    } else {
 				(yyval.rc) = -1;
 			    }
-			;}
+			}
     break;
 
   case 70:
-#line 1313 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1304 "parser-sming.y"
     {
 			    /*
 			     * If we got a (Type *) return rc == 1,
@@ -3217,72 +3248,84 @@ yyreduce:
 			    } else {
 				(yyval.rc) = -1;
 			    }
-			;}
+			}
     break;
 
   case 71:
-#line 1327 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1318 "parser-sming.y"
     {
-				//TODO check for repeated names
-				eventPtr=addEvent((yyvsp[(3) - (3)].text),classPtr,thisParserPtr);
-			;}
+			    /* TODO check for repeated names */
+			    eventPtr=addEvent((yyvsp[(3) - (3)].text),classPtr,thisParserPtr);
+			}
     break;
 
   case 72:
-#line 1333 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1324 "parser-sming.y"
     {
-				if((yyvsp[(8) - (8)].status) && eventPtr)
+			    if ((yyvsp[(8) - (8)].status) && eventPtr) {
 				eventPtr->export.status = (yyvsp[(8) - (8)].status);
-			;}
+			    }
+			}
     break;
 
   case 73:
-#line 1338 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1330 "parser-sming.y"
     {
-				if((yyvsp[(10) - (10)].text) && eventPtr)
+			    if ((yyvsp[(10) - (10)].text) && eventPtr) {
 				eventPtr->export.description = (yyvsp[(10) - (10)].text);
-			;}
+			    }
+			}
     break;
 
   case 74:
-#line 1343 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1336 "parser-sming.y"
     {
-				if((yyvsp[(12) - (12)].text) && eventPtr)
+			    if ((yyvsp[(12) - (12)].text) && eventPtr) {
 				eventPtr->export.reference = (yyvsp[(12) - (12)].text);
-			;}
+			    }
+			}
     break;
 
   case 75:
-#line 1348 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1342 "parser-sming.y"
     {
-				(yyval.eventPtr) = eventPtr;
-				eventPtr = NULL;
-			;}
+			    (yyval.eventPtr) = eventPtr;
+			    eventPtr = NULL;
+			}
     break;
 
   case 76:
-#line 1355 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1349 "parser-sming.y"
     {
 			    (yyval.rc) = 0;
-			;}
+			}
     break;
 
   case 77:
-#line 1359 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1353 "parser-sming.y"
     {
 			    (yyval.rc) = (yyvsp[(1) - (1)].rc);
-			;}
+			}
     break;
 
   case 78:
-#line 1365 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1359 "parser-sming.y"
     {
 			    (yyval.rc) = (yyvsp[(1) - (1)].rc);
-			;}
+			}
     break;
 
   case 79:
-#line 1369 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1363 "parser-sming.y"
     {
 			    /*
 			     * Sum up the number of successfully parsed
@@ -3294,11 +3337,12 @@ yyreduce:
 			    } else {
 				(yyval.rc) = -1;
 			    }
-			;}
+			}
     break;
 
   case 80:
-#line 1384 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1378 "parser-sming.y"
     {
 			    /*
 			     * If we got an (Object *) return rc == 1,
@@ -3309,18 +3353,20 @@ yyreduce:
 			    } else {
 				(yyval.rc) = -1;
 			    }
-			;}
+			}
     break;
 
   case 81:
-#line 1398 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1392 "parser-sming.y"
     {
 			    importModulename = smiStrdup((yyvsp[(3) - (3)].text));
-			;}
+			}
     break;
 
   case 82:
-#line 1403 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1397 "parser-sming.y"
     {
 			    List *listPtr, *nextPtr;
 			    
@@ -3331,11 +3377,12 @@ yyreduce:
 				nextPtr = listPtr->nextPtr;
 				free(listPtr);
 			    }
-			;}
+			}
     break;
 
   case 83:
-#line 1415 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1409 "parser-sming.y"
     {
 			    Module *modulePtr;
 			    char *s = importModulename;
@@ -3347,32 +3394,36 @@ yyreduce:
 			    checkImports(modulePtr, thisParserPtr);
 			    free(s);
 			    (yyval.listPtr) = NULL;
-			;}
+			}
     break;
 
   case 84:
-#line 1430 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1424 "parser-sming.y"
     {
 			    (yyval.rc) = 0;
-			;}
+			}
     break;
 
   case 85:
-#line 1434 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1428 "parser-sming.y"
     {
 			    (yyval.rc) = (yyvsp[(1) - (1)].rc);
-			;}
+			}
     break;
 
   case 86:
-#line 1440 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1434 "parser-sming.y"
     {
 			    (yyval.rc) = (yyvsp[(1) - (1)].rc);
-			;}
+			}
     break;
 
   case 87:
-#line 1444 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1438 "parser-sming.y"
     {
 			    /*
 			     * Sum up the number of successfully parsed
@@ -3384,11 +3435,12 @@ yyreduce:
 			    } else {
 				(yyval.rc) = -1;
 			    }
-			;}
+			}
     break;
 
   case 88:
-#line 1459 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1453 "parser-sming.y"
     {
 			       /*
 				* If we got a (Revision *) return rc == 1,
@@ -3399,43 +3451,48 @@ yyreduce:
 			       } else {
 				   (yyval.rc) = -1;
 			       }
-			   ;}
+			   }
     break;
 
   case 89:
-#line 1476 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1470 "parser-sming.y"
     {
 			    (yyval.revisionPtr) = addRevision((yyvsp[(5) - (11)].date), (yyvsp[(7) - (11)].text), thisParserPtr);
-			;}
+			}
     break;
 
   case 90:
-#line 1482 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1476 "parser-sming.y"
     {
 			    (yyval.rc) = 0;
-			;}
+			}
     break;
 
   case 91:
-#line 1486 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1480 "parser-sming.y"
     {
 			    /*
 			     * Return the number of successfully
 			     * parsed identity statements.
 			     */
 			    (yyval.rc) = (yyvsp[(1) - (1)].rc);
-			;}
+			}
     break;
 
   case 92:
-#line 1496 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1490 "parser-sming.y"
     {
 			    (yyval.rc) = (yyvsp[(1) - (1)].rc);
-			;}
+			}
     break;
 
   case 93:
-#line 1501 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1495 "parser-sming.y"
     {
 			    /*
 			     * Sum up the number of successfully parsed
@@ -3447,11 +3504,12 @@ yyreduce:
 			    } else {
 				(yyval.rc) = -1;
 			    }
-			;}
+			}
     break;
 
   case 94:
-#line 1516 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1510 "parser-sming.y"
     {
 			    /*
 			     * If we got a (Type *) return rc == 1,
@@ -3462,49 +3520,54 @@ yyreduce:
 			    } else {
 				(yyval.rc) = -1;
 			    }
-			;}
+			}
     break;
 
   case 95:
-#line 1530 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1524 "parser-sming.y"
     {
 				identityIdentifier = (yyvsp[(3) - (3)].text);
 				identityPtr = addIdentity(identityIdentifier,
 						thisParserPtr);
 			    setIdentityDecl(identityPtr, SMI_DECL_IDENTITY);
-			;}
+			}
     break;
 
   case 96:
-#line 1538 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1532 "parser-sming.y"
     {
 				if(identityPtr && (yyvsp[(8) - (8)].identityPtr)) {
 					setIdentityParent(identityPtr,(yyvsp[(8) - (8)].identityPtr));
 				}
-			;}
+			}
     break;
 
   case 97:
-#line 1544 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1538 "parser-sming.y"
     {
 			    if (identityPtr && (yyvsp[(10) - (10)].status)) {
 				setIdentityStatus(identityPtr, (yyvsp[(10) - (10)].status));
 			    }
-			;}
+			}
     break;
 
   case 98:
-#line 1550 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1544 "parser-sming.y"
     {
 				if (identityPtr && (yyvsp[(12) - (12)].text)) {
 				setIdentityDescription(identityPtr, (yyvsp[(12) - (12)].text),
 						    			thisParserPtr);
 			    }
-			;}
+			}
     break;
 
   case 99:
-#line 1557 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1551 "parser-sming.y"
     {
 				setIdentityReference(identityPtr, (yyvsp[(14) - (14)].text), 
 									 thisParserPtr)
@@ -3512,357 +3575,407 @@ yyreduce:
     break;
 
   case 100:
-#line 1562 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1556 "parser-sming.y"
     {
 			    (yyval.identityPtr) = 0;
 			    identityPtr = NULL;
-			;}
+			}
     break;
 
   case 101:
-#line 1569 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1563 "parser-sming.y"
     {
 			    (yyval.typePtr) = (yyvsp[(3) - (5)].typePtr);
-			;}
+			}
     break;
 
   case 102:
-#line 1575 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1569 "parser-sming.y"
     {
 			    (yyval.attributePtr) = (yyvsp[(3) - (5)].attributePtr);
-			;}
+			}
     break;
 
   case 103:
-#line 1581 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1575 "parser-sming.y"
     {
 			    (yyval.date) = (yyvsp[(3) - (5)].date);
-			;}
+			}
     break;
 
   case 104:
-#line 1587 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1581 "parser-sming.y"
     {
 			    (yyval.text) = (yyvsp[(3) - (5)].text);
-			;}
+			}
     break;
 
   case 105:
-#line 1593 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1587 "parser-sming.y"
     {
 			    (yyval.text) = (yyvsp[(3) - (5)].text);
-			;}
+			}
     break;
 
   case 106:
-#line 1599 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1593 "parser-sming.y"
     {
 			    (yyval.text) = NULL;
-			;}
+			}
     break;
 
   case 107:
-#line 1603 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1597 "parser-sming.y"
     {
 			    (yyval.text) = (yyvsp[(1) - (2)].text);
-			;}
+			}
     break;
 
   case 108:
-#line 1609 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1603 "parser-sming.y"
     {
 			    (yyval.text) = (yyvsp[(3) - (5)].text);
-			;}
+			}
     break;
 
   case 109:
-#line 1615 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1609 "parser-sming.y"
     {
 			    (yyval.text) = NULL;
-			;}
+			}
     break;
 
   case 110:
-#line 1619 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1613 "parser-sming.y"
     {
 			    (yyval.text) = (yyvsp[(1) - (2)].text);
-			;}
+			}
     break;
 
   case 111:
-#line 1625 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1619 "parser-sming.y"
     {
 			    (yyval.text) = (yyvsp[(3) - (5)].text);
-			;}
+			}
     break;
 
   case 112:
-#line 1631 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1625 "parser-sming.y"
     {
 			    (yyval.status) = SMI_STATUS_CURRENT;
-			;}
+			}
     break;
 
   case 113:
-#line 1635 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1629 "parser-sming.y"
     {
 			    (yyval.status) = (yyvsp[(1) - (2)].status);
-			;}
+			}
     break;
 
   case 114:
-#line 1641 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1635 "parser-sming.y"
     {
 			    (yyval.status) = (yyvsp[(3) - (5)].status);
-			;}
+			}
     break;
 
   case 115:
-#line 1647 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1641 "parser-sming.y"
     {
 			    (yyval.listPtr) = NULL;
-			;}
+			}
     break;
 
   case 116:
-#line 1651 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1645 "parser-sming.y"
     {
 			    (yyval.listPtr) = (yyvsp[(1) - (2)].listPtr);
-			;}
+			}
     break;
 
   case 117:
-#line 1657 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1651 "parser-sming.y"
     {
 			    (yyval.listPtr) = (yyvsp[(4) - (7)].listPtr);
-			;}
+			}
     break;
 
   case 118:
-#line 1663 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1657 "parser-sming.y"
     {
-				(yyval.listPtr) = smiMalloc(sizeof(List));
-			    (yyval.listPtr)->ptr = "#@#"; //used to indicate that unique
-			    				 //statement is present and empty
-			    				 //i.e. the class is scalar
+			    (yyval.listPtr) = smiMalloc(sizeof(List));
+			    (yyval.listPtr)->ptr = "#@#";
+			    /* used to indicate that unique statement
+			     is present and empty i.e. the class is
+			     scalar */
 			    (yyval.listPtr)->nextPtr = NULL;
-			;}
+			}
     break;
 
   case 119:
-#line 1671 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1666 "parser-sming.y"
     {
 			    (yyval.listPtr) = smiMalloc(sizeof(List));
 			    (yyval.listPtr)->ptr = (yyvsp[(1) - (3)].text);
 			    (yyval.listPtr)->nextPtr = (yyvsp[(2) - (3)].listPtr);
-			;}
+			}
     break;
 
   case 120:
-#line 1682 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1677 "parser-sming.y"
     {
 			    (yyval.classPtr) = NULL;
-			;}
+			}
     break;
 
   case 121:
-#line 1686 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1681 "parser-sming.y"
     {
 			    (yyval.classPtr) = (yyvsp[(1) - (2)].classPtr);
-			;}
+			}
     break;
 
   case 122:
-#line 1692 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1687 "parser-sming.y"
     {
 			    (yyval.classPtr) = findClass((yyvsp[(3) - (5)].text), thisParserPtr,thisModulePtr);
 			    if(!(yyval.classPtr))smiPrintError(thisParserPtr,
 					      ERR_UNKNOWN_CLASS,
 					      (yyvsp[(3) - (5)].text));
 			    
-			;}
+			}
     break;
 
   case 123:
-#line 1702 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1697 "parser-sming.y"
     {
 			    (yyval.valuePtr) = NULL;
-			;}
+			}
     break;
 
   case 124:
-#line 1706 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1701 "parser-sming.y"
     {
 			    (yyval.valuePtr) = (yyvsp[(1) - (2)].valuePtr);
-			;}
+			}
     break;
 
   case 125:
-#line 1712 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1707 "parser-sming.y"
     {
 			    (yyval.valuePtr) = (yyvsp[(3) - (5)].valuePtr);
-			;}
+			}
     break;
 
   case 126:
-#line 1718 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1713 "parser-sming.y"
     {
 			    (yyval.access) = SMI_ACCESS_UNKNOWN;
-			;}
+			}
     break;
 
   case 127:
-#line 1722 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1717 "parser-sming.y"
     {
 			    (yyval.access) = (yyvsp[(1) - (2)].access);
-			;}
+			}
     break;
 
   case 128:
-#line 1728 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1723 "parser-sming.y"
     {
 			    (yyval.access) = (yyvsp[(3) - (5)].access);
-			;}
+			}
     break;
 
   case 129:
-#line 1734 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1729 "parser-sming.y"
     {
 				(yyval.access) = SMI_ACCESS_READ_ONLY;
-			;}
+			}
     break;
 
   case 130:
-#line 1738 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1733 "parser-sming.y"
     {
 				(yyval.access) = SMI_ACCESS_READ_WRITE;
-			;}
+			}
     break;
 
   case 131:
-#line 1742 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1737 "parser-sming.y"
     {
 				(yyval.access) = SMI_ACCESS_EVENT_ONLY;
-			;}
+			}
     break;
 
   case 132:
-#line 1748 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1743 "parser-sming.y"
     {
 			    (yyval.identityPtr) = NULL;
-			;}
+			}
     break;
 
   case 133:
-#line 1752 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1747 "parser-sming.y"
     {
 			    (yyval.identityPtr) = (yyvsp[(1) - (2)].identityPtr);
-			;}
+			}
     break;
 
   case 134:
-#line 1758 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1753 "parser-sming.y"
     {
 			    (yyval.identityPtr) = findIdentity((yyvsp[(3) - (5)].text), thisParserPtr, thisModulePtr);
 			    if(!(yyval.identityPtr))smiPrintError(thisParserPtr,
 					      ERR_IDENTITY_PARENT_NOT_FOUND,
 					      (yyvsp[(3) - (5)].text));
-			;}
+			}
     break;
 
   case 135:
-#line 1767 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1762 "parser-sming.y"
     {
 			    (yyval.text) = NULL;
-			;}
+			}
     break;
 
   case 136:
-#line 1771 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1766 "parser-sming.y"
     {
 			    (yyval.text) = (yyvsp[(1) - (2)].text);
-			;}
+			}
     break;
 
   case 137:
-#line 1777 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1772 "parser-sming.y"
     {
 			    (yyval.text) = (yyvsp[(3) - (5)].text);
-			;}
+			}
     break;
 
   case 138:
-#line 1783 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1778 "parser-sming.y"
     {
 			    (yyval.text) = NULL;
-			;}
+			}
     break;
 
   case 139:
-#line 1787 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1782 "parser-sming.y"
     {
 			    (yyval.text) = (yyvsp[(1) - (2)].text);
-			;}
+			}
     break;
 
   case 140:
-#line 1793 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1788 "parser-sming.y"
     {
 			    (yyval.text) = (yyvsp[(3) - (5)].text);
-			;}
+			}
     break;
 
   case 141:
-#line 1799 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1794 "parser-sming.y"
     {
 			    (yyval.text) = NULL;
-			;}
+			}
     break;
 
   case 142:
-#line 1803 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1798 "parser-sming.y"
     {
 			    (yyval.text) = (yyvsp[(1) - (2)].text);
-			;}
+			}
     break;
 
   case 143:
-#line 1809 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1804 "parser-sming.y"
     {
 			    (yyval.text) = (yyvsp[(3) - (5)].text);
-			;}
+			}
     break;
 
   case 144:
-#line 1817 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1812 "parser-sming.y"
     {
 			    (yyval.typePtr) = (yyvsp[(1) - (1)].typePtr);
-			;}
+			}
     break;
 
   case 145:
-#line 1821 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1816 "parser-sming.y"
     {
 			    (yyval.typePtr) = (yyvsp[(1) - (1)].typePtr);
-			;}
+			}
     break;
 
   case 146:
-#line 1827 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1822 "parser-sming.y"
     {
 			    (yyval.attributePtr) = (yyvsp[(1) - (1)].attributePtr);
-			;}
+			}
     break;
 
   case 147:
-#line 1831 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1826 "parser-sming.y"
     {
 			    (yyval.attributePtr) = (yyvsp[(1) - (1)].attributePtr);
-			;}
+			}
     break;
 
   case 148:
-#line 1838 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1833 "parser-sming.y"
     {
 			    List *p;
 			    
@@ -3876,18 +3989,20 @@ yyreduce:
 				for (p = (yyvsp[(2) - (2)].listPtr); p; p = p->nextPtr)
 				    ((Range *)p->ptr)->typePtr = (yyval.typePtr);
 			    }
-			;}
+			}
     break;
 
   case 149:
-#line 1853 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1848 "parser-sming.y"
     {
 			    (yyval.typePtr) = smiHandle->typeObjectIdentifierPtr;
-			;}
+			}
     break;
 
   case 150:
-#line 1857 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1852 "parser-sming.y"
     {
 			    List *p;
 			    
@@ -3901,11 +4016,12 @@ yyreduce:
 				for (p = (yyvsp[(2) - (2)].listPtr); p; p = p->nextPtr)
 				    ((Range *)p->ptr)->typePtr = (yyval.typePtr);
 			    }
-			;}
+			}
     break;
 
   case 151:
-#line 1872 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1867 "parser-sming.y"
     {
 			    List *p;
 			    
@@ -3919,11 +4035,12 @@ yyreduce:
 				for (p = (yyvsp[(2) - (2)].listPtr); p; p = p->nextPtr)
 				    ((Range *)p->ptr)->typePtr = (yyval.typePtr);
 			    }
-			;}
+			}
     break;
 
   case 152:
-#line 1887 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1882 "parser-sming.y"
     {
 			    List *p;
 			    
@@ -3937,11 +4054,12 @@ yyreduce:
 				for (p = (yyvsp[(2) - (2)].listPtr); p; p = p->nextPtr)
 				    ((Range *)p->ptr)->typePtr = (yyval.typePtr);
 			    }
-			;}
+			}
     break;
 
   case 153:
-#line 1902 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1897 "parser-sming.y"
     {
 			    List *p;
 			    
@@ -3955,11 +4073,12 @@ yyreduce:
 				for (p = (yyvsp[(2) - (2)].listPtr); p; p = p->nextPtr)
 				    ((Range *)p->ptr)->typePtr = (yyval.typePtr);
 			    }
-			;}
+			}
     break;
 
   case 154:
-#line 1917 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1912 "parser-sming.y"
     {
 			    List *p;
 			    
@@ -3973,11 +4092,12 @@ yyreduce:
 				for (p = (yyvsp[(2) - (2)].listPtr); p; p = p->nextPtr)
 				    ((Range *)p->ptr)->typePtr = (yyval.typePtr);
 			    }
-			;}
+			}
     break;
 
   case 155:
-#line 1932 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1927 "parser-sming.y"
     {
 			    List *p;
 			    
@@ -3991,11 +4111,12 @@ yyreduce:
 				for (p = (yyvsp[(2) - (2)].listPtr); p; p = p->nextPtr)
 				    ((Range *)p->ptr)->typePtr = (yyval.typePtr);
 			    }
-			;}
+			}
     break;
 
   case 156:
-#line 1947 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1942 "parser-sming.y"
     {
 			    List *p;
 			    
@@ -4009,11 +4130,12 @@ yyreduce:
 				for (p = (yyvsp[(2) - (2)].listPtr); p; p = p->nextPtr)
 				    ((Range *)p->ptr)->typePtr = (yyval.typePtr);
 			    }
-			;}
+			}
     break;
 
   case 157:
-#line 1962 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1957 "parser-sming.y"
     {
 			    if (!(yyvsp[(2) - (2)].listPtr)) {
 				(yyval.typePtr) = smiHandle->typePointerPtr;
@@ -4023,11 +4145,12 @@ yyreduce:
 				setTypeParent((yyval.typePtr), smiHandle->typePointerPtr);
 				setTypeList((yyval.typePtr), (yyvsp[(2) - (2)].listPtr));				
 				}
-			;}
+			}
     break;
 
   case 158:
-#line 1973 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1968 "parser-sming.y"
     {
 			    List *p;
 			    
@@ -4041,23 +4164,24 @@ yyreduce:
 				for (p = (yyvsp[(2) - (2)].listPtr); p; p = p->nextPtr)
 				    ((NamedNumber *)p->ptr)->typePtr = (yyval.typePtr);
 			    }
-			;}
+			}
     break;
 
   case 159:
-#line 1988 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1983 "parser-sming.y"
     {
-				bitsFlag = 1; //Since Enum elements can be 
-							  //negative we must make sure
-							  //that bits is not negative,
-							  //so we raise bitsFlag and
-							  //give error if there is
-							  //negative value 
-			;}
+			    /* Since Enum elements can be negative we
+			       must make sure that bits is not
+			       negative, so we raise bitsFlag and give
+			       error if there is negative value. */
+			    bitsFlag = 1;
+			}
     break;
 
   case 160:
-#line 1997 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 1991 "parser-sming.y"
     {
 			    List *p;
 			    
@@ -4072,12 +4196,13 @@ yyreduce:
 				    ((NamedNumber *)p->ptr)->typePtr = (yyval.typePtr);
 			    }
 			    
-			    bitsFlag = 0;//reset flag
-			;}
+			    bitsFlag = 0; /* reset flag */
+			}
     break;
 
   case 161:
-#line 2017 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2011 "parser-sming.y"
     {
 			    List *p;
 			    (yyval.attributePtr) = duplicateTypeToAttribute(smiHandle->typeOctetStringPtr,
@@ -4088,20 +4213,22 @@ yyreduce:
 					for (p = (yyvsp[(2) - (2)].listPtr); p; p = p->nextPtr)
 				    	((Range *)p->ptr)->typePtr = (Type*)(yyval.attributePtr);
 			    }
-			;}
+			}
     break;
 
   case 162:
-#line 2029 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2023 "parser-sming.y"
     {
 			    (yyval.attributePtr) = duplicateTypeToAttribute(
 			    	smiHandle->typeObjectIdentifierPtr, classPtr, thisParserPtr);
 			   	setAttributeParentType((yyval.attributePtr), smiHandle->typeObjectIdentifierPtr);
-			;}
+			}
     break;
 
   case 163:
-#line 2035 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2029 "parser-sming.y"
     {
 			    List *p;
 			    
@@ -4113,11 +4240,12 @@ yyreduce:
 					for (p = (yyvsp[(2) - (2)].listPtr); p; p = p->nextPtr)
 				    	((Range *)p->ptr)->typePtr = (Type*)(yyval.attributePtr);
 			    }
-			;}
+			}
     break;
 
   case 164:
-#line 2048 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2042 "parser-sming.y"
     {
 			    List *p;
 			    
@@ -4129,11 +4257,12 @@ yyreduce:
 					for (p = (yyvsp[(2) - (2)].listPtr); p; p = p->nextPtr)
 				    	((Range *)p->ptr)->typePtr = (Type*)(yyval.attributePtr);
 			    }
-			;}
+			}
     break;
 
   case 165:
-#line 2061 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2055 "parser-sming.y"
     {
 			   List *p;
 			    
@@ -4145,11 +4274,12 @@ yyreduce:
 					for (p = (yyvsp[(2) - (2)].listPtr); p; p = p->nextPtr)
 				    	((Range *)p->ptr)->typePtr = (Type*)(yyval.attributePtr);
 			    }
-			;}
+			}
     break;
 
   case 166:
-#line 2074 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2068 "parser-sming.y"
     {
 			   List *p;
 			    
@@ -4161,11 +4291,12 @@ yyreduce:
 					for (p = (yyvsp[(2) - (2)].listPtr); p; p = p->nextPtr)
 				    	((Range *)p->ptr)->typePtr = (Type*)(yyval.attributePtr);
 			    }
-			;}
+			}
     break;
 
   case 167:
-#line 2087 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2081 "parser-sming.y"
     {
 			    List *p;
 			    
@@ -4177,11 +4308,12 @@ yyreduce:
 					for (p = (yyvsp[(2) - (2)].listPtr); p; p = p->nextPtr)
 				    	((Range *)p->ptr)->typePtr = (Type*)(yyval.attributePtr);
 			    }
-			;}
+			}
     break;
 
   case 168:
-#line 2100 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2094 "parser-sming.y"
     {
 			   List *p;
 			    
@@ -4193,11 +4325,12 @@ yyreduce:
 					for (p = (yyvsp[(2) - (2)].listPtr); p; p = p->nextPtr)
 				    	((Range *)p->ptr)->typePtr = (Type*)(yyval.attributePtr);
 			    }
-			;}
+			}
     break;
 
   case 169:
-#line 2113 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2107 "parser-sming.y"
     {
 			    List *p;
 			    
@@ -4209,11 +4342,12 @@ yyreduce:
 				for (p = (yyvsp[(2) - (2)].listPtr); p; p = p->nextPtr)
 				    ((Range *)p->ptr)->typePtr = (Type*)(yyval.attributePtr);
 			    }
-			;}
+			}
     break;
 
   case 170:
-#line 2126 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2120 "parser-sming.y"
     {
 			    (yyval.attributePtr) = duplicateTypeToAttribute(smiHandle->typePointerPtr,
 							  classPtr, thisParserPtr);
@@ -4221,39 +4355,41 @@ yyreduce:
 			    if ((yyvsp[(2) - (2)].listPtr)) {
 				setAttributeList((yyval.attributePtr), (yyvsp[(2) - (2)].listPtr));
 			    }
-			;}
+			}
     break;
 
   case 171:
-#line 2135 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2129 "parser-sming.y"
     {
 			    List *p;
 			    
 			    (yyval.attributePtr) = duplicateTypeToAttribute(smiHandle->typeEnumPtr,
-													classPtr, thisParserPtr);
-				setAttributeParentType((yyval.attributePtr), smiHandle->typeEnumPtr);
+							  classPtr, thisParserPtr);
+			    setAttributeParentType((yyval.attributePtr), smiHandle->typeEnumPtr);
 			    if ((yyvsp[(2) - (2)].listPtr)) {
-					setAttributeList((yyval.attributePtr), (yyvsp[(2) - (2)].listPtr));
-					for (p = (yyvsp[(2) - (2)].listPtr); p; p = p->nextPtr)
-				    	((NamedNumber *)p->ptr)->typePtr = (Type*)(yyval.attributePtr);
+				setAttributeList((yyval.attributePtr), (yyvsp[(2) - (2)].listPtr));
+				for (p = (yyvsp[(2) - (2)].listPtr); p; p = p->nextPtr)
+				    ((NamedNumber *)p->ptr)->typePtr = (Type*)(yyval.attributePtr);
 			    }
-			;}
+			}
     break;
 
   case 172:
-#line 2148 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2142 "parser-sming.y"
     {
-				bitsFlag = 1; //Since Enum elements can be 
-							  //negative we must make sure
-							  //that bits is not negative,
-							  //so we raise bitsFlag and
-							  //give error if there is
-							  //negative value 
-			;}
+			    /* Since Enum elements can be negative we
+			       must make sure that bits is not
+			       negative, so we raise bitsFlag and give
+			       error if there is negative value. */
+			    bitsFlag = 1;
+			}
     break;
 
   case 173:
-#line 2157 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2150 "parser-sming.y"
     {
 			    List *p;
 			    
@@ -4267,11 +4403,12 @@ yyreduce:
 			    }
 			    
 			    bitsFlag = 0; /* reset flag */
-			;}
+			}
     break;
 
   case 174:
-#line 2174 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2167 "parser-sming.y"
     {
 			    typePtr = findType((yyvsp[(1) - (2)].text), thisParserPtr,
 					       thisModulePtr);
@@ -4282,11 +4419,12 @@ yyreduce:
 			    }
 
 			    (yyval.typePtr) = typePtr;
-			;}
+			}
     break;
 
   case 175:
-#line 2188 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2181 "parser-sming.y"
     {
 			    Class *tmp;
 			    typePtr = findType((yyvsp[(1) - (2)].text), thisParserPtr,
@@ -4315,85 +4453,96 @@ yyreduce:
 				
 
 			    (yyval.attributePtr) = attributePtr;
-			;}
+			}
     break;
 
   case 176:
-#line 2220 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2213 "parser-sming.y"
     {
 			    (yyval.listPtr) = NULL;
-			;}
+			}
     break;
 
   case 177:
-#line 2224 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2217 "parser-sming.y"
     {
 			    (yyval.listPtr) = (yyvsp[(2) - (2)].listPtr);
-			;}
+			}
     break;
 
   case 178:
-#line 2230 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2223 "parser-sming.y"
     {
 			    (yyval.listPtr) = (yyvsp[(1) - (1)].listPtr);
-			;}
+			}
     break;
 
   case 179:
-#line 2234 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2227 "parser-sming.y"
     {
 			    (yyval.listPtr) = (yyvsp[(1) - (1)].listPtr);
-			;}
+			}
     break;
 
   case 180:
-#line 2240 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2233 "parser-sming.y"
     {
 			    (yyval.listPtr) = NULL;
-			;}
+			}
     break;
 
   case 181:
-#line 2244 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2237 "parser-sming.y"
     {
 			    (yyval.listPtr) = (yyvsp[(2) - (2)].listPtr);
-			;}
+			}
     break;
 
   case 182:
-#line 2251 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2244 "parser-sming.y"
     {
 			    (yyval.listPtr) = smiMalloc(sizeof(List));
 			    (yyval.listPtr)->ptr = (yyvsp[(3) - (6)].rangePtr);
 			    (yyval.listPtr)->nextPtr = (yyvsp[(4) - (6)].listPtr);
-			;}
+			}
     break;
 
   case 183:
-#line 2259 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2252 "parser-sming.y"
     {
 			    (yyval.listPtr) = NULL;
-			;}
+			}
     break;
 
   case 184:
-#line 2263 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2256 "parser-sming.y"
     {
 			    (yyval.listPtr) = (yyvsp[(1) - (1)].listPtr);
-			;}
+			}
     break;
 
   case 185:
-#line 2269 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2262 "parser-sming.y"
     {
 			    (yyval.listPtr) = smiMalloc(sizeof(List));
 			    (yyval.listPtr)->ptr = (yyvsp[(1) - (1)].rangePtr);
 			    (yyval.listPtr)->nextPtr = NULL;
-			;}
+			}
     break;
 
   case 186:
-#line 2275 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2268 "parser-sming.y"
     {
 			    List *p, *pp;
 			    
@@ -4403,18 +4552,20 @@ yyreduce:
 			    for (pp = (yyvsp[(1) - (2)].listPtr); pp->nextPtr; pp = pp->nextPtr);
 			    pp->nextPtr = p;
 			    (yyval.listPtr) = (yyvsp[(1) - (2)].listPtr);
-			;}
+			}
     break;
 
   case 187:
-#line 2288 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2281 "parser-sming.y"
     {
 			    (yyval.rangePtr) = (yyvsp[(4) - (4)].rangePtr);
-			;}
+			}
     break;
 
   case 188:
-#line 2294 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2287 "parser-sming.y"
     {
 			    (yyval.rangePtr) = smiMalloc(sizeof(Range));
 			    (yyval.rangePtr)->export.minValue = *(yyvsp[(1) - (2)].valuePtr);
@@ -4425,78 +4576,88 @@ yyreduce:
 				(yyval.rangePtr)->export.maxValue = *(yyvsp[(1) - (2)].valuePtr);
 			    }
 			    smiFree((yyvsp[(1) - (2)].valuePtr));
-			;}
+			}
     break;
 
   case 189:
-#line 2308 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2301 "parser-sming.y"
     {
 			    (yyval.valuePtr) = NULL;
-			;}
+			}
     break;
 
   case 190:
-#line 2312 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2305 "parser-sming.y"
     {
 			    (yyval.valuePtr) = (yyvsp[(1) - (1)].valuePtr);
-			;}
+			}
     break;
 
   case 191:
-#line 2318 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2311 "parser-sming.y"
     {
 			    (yyval.valuePtr) = (yyvsp[(4) - (4)].valuePtr);
-			;}
+			}
     break;
 
   case 192:
-#line 2324 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2317 "parser-sming.y"
     {
 			    (yyval.listPtr) = NULL;
-			;}
+			}
     break;
 
   case 193:
-#line 2328 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2321 "parser-sming.y"
     {
 			    (yyval.listPtr) = (yyvsp[(2) - (2)].listPtr);
-			;}
+			}
     break;
 
   case 194:
-#line 2335 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2328 "parser-sming.y"
     {
 			    (yyval.listPtr) = smiMalloc(sizeof(List));
 			    (yyval.listPtr)->ptr = (yyvsp[(3) - (6)].rangePtr);
 			    (yyval.listPtr)->nextPtr = (yyvsp[(4) - (6)].listPtr);
-			;}
+			}
     break;
 
   case 195:
-#line 2343 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2336 "parser-sming.y"
     {
 			    (yyval.listPtr) = NULL;
-			;}
+			}
     break;
 
   case 196:
-#line 2347 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2340 "parser-sming.y"
     {
 			    (yyval.listPtr) = (yyvsp[(1) - (1)].listPtr);
-			;}
+			}
     break;
 
   case 197:
-#line 2353 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2346 "parser-sming.y"
     {
 			    (yyval.listPtr) = smiMalloc(sizeof(List));
 			    (yyval.listPtr)->ptr = (yyvsp[(1) - (1)].rangePtr);
 			    (yyval.listPtr)->nextPtr = NULL;
-			;}
+			}
     break;
 
   case 198:
-#line 2359 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2352 "parser-sming.y"
     {
 			    List *p, *pp;
 			    
@@ -4506,18 +4667,20 @@ yyreduce:
 			    for (pp = (yyvsp[(1) - (2)].listPtr); pp->nextPtr; pp = pp->nextPtr);
 			    pp->nextPtr = p;
 			    (yyval.listPtr) = (yyvsp[(1) - (2)].listPtr);
-			;}
+			}
     break;
 
   case 199:
-#line 2372 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2365 "parser-sming.y"
     {
 			    (yyval.rangePtr) = (yyvsp[(4) - (4)].rangePtr);
-			;}
+			}
     break;
 
   case 200:
-#line 2378 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2371 "parser-sming.y"
     {
 			    (yyval.rangePtr) = smiMalloc(sizeof(Range));
 			    (yyval.rangePtr)->export.minValue.basetype = SMI_BASETYPE_FLOAT64;
@@ -4530,123 +4693,139 @@ yyreduce:
 			    } else {
 				(yyval.rangePtr)->export.maxValue = (yyval.rangePtr)->export.minValue;
 			    }
-			;}
+			}
     break;
 
   case 201:
-#line 2394 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2387 "parser-sming.y"
     {
 			    (yyval.text) = NULL;
-			;}
+			}
     break;
 
   case 202:
-#line 2398 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2391 "parser-sming.y"
     {
 			    (yyval.text) = (yyvsp[(1) - (1)].text);
-			;}
+			}
     break;
 
   case 203:
-#line 2404 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2397 "parser-sming.y"
     {
 			    (yyval.text) = (yyvsp[(4) - (4)].text);
-			;}
+			}
     break;
 
   case 204:
-#line 2411 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2404 "parser-sming.y"
     {
 				(yyval.text)="-inf";
-			;}
+			}
     break;
 
   case 205:
-#line 2415 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2408 "parser-sming.y"
     {
 				(yyval.text)="+inf";
-			;}
+			}
     break;
 
   case 206:
-#line 2419 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2412 "parser-sming.y"
     {
 				(yyval.text)="nan";
-			;}
+			}
     break;
 
   case 207:
-#line 2423 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2416 "parser-sming.y"
     {
 				(yyval.text)="nan";
-			;}
+			}
     break;
 
   case 208:
-#line 2429 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2422 "parser-sming.y"
     {
 			    (yyval.listPtr) = NULL;
-			;}
+			}
     break;
 
   case 209:
-#line 2433 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2426 "parser-sming.y"
     {
 			    NamedNumber *nn =(NamedNumber*)smiMalloc(sizeof(NamedNumber));
 			    (yyval.listPtr) = smiMalloc(sizeof(List));
 			    (yyval.listPtr)->ptr = nn;
 			    nn->export.name = (yyvsp[(2) - (2)].text);
-			;}
+			}
     break;
 
   case 210:
-#line 2442 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2435 "parser-sming.y"
     {
 			    (yyval.text) = (yyvsp[(3) - (5)].text);
-			;}
+			}
     break;
 
   case 211:
-#line 2448 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2441 "parser-sming.y"
     {
 			    (yyval.listPtr) = (yyvsp[(3) - (5)].listPtr);
-			;}
+			}
     break;
 
   case 212:
-#line 2455 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2448 "parser-sming.y"
     {
 			    (yyval.listPtr) = smiMalloc(sizeof(List));
 			    (yyval.listPtr)->ptr = (yyvsp[(1) - (3)].namedNumberPtr);
 			    (yyval.listPtr)->nextPtr = (yyvsp[(2) - (3)].listPtr);
-			;}
+			}
     break;
 
   case 213:
-#line 2463 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2456 "parser-sming.y"
     {
 			    (yyval.listPtr) = NULL;
-			;}
+			}
     break;
 
   case 214:
-#line 2467 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2460 "parser-sming.y"
     {
 			    (yyval.listPtr) = (yyvsp[(1) - (1)].listPtr);
-			;}
+			}
     break;
 
   case 215:
-#line 2473 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2466 "parser-sming.y"
     {
 			    (yyval.listPtr) = smiMalloc(sizeof(List));
 			    (yyval.listPtr)->ptr = (yyvsp[(1) - (1)].namedNumberPtr);
 			    (yyval.listPtr)->nextPtr = NULL;
-			;}
+			}
     break;
 
   case 216:
-#line 2480 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2473 "parser-sming.y"
     {
 			    List *p, *pp;
 			    
@@ -4656,59 +4835,66 @@ yyreduce:
 			    for (pp = (yyvsp[(1) - (2)].listPtr); pp->nextPtr; pp = pp->nextPtr);
 			    pp->nextPtr = p;
 			    (yyval.listPtr) = (yyvsp[(1) - (2)].listPtr);
-			;}
+			}
     break;
 
   case 217:
-#line 2494 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2487 "parser-sming.y"
     {
 			    (yyval.namedNumberPtr) = (yyvsp[(4) - (4)].namedNumberPtr);
-			;}
+			}
     break;
 
   case 218:
-#line 2500 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2493 "parser-sming.y"
     {
 			    (yyval.namedNumberPtr) = smiMalloc(sizeof(NamedNumber));
 			    (yyval.namedNumberPtr)->export.name = (yyvsp[(1) - (7)].text);
 			    (yyval.namedNumberPtr)->export.value = *(yyvsp[(5) - (7)].valuePtr);
-			;}
+			}
     break;
 
   case 219:
-#line 2508 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2501 "parser-sming.y"
     {
 			    (yyval.listPtr) = smiMalloc(sizeof(List));
 			    (yyval.listPtr)->ptr = (yyvsp[(1) - (3)].text);
 			    (yyval.listPtr)->nextPtr = (yyvsp[(2) - (3)].listPtr);
-			;}
+			}
     break;
 
   case 220:
-#line 2516 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2509 "parser-sming.y"
     {
 			    (yyval.listPtr) = NULL;
-			;}
+			}
     break;
 
   case 221:
-#line 2520 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2513 "parser-sming.y"
     {
 			    (yyval.listPtr) = (yyvsp[(1) - (1)].listPtr);
-			;}
+			}
     break;
 
   case 222:
-#line 2526 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2519 "parser-sming.y"
     {
 			    (yyval.listPtr) = smiMalloc(sizeof(List));
 			    (yyval.listPtr)->ptr = (yyvsp[(1) - (1)].text);
 			    (yyval.listPtr)->nextPtr = NULL;
-			;}
+			}
     break;
 
   case 223:
-#line 2532 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2525 "parser-sming.y"
     {
 			    List *p, *pp;
 			    
@@ -4718,64 +4904,72 @@ yyreduce:
 			    for (pp = (yyvsp[(1) - (2)].listPtr); pp->nextPtr; pp = pp->nextPtr);
 			    pp->nextPtr = p;
 			    (yyval.listPtr) = (yyvsp[(1) - (2)].listPtr);
-			;}
+			}
     break;
 
   case 224:
-#line 2545 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2538 "parser-sming.y"
     {
 			    (yyval.text) = (yyvsp[(4) - (4)].text);
-			;}
+			}
     break;
 
   case 225:
-#line 2551 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2544 "parser-sming.y"
     {
 			    (yyval.listPtr) = (yyvsp[(3) - (5)].listPtr);
-			;}
+			}
     break;
 
   case 226:
-#line 2557 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2550 "parser-sming.y"
     {
 			    (yyval.listPtr) = NULL;
-			;}
+			}
     break;
 
   case 227:
-#line 2561 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2554 "parser-sming.y"
     {
 			    (yyval.listPtr) = smiMalloc(sizeof(List));
 			    (yyval.listPtr)->ptr = (yyvsp[(1) - (3)].text);
 			    (yyval.listPtr)->nextPtr = (yyvsp[(2) - (3)].listPtr);
-			;}
+			}
     break;
 
   case 228:
-#line 2570 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2563 "parser-sming.y"
     {
 			    (yyval.listPtr) = NULL;
-			;}
+			}
     break;
 
   case 229:
-#line 2574 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2567 "parser-sming.y"
     {
 			    (yyval.listPtr) = (yyvsp[(1) - (1)].listPtr);
-			;}
+			}
     break;
 
   case 230:
-#line 2580 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2573 "parser-sming.y"
     {
 			    (yyval.listPtr) = smiMalloc(sizeof(List));
 			    (yyval.listPtr)->ptr = (yyvsp[(1) - (1)].text);
 			    (yyval.listPtr)->nextPtr = NULL;
-			;}
+			}
     break;
 
   case 231:
-#line 2586 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2579 "parser-sming.y"
     {
 			    List *p, *pp;
 			    
@@ -4785,32 +4979,36 @@ yyreduce:
 			    for (pp = (yyvsp[(1) - (2)].listPtr); pp->nextPtr; pp = pp->nextPtr);
 			    pp->nextPtr = p;
 			    (yyval.listPtr) = (yyvsp[(1) - (2)].listPtr);
-			;}
+			}
     break;
 
   case 232:
-#line 2599 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2592 "parser-sming.y"
     {
 			    (yyval.text) = (yyvsp[(4) - (4)].text);
-			;}
+			}
     break;
 
   case 233:
-#line 2605 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2598 "parser-sming.y"
     {
 			    (yyval.text) = (yyvsp[(1) - (1)].text);
-			;}
+			}
     break;
 
   case 234:
-#line 2609 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2602 "parser-sming.y"
     {
 			    (yyval.text) = (yyvsp[(1) - (1)].text);
-			;}
+			}
     break;
 
   case 235:
-#line 2615 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2608 "parser-sming.y"
     {
 			    char *s;
 
@@ -4820,18 +5018,20 @@ yyreduce:
 			    (yyval.text) = s;
 			    free((yyvsp[(1) - (3)].text));
 			    free((yyvsp[(3) - (3)].text));
-			;}
+			}
     break;
 
   case 236:
-#line 2626 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2619 "parser-sming.y"
     {
 			    (yyval.text) = (yyvsp[(1) - (1)].text);
-			;}
+			}
     break;
 
   case 237:
-#line 2632 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2625 "parser-sming.y"
     {
 			    char *s;
 
@@ -4839,18 +5039,20 @@ yyreduce:
 					  strlen((yyvsp[(3) - (3)].text)) + 3);
 			    sprintf(s, "%s::%s", (yyvsp[(1) - (3)].text), (yyvsp[(3) - (3)].text));
 			    (yyval.text) = s;
-			;}
+			}
     break;
 
   case 238:
-#line 2641 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2634 "parser-sming.y"
     {
 			    (yyval.text) = (yyvsp[(1) - (1)].text);
-			;}
+			}
     break;
 
   case 239:
-#line 2647 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2640 "parser-sming.y"
     {
 			    int len;
 			    if ((yyvsp[(2) - (2)].text)) {
@@ -4866,94 +5068,103 @@ yyreduce:
 			    while (len > 0 && (yyval.text)[len-1] == '\n') {
 				(yyval.text)[--len] = 0;
 			    }
-			;}
+			}
     break;
 
   case 240:
-#line 2666 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2659 "parser-sming.y"
     {
 			    (yyval.text) = NULL;
-			;}
+			}
     break;
 
   case 241:
-#line 2670 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2663 "parser-sming.y"
     {
 			    (yyval.text) = (yyvsp[(1) - (1)].text);
-			;}
+			}
     break;
 
   case 242:
-#line 2676 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2669 "parser-sming.y"
     {
 			    (yyval.text) = (yyvsp[(1) - (1)].text);
-			;}
+			}
     break;
 
   case 243:
-#line 2680 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2673 "parser-sming.y"
     {
 			    (yyval.text) = smiMalloc(strlen((yyvsp[(1) - (2)].text)) + strlen((yyvsp[(2) - (2)].text)) + 1);
 			    strcpy((yyval.text), (yyvsp[(1) - (2)].text));
 			    strcat((yyval.text), (yyvsp[(2) - (2)].text));
 			    free((yyvsp[(1) - (2)].text));
 			    free((yyvsp[(2) - (2)].text));
-			;}
+			}
     break;
 
   case 244:
-#line 2690 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2683 "parser-sming.y"
     {
 			    (yyval.text) = smiStrdup((yyvsp[(2) - (2)].text));
-			;}
+			}
     break;
 
   case 245:
-#line 2696 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2689 "parser-sming.y"
     {
 			    (yyval.date) = checkDate(thisParserPtr, (yyvsp[(1) - (1)].text));
-			;}
+			}
     break;
 
   case 246:
-#line 2702 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2695 "parser-sming.y"
     {
 			    (yyval.text) = smiStrdup((yyvsp[(1) - (1)].text));
-			;}
+			}
     break;
 
   case 247:
-#line 2708 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2701 "parser-sming.y"
     {
 			    (yyval.text) = smiStrdup((yyvsp[(1) - (1)].text));
-			;}
+			}
     break;
 
   case 248:
-#line 2721 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2714 "parser-sming.y"
     {
 			    if (defaultBasetype == SMI_BASETYPE_BITS) {
 				(yyval.valuePtr) = smiMalloc(sizeof(SmiValue));
 				(yyval.valuePtr)->basetype = SMI_BASETYPE_BITS;
 				(yyval.valuePtr)->value.ptr = (void*)((yyvsp[(1) - (1)].listPtr));
-				//set the bits value in the value.integer32
-				if(typePtr){
-					createBitsValue((yyval.valuePtr),typePtr);
-				}
-				else if(attributePtr){
-				createBitsValue((yyval.valuePtr),
-					(Type*)smiGetAttributeParentType(&(attributePtr->export)));
+				/* set the bits value in the value.integer32 */
+				if (typePtr){
+				    createBitsValue((yyval.valuePtr),typePtr);
+				} else if(attributePtr) {
+				    createBitsValue((yyval.valuePtr),
+						    (Type*)smiGetAttributeParentType(&(attributePtr->export)));
 				}
 			    } else {
 				smiPrintError(thisParserPtr,
 					      ERR_UNEXPECTED_VALUETYPE);
 				(yyval.valuePtr) = NULL;
 			    }
-			;}
+			}
     break;
 
   case 249:
-#line 2741 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2733 "parser-sming.y"
     {
 			    /* Note: might also be an OID or signed */
 			    switch (defaultBasetype) {
@@ -4990,11 +5201,12 @@ yyreduce:
 				(yyval.valuePtr) = NULL;
 				break;
 			    }
-			;}
+			}
     break;
 
   case 250:
-#line 2779 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2771 "parser-sming.y"
     {
 			    switch (defaultBasetype) {
 			    case SMI_BASETYPE_INTEGER32:
@@ -5013,11 +5225,12 @@ yyreduce:
 				(yyval.valuePtr) = NULL;
 				break;
 			    }
-			;}
+			}
     break;
 
   case 251:
-#line 2799 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2791 "parser-sming.y"
     {
 			    /* Note: might also be an octet string */
 			    switch (defaultBasetype) {
@@ -5053,11 +5266,12 @@ yyreduce:
 				(yyval.valuePtr) = NULL;
 				break;
 			    }
-			;}
+			}
     break;
 
   case 252:
-#line 2836 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2828 "parser-sming.y"
     {
 			    /* Note: might also be an OID */
 			    switch (defaultBasetype) {
@@ -5104,11 +5318,12 @@ yyreduce:
 				(yyval.valuePtr) = NULL;
 				break;
 			    }
-			;}
+			}
     break;
 
   case 253:
-#line 2884 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2876 "parser-sming.y"
     {
 		
 			    switch (defaultBasetype) {
@@ -5148,11 +5363,12 @@ yyreduce:
 				(yyval.valuePtr) = NULL;
 				break;
 			    }
-			;}
+			}
     break;
 
   case 254:
-#line 2925 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2917 "parser-sming.y"
     {
 				  /* Note: might also be an OID */
 			    switch (defaultBasetype) {
@@ -5192,11 +5408,12 @@ yyreduce:
 				(yyval.valuePtr) = NULL;
 				break;
 			    }	
-			;}
+			}
     break;
 
   case 255:
-#line 2966 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2958 "parser-sming.y"
     {
 			    if (defaultBasetype == SMI_BASETYPE_OCTETSTRING) {
 				(yyval.valuePtr) = smiMalloc(sizeof(SmiValue));
@@ -5208,11 +5425,12 @@ yyreduce:
 					      ERR_UNEXPECTED_VALUETYPE);
 				(yyval.valuePtr) = NULL;
 			    }
-			;}
+			}
     break;
 
   case 256:
-#line 2979 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 2971 "parser-sming.y"
     {
 			    /* Note: might be an Enumeration item or OID */
 			    /* TODO: convert if it's an oid? */
@@ -5244,11 +5462,12 @@ yyreduce:
 				(yyval.valuePtr) = NULL;
 				break;
 			    }
-			;}
+			}
     break;
 
   case 257:
-#line 3012 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 3004 "parser-sming.y"
     {
 			    if (defaultBasetype == SMI_BASETYPE_OBJECTIDENTIFIER){
 			    (yyval.valuePtr) = smiMalloc(sizeof(SmiValue));
@@ -5259,11 +5478,12 @@ yyreduce:
 			    else
 			    	smiPrintError(thisParserPtr,
 					      ERR_UNEXPECTED_VALUETYPE);
-			;}
+			}
     break;
 
   case 258:
-#line 3026 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 3018 "parser-sming.y"
     {
 			    char *s;
 
@@ -5271,117 +5491,141 @@ yyreduce:
 					  strlen((yyvsp[(3) - (3)].text)) + 3);
 			    sprintf(s, "%s::%s", (yyvsp[(1) - (3)].text), (yyvsp[(3) - (3)].text));
 			    (yyval.text) = s;
-			;}
+			}
     break;
 
   case 259:
-#line 3035 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 3027 "parser-sming.y"
     {
 				(yyval.text) = smiMalloc(strlen((yyvsp[(1) - (1)].text))+1);
 				strcpy((yyval.text),(yyvsp[(1) - (1)].text));
-			;}
+			}
     break;
 
   case 260:
-#line 3042 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 3034 "parser-sming.y"
     {
 			    (yyval.status) = SMI_STATUS_CURRENT;
-			;}
+			}
     break;
 
   case 261:
-#line 3046 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 3038 "parser-sming.y"
     {
 			    (yyval.status) = SMI_STATUS_DEPRECATED;
-			;}
+			}
     break;
 
   case 262:
-#line 3050 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 3042 "parser-sming.y"
     {
 			    (yyval.status) = SMI_STATUS_OBSOLETE;
-			;}
+			}
     break;
 
   case 263:
-#line 3056 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 3048 "parser-sming.y"
     {
 			    (yyval.valuePtr) = smiMalloc(sizeof(SmiValue));
 			    (yyval.valuePtr)->basetype = SMI_BASETYPE_UNSIGNED64;
 			    (yyval.valuePtr)->value.unsigned64 = strtoull((yyvsp[(1) - (1)].text), NULL, 16);
-			;}
+			}
     break;
 
   case 264:
-#line 3062 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 3054 "parser-sming.y"
     {
 			    (yyval.valuePtr) = smiMalloc(sizeof(SmiValue));
 			    (yyval.valuePtr)->basetype = SMI_BASETYPE_UNSIGNED64;
 			    (yyval.valuePtr)->value.unsigned64 = strtoull((yyvsp[(1) - (1)].text), NULL, 10);
-			;}
+			}
     break;
 
   case 265:
-#line 3070 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 3062 "parser-sming.y"
     {
 			    if(bitsFlag){
-			    smiPrintError(thisParserPtr,
+				smiPrintError(thisParserPtr,
 					      ERR_BITS_NUMBER_NEGATIVE);
-			    (yyval.valuePtr) = NULL;
+				(yyval.valuePtr) = NULL;
 			    }
 			    (yyval.valuePtr) = smiMalloc(sizeof(SmiValue));
 			    (yyval.valuePtr)->basetype = SMI_BASETYPE_INTEGER64;
 			    (yyval.valuePtr)->value.integer64 = - strtoll((yyvsp[(2) - (2)].text), NULL, 10);
-			;}
+			}
     break;
 
   case 266:
-#line 3083 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 3075 "parser-sming.y"
     {
 			    (yyval.valuePtr) = (yyvsp[(1) - (1)].valuePtr);
-			;}
+			}
     break;
 
   case 267:
-#line 3087 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 3079 "parser-sming.y"
     {
 			    (yyval.valuePtr) = (yyvsp[(1) - (1)].valuePtr);
-			;}
+			}
     break;
 
   case 268:
-#line 3097 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 3089 "parser-sming.y"
     {
 			    (yyval.rc) = 0;
-			;}
+			}
     break;
 
   case 269:
-#line 3104 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 3096 "parser-sming.y"
     {
 			    (yyval.rc) = 0;
-			;}
+			}
     break;
 
   case 270:
-#line 3110 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 3102 "parser-sming.y"
     {
 			    (yyval.rc) = 0;
-			;}
+			}
     break;
 
   case 271:
-#line 3116 "parser-sming.y"
+/* Line 1787 of yacc.c  */
+#line 3108 "parser-sming.y"
     {
 			    (yyval.rc) = 0;
-			;}
+			}
     break;
 
 
-/* Line 1267 of yacc.c.  */
-#line 5383 "parser-sming.c"
+/* Line 1787 of yacc.c  */
+#line 5616 "parser-sming.c"
       default: break;
     }
+  /* User semantic actions sometimes alter yychar, and that requires
+     that yytoken be updated with the new translation.  We take the
+     approach of translating immediately before every use of yytoken.
+     One alternative is translating here after every semantic action,
+     but that translation would be missed if the semantic action invokes
+     YYABORT, YYACCEPT, or YYERROR immediately after altering yychar or
+     if it invokes YYBACKUP.  In the case of YYABORT or YYACCEPT, an
+     incorrect destructor might then be invoked immediately.  In the
+     case of YYERROR or YYBACKUP, subsequent parser actions might lead
+     to an incorrect destructor call or verbose syntax error message
+     before the lookahead is translated.  */
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
 
   YYPOPSTACK (yylen);
@@ -5389,7 +5633,6 @@ yyreduce:
   YY_STACK_PRINT (yyss, yyssp);
 
   *++yyvsp = yyval;
-
 
   /* Now `shift' the result of the reduction.  Determine what state
      that goes to, based on the state we popped back to and the rule
@@ -5410,44 +5653,47 @@ yyreduce:
 | yyerrlab -- here on detecting error |
 `------------------------------------*/
 yyerrlab:
+  /* Make sure we have latest lookahead translation.  See comments at
+     user semantic actions for why this is necessary.  */
+  yytoken = yychar == YYEMPTY ? YYEMPTY : YYTRANSLATE (yychar);
+
   /* If not already recovering from an error, report this error.  */
   if (!yyerrstatus)
     {
       ++yynerrs;
 #if ! YYERROR_VERBOSE
-      yyerror (YY_("syntax error"));
+      yyerror (parserPtr, YY_("syntax error"));
 #else
+# define YYSYNTAX_ERROR yysyntax_error (&yymsg_alloc, &yymsg, \
+                                        yyssp, yytoken)
       {
-	YYSIZE_T yysize = yysyntax_error (0, yystate, yychar);
-	if (yymsg_alloc < yysize && yymsg_alloc < YYSTACK_ALLOC_MAXIMUM)
-	  {
-	    YYSIZE_T yyalloc = 2 * yysize;
-	    if (! (yysize <= yyalloc && yyalloc <= YYSTACK_ALLOC_MAXIMUM))
-	      yyalloc = YYSTACK_ALLOC_MAXIMUM;
-	    if (yymsg != yymsgbuf)
-	      YYSTACK_FREE (yymsg);
-	    yymsg = (char *) YYSTACK_ALLOC (yyalloc);
-	    if (yymsg)
-	      yymsg_alloc = yyalloc;
-	    else
-	      {
-		yymsg = yymsgbuf;
-		yymsg_alloc = sizeof yymsgbuf;
-	      }
-	  }
-
-	if (0 < yysize && yysize <= yymsg_alloc)
-	  {
-	    (void) yysyntax_error (yymsg, yystate, yychar);
-	    yyerror (yymsg);
-	  }
-	else
-	  {
-	    yyerror (YY_("syntax error"));
-	    if (yysize != 0)
-	      goto yyexhaustedlab;
-	  }
+        char const *yymsgp = YY_("syntax error");
+        int yysyntax_error_status;
+        yysyntax_error_status = YYSYNTAX_ERROR;
+        if (yysyntax_error_status == 0)
+          yymsgp = yymsg;
+        else if (yysyntax_error_status == 1)
+          {
+            if (yymsg != yymsgbuf)
+              YYSTACK_FREE (yymsg);
+            yymsg = (char *) YYSTACK_ALLOC (yymsg_alloc);
+            if (!yymsg)
+              {
+                yymsg = yymsgbuf;
+                yymsg_alloc = sizeof yymsgbuf;
+                yysyntax_error_status = 2;
+              }
+            else
+              {
+                yysyntax_error_status = YYSYNTAX_ERROR;
+                yymsgp = yymsg;
+              }
+          }
+        yyerror (parserPtr, yymsgp);
+        if (yysyntax_error_status == 2)
+          goto yyexhaustedlab;
       }
+# undef YYSYNTAX_ERROR
 #endif
     }
 
@@ -5455,7 +5701,7 @@ yyerrlab:
 
   if (yyerrstatus == 3)
     {
-      /* If just tried and failed to reuse look-ahead token after an
+      /* If just tried and failed to reuse lookahead token after an
 	 error, discard it.  */
 
       if (yychar <= YYEOF)
@@ -5467,12 +5713,12 @@ yyerrlab:
       else
 	{
 	  yydestruct ("Error: discarding",
-		      yytoken, &yylval);
+		      yytoken, &yylval, parserPtr);
 	  yychar = YYEMPTY;
 	}
     }
 
-  /* Else will try to reuse look-ahead token after shifting the error
+  /* Else will try to reuse lookahead token after shifting the error
      token.  */
   goto yyerrlab1;
 
@@ -5506,7 +5752,7 @@ yyerrlab1:
   for (;;)
     {
       yyn = yypact[yystate];
-      if (yyn != YYPACT_NINF)
+      if (!yypact_value_is_default (yyn))
 	{
 	  yyn += YYTERROR;
 	  if (0 <= yyn && yyn <= YYLAST && yycheck[yyn] == YYTERROR)
@@ -5523,16 +5769,15 @@ yyerrlab1:
 
 
       yydestruct ("Error: popping",
-		  yystos[yystate], yyvsp);
+		  yystos[yystate], yyvsp, parserPtr);
       YYPOPSTACK (1);
       yystate = *yyssp;
       YY_STACK_PRINT (yyss, yyssp);
     }
 
-  if (yyn == YYFINAL)
-    YYACCEPT;
-
+  YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
   *++yyvsp = yylval;
+  YY_IGNORE_MAYBE_UNINITIALIZED_END
 
 
   /* Shift the error token.  */
@@ -5556,20 +5801,25 @@ yyabortlab:
   yyresult = 1;
   goto yyreturn;
 
-#ifndef yyoverflow
+#if !defined yyoverflow || YYERROR_VERBOSE
 /*-------------------------------------------------.
 | yyexhaustedlab -- memory exhaustion comes here.  |
 `-------------------------------------------------*/
 yyexhaustedlab:
-  yyerror (YY_("memory exhausted"));
+  yyerror (parserPtr, YY_("memory exhausted"));
   yyresult = 2;
   /* Fall through.  */
 #endif
 
 yyreturn:
-  if (yychar != YYEOF && yychar != YYEMPTY)
-     yydestruct ("Cleanup: discarding lookahead",
-		 yytoken, &yylval);
+  if (yychar != YYEMPTY)
+    {
+      /* Make sure we have latest lookahead translation.  See comments at
+         user semantic actions for why this is necessary.  */
+      yytoken = YYTRANSLATE (yychar);
+      yydestruct ("Cleanup: discarding lookahead",
+                  yytoken, &yylval, parserPtr);
+    }
   /* Do not reclaim the symbols of the rule which action triggered
      this YYABORT or YYACCEPT.  */
   YYPOPSTACK (yylen);
@@ -5577,7 +5827,7 @@ yyreturn:
   while (yyssp != yyss)
     {
       yydestruct ("Cleanup: popping",
-		  yystos[*yyssp], yyvsp);
+		  yystos[*yyssp], yyvsp, parserPtr);
       YYPOPSTACK (1);
     }
 #ifndef yyoverflow
@@ -5593,9 +5843,9 @@ yyreturn:
 }
 
 
-#line 3121 "parser-sming.y"
+/* Line 2050 of yacc.c  */
+#line 3113 "parser-sming.y"
 
 
 #endif
 			
-

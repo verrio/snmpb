@@ -9,7 +9,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: win.h 8057 2008-04-15 14:31:18Z schoenw $
+ * @(#) $Id: win.h 1657 2009-12-28 19:43:45Z schoenw $
  */
 
 #ifndef _WIN_H
@@ -82,6 +82,13 @@ int __cdecl fileno(FILE *);
 #define strdup        _strdup
 #define vsnprintf     _vsnprintf
 #define strcasecmp    _stricmp
+
+/*
+ * More replacement definitions...
+ */
+
+#define isatty        _isatty
+#define fileno        _fileno
 
 #endif /* _MSC_VER */
 

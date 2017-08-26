@@ -6,7 +6,7 @@
 # See the file "COPYING" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# @(#) $Id: Makefile.mingw 7949 2008-03-22 16:19:33Z schoenw $
+# @(#) $Id: Makefile.mingw 1736 2011-12-14 14:06:39Z schoenw $
 #
 
 ##
@@ -44,7 +44,7 @@ LIBDIR = $(INSTROOT)/lib
 CC	= gcc
 CP	= cp
 RM	= rm -f
-AR	= ar 
+AR	= ar
 MKDIR	= -mkdir
 FLEX = flex
 BISON = bison
@@ -60,16 +60,25 @@ INCLUDES = -I. -I../lib -I../tools
 ##
 LIBSMIOBJS = \
 	win.o \
-	data.o \
-	check.o \
+	common.o \
 	error.o \
 	util.o \
 	smi.o \
+	smi-data.o \
+	smi-check.o \
 	parser-smi.o \
 	scanner-smi.o \
 	snprintf.o
 #	parser-sming.o \
 #	scanner-sming.o \
+#	parser-yang.o \
+#	scanner-yang.o \
+#	yang.o \
+#	yang-data.o \
+#	yang-check.o \
+#	yang-complex-types.o \
+#	smi2yang.o \
+
 
 TOOLSOBJS = \
 	smiquery.o \
@@ -104,7 +113,8 @@ TOOLSOBJS = \
 	dump-svg.o \
 	dump-compliance.o \
 	dump-yang.o \
-	dump-boilerplate.o
+	dump-boilerplate.o \
+	dump-yang.o
 #	dump-smiv3.o
 #	dump-fig.o
 
@@ -146,23 +156,36 @@ smidump.exe:	$(TOOLSOBJS) $(SMILIB)
 		dump-compliance.o dump-yang.o dump-boilerplate.o \
 		shhopt.o fprint.o fortopat.o rea.o $(SMILIB)
 
+dump-svg.o: ../tools/dump-svg.c ../tools/dump-svg-script.h
+
+../tools/dump-svg-script.h: ../tools/dump-svg-script.js
+	echo "const char *code =" > ../tools/dump-svg-script.h
+	cat ../tools/dump-svg-script.js | sed -e 's/\\\\/&&/g;s/"/\\"/g;s/^/"/;s/$$/\\\\n"/' >> ../tools/dump-svg-script.h
+	echo ";" >> ../tools/dump-svg-script.h
+
 smidiff.exe:	$(TOOLSOBJS) $(SMILIB)
 	$(CC) $(CFLAGS) -o smidiff.exe smidiff.o shhopt.o $(SMILIB)
 
 smixlate.exe:	$(TOOLSOBJS) $(SMILIB)
 	$(CC) $(CFLAGS) -o smixlate.exe smixlate.o shhopt.o dstring.o $(SMILIB)
 
-parser-smi.c parser-smi.tab.h: ../lib/parser-smi.y ../lib/scanner-smi.h ../lib/parser-smi.h
-	$(BISON) --defines=parser-smi.tab.h -t -psmi -o parser-smi.c ../lib/parser-smi.y
+parser-smi.c parser-smi.tab.h: parser-smi.y scanner-smi.h parser-smi.h error.h
+	$(BISON) --defines=parser-smi.tab.h -t -psmi -o parser-smi.c parser-smi.y
 
-parser-sming.c: ../lib/parser-sming.y ../lib/scanner-sming.h ../lib/parser-sming.h
-	$(BISON) --defines=parser-sming.tab.h -t -psming -o parser-sming.c ../lib/parser-sming.y
+parser-sming.c: parser-sming.y scanner-sming.h parser-sming.h error.h
+	$(BISON) --defines=parser-sming.tab.h -t -psming -o parser-sming.c parser-sming.y
 
-scanner-smi.c: ../lib/scanner-smi.l ../lib/scanner-smi.h parser-smi.tab.h
-	$(FLEX) -Cfe -Psmi -t ../lib/scanner-smi.l > scanner-smi.c
+parser-yang.c: parser-yang.y scanner-yang.h parser-yang.h error.h
+	$(BISON) --defines=parser-yang.tab.h -t -pyang -o parser-yang.c parser-yang.y
 
-scanner-sming.c: ../lib/scanner-sming.l ../lib/scanner-sming.h parser-sming.tab.h
-	$(FLEX) -Cfe -Psming -t ../lib/scanner-sming.l > scanner-sming.c
+scanner-smi.c: scanner-smi.l scanner-smi.h parser-smi.tab.h
+	$(FLEX) -Cfe -Psmi -t -o scanner-smi.c scanner-smi.l > scanner-smi.c
+
+scanner-sming.c: scanner-sming.l scanner-sming.h parser-sming.tab.h
+	$(FLEX) -Cfe -Psming -t -o scanner-sming.c scanner-sming.l > scanner-sming.c
+
+scanner-yang.c: scanner-yang.l scanner-yang.h parser-yang.tab.h
+	$(FLEX) -Cfe -Pyang -t -o scanner-yang.c scanner-yang.l > scanner-yang.c
 
 clean:
 	$(RM) *.o

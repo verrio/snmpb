@@ -10,7 +10,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: dump-svg.c 8090 2008-04-18 12:56:29Z strauss $
+ * @(#) $Id: dump-svg.c 1772 2012-04-01 12:15:23Z schoenw $
  */
 
 
@@ -520,7 +520,7 @@ static void printSVGObject(GraphNode *node, int *classNr,
     SmiElement *smiElement;
     float textXOffset, textYOffset, xOrigin, yOrigin;
     size_t length = 1;
-    char *tooltip, *tooltipTable, *tooltipEntry;
+    char *tooltip, *tooltipTable = NULL, *tooltipEntry = NULL;
     const char *blankLine = "\\n-- -- --\\n";
     
     if (!node) return;
@@ -3000,7 +3000,7 @@ static void printSVG(int modc, SmiModule **modv, int miCount, int idCount,
 
     /* output of svg to stdout begins here */
     printSVGHeaderAndTitle(modc, modv, miCount, idCount,
-							xMin, yMin, xMax, yMax);
+			   xMin, yMin, xMax, yMax);
 
     /* module doesn't contain any objects. */
     if (nodecount == 0) {
@@ -3260,7 +3260,17 @@ static void calcConceptualModel()
 
 static void dumpSvg(int modc, SmiModule **modv, int flags, char *output)
 {
-    int       i;
+    int i;
+    FILE *f = stdout;
+
+    if (output) {
+	f = fopen(output, "w");
+	if (!f) {
+	    fprintf(stderr, "smidump: cannot open %s for writing: ", output);
+	    perror(NULL);
+	    exit(1);
+	}
+    }
 
     buildLink(modc, modv);
 
@@ -3302,9 +3312,13 @@ static void dumpSvg(int modc, SmiModule **modv, int flags, char *output)
 	}
     }
 
-    if (fflush(stdout) || ferror(stdout)) {
+    if (fflush(f) || ferror(f)) {
 	perror("smidump: write error");
 	exit(1);
+    }
+
+    if (output) {
+	fclose(f);
     }
 
     xfree(link);
@@ -3332,7 +3346,7 @@ void initSvg()
 	"svg",
 	dumpSvg,
 	0,
-	SMIDUMP_DRIVER_CANT_OUTPUT,
+	SMIDUMP_DRIVER_CANT_YANG,
 	"SVG diagram",
 	opt,
 	NULL

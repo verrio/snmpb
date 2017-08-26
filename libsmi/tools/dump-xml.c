@@ -9,7 +9,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: dump-xml.c 8090 2008-04-18 12:56:29Z strauss $
+ * @(#) $Id: dump-xml.c 1772 2012-04-01 12:15:23Z schoenw $
  */
 
 /*
@@ -1020,7 +1020,8 @@ void initXml()
 	"xml",
 	dumpXml,
 	0,
-	SMIDUMP_DRIVER_CANT_UNITE,
+	SMIDUMP_DRIVER_CANT_UNITE
+	| SMIDUMP_DRIVER_CANT_YANG,
 	"intermediate SMI XML exchange format",
 	opt,
 	NULL

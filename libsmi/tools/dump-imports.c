@@ -9,7 +9,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: dump-imports.c 5758 2006-08-16 21:10:05Z schoenw $
+ * @(#) $Id: dump-imports.c 1772 2012-04-01 12:15:23Z schoenw $
  */
 
 #include <config.h>
@@ -189,7 +189,8 @@ void initImports()
 	"imports",
 	dumpImports,
 	SMI_FLAG_NODESCR,
-	SMIDUMP_DRIVER_CANT_UNITE,
+	SMIDUMP_DRIVER_CANT_UNITE
+	| SMIDUMP_DRIVER_CANT_YANG,
 	"recursive list of all imports",
 	NULL,
 	NULL

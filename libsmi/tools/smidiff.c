@@ -11,7 +11,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: smidiff.c 8090 2008-04-18 12:56:29Z strauss $ 
+ * @(#) $Id: smidiff.c 1735 2011-12-14 13:52:42Z schoenw $ 
  */
 
 /*
@@ -280,7 +280,7 @@ static Error errors[] = {
       "named number `%s' changed to `%s' at type used in `%s'", NULL },
     { 3, ERR_NAMED_BIT_ADDED_OLD_BYTE, "named-bit-added-old-byte",
       "named bit `%s' added without starting in a new byte in type used in `%s'", NULL },
-     { 3, ERR_LENGTH_REMOVED, "range-removed",
+    { 3, ERR_LENGTH_REMOVED, "range-removed",
       "size `%s' removed from type used in `%s'", NULL },
     { 2, ERR_NODEKIND_CHANGED, "nodekind-changed",
       "node kind of `%s' changed", NULL },
@@ -364,42 +364,6 @@ static Error errors[] = {
       "%s `%s::%s' is not conditionally optional under `%s' but under `%s'", NULL },
     { 0, 0, NULL, NULL }
 };
-
-
-
-static char *smiStringDecl(SmiDecl macro)
-{
-    return
-        (macro == SMI_DECL_UNKNOWN)           ? "unknown construct" :
-        (macro == SMI_DECL_IMPLICIT_TYPE)     ? "implicit construct" :
-        (macro == SMI_DECL_TYPEASSIGNMENT)    ? "type assignment" :
-        (macro == SMI_DECL_IMPL_SEQUENCEOF)   ? "implicit sequence-of construct" :
-        (macro == SMI_DECL_VALUEASSIGNMENT)   ? "value assignment" :
-        (macro == SMI_DECL_OBJECTTYPE)        ? "object definition" :
-        (macro == SMI_DECL_OBJECTIDENTITY)    ? "object identity definition" :
-        (macro == SMI_DECL_MODULEIDENTITY)    ? "module identity definition" :
-        (macro == SMI_DECL_NOTIFICATIONTYPE)  ? "notification definition" :
-        (macro == SMI_DECL_TRAPTYPE)          ? "trap definition" :
-        (macro == SMI_DECL_OBJECTGROUP)       ? "object group definition" :
-        (macro == SMI_DECL_NOTIFICATIONGROUP) ? "notification group definition" :
-        (macro == SMI_DECL_MODULECOMPLIANCE)  ? "module compliance definition" :
-        (macro == SMI_DECL_AGENTCAPABILITIES) ? "agent capabilities definition" :
-        (macro == SMI_DECL_TEXTUALCONVENTION) ? "textual convention definition" :
-        (macro == SMI_DECL_MACRO)             ? "macro definition" :
-        (macro == SMI_DECL_COMPL_GROUP)       ? "optional group" :
-        (macro == SMI_DECL_COMPL_OBJECT)      ? "object refinement" :
-        (macro == SMI_DECL_MODULE)	      ? "module" :
-        (macro == SMI_DECL_TYPEDEF)	      ? "typedef" :
-        (macro == SMI_DECL_NODE)	      ? "node" :
-        (macro == SMI_DECL_SCALAR)	      ? "scalar" :
-        (macro == SMI_DECL_TABLE)	      ? "table" :
-        (macro == SMI_DECL_ROW)		      ? "row" :
-        (macro == SMI_DECL_COLUMN)	      ? "column" :
-        (macro == SMI_DECL_NOTIFICATION)      ? "notification" :
-        (macro == SMI_DECL_GROUP)	      ? "group" :
-        (macro == SMI_DECL_COMPLIANCE)	      ? "compliance" :
-                                                "<UNDEFINED>";
-}
 
 
 
@@ -725,7 +689,7 @@ checkDescription(SmiModule *oldModule, int oldLine,
 
     if (oldDescr && newDescr && diffStrings(oldDescr, newDescr)) {
 	printErrorAtLine(newModule, ERR_DESCR_CHANGED,
-			 newLine, smiStringDecl(decl), name);
+			 newLine, smiDeclAsString(decl), name);
 	code |= CODE_SHOW_PREVIOUS;
     }
 
@@ -947,107 +911,15 @@ iterateTypeImports(char *typeName,
 }
 #endif
 
-static char *getValueString(SmiValue *valuePtr, SmiType *typePtr)
-{
-    static char    s[1024];
-    char           ss[9];
-    int		   n;
-    unsigned int   i;
-    SmiNamedNumber *nn;
-    SmiNode        *nodePtr;
-    
-    s[0] = 0;
-    
-    switch (valuePtr->basetype) {
-    case SMI_BASETYPE_UNSIGNED32:
-	sprintf(s, "%lu", valuePtr->value.unsigned32);
-	break;
-    case SMI_BASETYPE_INTEGER32:
-	sprintf(s, "%ld", valuePtr->value.integer32);
-	break;
-    case SMI_BASETYPE_UNSIGNED64:
-	sprintf(s, UINT64_FORMAT, valuePtr->value.unsigned64);
-	break;
-    case SMI_BASETYPE_INTEGER64:
-	sprintf(s, INT64_FORMAT, valuePtr->value.integer64);
-	break;
-    case SMI_BASETYPE_FLOAT32:
-    case SMI_BASETYPE_FLOAT64:
-    case SMI_BASETYPE_FLOAT128:
-	break;
-    case SMI_BASETYPE_ENUM:
-	for (nn = smiGetFirstNamedNumber(typePtr); nn;
-	     nn = smiGetNextNamedNumber(nn)) {
-	    if (nn->value.value.unsigned32 == valuePtr->value.unsigned32)
-		break;
-	}
-	if (nn) {
-	    sprintf(s, "%s", nn->name);
-	} else {
-	    sprintf(s, "%ld", valuePtr->value.integer32);
-	}
-	break;
-    case SMI_BASETYPE_OCTETSTRING:
-	for (i = 0; i < valuePtr->len; i++) {
-	    if (!isprint((int)valuePtr->value.ptr[i])) break;
-	}
-	if (i == valuePtr->len) {
-	    sprintf(s, "\"%s\"", valuePtr->value.ptr);
-	} else {
-            sprintf(s, "'%*s'H", 2 * valuePtr->len, " ");
-            for (i=0; i < valuePtr->len; i++) {
-                sprintf(ss, "%02x", valuePtr->value.ptr[i]);
-                strncpy(&s[1+2*i], ss, 2);
-            }
-	}
-	break;
-    case SMI_BASETYPE_BITS:
-	
-	sprintf(s, "{");
-	for (i = 0, n = 0; i < valuePtr->len * 8; i++) {
-	    if (valuePtr->value.ptr[i/8] & (1 << (7-(i%8)))) {
-		for (nn = smiGetFirstNamedNumber(typePtr); nn;
-		     nn = smiGetNextNamedNumber(nn)) {
-		    if (nn->value.value.unsigned32 == i)
-			break;
-		}
-		if (nn) {
-		    if (n)
-			sprintf(&s[strlen(s)], ", ");
-		    n++;
-		    sprintf(&s[strlen(s)], "%s", nn->name);
-		}
-	    }
-	}
-	sprintf(&s[strlen(s)], "}");
-	break;
-    case SMI_BASETYPE_UNKNOWN:
-    case SMI_BASETYPE_POINTER:
-	break;
-    case SMI_BASETYPE_OBJECTIDENTIFIER:
-	nodePtr = smiGetNodeByOID(valuePtr->len, valuePtr->value.oid);
-	if (nodePtr) {
-	    sprintf(s, "%s", nodePtr->name);
-	} else {
-	    strcpy(s, "{");
-	    for (i=0; i < valuePtr->len; i++) {
-		if (i) strcat(s, " ");
-		sprintf(&s[strlen(s)], "%u", valuePtr->value.oid[i]);
-	    }
-	    strcat(s, "}");
-	}
-	break;
-    }
-
-    return s;
-}
 
 static char*
 getStringSubrange(SmiRange *range, SmiType *smiType)
 {
     char *minStr, *maxStr, *str;
-    minStr = strdup( getValueString(&range->minValue, smiType) );
-    maxStr = strdup( getValueString(&range->maxValue, smiType) );
+    minStr = strdup(smiValueAsString(&range->minValue, smiType,
+				     SMI_LANGUAGE_SMIV2));
+    maxStr = strdup(smiValueAsString(&range->maxValue, smiType,
+				     SMI_LANGUAGE_SMIV2));
     if (memcmp(&range->minValue, &range->maxValue,
 	       sizeof(SmiValue))) {
 	str = malloc( strlen( minStr ) + strlen( maxStr ) + 3 );

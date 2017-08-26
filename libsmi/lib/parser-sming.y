@@ -8,9 +8,12 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: parser-sming.y 7966 2008-03-27 21:25:52Z schoenw $
+ * @(#) $Id: parser-sming.y 1812 2014-10-11 16:08:24Z schoenw $
  */
 
+%parse-param { struct Parser *parserPtr }
+%lex-param { struct Parser *parserPtr }
+    
 %{
 
 #include <config.h>
@@ -39,8 +42,8 @@
 #include "error.h"
 #include "parser-sming.h"
 #include "scanner-sming.h"
-#include "data.h"
-#include "check.h"
+#include "smi-data.h"
+#include "smi-check.h"
 #include "util.h"
     
 #ifdef HAVE_DMALLOC_H
@@ -48,14 +51,6 @@
 #endif
 
 
-/*
- * These arguments are passed to yyparse() and yylex().
- */
-#define YYPARSE_PARAM parserPtr
-#define YYLEX_PARAM   parserPtr
-
-    
-    
 #define thisParserPtr      ((Parser *)parserPtr)
 #define thisModulePtr     (((Parser *)parserPtr)->modulePtr)
 
@@ -81,13 +76,17 @@ static Attribute *attributePtr = NULL;
 static Event *eventPtr = NULL;
 static SmiBasetype defaultBasetype = SMI_BASETYPE_UNKNOWN;
 static NamedNumber *namedNumberPtr = NULL;
-static int bitsFlag = 0; /* used to differentiate bits definition from enum*/
-static int attributeFlag = 0; /* 
-							   *Used to differentiate between attribute and
-							   *and typedef to tie the type statement
-							   *respectively to class or module.
-							   */
 
+/* The bitsFlag is used to differentiate bits definition from enum. */
+ 
+static int bitsFlag = 0; 
+
+/* 
+ * The attributeFlag is used to differentiate between attribute and
+ * and typedef to tie the type statement respectively to class or
+ * module.
+ */
+static int attributeFlag = 0;
 
 #define SMI_EPOCH	631152000	/* 01 Jan 1990 00:00:00 */ 
  
@@ -881,8 +880,8 @@ typedefStatement:	typedefKeyword sep ucIdentifier
 			    	findType(typeIdentifier, thisParserPtr,thisModulePtr)) 
 					if( typePtr->modulePtr == thisParserPtr->modulePtr)
 					       smiPrintError(thisParserPtr,
-										ERR_DUPLICATE_TYPE_NAME,
-					      				typeIdentifier);
+							     ERR_DUPLICATE_TYPE_NAME,
+							     typeIdentifier);
 			}
 			optsep '{' stmtsep
 			typedefTypeStatement stmtsep
@@ -908,23 +907,22 @@ typedefStatement:	typedefKeyword sep ucIdentifier
 			defaultStatement_stmtsep_01
 			{
 			    if (typePtr && $11) {
-			    	if(typePtr->export.basetype == 
-			    					SMI_BASETYPE_ENUM) 
-			    					//check ENUM value for correctness
-    				{
-    					if($11->len)
-    	 				if(namedNumberPtr = findNamedNumberByName(typePtr,
-    	 												 $11->value.ptr)){
-    	 					smiFree($11);
-    	 					$11 = &namedNumberPtr->export.value;
-    	 				}
-    	 				else{ smiPrintError(thisParserPtr,
-					      		ERR_ENUM_NAME_NOT_DEFINED,
-					      		$11->value.ptr);
-					    }
+			    	if (typePtr->export.basetype == SMI_BASETYPE_ENUM) {
+				    /* check ENUM value for correctness */
+				    if ($11->len) {
+    	 				if (namedNumberPtr = findNamedNumberByName(typePtr,
+										   $11->value.ptr)) {
+					    smiFree($11);
+					    $11 = &namedNumberPtr->export.value;
+    	 				} else {
+					    smiPrintError(thisParserPtr,
+							  ERR_ENUM_NAME_NOT_DEFINED,
+							  $11->value.ptr);
+					}
+				    }
     	 			}
-    	 			//NOTE that the bits default value is set in the anyval
-    	 			//rule
+    	 			/* NOTE that the bits default value is
+				   set in the anyval rule. */
 				setTypeValue(typePtr, $11);
 			    }
 			}
@@ -1025,66 +1023,59 @@ classStatement_stmtsep: classStatement stmtsep
 classStatement: classKeyword sep ucIdentifier
 			{
 			    classIdentifier = $3;
-			    if(findClassByModuleAndName(thisModulePtr, classIdentifier))
-			    {
-			    	smiPrintError(thisParserPtr,
-										ERR_DUPLICATE_CLASS_NAME,
-					      				attributeIdentifier);
-			    }
-			    else{
-			    classPtr = addClass(classIdentifier,
-						thisParserPtr);
-			    setClassDecl(classPtr, SMI_DECL_CLASS);
+			    if (findClassByModuleAndName(thisModulePtr, classIdentifier)) {
+			    	smiPrintError(thisParserPtr, ERR_DUPLICATE_CLASS_NAME,
+					      attributeIdentifier);
+			    } else {
+				classPtr = addClass(classIdentifier,
+						    thisParserPtr);
+				setClassDecl(classPtr, SMI_DECL_CLASS);
 			    }
 			}
 			optsep '{' stmtsep
 			extendsStatement_stmtsep_01
 			{
-				if(classPtr && $8)
-					classPtr->parentPtr = $8;
+			    if (classPtr && $8) {
+				classPtr->parentPtr = $8;
+			    }
 			}
 			attributeStatement_stmtsep_0n
 			uniqueStatement_stmtsep_01
 			{
-				List *tmpList;
-				Attribute *tmpAttribute;
-				if(classPtr && $11)
-				{
-					
-					//Check for "magic" value #@# that defines
-					//scalar class. See NOTE after Class definitino in data.h
-					if(!strcmp((char*)($11->ptr),"#@#"))
-					{	
-						classPtr->uniqueList = (List*)malloc(sizeof(List));
-						classPtr->uniqueList->ptr = classPtr;
-						classPtr->uniqueList->nextPtr = NULL;
-						smiFree($11);
-					}
-					else
+			    List *tmpList;
+			    Attribute *tmpAttribute;
+			    if(classPtr && $11)
+			    {
+				/* Check for "magic" value #@# that
+				   defines scalar class. See NOTE
+				   after Class definitino in
+				   data.h. */
+				if (!strcmp((char*)($11->ptr),"#@#")) {	
+				    classPtr->uniqueList = (List*)malloc(sizeof(List));
+				    classPtr->uniqueList->ptr = classPtr;
+				    classPtr->uniqueList->nextPtr = NULL;
+				    smiFree($11);
+				} else {
+				    tmpList = $11;
+				    /* convert  all attribute names to attributes */
+				    for (tmpList; tmpList; tmpList=tmpList->nextPtr) {
+					if (tmpAttribute = 
+					    (Attribute*)smiGetAttribute(&(classPtr->export),(char*)(tmpList->ptr)))
 					{
-						tmpList = $11;
-						//convert  all attribute names to atributes
-						for(tmpList; tmpList; tmpList=tmpList->nextPtr)
-						{
-							if(tmpAttribute = 
-							(Attribute*)smiGetAttribute(&(classPtr->export),(char*)(tmpList->ptr)))
-							{
-								smiFree(tmpList->ptr);
-								tmpList->ptr = tmpAttribute;
-							}
-							else
-							{
-								smiFree(tmpList->ptr);
-								tmpList->ptr = NULL;
-								smiPrintError(thisParserPtr,
-										ERR_ATTRIBUTE_NOT_FOUND,
-					      				attributeIdentifier);
-							}
-						}
-						
-						classPtr->uniqueList = $11;
+					    smiFree(tmpList->ptr);
+					    tmpList->ptr = tmpAttribute;
+					} else {
+					    smiFree(tmpList->ptr);
+					    tmpList->ptr = NULL;
+					    smiPrintError(thisParserPtr,
+							  ERR_ATTRIBUTE_NOT_FOUND,
+							  attributeIdentifier);
 					}
+				    }
+				    
+				    classPtr->uniqueList = $11;
 				}
+			    }
 			}
 			eventStatement_stmtsep_0n
 			statusStatement_stmtsep_01
@@ -1325,29 +1316,32 @@ eventStatement_stmtsep: eventStatement stmtsep
 
 eventStatement: eventKeyword sep lcIdentifier
 			{
-				//TODO check for repeated names
-				eventPtr=addEvent($3,classPtr,thisParserPtr);
+			    /* TODO check for repeated names */
+			    eventPtr=addEvent($3,classPtr,thisParserPtr);
 			}
 			optsep '{' stmtsep
 			statusStatement_stmtsep_01
 			{
-				if($8 && eventPtr)
+			    if ($8 && eventPtr) {
 				eventPtr->export.status = $8;
+			    }
 			}
 			descriptionStatement_stmtsep_01
 			{
-				if($10 && eventPtr)
+			    if ($10 && eventPtr) {
 				eventPtr->export.description = $10;
+			    }
 			}
 			referenceStatement_stmtsep_01
 			{
-				if($12 && eventPtr)
+			    if ($12 && eventPtr) {
 				eventPtr->export.reference = $12;
+			    }
 			}
 			'}' optsep ';'
 			{
-				$$ = eventPtr;
-				eventPtr = NULL;
+			    $$ = eventPtr;
+			    eventPtr = NULL;
 			}
 		;
 
@@ -1661,10 +1655,11 @@ uniqueStatement:	uniqueKeyword sep '(' uniqueSpec ')' optsep ';'
 
 uniqueSpec:	optsep_comma_01
 			{
-				$$ = smiMalloc(sizeof(List));
-			    $$->ptr = "#@#"; //used to indicate that unique
-			    				 //statement is present and empty
-			    				 //i.e. the class is scalar
+			    $$ = smiMalloc(sizeof(List));
+			    $$->ptr = "#@#";
+			    /* used to indicate that unique statement
+			     is present and empty i.e. the class is
+			     scalar */
 			    $$->nextPtr = NULL;
 			}
 		|		lcIdentifier furtherLcIdentifier_0n optsep_comma_01
@@ -1986,12 +1981,11 @@ refinedBaseType:	OctetStringKeyword optsep_numberSpec_01
 			}
 	|		BitsKeyword 
 			{
-				bitsFlag = 1; //Since Enum elements can be 
-							  //negative we must make sure
-							  //that bits is not negative,
-							  //so we raise bitsFlag and
-							  //give error if there is
-							  //negative value 
+			    /* Since Enum elements can be negative we
+			       must make sure that bits is not
+			       negative, so we raise bitsFlag and give
+			       error if there is negative value. */
+			    bitsFlag = 1;
 			}
 			bitsOrEnumerationSpec
 			{
@@ -2008,7 +2002,7 @@ refinedBaseType:	OctetStringKeyword optsep_numberSpec_01
 				    ((NamedNumber *)p->ptr)->typePtr = $$;
 			    }
 			    
-			    bitsFlag = 0;//reset flag
+			    bitsFlag = 0; /* reset flag */
 			}
 	;
 	
@@ -2136,22 +2130,21 @@ attribute_refinedBaseType:	OctetStringKeyword optsep_numberSpec_01
 			    List *p;
 			    
 			    $$ = duplicateTypeToAttribute(smiHandle->typeEnumPtr,
-													classPtr, thisParserPtr);
-				setAttributeParentType($$, smiHandle->typeEnumPtr);
+							  classPtr, thisParserPtr);
+			    setAttributeParentType($$, smiHandle->typeEnumPtr);
 			    if ($2) {
-					setAttributeList($$, $2);
-					for (p = $2; p; p = p->nextPtr)
-				    	((NamedNumber *)p->ptr)->typePtr = (Type*)$$;
+				setAttributeList($$, $2);
+				for (p = $2; p; p = p->nextPtr)
+				    ((NamedNumber *)p->ptr)->typePtr = (Type*)$$;
 			    }
 			}
 	|		BitsKeyword 
 			{
-				bitsFlag = 1; //Since Enum elements can be 
-							  //negative we must make sure
-							  //that bits is not negative,
-							  //so we raise bitsFlag and
-							  //give error if there is
-							  //negative value 
+			    /* Since Enum elements can be negative we
+			       must make sure that bits is not
+			       negative, so we raise bitsFlag and give
+			       error if there is negative value. */
+			    bitsFlag = 1;
 			}
 			bitsOrEnumerationSpec
 			{
@@ -2565,7 +2558,7 @@ bitsList:		optsep_comma_01
 			}
 	;
 
-//NOTE used also for unique statement
+/* NOTE used also for unique statement */
 furtherLcIdentifier_0n:	/* empty */
 			{
 			    $$ = NULL;
@@ -2723,13 +2716,12 @@ anyValue:		bitsValue
 				$$ = smiMalloc(sizeof(SmiValue));
 				$$->basetype = SMI_BASETYPE_BITS;
 				$$->value.ptr = (void*)($1);
-				//set the bits value in the value.integer32
-				if(typePtr){
-					createBitsValue($$,typePtr);
-				}
-				else if(attributePtr){
-				createBitsValue($$,
-					(Type*)smiGetAttributeParentType(&(attributePtr->export)));
+				/* set the bits value in the value.integer32 */
+				if (typePtr){
+				    createBitsValue($$,typePtr);
+				} else if(attributePtr) {
+				    createBitsValue($$,
+						    (Type*)smiGetAttributeParentType(&(attributePtr->export)));
 				}
 			    } else {
 				smiPrintError(thisParserPtr,
@@ -3069,9 +3061,9 @@ number:			hexadecimalNumber
 negativeNumber:		'-' decimalNumber
 			{
 			    if(bitsFlag){
-			    smiPrintError(thisParserPtr,
+				smiPrintError(thisParserPtr,
 					      ERR_BITS_NUMBER_NEGATIVE);
-			    $$ = NULL;
+				$$ = NULL;
 			    }
 			    $$ = smiMalloc(sizeof(SmiValue));
 			    $$->basetype = SMI_BASETYPE_INTEGER64;

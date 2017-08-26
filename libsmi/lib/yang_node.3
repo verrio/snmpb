@@ -1,0 +1,59 @@
+.\"
+.\" $Id: yang_node.3.in 5762 2006-08-17 08:10:17Z schoenw $
+.\"
+.TH smi_node 3  "June 25, 2010" "JACOBS" "SMI Management Information Library"
+.SH NAME
+.\" START OF MAN PAGE COPIES
+yangGetModule,
+yangGetFirstModule,
+yangGetNextModule,
+yangGetFirstChildNode,
+yangGetNextChildNode
+.\" END OF MAN PAGE COPIES
+\- YANG node
+information routines
+.SH SYNOPSIS
+.nf
+.B #include <yang.h>
+.RS
+.RE
+.sp
+.BI "YangNode *yangGetFirstChildNode(YangNode *" yangNodePtr );
+.RE
+.sp
+.BI "YangNode *yangGetNextChildNode(YangNode *" yangNodePtr );
+.RE
+
+typedef struct YangNode {
+    YangString          value;
+    YangString          extra;
+    YangDecl	        nodekind;
+    YangStatus          status;
+    YangConfig          config;
+    SmiAccess           access;
+    YangString          description;
+    YangString          reference;
+} YangNode;
+
+.fi
+.SH DESCRIPTION
+These functions retrieve information on any YANG node definition in the
+YAND node tree.
+.PP
+The \fByangGetFirstChildNode()\fP and \fByangGetNextChildNode()\fP
+functions are used to iteratively retrieve \fBstruct YangNode\fPs that
+represent the immediate child nodes of the node specified
+by \fIyangNodePtr\fP passed to the \fByangGetFirstChildNode()\fP or
+\fByangGetNextChildNode()\fP call.
+.PP
+.SH "FILES"
+.nf
+${prefix}/include/yang.h    YANG library header file
+.fi
+.SH "SEE ALSO"
+.BR libsmi "(3), "
+.BR smi_config "(3), "
+.BR yang.h
+.SH "AUTHOR"
+(C) 2010 Juergen Schoenwaelder, Jacobs University Bremen, Germany <j.schoenwaelder@jacobs-university.de>
+.br

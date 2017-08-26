@@ -8,14 +8,28 @@
 # See the file "COPYING" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# @(#) $Id: Makefile.am 6629 2007-03-05 14:59:30Z strauss $
+# @(#) $Id: Makefile.am 1810 2014-08-15 07:32:45Z schoenw $
 #
 
 ianadir			= $(mibdir)/iana
 MIBS			= $(shell ls -1 $(srcdir) | egrep -v 'CVS|Makefile')
 EXTRA_DIST		= $(MIBS)
 iana_DATA		= $(MIBS)
-MIBURLS			= http://www.iana.org/assignments/ianaaddressfamilynumbers-mib http://www.iana.org/assignments/ianacharset-mib http://www.iana.org/assignments/ianafinisher-mib http://www.iana.org/assignments/ianaiftype-mib http://www.iana.org/assignments/ianaiprouteprotocol-mib http://www.iana.org/assignments/ianalanguage-mib http://www.iana.org/assignments/ianamalloc-mib http://www.iana.org/assignments/ianaprinter-mib http://www.iana.org/assignments/ianatn3270etc-mib http://www.iana.org/assignments/ianagmplstc-mib http://www.iana.org/assignments/ianaippmmetricsregistry-mib http://www.iana.org/assignments/ianaitualarmtc-mib http://www.iana.org/assignments/ianamau-mib
+IANA			= http://www.iana.org/assignments
+MIBURLS			= $(IANA)/ianaaddressfamilynumbers-mib/ianaaddressfamilynumbers-mib \
+			  $(IANA)/ianacharset-mib/ianacharset-mib \
+			  $(IANA)/ianafinisher-mib/ianafinisher-mib \
+			  $(IANA)/ianaiftype-mib/ianaiftype-mib \
+			  $(IANA)/ianaiprouteprotocol-mib/ianaiprouteprotocol-mib \
+			  $(IANA)/ianalanguage-mib/ianalanguage-mib \
+			  $(IANA)/ianamalloc-mib/ianamalloc-mib \
+			  $(IANA)/ianaprinter-mib/ianaprinter-mib \
+			  $(IANA)/ianatn3270etc-mib/ianatn3270etc-mib \
+			  $(IANA)/ianagmplstc-mib/ianagmplstc-mib \
+			  $(IANA)/ianaippmmetricsregistry-mib/ianaippmmetricsregistry-mib \
+			  $(IANA)/ianaitualarmtc-mib/ianaitualarmtc-mib \
+			  $(IANA)/ianamau-mib/ianamau-mib \
+			  $(IANA)/ianabfdtcstd-mib/ianabfdtcstd-mib
 
 download:
 	mkdir tmp ; cd tmp ; for m in $(MIBURLS) ; do curl -s -O $$m ; b=`basename $$m` ; f=`head -5 $$b | grep DEFINITIONS | awk '{print $$1}'` ; cmp -s $$b ../$$f || cp -v $$b ../$$f ; done ; cd .. ; rm -rf tmp

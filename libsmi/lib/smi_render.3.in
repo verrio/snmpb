@@ -1,5 +1,5 @@
 .\"
-.\" $Id: smi_render.3.in 1432 2002-07-24 11:54:18Z strauss $
+.\" $Id: smi_render.3.in 930 2002-07-24 11:54:18Z strauss $
 .\"
 .TH smi_render 3  "July 24, 2002" "IBR" "SMI Management Information Library"
 .SH NAME

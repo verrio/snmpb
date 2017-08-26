@@ -8,15 +8,16 @@
 # See the file "COPYING" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# @(#) $Id: Makefile.am 8090 2008-04-18 12:56:29Z strauss $
+# @(#) $Id: Makefile.am 1750 2012-03-28 11:44:04Z schoenw $
 #
 
-INCLUDES		= -I../lib
+INCLUDES		= -I$(top_srcdir)/lib
 
 EXTRA_DIST		= smidump.h shhopt.h \
 			  $(man_MANS) \
 			  dump-fig.c \
-			  dump-svg-script.js
+			  dump-svg-script.js \
+			  dump-svg-script.h
 
 bin_PROGRAMS		= smiquery smilint smidump smidiff smixlate
 
@@ -26,13 +27,13 @@ man_MANS		= smiquery.1 smilint.1 smidump.1 smidiff.1 \
 			  smistrip.1 smicache.1 smixlate.1
 
 smiquery_SOURCES	= smiquery.c shhopt.c
-smiquery_LDADD		= ../lib/libsmi.la
+smiquery_LDADD		= $(top_builddir)/lib/libsmi.la
 
 smilint_SOURCES		= smilint.c shhopt.c
-smilint_LDADD		= ../lib/libsmi.la
+smilint_LDADD		= $(top_builddir)/lib/libsmi.la
 
 smixlate_SOURCES	= smixlate.c shhopt.c dstring.h dstring.c
-smixlate_LDADD		= ../lib/libsmi.la
+smixlate_LDADD		= $(top_builddir)/lib/libsmi.la
 
 dump-svg-script.h: dump-svg-script.js
 	(echo "const char *code =";cat dump-svg-script.js | sed -e 's/\\/&&/g;s/"/\\"/g;s/^/"/;s/$$/\\n"/'; echo ";") > dump-svg-script.h
@@ -47,13 +48,13 @@ smidump_SOURCES		= smidump.c smidump.h shhopt.c \
 			  dump-metrics.c dump-cm.c dump-python.c \
 			  dump-perl.c dump-scli.c dump-xsd.c dump-sppi.c \
 			  dump-sizes.c dump-svg-script.h dump-svg.c \
-			  rea.h rea.c dump-compliance.c dump-boilerplate.c \
+			  rea.h rea.c dump-compliance.c dump-ietf.c \
 			  dstring.h dstring.c \
 			  fortopat.h fortopat.c fprint.h fprint.c
 
-smidump_LDADD		= ../lib/libsmi.la -lm
+smidump_LDADD		= $(top_builddir)/lib/libsmi.la -lm
 
 smidiff_SOURCES		= smidiff.c shhopt.c
-smidiff_LDADD		= ../lib/libsmi.la
+smidiff_LDADD		= $(top_builddir)/lib/libsmi.la
 
-MOSTLYCLEANFILES	= dump-svg-script.h
+# MOSTLYCLEANFILES	= dump-svg-script.h

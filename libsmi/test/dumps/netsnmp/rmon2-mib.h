@@ -4,7 +4,7 @@
  *
  * This header is derived from the RMON2-MIB module.
  *
- * $Id: rmon2-mib.h 4432 2006-05-29 16:21:11Z strauss $
+ * $Id: rmon2-mib.h 1458 2006-05-29 16:21:11Z strauss $
  */
 
 #ifndef _RMON2_MIB_H_

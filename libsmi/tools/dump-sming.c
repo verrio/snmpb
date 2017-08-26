@@ -8,7 +8,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: dump-sming.c 8090 2008-04-18 12:56:29Z strauss $
+ * @(#) $Id: dump-sming.c 1772 2012-04-01 12:15:23Z schoenw $
  */
 
 #include <config.h>
@@ -1685,8 +1685,9 @@ void initSming()
 	"sming",
 	dumpSming,
 	0,
-	SMIDUMP_DRIVER_CANT_UNITE,
-	"SMIng",
+	SMIDUMP_DRIVER_CANT_UNITE
+	| SMIDUMP_DRIVER_CANT_YANG,
+	"SMIng (RFC xxxx)",
 	NULL,
 	NULL
     };

@@ -9,7 +9,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: dump-netsnmp.c 8090 2008-04-18 12:56:29Z strauss $
+ * @(#) $Id: dump-netsnmp.c 1772 2012-04-01 12:15:23Z schoenw $
  */
 
 /*
@@ -1333,7 +1333,7 @@ void initNetsnmp()
 	"netsnmp",
 	dumpNetSnmp,
 	SMI_FLAG_NODESCR,
-	SMIDUMP_DRIVER_CANT_UNITE,
+	SMIDUMP_DRIVER_CANT_UNITE | SMIDUMP_DRIVER_CANT_YANG,
 	"ANSI C code for the NET-SNMP package",
 	opt,
 	NULL

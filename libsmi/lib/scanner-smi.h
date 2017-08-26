@@ -8,7 +8,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: scanner-smi.h 973 2000-07-17 09:34:36Z strauss $
+ * @(#) $Id: scanner-smi.h 1675 2010-08-20 06:44:18Z schoenw $
  */
 
 #ifndef _SCANNER_SMI_H

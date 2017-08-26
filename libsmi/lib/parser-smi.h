@@ -8,7 +8,7 @@
  * See the file "COPYING" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * @(#) $Id: parser-smi.h 1061 2000-12-11 09:11:00Z strauss $
+ * @(#) $Id: parser-smi.h 1675 2010-08-20 06:44:18Z schoenw $
  */
 
 #ifndef _PARSER_SMI_H
@@ -16,7 +16,7 @@
 
 #include <stdio.h>
 
-#include "data.h"
+#include "smi-data.h"
 
 
 

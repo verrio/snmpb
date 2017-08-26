@@ -62,10 +62,10 @@ endif
 libsmi/Makefile:
 ifneq ($(findstring Darwin,${os}),)
 	# MacOSX
-	cd libsmi; ./configure --disable-shared --with-pathseparator=';' --with-dirseparator='/' --with-smipath='/Applications/SnmpB.app/Contents/MacOS/mibs;/Applications/SnmpB.app/Contents/MacOS/pibs'
+	cd libsmi; ./configure --disable-shared --disable-yang --with-pathseparator=';' --with-dirseparator='/' --with-smipath='/Applications/SnmpB.app/Contents/MacOS/mibs;/Applications/SnmpB.app/Contents/MacOS/pibs'
 else
 	# Linux/BSD
-	cd libsmi; ./configure --disable-shared --with-pathseparator=';' --with-dirseparator='/' --with-smipath=${INSTALL_PREFIX}'/${SHARE}/snmpb/mibs;'${INSTALL_PREFIX}'/${SHARE}/snmpb/pibs'
+	cd libsmi; ./configure --disable-shared --disable-yang --with-pathseparator=';' --with-dirseparator='/' --with-smipath=${INSTALL_PREFIX}'/${SHARE}/snmpb/mibs;'${INSTALL_PREFIX}'/${SHARE}/snmpb/pibs'
 endif
 
 qwt/lib/libqwt.a: qwt/Makefile
