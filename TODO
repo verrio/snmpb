@@ -2,7 +2,4 @@
 - Fix graph plotting system (+ add configurable polling interval)
 - Add support for smart indexing on table view
 - Add "clear" button for traps
-- Add SNMPv3 discovery support
-
 - Crash multiple varbinds -> trigs autoloading
-- Linux installer mime-types not installed properly: might overwrite system !

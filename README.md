@@ -26,29 +26,16 @@ Runtime dependencies:
 
 ## Compilation
 
-- make (linux, unix, Windows/MSYS2)
-- gmake (*BSD)
+```sh
+autoreconf -i
+./configure
+make
+make install
+etc.
+```
 
+Make sure to use the GNU make version (``gmake'' on *BSD).
 To install in places other than /usr, add INSTALL_PREFIX=<prefix> to the make command.
-
-Tested & compiles on MSYS2/Windows, Linux and NetBSD
-
-### Instructions for windows build
-
-snmpb builds on windows using MSYS2 
-1. Download and install MSYS2 from https://sourceforge.net/projects/msys2
-2. Start the 'MINGW64' flavor of MSYS2 by executing the script 'mingw64_shell.bat' from the root of the MSYS2 installation folder
-3. Install packages for QT build on MSYS2 (taken from https://wiki.qt.io/MSYS2), specifically:
-   pacman -Sy
-   pacman --needed -S pacman pacman-mirrors msys2-runtime
-   (restart shell)
-   pacman -Su
-   pacman -S base-devel git mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5-static mingw-w64-x86_64-qt-creator  
-4. Download SnmpB source and compile with "make"
-5. Download and install the NSIS installer from http://nsis.sourceforge.net/ (3.0 works)
-6. Using windows explorer, go in snmpb/installer/win32 and right-click on the .nsi, 
-   then "Compile NSIS Script"
-7. Voilà, you have the full SnmpB windows installer .exe
 
 ## Installation
 
