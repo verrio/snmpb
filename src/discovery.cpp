@@ -114,8 +114,8 @@ Discovery::Discovery(Snmpb *snmpb)
     s = snmpb;
 
     QStringList columns;
-    columns << "Name" << "Address/Port" << "Protocol" << "Up Time" 
-            << "Contact Person" << "System Location" << "System Description";
+    columns << "Name" << "Address/Port" << "Up Time" << "Contact Person"
+            << "System Location" << "System Description" << "Protocol";
     s->MainUI()->DiscoveryOutput->setHeaderLabels(columns);
 
     connect( s->MainUI()->DiscoveryButton, 
@@ -142,6 +142,7 @@ Discovery::Discovery(Snmpb *snmpb)
 
     // Create context menu actions
     s->MainUI()->DiscoveryOutput->setContextMenuPolicy (Qt::CustomContextMenu);
+    s->MainUI()->DiscoveryOutput->setSortingEnabled(true);
     connect( s->MainUI()->DiscoveryOutput, 
              SIGNAL( customContextMenuRequested ( const QPoint & ) ),
              this, SLOT( ContextMenu ( const QPoint & ) ) );
@@ -232,8 +233,8 @@ void DiscoveryThread::SendAgentInfo(Pdu &pdu, UdpAddress &a, snmp_version v)
                ((v == version2c)?DISC_SNMP_V2C:DISC_SNMP_V1);
 
     agent_info.clear();
-    agent_info << name << address << protocol << uptime 
-               << contact << location << description;
+    agent_info << name << address << uptime << contact
+               << location << description << protocol;
 
     emit SendAgent(agent_info);
 }
@@ -436,6 +437,8 @@ new_loop:
                     utarget.set_version(version3);
                     utarget.set_retry(ap.GetRetries());
                     utarget.set_timeout(100 * ap.GetTimeout());
+                    utarget.set_engine_id(engine_id);
+                    pdu.set_context_engine_id(engine_id);
 
                     unicast_snmp.get(pdu, utarget, callback_disco, thread);
                 } else {
@@ -566,11 +569,11 @@ void Discovery::DisplayAgent(QStringList agent_info)
     // If it exists, add the new supported protocol to its list.
     if (!laddr.isEmpty())
     {
-        if (!((agent_info[2] == DISC_SNMP_V1) && 
+        if (!((agent_info[6] == DISC_SNMP_V1) &&
               strstr(laddr[0]->text(2).toUtf8().data(), DISC_SNMP_V1)) && 
-            !((agent_info[2] == DISC_SNMP_V2C) && 
+            !((agent_info[6] == DISC_SNMP_V2C) &&
               strstr(laddr[0]->text(2).toUtf8().data(), DISC_SNMP_V2C)) && 
-            !((agent_info[2] == DISC_SNMP_V3) && 
+            !((agent_info[6] == DISC_SNMP_V3) &&
               strstr(laddr[0]->text(2).toUtf8().data(), DISC_SNMP_V3)))
         laddr[0]->setText(2,  laddr[0]->text(2) + "/" + agent_info[2]);
     }
