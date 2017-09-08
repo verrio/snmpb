@@ -36,6 +36,14 @@ TrapItem::TrapItem(Oid &id, QTreeWidget* parent, const QStringList &values,
     _expand = expand;
 }
 
+TrapItem::~TrapItem(void)
+{
+    for (int i = 0; i < content.count(); i++)
+    {
+        delete content[i];
+    }
+}
+
 void TrapItem::PrintProperties(QString& text)
 {
     int oidlen = oid.len();
@@ -138,11 +146,11 @@ void TrapItem::AddVarBind(Vb& vb)
 {
     content.append(new Vb(vb));
 }
-   
-Trap::Trap(Snmpb *snmpb)
+
+Trap::Trap(Snmpb *snmpb) : _trap_count{0}
 {
     s = snmpb;
- 
+
     s->MainUI()->TrapContent->header()->hide();
     s->MainUI()->TrapContent->setSortingEnabled( false );
 
@@ -151,6 +159,7 @@ Trap::Trap(Snmpb *snmpb)
              this, SLOT( SelectedTrap( QTreeWidgetItem *, QTreeWidgetItem * ) ) );
     connect( this, SIGNAL(TrapProperties(const QString&)),
              (QObject*)s->MainUI()->TrapInfo, SLOT(setHtml(const QString&)) );
+    connect( s->MainUI()->ClearTraps, SIGNAL( clicked() ), this, SLOT( Clear() ));
 }
 
 TrapItem* Trap::Add(Oid &id, const QStringList &values,
@@ -166,12 +175,29 @@ TrapItem* Trap::Add(Oid &id, const QStringList &values,
     return (ti);
 }
 
+void Trap::Clear(void)
+{
+    const QString emptyString;
+    s->MainUI()->TrapContent->clear();
+    s->MainUI()->TrapInfo->setHtml(emptyString);
+    s->MainUI()->TrapLog->clear();
+    _trap_count = 0;
+}
+
 void Trap::SelectedTrap(QTreeWidgetItem * item, QTreeWidgetItem *)
 {
+    if (item == NULL)
+        return;
+
     TrapItem *trap = (TrapItem*)item;
     QString text;
     
     trap->PrintContent(s->MainUI()->TrapContent);
     trap->PrintProperties(text);
     emit TrapProperties(text);
+}
+
+int Trap::GetNextId(void)
+{
+    return _trap_count++;
 }

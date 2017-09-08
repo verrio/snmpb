@@ -27,6 +27,7 @@ public:
     TrapItem(Oid &id, QTreeWidget* parent, const QStringList &values,
              QString community, QString seclevel,
              QString ctxname, QString ctxid, QString msgid, bool expand);
+    ~TrapItem(void);
 
     void PrintProperties(QString& text);
     void PrintContent(QTreeWidget* TrapContent);
@@ -54,15 +55,18 @@ public:
     TrapItem* Add(Oid &id, const QStringList &values, 
                   QString &community, QString &seclevel,
                   QString &ctxname, QString &ctxid, QString &msgid);
+    int GetNextId(void);
     
 protected slots:
     void SelectedTrap( QTreeWidgetItem * item, QTreeWidgetItem * old);
+    void Clear(void);
     
 signals:
     void TrapProperties(const QString& text);
     
 private:
     Snmpb *s;
+    std::atomic<int> _trap_count;
 };
 
 #endif /* TRAP_H */

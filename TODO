@@ -1,5 +1,4 @@
 - Fix the various memory leaks
 - Fix graph plotting system (+ add configurable polling interval)
 - Add support for smart indexing on table view
-- Add "clear" button for traps
 - Crash multiple varbinds -> trigs autoloading

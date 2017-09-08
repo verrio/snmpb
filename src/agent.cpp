@@ -665,13 +665,12 @@ SmiNode* Agent::GetNodeFromOid(Oid &oid)
 
 void Agent::AsyncCallbackTrap(int reason, Pdu &pdu, SnmpTarget &target)
 {
-    static unsigned int nbr = 1;
     Vb vb;
     GenAddress addr;
     TimeTicks ts;
     Oid id;
     int status = 0;
-                
+
     // Bad message type or if there's an error in the pdu, bail out ...
     if ((reason != SNMP_CLASS_NOTIFICATION) || pdu.get_error_status())
         return;
@@ -684,6 +683,7 @@ void Agent::AsyncCallbackTrap(int reason, Pdu &pdu, SnmpTarget &target)
     target.get_address(addr);
     IpAddress agent(addr);
     UdpAddress agentUDP(addr);
+    int nbr = s->TrapObj()->GetNextId();
     
     char buf[10];
     sprintf(buf, "%.4u", nbr);
@@ -790,14 +790,14 @@ void Agent::AsyncCallbackTrap(int reason, Pdu &pdu, SnmpTarget &target)
            << msgtype << version << agtaddr << agtport;
     TrapItem *ti = s->TrapObj()->Add(id, values, community, seclevel, 
                                      ctxname, ctxid, msgid);
- 
+
     // Now, loop thru all varbinds and extract info ...
     for (int i=0; i < pdu.get_vb_count(); i++)
     {
         pdu.get_vb(vb, i);
         ti->AddVarBind(vb);
     }
-  
+
     // If its an inform, we have to reply ...
     if (pdu.get_type() == sNMP_PDU_INFORM)
     {
@@ -814,8 +814,6 @@ void Agent::AsyncCallbackTrap(int reason, Pdu &pdu, SnmpTarget &target)
 
         snmp->response(ipdu, target, snmp->get_notify_callback_fd());
     }
-  
-    nbr++;
 }
 
 void Agent::AsyncCallback(int reason, Pdu &pdu,
