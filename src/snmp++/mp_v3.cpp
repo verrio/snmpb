@@ -881,14 +881,8 @@ int v3MP::send_report(unsigned char* scopedPDU, int scopedPDULength,
     debugprintf(2, "v3MP::send_report: error serializing message (mpSnmpBuild returns: %i).", status);
     return SNMPv3_MP_ERROR;
   }
-  SnmpSocket send_fd = INVALID_SOCKET;
-  if (pdu_type == sNMP_PDU_INFORM)
-  {
-    debugprintf(4, "Received a snmpInform pdu.");
-    if (snmp_session->get_eventListHolder()->notifyEventList())
-      send_fd = snmp_session->get_eventListHolder()->notifyEventList()->get_notify_fd();
-  }
-
+  SnmpSocket send_fd =
+      snmp_session->get_eventListHolder()->notifyEventList()->get_notify_fd();
   status = snmp_session->send_raw_data(sendbuffer.get_ptr(),
                                        (size_t)sendbufferlen,// pdu to send
 			               destination,          // target address

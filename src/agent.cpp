@@ -263,7 +263,7 @@ void Agent::Init(void)
     connect(&timer, SIGNAL(timeout()), this, SLOT(TimerExpired()));
     
     // get the Boot counter (you may use any own method for this)
-    char *engineId = (char*)"snmpb_engine";
+    char *engineId = (char*)"snmp-client";
     unsigned int snmpEngineBoots = 0;
 
     status = getBootCounter(s->GetBootCounterConfigFile().toUtf8().data(), 
@@ -802,7 +802,7 @@ void Agent::AsyncCallbackTrap(int reason, Pdu &pdu, SnmpTarget &target)
     if (pdu.get_type() == sNMP_PDU_INFORM)
     {
         // Copy the PDU object to feed back in the response
-        Pdu ipdu = pdu;
+        Pdu ipdu(pdu);
         Vb t(Oid("1.3.6.1.2.1.1.3.0"));
         t.set_value(ts);
         Vb d(Oid("1.3.6.1.6.3.1.1.4.1.0"));
