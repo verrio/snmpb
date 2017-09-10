@@ -786,7 +786,7 @@ void Agent::AsyncCallbackTrap(int reason, Pdu &pdu, SnmpTarget &target)
 
     // Add the trap ...
     QStringList values;
-    values << no << date << time << timestamp << nottype 
+    values << "" << no << date << time << timestamp << nottype
            << msgtype << version << agtaddr << agtport;
     TrapItem *ti = s->TrapObj()->Add(id, values, community, seclevel, 
                                      ctxname, ctxid, msgid);

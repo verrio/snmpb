@@ -20,6 +20,13 @@
 #include "agent.h"
 #include "preferences.h"
 
+const std::string TrapItem::failure_indicators[4] = { "err",
+    "fail", "critical", "lost" };
+const std::string TrapItem::warning_indicators[6] = { "warn",
+    "disappear", "down", "low", "disconnect", "alert" };
+const std::string TrapItem::success_indicators[6] = { "success",
+    "complete", "done", "start", "connect", "join" };
+
 TrapItem::TrapItem(Oid &id, QTreeWidget* parent, const QStringList &values,
                    QString community, QString seclevel, 
                    QString ctxname, QString ctxid, QString msgid, bool expand):
@@ -27,13 +34,15 @@ TrapItem::TrapItem(Oid &id, QTreeWidget* parent, const QStringList &values,
 {
     oid = id;
     
+    _type = GetTrapType(values[5]);
     _community = community;
     _seclevel = seclevel;
     _ctxname = ctxname;
     _ctxid = ctxid;
     _msgid = msgid;
-
     _expand = expand;
+
+    setIcon();
 }
 
 TrapItem::~TrapItem(void)
@@ -147,10 +156,52 @@ void TrapItem::AddVarBind(Vb& vb)
     content.append(new Vb(vb));
 }
 
+void TrapItem::setIcon(void)
+{
+    switch (_type)
+    {
+        case TRAPTYPE_SUCCESS: {
+            QTreeWidgetItem::setIcon(0, QIcon(":/images/bullet-green.png"));
+            break;
+        }
+
+        case TRAPTYPE_WARNING: {
+            QTreeWidgetItem::setIcon(0, QIcon(":/images/bullet-yellow.png"));
+            break;
+        }
+
+        case TRAPTYPE_ERROR: {
+            QTreeWidgetItem::setIcon(0, QIcon(":/images/bullet-red.png"));
+            break;
+        }
+
+        default: {
+            QTreeWidgetItem::setIcon(0, QIcon(":/images/bullet-grey.png"));
+        }
+    }
+}
+
+enum TrapType TrapItem::GetTrapType(const QString &name)
+{
+    std::string val = name.toUtf8().constData();
+    std::transform(val.begin(), val.end(), val.begin(), ::tolower);
+
+    for (std::string str : failure_indicators)
+        if (val.find(str) != std::string::npos)
+            return TRAPTYPE_ERROR;
+    for (std::string str : warning_indicators)
+        if (val.find(str) != std::string::npos)
+            return TRAPTYPE_WARNING;
+    for (std::string str : success_indicators)
+        if (val.find(str) != std::string::npos)
+            return TRAPTYPE_SUCCESS;
+    return TRAPTYPE_INFO;
+}
+
 Trap::Trap(Snmpb *snmpb) : _trap_count{0}
 {
     s = snmpb;
-
+    s->MainUI()->TrapLog->setColumnWidth(0, 24);
     s->MainUI()->TrapContent->header()->hide();
     s->MainUI()->TrapContent->setSortingEnabled( false );
 

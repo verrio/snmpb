@@ -11,10 +11,9 @@ This client can be used for querying the MIB of SNMPv1/v2c/v3 agents, receiving 
 ## Dependencies
 
 Build time dependencies:
-- bison & flex
 - autoconf and automake
 - GNU make
-- QT5 development package
+- Qt5 development package
 - GNU install
 - gcc and g++
 

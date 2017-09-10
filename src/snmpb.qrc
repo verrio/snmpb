@@ -2,23 +2,35 @@
     <qresource prefix="/" >
         <file>images/agent-cap.png</file>
         <file>images/agent-settings.png</file>
+        <file>images/bullet-green.png</file>
+        <file>images/bullet-grey.png</file>
+        <file>images/bullet-red.png</file>
+        <file>images/bullet-yellow.png</file>
         <file>images/collapse.png</file>
         <file>images/column-item.png</file>
         <file>images/compliance.png</file>
+        <file>images/edit.png</file>
         <file>images/expand.png</file>
         <file>images/file-new.png</file>
         <file>images/file-open.png</file>
         <file>images/file-save.png</file>
-        <file>images/table.png</file>
-        <file>images/table-select.png</file>
-        <file>images/table-row.png</file>
-        <file>images/table-row-select.png</file>
-        <file>images/folder.png</file>
         <file>images/folder-open.png</file>
+        <file>images/folder.png</file>
+        <file>images/graph.png</file>
         <file>images/group.png</file>
+        <file>images/log.png</file>
         <file>images/marker.png</file>
+        <file>images/mib.png</file>
         <file>images/notification.png</file>
         <file>images/scalar.png</file>
+        <file>images/search.png</file>
         <file>images/snmpb.png</file>
+        <file>images/snmpb.svg</file>
+        <file>images/table.png</file>
+        <file>images/table-row.png</file>
+        <file>images/table-row-select.png</file>
+        <file>images/table-select.png</file>
+        <file>images/tree.png</file>
+        <file>images/users.png</file>
     </qresource>
 </RCC>

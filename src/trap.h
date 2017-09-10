@@ -21,6 +21,14 @@
 #include "snmpb.h"
 #include "snmp_pp/snmp_pp.h"
 
+enum TrapType
+{
+    TRAPTYPE_INFO,
+    TRAPTYPE_SUCCESS,
+    TRAPTYPE_WARNING,
+    TRAPTYPE_ERROR
+};
+
 class TrapItem : public QTreeWidgetItem
 {
 public:
@@ -34,13 +42,19 @@ public:
     void AddVarBind(Vb& vb);
     
 private:
+    static const std::string failure_indicators[4];
+    static const std::string warning_indicators[6];
+    static const std::string success_indicators[6];
+    static enum TrapType GetTrapType(const QString &name);
+    void setIcon(void);
+
     Oid oid;
+    enum TrapType _type;
     QString _community;
     QString _seclevel;
     QString _ctxname;
     QString _ctxid;
     QString _msgid;
-
     bool _expand;
 
     QList<Vb*> content;
