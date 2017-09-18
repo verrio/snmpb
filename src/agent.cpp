@@ -683,8 +683,10 @@ void Agent::AsyncCallbackTrap(int reason, Pdu &pdu, SnmpTarget &target)
     target.get_address(addr);
     IpAddress agent(addr);
     UdpAddress agentUDP(addr);
+    if (s->TrapObj()->FilterTrap(agent))
+        return;
+
     int nbr = s->TrapObj()->GetNextId();
-    
     char buf[10];
     sprintf(buf, "%.4u", nbr);
     no = QString("%1").arg(buf);

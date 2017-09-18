@@ -19,6 +19,7 @@
 #define TRAP_H
 
 #include "snmpb.h"
+#include "agentprofile.h"
 #include "snmp_pp/snmp_pp.h"
 
 enum TrapType
@@ -70,9 +71,12 @@ public:
                   QString &community, QString &seclevel,
                   QString &ctxname, QString &ctxid, QString &msgid);
     int GetNextId(void);
+    bool FilterTrap(IpAddress &address);
     
 protected slots:
     void SelectedTrap( QTreeWidgetItem * item, QTreeWidgetItem * old);
+    void ShowAgentSettings(void);
+    void AgentFilterListChange(void);
     void Clear(void);
     
 signals:

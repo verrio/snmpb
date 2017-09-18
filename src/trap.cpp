@@ -15,6 +15,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <arpa/inet.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+
 #include "smi.h"
 #include "trap.h"
 #include "agent.h"
@@ -205,12 +210,92 @@ Trap::Trap(Snmpb *snmpb) : _trap_count{0}
     s->MainUI()->TrapContent->header()->hide();
     s->MainUI()->TrapContent->setSortingEnabled( false );
 
+    connect( s->MainUI()->AgentFilterSettings,
+             SIGNAL( clicked() ), this, SLOT( ShowAgentSettings() ));
+    connect( s->APManagerObj(), SIGNAL( AgentProfileListChanged() ),
+             this, SLOT ( AgentFilterListChange() ) );
+
+    // Fill-in the list of agent filters from profiles manager
+    AgentFilterListChange();
+
     connect( s->MainUI()->TrapLog, 
              SIGNAL( currentItemChanged( QTreeWidgetItem *, QTreeWidgetItem * ) ),
              this, SLOT( SelectedTrap( QTreeWidgetItem *, QTreeWidgetItem * ) ) );
     connect( this, SIGNAL(TrapProperties(const QString&)),
              (QObject*)s->MainUI()->TrapInfo, SLOT(setHtml(const QString&)) );
     connect( s->MainUI()->ClearTraps, SIGNAL( clicked() ), this, SLOT( Clear() ));
+}
+
+void Trap::AgentFilterListChange(void)
+{
+    QString cap = s->MainUI()->AgentFilterSelection->currentText();
+    s->MainUI()->AgentFilterSelection->clear();
+    s->MainUI()->AgentFilterSelection->addItems(s->APManagerObj()->GetAgentsList());
+    if (cap.isEmpty() == false)
+    {
+        int idx = s->MainUI()->AgentFilterSelection->findText(cap);
+        s->MainUI()->AgentFilterSelection->setCurrentIndex(idx>0?idx:0);
+    }
+}
+
+void Trap::ShowAgentSettings(void)
+{
+     s->APManagerObj()->SetSelectedAgent(s->MainUI()->
+             AgentFilterSelection->currentText());
+     s->APManagerObj()->Execute();
+}
+
+bool Trap::FilterTrap(IpAddress &address)
+{
+    if (!s->MainUI()->AgentFilterEnable->isChecked())
+        return false;
+
+    AgentProfile *ap = s->APManagerObj()->GetAgentProfile(
+            s->MainUI()->AgentFilterSelection->currentText());
+    if (!ap)
+        return false;
+
+    struct addrinfo hints;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = (address.get_ip_version() == Address::version_ipv4) ?
+            AF_INET : AF_INET6;
+    hints.ai_socktype = SOCK_STREAM;
+
+    struct addrinfo *servinfo;
+    if (getaddrinfo(ap->GetAddress().toUtf8().data(),
+            NULL, &hints, &servinfo) != 0)
+        return true;
+
+    struct addrinfo *it;
+    for (it = servinfo; it != NULL; it = it->ai_next)
+    {
+        if (it->ai_family == AF_INET)
+        {
+            struct sockaddr_in *addr4 = (struct sockaddr_in *) it->ai_addr;
+            if ((ntohl(addr4->sin_addr.s_addr) & 0xff) != address[3])
+                continue;
+            else if (((ntohl(addr4->sin_addr.s_addr) >> 8) & 0xff) != address[2])
+              continue;
+            else if (((ntohl(addr4->sin_addr.s_addr) >> 16) & 0xff) != address[1])
+              continue;
+            else if (((ntohl(addr4->sin_addr.s_addr) >> 24) & 0xff) != address[0])
+              continue;
+            else
+                return false;
+        }
+        else
+        {
+            struct sockaddr_in6 *addr6 = (struct sockaddr_in6 *) it->ai_addr;
+            int i;
+            for (i = 0; i < 16; i++)
+                if (addr6->sin6_addr.s6_addr[i] != address[i])
+                    break;
+            if (i == 16)
+                return false;
+        }
+    }
+
+    return true;
 }
 
 TrapItem* Trap::Add(Oid &id, const QStringList &values,
